@@ -13,7 +13,7 @@ set "DBURL=!DBURL: =%%20!"
 set "DATABASE_URL=!DBURL!"
 
 echo ==========================================================
-echo   HozorPlus  -  Attendance Management System  v1.0.0
+echo   HozorPlus  -  Attendance Management System  v1.1.0
 echo   Windows Installer
 echo ==========================================================
 echo.
@@ -133,6 +133,12 @@ echo.
 echo   To stop the app: close the server window or run STOP.bat
 echo   On first run Windows Firewall may ask for permission —
 echo   click "Allow access" if you want LAN access from other PCs.
+echo.
+echo   Novin Pardaz devices (NP756+, NP746, NP770 ...):
+echo     - register the device here with its SERIAL NUMBER
+echo     - on the device: Communication menu -> Server address = THIS PC's IP
+echo       Server port = 5005   (allow port 5005 in Windows Firewall)
+echo     - attendance logs then stream in automatically, real-time.
 echo.
 pause
 exit /b 0

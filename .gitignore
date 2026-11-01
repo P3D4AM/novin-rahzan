@@ -62,6 +62,10 @@ server.log
 /upload/
 /download/
 
+# local reverse-engineering / tooling artifacts (not part of the product)
+/analysis/
+/tool-results/
+
 # sandbox scaffolding & examples
 /.zscripts/
 /examples/

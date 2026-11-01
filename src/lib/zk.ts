@@ -1,5 +1,6 @@
 import ZKLib from 'node-zklib'
 import { db } from '@/lib/db'
+import { errorMessage } from '@/lib/api'
 
 export interface ZkUser {
   uid: number
@@ -49,7 +50,7 @@ export async function zkTest(ip: string, port: number, protocol: 'TCP' | 'UDP' =
     }
   } catch (err) {
     try { await zk.disconnect() } catch { /* noop */ }
-    return { ok: false, error: err instanceof Error ? err.message : String(err) }
+    return { ok: false, error: errorMessage(err) }
   }
 }
 
@@ -92,6 +93,19 @@ export async function importDeviceLogs(deviceId: string) {
   if (!device) throw new Error('دستگاه یافت نشد')
   if (!device.ipAddress) throw new Error('آدرس IP دستگاه تنظیم نشده است')
 
+  try {
+    return await importDeviceLogsInner(device)
+  } catch (err) {
+    // readable Persian error + mark device offline
+    await db.device.update({ where: { id: deviceId }, data: { status: 'OFFLINE' } }).catch(() => {})
+    await db.deviceLog.create({
+      data: { deviceId, level: 'ERROR', message: `خطای همگام‌سازی: ${errorMessage(err)}` },
+    }).catch(() => {})
+    throw new Error(errorMessage(err))
+  }
+}
+
+async function importDeviceLogsInner(device: { id: string; ipAddress: string; port: number; protocol: string; serialNumber: string | null }) {
   const logs = await zkGetLogs(device.ipAddress, device.port, device.protocol as 'TCP' | 'UDP')
   const persons = await db.personnel.findMany({ select: { id: true, deviceUserId: true, personnelCode: true } })
 
@@ -122,27 +136,31 @@ export async function importDeviceLogs(deviceId: string) {
       continue
     }
     const direction = log.state === 1 ? 'OUT' : log.state === 0 ? 'IN' : 'AUTO'
-    await db.punchRecord.create({
-      data: {
-        personId,
-        timestamp: log.timestamp,
-        direction,
-        source: 'DEVICE',
-        deviceId,
-        deviceUserId: log.deviceUserId,
-        rawPayload: JSON.stringify(log),
-      },
-    })
-    created++
+    try {
+      await db.punchRecord.create({
+        data: {
+          personId,
+          timestamp: log.timestamp,
+          direction,
+          source: 'DEVICE',
+          deviceId: device.id,
+          deviceUserId: log.deviceUserId,
+          rawPayload: JSON.stringify(log),
+        },
+      })
+      created++
+    } catch {
+      skipped++ // unique constraint race — treat as duplicate
+    }
   }
 
   await db.device.update({
-    where: { id: deviceId },
+    where: { id: device.id },
     data: { lastSyncAt: new Date(), lastSyncCount: created, status: 'ONLINE' },
   })
   await db.deviceLog.create({
     data: {
-      deviceId,
+      deviceId: device.id,
       level: 'SUCCESS',
       message: `همگام‌سازی انجام شد: ${created} رکورد جدید، ${skipped} تکراری، ${unmatched} بدون تطبیق`,
     },
