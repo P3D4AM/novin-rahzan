@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>TimeAttendancePrint</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="PacketParserStandard" />
+    <Reference Include="System.Data">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report" />
+    <Reference Include="System.Core">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="TimeAttendanceDAL">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/TimeAttendanceDAL.dll</HintPath>
+    </Reference>
+    <Reference Include="FormCustom" />
+    <Reference Include="DevComponents.DotNetBar2" />
+    <Reference Include="Stimulsoft.Report.Win" />
+    <Reference Include="Serilog" />
+    <Reference Include="AccSqlServerPersistence" />
+  </ItemGroup>
+</Project>

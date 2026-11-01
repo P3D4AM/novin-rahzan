@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>گزارش آموزشی تحلیل کتابخانه‌های سیستم حضور و غیاب نوین پرداز</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+@page { size: 720px 1020px; margin: 0; }
+
+:root {
+  --page-bg: #f6f7f7;
+  --section-bg: #eceeee;
+  --card-bg: #e9eced;
+  --table-stripe: #eeeff0;
+  --header-fill: #3f5e6e;
+  --cover-block: #56717e;
+  --border: #b3c7d1;
+  --icon: #4488aa;
+  --accent: #246a8d;
+  --text: #131515;
+  --muted: #858b8f;
+  --ok: #459860;
+  --warn: #927640;
+  --err: #ae554d;
+  --code-bg: #1e2a32;
+  --code-text: #dde7ec;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 720px;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: 'Vazirmatn', 'DejaVu Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.82;
+  direction: rtl;
+}
+
+@media screen {
+  html { display: flex; justify-content: center; background: #3a4a53; }
+  body { margin: 16px auto; box-shadow: 0 2px 24px rgba(0,0,0,.35); }
+}
+
+* { box-sizing: border-box; }
+
+/* --------------------------- Cover --------------------------- */
+.cover {
+  width: 720px;
+  height: 1020px;
+  break-after: page;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(165deg, #2b4350 0%, #3f5e6e 58%, #4a6d7e 100%);
+  color: #f2f6f8;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 64px 58px;
+}
+.cover .deco-circle {
+  position: absolute; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.14);
+}
+.cover .dc1 { width: 330px; height: 330px; top: 40px; left: 40px; }
+.cover .dc2 { width: 330px; height: 330px; top: 58px; left: 58px; border-color: rgba(255,255,255,0.08); }
+.cover .dc3 { width: 190px; height: 190px; bottom: 130px; right: 52px; background: rgba(255,255,255,0.05); border: none; }
+.cover .deco-grid {
+  position: absolute; top: 0; left: 0; width: 100%; height: 8px;
+  background: linear-gradient(90deg, #246a8d, #6fa3bf);
+}
+.cover-tag {
+  display: inline-block; align-self: flex-start;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 999px; padding: 3px 18px;
+  font-size: 12.5px; letter-spacing: 1px; margin-bottom: 30px;
+  color: #dcebf2;
+}
+.cover-title {
+  font-size: 44px; font-weight: 700; line-height: 1.5; margin: 0 0 8px 0;
+}
+.cover-title .hl { color: #a8d4ea; }
+.cover-sub {
+  font-size: 17px; font-weight: 500; color: #cfdfe8; margin-bottom: 6px; line-height: 2;
+}
+.cover-en {
+  font-size: 11.5px; color: #9fbecf; letter-spacing: 1.5px; margin-bottom: 40px;
+}
+.cover-en::after {
+  content: '';
+  display: block;
+  width: 130px; height: 3px;
+  background: #a8d4ea; border-radius: 2px;
+  margin-top: 16px;
+}
+.cover-summary {
+  font-size: 13.5px; line-height: 2.1; color: #dce9f0;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px; padding: 18px 22px; margin-bottom: 36px; max-width: 540px;
+}
+.cover-chips { display: flex; flex-wrap: wrap; gap: 9px; max-width: 560px; margin-bottom: 44px; }
+.chip {
+  font-size: 11.5px; padding: 4px 14px; border-radius: 999px;
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.22); color: #e6f0f5;
+}
+.cover-footer {
+  position: absolute; bottom: 46px; right: 58px; left: 58px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  font-size: 12px; color: #b7cdd9;
+}
+.cover-footer .strong { color: #e9f2f7; font-weight: 600; font-size: 13px; }
+.cover-footer .left { text-align: left; direction: ltr; line-height: 1.8; }
+
+/* --------------------------- Main content --------------------------- */
+.main-content {
+  padding: 44px 52px 40px 52px;
+}
+
+p.body-text {
+  margin: 0 0 10px 0;
+  text-align: justify;
+  line-break: strict;
+}
+
+.blist { margin: 4px 0 12px 0; padding-right: 20px; }
+.blist li { margin-bottom: 5px; text-align: justify; break-inside: avoid; }
+.blist li::marker { color: var(--accent); }
+
+/* chapter header */
+.chapter-header {
+  break-after: avoid; break-inside: avoid;
+  margin-top: 22px; margin-bottom: 12px;
+  position: relative;
+}
+.chapter-header:first-child { margin-top: 0; }
+.ch-marker {
+  position: absolute; left: 0; top: -6px;
+  font-family: 'DejaVu Sans Mono', monospace;
+  font-size: 40px; font-weight: 700; color: rgba(63,94,110,0.16);
+  letter-spacing: 1px;
+}
+.ch-tag {
+  display: inline-block; background: var(--header-fill); color: #fff;
+  font-size: 11.5px; font-weight: 600; border-radius: 999px;
+  padding: 2px 16px; margin-bottom: 8px;
+}
+h2.ch-title { font-size: 23px; font-weight: 700; margin: 0 0 4px 0; color: #22333d; line-height: 1.55; padding-left: 92px; }
+.ch-en {
+  display: block; font-size: 11.5px; color: var(--muted);
+  font-family: 'DejaVu Sans Mono', monospace, sans-serif; letter-spacing: 0.5px; margin-bottom: 12px;
+  padding-left: 92px;
+}
+.chapter-header::after {
+  content: '';
+  display: block;
+  height: 3px; width: 64px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+h3.sec-title {
+  font-size: 16px; font-weight: 700; color: #24404e;
+  margin: 18px 0 7px 0; break-after: avoid;
+  display: flex; align-items: center; gap: 9px;
+}
+.sec-bullet { width: 9px; height: 9px; border-radius: 2px; background: var(--icon); display: inline-block; flex-shrink: 0; }
+
+h4.sub-title {
+  font-size: 14px; font-weight: 600; color: #35525f;
+  margin: 14px 0 6px 0; break-after: avoid;
+}
+
+/* teacher / warn / info boxes */
+.teacher-box, .warn-box, .info-box {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 10px 16px 9px 16px;
+  margin: 10px 0 12px 0;
+  break-inside: avoid;
+}
+.teacher-box { border-right: 4px solid var(--accent); }
+.warn-box { border-right: 4px solid var(--err); background: #f0e9e8; }
+.info-box { border-right: 4px solid var(--icon); }
+.box-title { font-weight: 700; font-size: 12.6px; margin-bottom: 3px; }
+.teacher-box .box-title { color: var(--accent); }
+.warn-box .box-title { color: var(--err); }
+.info-box .box-title { color: var(--icon); }
+.teacher-box p, .warn-box p, .info-box p { margin: 0; text-align: justify; line-height: 1.8; font-size: 12.6px; }
+
+/* code blocks */
+.code-wrap { margin: 10px 0 12px 0; break-inside: avoid; }
+.code-wrap:has(pre.tall) { break-inside: auto; }
+.code-title {
+  display: flex; align-items: center; gap: 8px;
+  background: #2b3d48; color: #cfe2ec;
+  font-family: 'DejaVu Sans Mono', monospace; font-size: 10px;
+  padding: 5px 14px; border-radius: 8px 8px 0 0;
+  direction: ltr; text-align: left;
+}
+.code-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #6fa3bf; flex-shrink: 0; }
+pre.code-block {
+  direction: ltr; text-align: left;
+  background: var(--code-bg); color: var(--code-text);
+  font-family: 'DejaVu Sans Mono', monospace;
+  font-size: 10px; line-height: 1.5;
+  margin: 0; padding: 11px 14px;
+  border-radius: 0 0 8px 8px;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+.code-wrap:not(:has(.code-title)) pre.code-block { border-radius: 8px; }
+pre.tall { break-inside: auto; }
+.c-kw { color: #6cb2e8; }
+.c-str { color: #a8c988; }
+.c-com { color: #7d8f9a; font-style: italic; }
+.c-num { color: #d8b072; }
+.c-type { color: #8fd0d0; }
+.c-fn { color: #e8dcae; }
+.code-note { font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.7; }
+
+/* tables */
+.tbl-caption { font-size: 11.5px; color: var(--muted); margin: 4px 0 5px 0; }
+table.tbl {
+  width: 100%; border-collapse: collapse; font-size: 11.5px; line-height: 1.65;
+  margin: 6px 0 14px 0;
+}
+table.tbl thead { display: table-header-group; }
+table.tbl th {
+  background: var(--header-fill); color: #fff; font-weight: 600;
+  padding: 6px 9px; text-align: right; font-size: 11.4px;
+  border: none;
+}
+table.tbl td {
+  padding: 5px 9px; border-bottom: 1px solid var(--border);
+  vertical-align: top; text-align: justify;
+  overflow-wrap: break-word; word-break: break-word;
+}
+table.tbl tr { break-inside: avoid; }
+table.tbl tbody tr:nth-child(even) { background: var(--table-stripe); }
+table.tbl td code, .inline-code {
+  font-family: 'DejaVu Sans Mono', monospace; font-size: 10px;
+  direction: ltr; unicode-bidi: embed;
+  background: rgba(63,94,110,0.10); border-radius: 4px; padding: 1px 5px;
+  color: #27526b; white-space: nowrap;
+}
+table.tbl.small { font-size: 10.6px; }
+table.tbl.small td { padding: 4px 7px; }
+table.tbl.small th { font-size: 10.6px; padding: 5px 7px; }
+
+/* pills */
+.pill {
+  display: inline-block; font-size: 10.5px; font-weight: 600;
+  border-radius: 999px; padding: 1px 12px; margin: 0 2px;
+}
+.pill-accent { background: rgba(36,106,141,0.12); color: #246a8d; }
+.pill-ok { background: rgba(69,152,96,0.13); color: #3a7f50; }
+.pill-err { background: rgba(174,85,77,0.13); color: #a04a42; }
+.pill-warn { background: rgba(146,118,64,0.14); color: #7a6234; }
+.pill-muted { background: rgba(19,21,21,0.07); color: #5c6266; }
+
+/* roadmap grid */
+.roadmap { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 6px 0; }
+.rm-card {
+  background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 14px; break-inside: avoid; position: relative;
+}
+.rm-num {
+  font-family: 'DejaVu Sans Mono', monospace; font-size: 20px; font-weight: 700;
+  color: rgba(63,94,110,0.25); position: absolute; left: 12px; top: 8px;
+}
+.rm-title { font-weight: 700; font-size: 12.8px; color: #24404e; margin-bottom: 2px; padding-left: 42px; }
+.rm-desc { font-size: 11.5px; color: var(--muted); line-height: 1.7; padding-left: 42px; }
+.rm-page { position: absolute; bottom: 8px; left: 14px; font-size: 11px; color: var(--accent); font-weight: 600; direction: ltr; }
+
+/* stat strip */
+.stat-strip { display: flex; flex-wrap: wrap; gap: 9px; margin: 12px 0; }
+.stat {
+  flex: 1 1 130px; min-width: 115px; background: #fff;
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 8px; text-align: center; break-inside: avoid;
+}
+.stat .v { font-size: 20px; font-weight: 700; color: var(--accent); line-height: 1.4; }
+.stat .l { font-size: 10.8px; color: var(--muted); }
+
+/* architecture diagram (pure CSS) */
+.arch { margin: 14px 0 6px 0; }
+.arch-layer {
+  border-radius: 10px; padding: 8px 14px; margin: 0;
+  break-inside: avoid; position: relative;
+}
+.arch-layer .al-title { font-weight: 700; font-size: 12.6px; margin-bottom: 3px; }
+.arch-layer .al-desc { font-size: 11.2px; line-height: 1.7; }
+.arch-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.arch-box {
+  background: rgba(255,255,255,0.75); border: 1px solid var(--border);
+  border-radius: 7px; padding: 3px 12px; font-size: 11px;
+  font-weight: 600; color: #2c4a59;
+}
+.arch-arrow {
+  text-align: center; color: var(--icon); font-size: 15px; line-height: 1.2;
+  margin: 2px 0; font-weight: 700;
+}
+.al-1 { background: #dfe9ee; border: 1px solid #b9cedb; }
+.al-2 { background: #e9eef1; border: 1px solid #c2d4de; }
+.al-3 { background: #dfe9e2; border: 1px solid #b7cfc0; }
+.al-4 { background: #ece9e1; border: 1px solid #d1c9b6; }
+
+/* flow steps */
+.flow { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; max-width: 100%; }
+.flow-step {
+  flex: 1 1 110px; min-width: 96px; max-width: 100%;
+  background: #fff; border: 1px solid var(--border); border-radius: 9px;
+  padding: 8px 6px; text-align: center; break-inside: avoid;
+  font-size: 11.3px; line-height: 1.65;
+}
+.flow-step .fs-num {
+  display: inline-block; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--header-fill); color: #fff; font-size: 11px; font-weight: 700;
+  line-height: 20px; margin-bottom: 4px;
+}
+.flow-step b { display: block; font-size: 11.6px; color: #24404e; }
+
+/* ending page */
+.ending {
+  width: 720px; height: 1020px;
+  break-before: page; overflow: hidden;
+  background: linear-gradient(200deg, #2b4350 0%, #3f5e6e 70%);
+  color: #eef4f7;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; padding: 70px 60px; position: relative;
+}
+.ending .deco-circle { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,0.13); }
+.ending .dc1 { width: 300px; height: 300px; top: 60px; right: 60px; }
+.ending .dc2 { width: 220px; height: 220px; bottom: 90px; left: 70px; background: rgba(255,255,255,0.045); border: none; }
+.ending-big { font-size: 30px; font-weight: 700; line-height: 1.9; margin-bottom: 18px; }
+.ending-sub { font-size: 14px; color: #c8dae4; line-height: 2.2; max-width: 480px; margin-bottom: 40px; }
+.ending-stats { display: flex; gap: 14px; margin-bottom: 46px; }
+.ending-stat {
+  border: 1px solid rgba(255,255,255,0.25); border-radius: 12px;
+  padding: 14px 22px; background: rgba(255,255,255,0.06);
+}
+.ending-stat .v { font-size: 26px; font-weight: 700; color: #a8d4ea; }
+.ending-stat .l { font-size: 11.5px; color: #c3d6e0; }
+.ending-foot { font-size: 12px; color: #9fbecf; }
+
+/* TOC page anchor spacing */
+.page-break-note { font-size: 11.5px; color: var(--muted); }
+
+/* misc */
+img, svg { max-width: 100%; height: auto; }
+strong { font-weight: 700; color: #1d2c34; }
+a { color: var(--accent); text-decoration: none; }
+.footnote { font-size: 11.3px; color: var(--muted); line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="deco-grid"></div>
+  <div class="deco-circle dc1"></div>
+  <div class="deco-circle dc2"></div>
+  <div class="deco-circle dc3"></div>
+
+  <div class="cover-tag">گزارش فنی — آموزشی</div>
+  <h1 class="cover-title">تحلیل کتابخانه‌های<br><span class="hl">سیستم حضور و غیاب</span><br>نوین پرداز</h1>
+  <div class="cover-sub">کالبدشکافی کامل ۵۱ فایل بستهٔ NovinDll&rsquo;s.zip با دکامپایلر ILSpy — آموزش لایه به لایه به همراه کدهای واقعی</div>
+  <div class="cover-en">NOVIN PARDAZ TIME &amp; ATTENDANCE — .NET LIBRARY ANALYSIS REPORT</div>
+
+  <div class="cover-summary">
+    در این گزارش، ۱۳ کتابخانهٔ اختصاصی نرم‌افزار جامع حضور و غیاب و حقوق و دستمزد «نوین پرداز» (پروژهٔ NPACC)
+    را لایه‌به‌لایه بررسی می‌کنیم: از لایهٔ دسترسی داده و بانک اطلاعاتی SQL Server تا درایورهای شش برند دستگاه اثر انگشت،
+    رابط کاربری WinForms، چاپ Stimulsoft، مودم صوتی و سرویس پیامک — همیشه با کد واقعیِ دکامپایل‌شده و نگاه معلم‌وار.
+  </div>
+
+  <div class="cover-chips">
+    <span class="chip">‎.NET Framework 4.8</span>
+    <span class="chip">C#‎ / WinForms</span>
+    <span class="chip">SQL Server</span>
+    <span class="chip">SignalR</span>
+    <span class="chip">Stimulsoft</span>
+    <span class="chip">‎۵۱ فایل • ۳۴٫۸ MB</span>
+    <span class="chip">‎۶ برند دستگاه</span>
+  </div>
+
+  <div class="cover-footer">
+    <div>
+      <div class="strong">نسخهٔ ۱٫۰ — آبان ۱۴۰۵</div>
+      <div>سند آموزشی عمومی — تهیه‌شده بر پایهٔ تحلیل ایستا (Static Analysis)</div>
+    </div>
+    <div class="left">ILSpy Decompiler<br>NovinDll&rsquo;s.zip / file.kiwi</div>
+  </div>
+</div>
+<div class="main-content"><div class="chapter-header" style="margin-top:0"><div class="ch-marker" dir="ltr">TOC</div><div class="ch-tag">نقشهٔ راه</div><h2 class="ch-title">در این گزارش چه می‌خوانیم؟</h2></div><p class="body-text">سیزده فصل پیشِ رو به ترتیبِ «از کلان به جزئی» چیده شده‌اند. اگر تازه‌کار هستید، ترتیب را به هم نزنید؛ اگر حرفه‌ای هستید، می‌توانید مستقیم به فصل کتابخانهٔ موردنظر بپرید. شمارهٔ صفحهٔ آغازین هر فصل در گوشهٔ کارت‌ها آمده است.</p><div class="roadmap"><div class="rm-card"><div class="rm-num">01</div><div class="rm-title">مقدمه؛ بسته‌ای که بررسی کردیم</div><div class="rm-desc">دسته‌بندی ۵۱ فایل و روش تحلیل</div><div class="rm-page">صفحهٔ ۱</div></div><div class="rm-card"><div class="rm-num">02</div><div class="rm-title">معماری کلان سیستم</div><div class="rm-desc">دیاگرام لایه‌ها و سفر یک تردد</div><div class="rm-page">صفحهٔ ۳</div></div><div class="rm-card"><div class="rm-num">03</div><div class="rm-title">TimeAttendanceDAL</div><div class="rm-desc">قلب سیستم: بانک، DAL، رمزنگاری، ابر</div><div class="rm-page">صفحهٔ ۵</div></div><div class="rm-card"><div class="rm-num">04</div><div class="rm-title">TimeAttendanceDevices</div><div class="rm-desc">درایورهای شش برند دستگاه اثر انگشت</div><div class="rm-page">صفحهٔ ۱۴</div></div><div class="rm-card"><div class="rm-num">05</div><div class="rm-title">TimeAttendanceUI</div><div class="rm-desc">۱۵۰ فرم، ورود، مانیتورینگ زنده</div><div class="rm-page">صفحهٔ ۲۲</div></div><div class="rm-card"><div class="rm-num">06</div><div class="rm-title">TimeAttendancePrint</div><div class="rm-desc">چاپ و گزارش‌سازی با Stimulsoft</div><div class="rm-page">صفحهٔ ۲۵</div></div><div class="rm-card"><div class="rm-num">07</div><div class="rm-title">ValidatorAttribute</div><div class="rm-desc">قواعد اعتبارسنجی موجودیت‌ها</div><div class="rm-page">صفحهٔ ۲۷</div></div><div class="rm-card"><div class="rm-num">08</div><div class="rm-title">Tele.dll</div><div class="rm-desc">مودم صوتی و تردد تلفنی با AT</div><div class="rm-page">صفحهٔ ۲۹</div></div><div class="rm-card"><div class="rm-num">09</div><div class="rm-title">WebSmsStandard</div><div class="rm-desc">کلاینت REST سرویس پیامک</div><div class="rm-page">صفحهٔ ۳۱</div></div><div class="rm-card"><div class="rm-num">10</div><div class="rm-title">ZK و ZDC2911 و zkemkeeper</div><div class="rm-desc">کتابخانه‌های بومی و ابزارها</div><div class="rm-page">صفحهٔ ۳۴</div></div><div class="rm-card"><div class="rm-num">11</div><div class="rm-title">کتابخانه‌های جانبی</div><div class="rm-desc">اعلان شیشه‌ای و انیمیشن</div><div class="rm-page">صفحهٔ ۳۶</div></div><div class="rm-card"><div class="rm-num">12</div><div class="rm-title">کتابخانه‌های System.*</div><div class="rm-desc">زیرساخت مایکروسافت (۲۶ فایل)</div><div class="rm-page">صفحهٔ ۳۷</div></div><div class="rm-card"><div class="rm-num">13</div><div class="rm-title">جمع‌بندی و امنیت</div><div class="rm-desc">درس‌های معماری و یافته‌های امنیتی</div><div class="rm-page">صفحهٔ ۳۸</div></div></div><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-01</div><div class="ch-tag">فصل یکم</div><h2 class="ch-title">مقدمه؛ بسته‌ای که بررسی کردیم</h2><span class="ch-en" dir="ltr">Introduction</span></div><p class="body-text">در این گزارش آموزشی، محتوای فایل فشرده <b>NovinDll&rsquo;s.zip</b> (که از طریق سرویس اشتراک‌گذاری file.kiwi دریافت شد) را موجوده به موشکافی کدهای درونی آن بررسی می‌کنیم. این بسته شامل <b>۵۱ فایل</b> با حجم کل حدود <b>۳۴٫۸ مگابایت</b> است و در واقع پوشهٔ خروجی (Bin) یک نرم‌افزار تجاری ایرانی به نام <b>«نرم‌افزار جامع حضور و غیاب و حقوق و دستمزد نوین پرداز»</b> می‌باشد؛ نام پروژهٔ این نرم‌افزار در دل کدها <b>NPACC</b> است و توسعه‌دهندهٔ آن شرکت «نوین پرداز» (مقرر در مشهد، پیش‌شمارهٔ تلفن ۰۵۱) است. هدف ما این است که مثل یک کلاس درس، لایه به لایه و کتابخانه به کتابخانه، بفهمیم این نرم‌افزار چگونه ساخته شده، هر قطعه چه وظیفه‌ای دارد و کدهای واقعی داخل آن چه می‌گویند.</p><p class="body-text">همهٔ کدهایی که در این گزارش می‌بینید، از داخل خود فایل‌های DLL با ابزار <b>ILSpy</b> (دیکامپایلر متن‌باز دات‌نت) استخراج شده‌اند؛ یعنی هیچ کد فرضی یا ساختگی در کار نیست و هر قطعه کد را می‌توانید با مسیر فایل منبعش مقایسه کنید. بسته‌بندی فنی نرم‌افزار هم از خود فایل‌ها قابل مشاهده است: <b>.NET Framework نسخهٔ 4.8</b>، زبان <b>C#</b>، رابط کاربری <b>WinForms</b> با کامپوننت‌های DevComponents، و پایگاه‌دادهٔ <b>Microsoft SQL Server</b>.</p><div class="teacher-box"><div class="box-title">💡 کد دکامپایل‌شده یعنی چه؟</div><p>وقتی یک برنامهٔ #C ساخته می‌شود، کد شما به زبان میانی IL (Intermediate Language) ترجمه و داخل فایل DLL قرار می‌گیرد. دیکامپایلرها مثل ILSpy همین زبان میانی را دوباره به #C برمی‌گردانند. به همین دلیل کدهای این گزارش گاهی شکل «عجیبی» دارند: پرانتزهای اضافه مثل <code dir="ltr">((DbCommand)(object)cmd)</code>، متغیرهای بی‌استفاده مثل <code dir="ltr">_ = 2;</code> یا کلمهٔ <code dir="ltr">num</code> به‌جای نام‌های اصلی متغیرها — این‌ها artefact (اثر جانبی) دکامپایل هستند، نه سبک برنامه‌نویسی نویسندهٔ اصلی. برای خوانایی، کامنت‌های <code dir="ltr">//IL_...</code> را حذف کرده‌ایم اما منطق کد دست‌نخورده است.</p></div><h3 class="sec-title"><span class="sec-bullet"></span>آنچه داخل بسته پیدا کردیم</h3><p class="body-text">بسته را باز کردیم و فایل‌ها را بر اساس نقش‌شان در چهار گروه دسته‌بندی کردیم. نکتهٔ جالب اینکه فایل اجرایی اصلی <code dir="ltr">TimeAttendance.exe</code> در این بسته <b>حاضر نیست</b> و فقط فایل‌های <code dir="ltr">TimeAttendance.exe.config</code> و <code dir="ltr">TimeAttendance.pdb</code> از آن باقی مانده‌اند؛ یعنی فرستندهٔ بسته فقط کتابخانه‌ها را جمع کرده است. فایل‌های <code dir="ltr">.pdb</code> هم اطلاعات عیب‌یابی (خط و نام فایل‌های سورس اصلی) هستند و همین فایل‌ها بودند که مسیر پروژهٔ اصلی توسعه‌دهنده را لو دادند: <code dir="ltr">D:\Projects\NPACC\WebService_Team\TimeAttendance\...</code></p><div class="tbl-caption">جدول ۱-۱: دسته‌بندی ۵۱ فایل موجود در بسته</div><table class="tbl"><thead><tr><th>گروه</th><th>تعداد</th><th>فایل‌ها</th><th>توضیح</th></tr></thead><tbody><tr><td><b>کتابخانه‌های اختصاصی اصلی</b></td><td>۷</td><td><code>TimeAttendanceDAL</code><br><code>TimeAttendanceUI</code><br><code>TimeAttendanceDevices</code><br><code>TimeAttendancePrint</code><br><code>TimeAttendance.ValidatorAttribute</code><br><code>WebSmsStandard</code><br><code>Tele</code></td><td>قلب نرم‌افزار؛ لایهٔ دسترسی داده، رابط کاربری، درایور دستگاه‌ها، چاپ، اعتبارسنجی، پیامک و تلفن</td></tr><tr><td><b>ابزارها و درایورهای کمکی</b></td><td>۴</td><td><code>ZK.dll</code>، <code>ZDC2911.dll</code>، <code>zkemkeeper.dll</code>، <code>zkemsdk.dll</code></td><td>درایور/SDK سازندگان دستگاه‌های اثر انگشت (ZKTeco و Realand)</td></tr><tr><td><b>کتابخانه‌های متن‌باز جانبی</b></td><td>۲</td><td><code>Tulpep.NotificationWindow</code>، <code>WinFormAnimation</code></td><td>نمایش اعلان‌های شیشه‌ای و انیمیشن فرم‌ها (از NuGet)</td></tr><tr><td><b>کتابخانه‌های مایکروسافتی</b></td><td>۲۶ + ۱۲</td><td><code>System.*.dll</code> (۲۶ فایل) و فایل‌های <code>.config</code>/<code>.pdb</code> (۱۲ فایل)</td><td>زیرساخت استاندارد .NET Framework که در فصل ۱۲ مرور می‌کنیم</td></tr></tbody></table><div class="stat-strip"><div class="stat"><div class="v">۵۱</div><div class="l">فایل در بسته</div></div><div class="stat"><div class="v">۱۳</div><div class="l">کتابخانهٔ اختصاصی و کمکی</div></div><div class="stat"><div class="v">۳۴٫۸</div><div class="l">مگابایت حجم کل</div></div><div class="stat"><div class="v">۴۵۰+</div><div class="l">کلاس دکامپایل‌شده</div></div><div class="stat"><div class="v">۶</div><div class="l">برند دستگاه پشتیبانی‌شده</div></div></div><h3 class="sec-title"><span class="sec-bullet"></span>چطور این گزارش را بخوانیم؟</h3><p class="body-text">گزارش طوری چیده شده که مثل یک دورهٔ آموزشی از بالا به پایین جلو برود: ابتدا در فصل ۲ تصویر کلان معماری را می‌بینیم، سپس در فصل‌های ۳ تا ۱۱ وارد جزئیات هر کتابخانه می‌شویم — همیشه ابتدا «این کتابخانه چه مشکلی را حل می‌کند؟» بعد «چطور کار می‌کند؟» و سپس «کد واقعی‌اش را ببینیم». در فصل ۱۲ کتابخانه‌های استاندارد مایکروسافت را جدولی مرور می‌کنیم و در فصل ۱۳ درس‌های معماری و یافته‌های امنیتی را جمع‌بندی می‌کنیم. جعبه‌های آبی «نکتهٔ معلم» مفاهیم پایه را توضیح می‌دهند و جعبه‌های قرمز «هشدار امنیتی» نقاط ضعفی را نشان می‌دهند که از بابت آموزش امنیت، دیدنشان برای شما ارزشمند است.</p><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-02</div><div class="ch-tag">فصل دوم</div><h2 class="ch-title">معماری کلان سیستم؛ نقشهٔ راه فنی</h2><span class="ch-en" dir="ltr">System Architecture</span></div><p class="body-text">قبل از اینکه وارد هر کتابخانه شویم، باید نقشهٔ کلان را ببینیم. این نرم‌افزار یک <b>معماری چندلایه (Multi-Layer / n-Tier)</b> کلاسیک دارد؛ یعنی مسئولیت‌ها بین لایه‌های مجزا تقسام شده‌اند تا هر لایه فقط کار خودش را انجام دهد و تغییر یک لایه، بقیه را خراب نکند. اگر هرگز با این مفهوم آشنا نبوده‌اید، نکتهٔ معلم زیر را بخوانید.</p><div class="teacher-box"><div class="box-title">💡 معماری چندلایه یعنی چه؟</div><p>معماری چندلایه را با یک رستوران مقایسه کنید: <b>سالن و منو</b> (رابط کاربر) سفارش مشتری را می‌گیرد، <b>گارسن</b> (لایهٔ میانی/اعتبارسنجی) سفارش را بررسی و به آشپزخانه می‌رساند، <b>آشپزخانه</b> (لایهٔ منطق/دسترسی داده) غذا را آماده می‌کند و <b>انبار</b> (پایگاه‌داده) مواد اولیه را نگه می‌دارد. اگر مدیر رستوران منوی سالن را عوض کند، نیازی نیست آشپزخانه را بازسازی کند — هر لایه فقط از طریق «سفارش‌های استاندارد» (در دنیای نرم‌افزار: متدها و اینترفیس‌ها) با هم حرف می‌زنند.</p></div><h3 class="sec-title"><span class="sec-bullet"></span>نقشهٔ لایه‌ها</h3><p class="body-text">دیاگرام زیر را با دقت ببینید؛ در تمام گزارش به همین نقشه برگشت می‌کنیم. جهت خواندن از بالا (کاربر) به پایین (سخت‌افزار) است.</p><div class="arch"><div class="arch-layer al-1"><div class="al-title">لایهٔ ۱ — رابط کاربر (Presentation)</div><div class="al-desc">فرم‌های ویندوزی، ورود کاربران، گزارش‌ها، مانیتورینگ زندهٔ ترددها</div><div class="arch-row"><span class="arch-box">TimeAttendanceUI.dll (۱۵ مگابایت، ~۱۵۰ فرم)</span><span class="arch-box">TimeAttendance.exe (در این بسته غایب است)</span></div></div><div class="arch-arrow">▼</div><div class="arch-layer al-2"><div class="al-title">لایهٔ ۲ — خدمات کنار رابط کاربر</div><div class="al-desc">اعتبارسنجی ورودی‌ها، چاپ گزارش‌ها و اعلان‌های شیشه‌ای</div><div class="arch-row"><span class="arch-box">TimeAttendance.ValidatorAttribute</span><span class="arch-box">TimeAttendancePrint (موتور Stimulsoft)</span><span class="arch-box">Tulpep + WinFormAnimation</span></div></div><div class="arch-arrow">▼</div><div class="arch-layer al-3"><div class="al-title">لایهٔ ۳ — دسترسی به داده و منطق کسب‌وکار (Business + Data)</div><div class="al-desc">همهٔ ذخیره/خواندن داده‌ها، محاسبهٔ کارکرد و حقوق، سینک ابری و ارسال پیامک</div><div class="arch-row"><span class="arch-box">TimeAttendanceDAL.dll (۶٫۳ مگابایت، قلب سیستم)</span><span class="arch-box">WebSmsStandard (پیامک)</span><span class="arch-box">Tele (مودم صوتی)</span></div></div><div class="arch-arrow">▼ ▲ (دو طرفه)</div><div class="arch-layer al-4"><div class="al-title">لایهٔ ۴ — ارتباط با سخت‌افزار (Device I/O)</div><div class="al-desc">درایورهای برندهای مختلف دستگاه حضور و غیاب + سرویس ویندوزی رله</div><div class="arch-row"><span class="arch-box">TimeAttendanceDevices</span><span class="arch-box">zkemkeeper (ZKTeco)</span><span class="arch-box">ZDC2911</span><span class="arch-box">ZK.dll</span></div></div><div class="arch-arrow">▼</div><div class="arch-layer al-1" style="background:#d7e3e9"><div class="al-title">لایهٔ ۵ — دنیای خارج</div><div class="al-desc">دستگاه‌های اثر انگشت/چهره در شبکه، مودم تلفن، سرور ابری نوین پرداز، سرویس پیامک</div><div class="arch-row"><span class="arch-box">دستگاه‌های ZK / Hysoon / Ebio / Eizon / ZDC2911 / NP761</span><span class="arch-box">SQL Server (بانک Attendance0…99)</span><span class="arch-box">novinrank.ir</span></div></div></div><div class="tbl-caption">جدول ۲-۱: نقش هر کتابخانه در معماری</div><table class="tbl"><thead><tr><th>لایه</th><th>کتابخانه</th><th>با چه چیزی حرف می‌زند</th><th>فصل مرتبط</th></tr></thead><tbody><tr><td>رابط کاربر</td><td><code>TimeAttendanceUI</code></td><td>DAL (هرگز مستقیم با SQL حرف نمی‌زند)</td><td>فصل ۵</td></tr><tr><td>اعتبارسنجی</td><td><code>ValidatorAttribute</code></td><td>DAL + فرم نمایش خطا</td><td>فصل ۷</td></tr><tr><td>چاپ</td><td><code>TimeAttendancePrint</code></td><td>Stimulsoft + DAL</td><td>فصل ۶</td></tr><tr><td>دسترسی داده</td><td><code>TimeAttendanceDAL</code></td><td>SQL Server با ADO.NET + سرور ابری با SignalR</td><td>فصل ۳</td></tr><tr><td>درایور دستگاه</td><td><code>TimeAttendanceDevices</code></td><td>SDK هر برند (COM / P/Invoke / TCP)</td><td>فصل ۴</td></tr><tr><td>پیامک</td><td><code>WebSmsStandard</code></td><td>سرویس REST در webservice.novinp.ir</td><td>فصل ۹</td></tr><tr><td>تلفن</td><td><code>Tele</code></td><td>پورت سریال و دستورات AT مودم</td><td>فصل ۸</td></tr></tbody></table><h3 class="sec-title"><span class="sec-bullet"></span>سفر یک «تردد» از انگشت تا فیش حقوقی</h3><p class="body-text">بهترین روش فهم یک سیستم حضور و غیاب، دنبال کردن مسیر یک رخداد واقعی است. فرض کنید کارمند «رضا» ساعت ۸ صبح انگشتش را روی دستگاه می‌گذارد؛ اتفاقی که در طول چند ثانیه تا چند هفته می‌افتد این است:</p><div class="flow"><div class="flow-step"><span class="fs-num">۱</span><b>ثبت در دستگاه</b>دستگاه اثر انگشت، شمارهٔ کاربر + زمان + نوع ورودی/خروجی را در حافظهٔ خود ذخیره می‌کند</div><div class="flow-step"><span class="fs-num">۲</span><b>دریافت توسط درایور</b>درایور برند مربوطه در TimeAttendanceDevices رکوردها را از دستگاه می‌خواند</div><div class="flow-step"><span class="fs-num">۳</span><b>یکسان‌سازی</b>کلاس RecordAllDevice رکورد هر برند را به موجودیت استاندارد DeviceLogOnPerson تبدیل می‌کند</div><div class="flow-step"><span class="fs-num">۴</span><b>ذخیره در بانک</b>DAL آن را با روال ذخیره‌شدهٔ sp_LogonPersonel_Insert در جدول LogonPersonel ثبت می‌کند</div><div class="flow-step"><span class="fs-num">۵</span><b>تطبیق هویت</b>کد سخت‌افزاری (HardwareCode) کاربر با جدول اشخاص تطبیق داده می‌شود و PersonId مشخص می‌شود</div><div class="flow-step"><span class="fs-num">۶</span><b>محاسبهٔ کارکرد</b>TaradodFullDet ورود/خروج‌ها را جفت می‌کند و کارکرد، اضافه‌کار و کسری‌کار روزانه را می‌سازد</div><div class="flow-step"><span class="fs-num">۷</span><b>فیش حقوقی</b>کلاس Fish بر اساس قرارداد و فرمول‌ها، فیش حقوقی ماهانه تولید می‌کند</div><div class="flow-step"><span class="fs-num">۸</span><b>خروجی</b>چاپ فیش (Print)، ارسال پیامک به مدیر (WebSms) یا اعلان زندهٔ روی مانیتور (UI)</div></div><div class="teacher-box"><div class="box-title">💡 واژه‌نامهٔ دامنهٔ حضور و غیاب</div><p>در سیستم‌های حضور و غیاب، به هر رخداد ورود یا خروج یک «تردد» (Traffic) گفته می‌شود و جدول/کلاس آن اینجا <code dir="ltr">LogOnPersonel</code> نام دارد. عبارت «سخت‌افزار کد» (HardwareCode) هم یعنی شمارهٔ کاربری که روی دستگاه اثر انگشت برای هر شخص تعریف شده است. چون ممکن است یک شخص در چند دستگاه با شماره‌های مختلف ثبت شده باشد، سیستم جدولی جداگانه (HardwareCodeCus) برای نگاشت «شمارهٔ دستگاه + کد روی دستگاه ← شخص» دارد.</p></div><h3 class="sec-title"><span class="sec-bullet"></span>کلید جادویی: contextGuid</h3><p class="body-text">در تمام کدهای این نرم‌افزار مدام با پارامتری به نام <code dir="ltr">contextGuid</code> برخواهید خورد — مثلاً <code dir="ltr">Person.GetAllAsync(contextGuid, ...)</code>. این یک شناسهٔ یکتا (GUID) است که مشخص می‌کند عملیات روی «کدام یک از زمینه‌های داده» انجام شود. نرم‌افزار به این ترتیب می‌تواند هم‌زمان چند شرکت/بانک مختلف را مدیریت کند، هر چند در عمل معمولاً یک بانک فعال است. این کلید در تمام لایه‌ها از UI تا DAL ترد می‌شود و حکم «شناسهٔ جلسهٔ فعال» را دارد؛ به همین دلیل تقریباً همهٔ کلاس‌ها اینترفیس <code dir="ltr">IHasContext</code> را پیاده‌سازی کرده‌اند.</p><div class="info-box"><div class="box-title">🔎 نام‌گذاری جالب بانک‌ها</div><p>نام فایل‌های بانک اطلاعاتی این سیستم جالب است: هنگام نصب، DAL دنبال اولین نام خالی از <code dir="ltr">Attendance0</code> تا <code dir="ltr">Attendance99</code> می‌گردد و بانک را با آن نام می‌سازد! این منطق را در فصل ۳ با کد واقعی خواهیم دید.</p></div><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-03</div><div class="ch-tag">فصل سوم</div><h2 class="ch-title">کتابخانهٔ TimeAttendanceDAL؛ قلب تپندهٔ سیستم</h2><span class="ch-en" dir="ltr">TimeAttendanceDAL.dll — Data Access Layer</span></div><p class="body-text">این کتابخانه با حجم <b>۶٫۳ مگابایت</b>، <b>۱۹۳ فایل سورس</b> و بیش از ۳۰ فضای‌نام (Namespace)، بزرگ‌ترین و مهم‌ترین قطعهٔ نرم‌افزار است. هر عملی که ذخیره‌سازی، خواندن، محاسبه یا ارتباط با دنیای خارج لازم دارد، یا مستقیماً اینجا انجام می‌شود یا از اینجا فراخوانی می‌شود: از ثبت ترددها و مدیریت پرسنل و قراردادها تا فیش حقوقی، بیمه، مالیات، پیامک‌های خودکار و همگام‌سازی با سرور ابری شرکت. در کدهای این کتابخانه حتی مشخصات سخت‌افزاری «قفل نرم‌افزار» (لایسنس USB) هم بررسی می‌شود.</p><div class="tbl-caption">جدول ۳-۱: نقشهٔ فضاهای‌نام اصلی DAL (FLR = Filter/List/Report)</div><table class="tbl small"><thead><tr><th>فضای‌نام</th><th>مسئولیت</th><th>کلاس‌های شاخص</th></tr></thead><tbody><tr><td><code dir="ltr">TimeAttendanceDAL</code></td><td>مدیریت رشتهٔ اتصال</td><td>ClsConnection</td></tr><tr><td><code dir="ltr">...Database</code></td><td>ساخت و بازسازی بانک</td><td>CLSDatabase، RunScript، Bazsazi</td></tr><tr><td><code dir="ltr">...Dal.FLRPerson</code></td><td>مدیریت پرسنل</td><td>Person + ۹ کلاس جدول‌های کمکی</td></tr><tr><td><code dir="ltr">...Dal.Taradod</code></td><td>ترددها، مرخصی‌ها و محاسبات</td><td>LogOnPersonel، TaradodFullDet</td></tr><tr><td><code dir="ltr">...Dal.FLRGharardad</code></td><td>قراردادهای کاری</td><td>GharardadNew، FormulaClass</td></tr><tr><td><code dir="ltr">...Dal.Salary</code></td><td>حقوق و دستمزد</td><td>Fish (۸۵ کیلوبایت کد!)، TaxTable</td></tr><tr><td><code dir="ltr">...Dal.FLRShift</code></td><td>شیفت‌ها</td><td>Shifts، ShiftDet</td></tr><tr><td><code dir="ltr">...Dal.FLRSanad</code></td><td>اسناد حسابداری</td><td>AttSanad، ATT_SanadDet</td></tr><tr><td><code dir="ltr">...Dal.Device</code></td><td>دستگاه‌ها و کدهای سخت‌افزاری</td><td>DeviceInfo، HardwareCodeCus</td></tr><tr><td><code dir="ltr">...Dal.User</code></td><td>کاربران و سطوح دسترسی</td><td>UserAttendance، UserPermission</td></tr><tr><td><code dir="ltr">...Settings</code></td><td>تنظیمات متمرکز (JSON در بانک)</td><td>TimeAttendanceSettings، Payamak</td></tr><tr><td><code dir="ltr">...Utility</code></td><td>ابزارهای عمومی</td><td>Utility، FMessageBox، AttLogger</td></tr><tr><td><code dir="ltr">...Mapper</code></td><td>تبدیل موجودیت‌ها به مدل ابری</td><td>PersonMapper و ۱۶ مپر دیگر</td></tr></tbody></table><h3 class="sec-title"><span class="sec-bullet"></span>۱-۳) اتصال به پایگاه‌داده؛ سبک کلاسیک ADO.NET</h3><p class="body-text">DAL با پایگاه‌داده <b>SQL Server</b> و از طریق کلاس‌های ADO.NET کار می‌کند: <code dir="ltr">SqlConnection</code> برای اتصال، <code dir="ltr">SqlCommand</code> برای فرمان و <code dir="ltr">SqlDataReader</code> برای خواندن نتیجه. نکتهٔ معماری این است که <b>هیچ اتصال بلندمدتی نگه داشته نمی‌شود</b>؛ هر متد، اتصال خودش را می‌سازد، کارش را انجام می‌دهد و در بلوک <code dir="ltr">finally</code> آن را آزاد می‌کند. مدیریت اتصال‌های باز در قالب «استخر اتصال» (Connection Pooling) خود ADO.NET به‌صورت خودکار انجام می‌شود.</p><p class="body-text">رشتهٔ اتصال در کلاس <code dir="ltr">ClsConnection</code> نگهداری می‌شود. متد جالب آن <code dir="ltr">CheckConnectionString</code> است که یک اتصال آزمایشی می‌سازد تا از درستی رشتهٔ اتصال مطمئن شود:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDAL/ClsConnection.cs — اعتبارسنجی رشتهٔ اتصال</div><pre class="code-block" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">static</span> <span class="c-kw">bool</span> <span class="c-fn">CheckConnectionString</span>(<span class="c-kw">string</span> constr)
+{
+    <span class="c-kw">try</span>
+    {
+        <span class="c-type">SqlConnectionStringBuilder</span> val = <span class="c-kw">new</span> <span class="c-type">SqlConnectionStringBuilder</span>(constr)
+        {
+            AsynchronousProcessing = <span class="c-kw">true</span>
+        };
+        <span class="c-type">SqlConnection</span> val2 = <span class="c-kw">new</span> <span class="c-type">SqlConnection</span>();
+        ((<span class="c-type">DbConnection</span>)val2).ConnectionString =
+            ((DbConnectionStringBuilder)(<span class="c-kw">object</span>)val).ConnectionString;
+        AttLogger.LoggerUi.<span class="c-fn">Information</span>(<span class="c-str">&quot;<span class="c-fn">checkConnectionStrindg</span>() ... &quot;</span>);
+        ((<span class="c-type">DbConnection</span>)val2).<span class="c-fn">Open</span>();
+        AttLogger.LoggerUi.<span class="c-fn">Information</span>(<span class="c-str">&quot;<span class="c-fn">checkConnectionStrindg</span>() is ok&quot;</span>);
+        ((<span class="c-type">DbConnection</span>)val2).<span class="c-fn">Close</span>();
+        connectionString = constr;
+        <span class="c-kw">return</span> <span class="c-kw">true</span>;
+    }
+    <span class="c-kw">catch</span> (<span class="c-type">Exception</span> ex)
+    {
+        WebErrorLog.ErrorLogInstance.<span class="c-fn">StartLog</span>(ex.Message, <span class="c-str">&quot;connstr=&quot;</span> + constr,
+            <span class="c-str">&quot;CheckConnectionString&quot;</span>, <span class="c-str">&quot;...\ClsConnection.cs&quot;</span>, <span class="c-num">45</span>);
+        <span class="c-kw">return</span> <span class="c-kw">false</span>;
+    }
+}</code></pre><div class="code-note">توجه کنید که استثناها (Exception) هرگز باعث کرش برنامه نمی‌شوند؛ همه‌جا با try/catch گرفته شده و در WebErrorLog ثبت می‌شوند — رویه‌ای که در سراسر این نرم‌افزار تکرار می‌شود.</div></div><p class="body-text">اما چگونه خود بانک ساخته می‌شود؟ متد <code dir="ltr">CreateDbIfNotExist</code> مثل کارگر نصب عمل می‌کند: از نام <code dir="ltr">Attendance0</code> شروع می‌کند و تا <code dir="ltr">Attendance99</code> جلو می‌رود تا اولین نام آزاد را بیابد:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDAL.Database/CLSDatabase.cs — ساخت خودکار بانک با نام Attendance0 تا 99</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">static</span> <span class="c-kw">async</span> <span class="c-type">Task</span>&lt;<span class="c-type">ReturnedSaveFuncInfo</span>&gt; <span class="c-fn">CreateDbIfNotExist</span>(<span class="c-kw">string</span> contextGuid)
+{
+    <span class="c-type">ReturnedSaveFuncInfo</span> ret = <span class="c-kw">new</span> <span class="c-type">ReturnedSaveFuncInfo</span>();
+    <span class="c-kw">if</span> (Extensions.<span class="c-fn">GetSqlConnectionString</span>(contextGuid) != <span class="c-str">&quot;&quot;</span>)
+    {
+        <span class="c-kw">return</span> ret;
+    }
+    <span class="c-kw">string</span> Database = <span class="c-str">&quot;Attendance&quot;</span>;
+    <span class="c-kw">int</span> i = <span class="c-num">0</span>;
+    <span class="c-kw">try</span>
+    {
+        <span class="c-kw">for</span> (; i &lt; <span class="c-num">100</span>; i++)
+        {
+            <span class="c-kw">string</span> connectionString = (<span class="c-kw">await</span> BaseDataBaseAction.Instance
+                .<span class="c-fn">CreateDataBaseAsync</span>(BackupSettingsRepo.<span class="c-fn">GetInstance</span>(contextGuid),
+                                     Database + i)).ConnectionString;
+            <span class="c-kw">if</span> (!<span class="c-kw">string</span>.<span class="c-fn">IsNullOrEmpty</span>(connectionString) &amp;&amp;
+                ClsConnection.<span class="c-fn">CheckConnectionString</span>(connectionString))
+            {
+                ClsCache cache = ClsCache.<span class="c-fn">GetCache</span>(contextGuid);
+                <span class="c-kw">if</span> (cache != <span class="c-kw">null</span>)
+                {
+                    cache.<span class="c-fn">Dispose</span>();
+                }
+                CacheContext context = <span class="c-kw">new</span> <span class="c-fn">CacheContext</span>($<span class="c-str">&quot;CreateDataBaseGuid{Guid.<span class="c-fn">NewGuid</span>()}&quot;</span>);
+                <span class="c-kw">await</span> EntityCacheConfig.<span class="c-fn">InitAsync</span>(context.ContextGuid, connectionString,
+                    SystemInfoClass.<span class="c-fn">SystemInfo</span>(), VersionManagment.Version,
+                    (EnConnectionType)<span class="c-num">1</span>);
+                ClsConnection.ContextGuid = context.ContextGuid;
+                <span class="c-kw">return</span> ret;
+            }
+        }
+    }
+    <span class="c-kw">catch</span> (<span class="c-type">Exception</span> ex)
+    {
+        ret.<span class="c-fn">AddReturnedValue</span>((ReturnedState)<span class="c-num">2</span>, <span class="c-str">&quot;ایجاد بانک اطلاعاتی با خطا مواجه شد&quot;</span>, ...);
+        WebErrorLog.ErrorLogInstance.<span class="c-fn">StartLog</span>(ex, <span class="c-str">&quot;&quot;</span>, <span class="c-str">&quot;CreateDbIfNotExist&quot;</span>, ...);
+    }
+    ret.<span class="c-fn">AddReturnedValue</span>((ReturnedState)<span class="c-num">2</span>, <span class="c-str">&quot;بانک اطلاعاتی ایجاد نشد&quot;</span>, ...);
+    <span class="c-kw">return</span> ret;
+}</code></pre><div class="code-note">پیام‌های خطا فارسی هستند چون مستقیم به کاربر نهایی نمایش داده می‌شوند. ساختار ReturnedSaveFuncInfo حامل وضعیت (موفق/خطا/هشدار) + پیام فارسی است.</div></div><p class="body-text">پس از ساخت بانک خالی، کلاس <code dir="ltr">RunScript</code> کل شِمای پایگاه‌داده را از فایل‌های ریسورس داخل خود DLL اجرا می‌کند و به ترتیب این‌ها را می‌سازد: توابع SQL، جدول‌ها، تریگرها، ویوها، روال‌های ذخیره‌شده و حتی <b>جدول تقویم (CreateTaghvim)</b> که داده‌های تقویم شمسی — از جمله تعطیلات رسمی ایران — را پر می‌کند. جالب است بدانید این متد حتی نسخهٔ SQL Server را هم چک می‌کند: اگر سرور قدیمی‌تر از 2012 باشد، خطای نبودِ تابع <code dir="ltr">FORMAT()</code> را می‌بیند و پیام «Sql server version must be higher than 2012» نمایش می‌دهد. کلاس <code dir="ltr">Bazsazi</code> («بازسازی») هم همین زنجیره را برای ارتقا/مهاجرت نسخه‌های قدیمی اجرا می‌کند و در پایان حتی یک پینگ به آدرس 8.8.8.8 می‌زند تا اتصال اینترنت را بسنجد!</p><div class="teacher-box"><div class="box-title">💡 روال ذخیره‌شده (SP) چیست؟</div><p><b>روال ذخیره‌شده (Stored Procedure)</b> یک برنامهٔ کوچک داخل خود SQL Server است که با دستور CREATE PROCEDURE ساخته می‌شود. مزیتش سه‌تاست: ۱) سرعت بالاتر چون از قبل کامپایل شده، ۲) کاهش رفت‌وبرگشت شبکه، ۳) امنیت بیشتر در برابر تزریق SQL اگر پارامترها را درست پاس بدهیم. این نرم‌افزار تقریباً ۹۵٪ کارهایش را با SP انجام می‌دهد و قاعدهٔ نام‌گذاری‌اش کاملاً یکنواخت است: <code dir="ltr">sp_نام‌جدول_عملیات</code> مثلاً <code dir="ltr">sp_Person_Insert</code>، <code dir="ltr">sp_Person_Update</code>، <code dir="ltr">sp_Person_SelectAll</code>.</p></div><h3 class="sec-title"><span class="sec-bullet"></span>۲-۳) کالبدشکافی یک کلاس DAL؛ الگوی Active Record</h3><p class="body-text">تقریباً همهٔ کلاس‌های این کتابخانه یک الگوی واحد دارند که در ادبیات مهندسی نرم‌افزار به آن <b>Active Record</b> می‌گویند: «هر شیء = یک ردیف از جدول». یعنی یک نمونه از کلاس Person یک کارمند واقعی است؛ اگر <code dir="ltr">SaveAsync()</code> را صدا بزنید و <code dir="ltr">Id</code> صفر باشد <b>درج</b> می‌کند و اگر Id مقدار داشته باشد <b>به‌روزرسانی</b>. متدهای استاتیک هم نقش «فهرست‌ها و جستجوها» را دارند. بیایید این منطق را در کد واقعی ببینیم:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDAL.Dal.FLRPerson/Person.cs — قلب متد SaveAsync</div><pre class="code-block" dir="ltr"><code><span class="c-kw">await</span> ((<span class="c-type">DbConnection</span>)(<span class="c-kw">object</span>)cn).<span class="c-fn">OpenAsync</span>(token);
+<span class="c-kw">if</span> (((PersonBase)<span class="c-kw">this</span>).Id &lt;= <span class="c-num">0</span>)
+{
+    // جدید است → روال درج را صدا بزن
+    ((<span class="c-type">DbCommand</span>)(<span class="c-kw">object</span>)cmd).CommandText = <span class="c-str">&quot;[dbo].[sp_Person_Insert]&quot;</span>;
+    <span class="c-kw">object</span> obj = <span class="c-kw">await</span> ((<span class="c-type">DbCommand</span>)(<span class="c-kw">object</span>)cmd).<span class="c-fn">ExecuteScalarAsync</span>(token);
+    <span class="c-kw">if</span> (obj != <span class="c-kw">null</span>)
+    {
+        ((PersonBase)<span class="c-kw">this</span>).Id = <span class="c-type">Convert</span>.<span class="c-fn">ToInt32</span>(obj.<span class="c-fn">ToString</span>());
+    }
+    <span class="c-kw">await</span> LogUsers.<span class="c-fn">RegisterNewLogAsync</span>(EntityCacheConfig.CacheInstance.ContextGuid,
+        <span class="c-str">&quot;[افزودن اطلاعات یک شخص جدید] : &quot;</span> + ((PersonBase)<span class="c-kw">this</span>).FullName +
+        <span class="c-str">&quot; [با کد تفصیلی  ] : &quot;</span> + ((PersonBase)<span class="c-kw">this</span>).CodeTafsil,
+        <span class="c-str">&quot;Personnel.PersonnelInsert&quot;</span>, <span class="c-kw">this</span>, ((PersonBase)<span class="c-kw">this</span>).Id.<span class="c-fn">ToString</span>());
+}
+<span class="c-kw">else</span>
+{
+    // موجود است → روال ویرایش را صدا بزن
+    ((<span class="c-type">DbCommand</span>)(<span class="c-kw">object</span>)cmd).CommandText = <span class="c-str">&quot;[dbo].[sp_Person_Update]&quot;</span>;
+    cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;ID&quot;</span>, (<span class="c-kw">object</span>)((PersonBase)<span class="c-kw">this</span>).Id);
+    <span class="c-kw">await</span> ((<span class="c-type">DbCommand</span>)(<span class="c-kw">object</span>)cmd).<span class="c-fn">ExecuteNonQueryAsync</span>(token);
+    <span class="c-kw">await</span> LogUsers.<span class="c-fn">RegisterNewLogAsync</span>(EntityCacheConfig.CacheInstance.ContextGuid,
+        <span class="c-str">&quot;[ویرایش اطلاعات پرسنلی] : &quot;</span> + ((PersonBase)<span class="c-kw">this</span>).FullName, ...);
+}
+((<span class="c-type">DbConnection</span>)(<span class="c-kw">object</span>)cn).<span class="c-fn">Close</span>();
+<span class="c-fn">Reset</span>();
+<span class="c-kw">return</span> <span class="c-kw">true</span>;</code></pre><div class="code-note">بعد از هر تغییر، یک رکورد «حسابرسی» (Audit) هم در جدول LogUsers ثبت می‌شود؛ یعنی چه‌کسی، چه زمانی، چه چیزی را تغییر داده — قابلیتی که برای نرم‌افزارهای منابع انسانی تقریباً الزامی است.</div></div><p class="body-text">نکتهٔ ظریف این کلاس، وجود یک <b>کش ۶۰ ثانیه‌ای</b> روی فهرست کل اشخاص است. چون تقریباً همهٔ فرم‌ها به لیست پرسنل نیاز دارند، دوباره‌خوانی آن از SQL Server در هر فرم، پرهزینه است؛ پس نتیجهٔ آخرین کوئری در یک متغیر استاتیک نگه داشته می‌شود و فقط اگر ۶۰ ثانیه از آخرین بارگذاری گذشته باشد، دوباره از بانک خوانده می‌شود:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>Person.cs — کش استاتیک ۶۰ ثانیه‌ای جلوی sp_Person_SelectAll</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">static</span> <span class="c-kw">async</span> <span class="c-type">Task</span>&lt;<span class="c-type">List</span>&lt;<span class="c-type">Person</span>&gt;&gt; <span class="c-fn">GetAllAsync</span>(<span class="c-kw">string</span> contextGuid,
+    <span class="c-type">List</span>&lt;<span class="c-kw">int</span>&gt; listPersonId, <span class="c-kw">bool</span> personStatus, <span class="c-type">CancellationToken</span> token)
+{
+    <span class="c-kw">try</span>
+    {
+        <span class="c-kw">if</span> (LastUpdateTime.<span class="c-fn">AddSeconds</span>(60.0) &lt; <span class="c-type">DateTime</span>.Now)
+        {
+            LastUpdateTime = <span class="c-type">DateTime</span>.Now;
+            <span class="c-type">List</span>&lt;<span class="c-type">Person</span>&gt; ret = <span class="c-kw">new</span> <span class="c-type">List</span>&lt;<span class="c-type">Person</span>&gt;();
+            <span class="c-type">SqlConnection</span> cn = <span class="c-kw">new</span> <span class="c-type">SqlConnection</span>(
+                Extensions.<span class="c-fn">GetSqlConnectionString</span>(contextGuid));
+            <span class="c-type">SqlCommand</span> cmd = <span class="c-kw">new</span> <span class="c-type">SqlCommand</span>(<span class="c-str">&quot;[sp_Person_SelectAll]&quot;</span>, cn);
+            ((<span class="c-type">DbCommand</span>)(<span class="c-kw">object</span>)cmd).<span class="c-type">CommandType</span> = <span class="c-type">CommandType</span>.<span class="c-type">StoredProcedure</span>;
+            cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;personIDs&quot;</span>, (<span class="c-kw">object</span>)<span class="c-str">&quot;&quot;</span>);
+            <span class="c-kw">await</span> ((<span class="c-type">DbConnection</span>)(<span class="c-kw">object</span>)cn).<span class="c-fn">OpenAsync</span>(token);
+            <span class="c-type">SqlDataReader</span> dr = <span class="c-kw">await</span> cmd.<span class="c-fn">ExecuteReaderAsync</span>(token);
+            <span class="c-kw">while</span> (<span class="c-kw">await</span> ((<span class="c-type">DbDataReader</span>)(<span class="c-kw">object</span>)dr).<span class="c-fn">ReadAsync</span>(token))
+            {
+                token.<span class="c-fn">ThrowIfCancellationRequested</span>();
+                ret.<span class="c-fn">Add</span>(<span class="c-fn">LoadData</span>(contextGuid, dr));
+            }
+            ((<span class="c-type">DbDataReader</span>)(<span class="c-kw">object</span>)dr).<span class="c-fn">Close</span>();
+            Persons = ret;      // کش استاتیک به‌روز شد
+        }
+        <span class="c-type">List</span>&lt;<span class="c-type">Person</span>&gt; list = Persons;
+        <span class="c-kw">if</span> (personStatus)
+        {
+            list = Persons.<span class="c-fn">Where</span>((<span class="c-type">Person</span> p) =&gt;
+                p != <span class="c-kw">null</span> &amp;&amp; ((PersonBase)p).St).<span class="c-fn">ToList</span>();
+        }
+        <span class="c-kw">return</span> list;
+    }
+    ...
+}</code></pre></div><div class="teacher-box"><div class="box-title">💡 LoadData چه می‌کند؟</div><p>متد <code dir="ltr">LoadData(SqlDataReader)</code> که در کد بالا می‌بینید «هیدراتور» (Hydrator) نام دارد: یک ردیف خوانده‌شده از بانک را می‌گیرد و فیلدهایش را یکی‌یکی در پراپرتی‌های شیء Person می‌ریزد — مثل خالی‌کردن آب در قالب. الگوی <code dir="ltr">try/finally</code> با <code dir="ltr">Dispose</code> هم تضمین می‌کند منابع (اتصال، فرمان، خواننده) حتی هنگام خطا آزاد شوند.</p></div><h3 class="sec-title"><span class="sec-bullet"></span>۳-۳) موجودیت تردد؛ LogOnPersonel</h3><p class="body-text">کلاس <code dir="ltr">LogOnPersonel</code> (موجودیت جدول LogonPersonel) پرترافیک‌ترین کلاس سیستم است چون هر کارت‌زدنی یک ردیف از آن است. ذخیره‌سازی آن دو ویژگی مهم دارد: نخست از یک <b>سمافور (SemaphoreSlim)</b> استفاده می‌شود تا در لحظهٔ ذخیره‌های موازی، دو تردد هم‌زمان تداخل نکنند؛ دوم پس از ذخیره، شبکهٔ آخرین ترددهای پایش زنده در UI هم به‌روزرسانی می‌شود:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>LogOnPersonel.cs — ذخیرهٔ یک تردد با روال ذخیره‌شده (قسمتی از متد SaveAsync)</div><pre class="code-block tall" dir="ltr"><code>cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;DateTimeLogM&quot;</span>, (<span class="c-kw">object</span>)DateTimeLogM);
+cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;IDTraffic&quot;</span>, (<span class="c-kw">object</span>)TrafficId);
+cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;IsVirtual&quot;</span>, (<span class="c-kw">object</span>)(<span class="c-kw">short</span>)(<span class="c-kw">int</span>)IsVirtual);
+cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;TrafficType&quot;</span>, (<span class="c-kw">object</span>)(<span class="c-kw">short</span>)(<span class="c-kw">int</span>)TypeTaradod);
+cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;TrafficName&quot;</span>,
+    (Utilities.GetDisplay&lt;TypeTaradodEnumType&gt;(TypeTaradod) + <span class="c-str">&quot; / &quot;</span> +
+     Utilities.GetDisplay&lt;TypeTaradodEnumType&gt;(TypeTaradodVacationOrMission)));
+<span class="c-kw">await</span> ((<span class="c-type">DbConnection</span>)(<span class="c-kw">object</span>)cn).<span class="c-fn">OpenAsync</span>(token);
+<span class="c-kw">if</span> (Id &lt;= <span class="c-num">0</span>)
+{
+    cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;PersonId&quot;</span>, (<span class="c-kw">object</span>)PersonId);
+    cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;DeviceId&quot;</span>, (<span class="c-kw">object</span>)DeviceId_);
+    cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;DeviceSerial&quot;</span>, (<span class="c-kw">object</span>)DeviceSerial_);
+    ((<span class="c-type">DbCommand</span>)(<span class="c-kw">object</span>)cmd).CommandText = <span class="c-str">&quot;sp_LogonPersonel_Insert&quot;</span>;
+    <span class="c-type">SqlDataReader</span> dr = <span class="c-kw">await</span> cmd.<span class="c-fn">ExecuteReaderAsync</span>(token);
+    <span class="c-kw">if</span> (<span class="c-kw">await</span> ((<span class="c-type">DbDataReader</span>)(<span class="c-kw">object</span>)dr).<span class="c-fn">ReadAsync</span>(token) &amp;&amp;
+        ((<span class="c-type">DbDataReader</span>)(<span class="c-kw">object</span>)dr)[<span class="c-str">&quot;id&quot;</span>] != DBNull.Value)
+    {
+        Id = (<span class="c-kw">int</span>)((<span class="c-type">DbDataReader</span>)(<span class="c-kw">object</span>)dr)[<span class="c-str">&quot;id&quot;</span>];
+    }
+}
+<span class="c-kw">else</span>
+{
+    ((<span class="c-type">DbCommand</span>)(<span class="c-kw">object</span>)cmd).CommandText = <span class="c-str">&quot;sp_LogonPersonel_Update&quot;</span>;
+    cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;Id&quot;</span>, (<span class="c-kw">object</span>)Id);
+    <span class="c-kw">await</span> ((<span class="c-type">DbCommand</span>)(<span class="c-kw">object</span>)cmd).<span class="c-fn">ExecuteNonQueryAsync</span>(token);
+}
+((<span class="c-type">DbConnection</span>)(<span class="c-kw">object</span>)cn).<span class="c-fn">Close</span>();
+TimeAttendanceDAL.Utility.Utility.<span class="c-fn">ReloadDgridLastTaradodsAsync</span>(ContextGuid, token);
+<span class="c-kw">return</span> Id;</code></pre><div class="code-note">خط آخر یعنی: بعد از هر ذخیره، گرید «آخرین ترددها» روی فرم اصلی دوباره پر شود — اتصال بی‌واسطهٔ DAL به UI از طریق یک متد استاتیک.</div></div><p class="body-text">اعتبارسنجی این کلاس هم کاملاً «ایرانی» است؛ متد <code dir="ltr">Validatetion</code> پیام‌های فارسی تولید می‌کند: ترددی با زمانِ آینده پذیرفته نمی‌شود، ترددِ متعلق به دستگاه ناشناس رد می‌شود، کد شخص باید شناخته‌شده باشد و ترددهای قدیمی‌تر از ۹۰ روز هم باید به‌صورت دستی تأیید شوند.</p><h3 class="sec-title"><span class="sec-bullet"></span>۴-۳) کوئری‌ها؛ پارامتری در برابر الحاقی</h3><p class="body-text">همان‌طور که گفتیم اکثر کوئری‌ها از طریق SP و <b>پارامتری</b> اجرا می‌شوند (روش امن). اما جاهایی کدنویس برای کوئری‌های کوچک، رشته‌ها را مستقیم به هم چسبانده است. یک نمونهٔ سالم و یک نمونهٔ خطرناک:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>Person.cs — کوئری پارامتری (روش درست)</div><pre class="code-block" dir="ltr"><code>// نمونهٔ سالم: پارامتری — مقدار خارج از متن کوئری منتقل می‌شود
+cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;@CodeMoein&quot;</span>, (<span class="c-kw">object</span>)codeM);
+cmd.Parameters.<span class="c-fn">AddWithValue</span>(<span class="c-str">&quot;@CodeTafsil&quot;</span>, (<span class="c-kw">object</span>)codeT);
+((<span class="c-type">DbCommand</span>)(<span class="c-kw">object</span>)cmd).CommandText =
+    <span class="c-str">&quot;Select <span class="c-fn">Count</span>(*) from Person Where CodeMoein=@CodeMoein &quot;</span> +
+    <span class="c-str">&quot;and CodeTafsil=@CodeTafsil and ID&lt;&gt;@ID and St=&#x27;True&#x27;&quot;</span>;</code></pre></div><div class="code-wrap"><div class="code-title"><span class="dot"></span>Shifts.cs — کوئری الحاقی (روش خطرناک)</div><pre class="code-block" dir="ltr"><code>// نمونهٔ ناامن: الحاق رشته — مستعد تزریق SQL
+<span class="c-type">SqlCommand</span> cmd = <span class="c-kw">new</span> <span class="c-type">SqlCommand</span>(
+    <span class="c-str">&quot;select Id from [shifts] where [St]=&#x27;true&#x27; and Code=&#x27;&quot;</span> + code + <span class="c-str">&quot;&#x27;&quot;</span>, cn);</code></pre></div><div class="warn-box"><div class="box-title">⚠️ تزریق SQL (SQL Injection)</div><p>در کلاس Shifts متد <code dir="ltr">UniqeCodeAsync</code> مقدار پارامتر <code dir="ltr">code</code> را مستقیم داخل متن SQL می‌چسباند. اگر مقدار ورودی از کاربر تأمین شود، مهاجم می‌تواند با تزریق عبارتی مثل <code dir="ltr">' OR '1'='1</code> منطق کوئری را دور بزند. نمونه‌های مشابه در <code dir="ltr">Person.LoadEnrollDataAsync</code> (الحاق Id عددی — کم‌خطر)، <code dir="ltr">FishDet</code> و <code dir="ltr">ShiftProgrammableDet</code> هم دیده می‌شود. درس آموزشی: <b>همیشه از پارامتر استفاده کنید، حتی برای اعداد.</b></p></div><h3 class="sec-title"><span class="sec-bullet"></span>۵-۳) رمزنگاری؛ AES با یک کلیدِ داخل کد</h3><p class="body-text">سطوح دسترسی و رمز عبور کاربران نرم‌افزار، قبل از ذخیره در بانک با الگوریتم <b>AES/Rijndael</b> رمز می‌شوند. پیاده‌سازی فنی آن کاملاً حرفه‌ای است: استخراج کلید با PBKDF2 (تابع Rfc2898DeriveBytes با ۱۰۰۰ تکرار)، مقدار نم (Salt) و بردار آغازین (IV) تصادفی و الحاق آن‌ها به ابتدای خروجی:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDAL.Classes/Encryption.cs — رمزنگاری AES-256 با Salt تصادفی</div><pre class="code-block" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">static</span> <span class="c-kw">string</span> <span class="c-fn">Encrypt</span>(<span class="c-kw">string</span> plainText, <span class="c-kw">string</span> passPhrase)
+{
+    <span class="c-kw">byte</span>[] array = <span class="c-fn">Generate256BitsOfRandomEntropy</span>();   // Salt تصادفی
+    <span class="c-kw">byte</span>[] array2 = <span class="c-fn">Generate256BitsOfRandomEntropy</span>();  // IV تصادفی
+    <span class="c-kw">byte</span>[] bytes = <span class="c-type">Encoding</span>.UTF8.<span class="c-fn">GetBytes</span>(plainText);
+    <span class="c-kw">using</span> <span class="c-type">Rfc2898DeriveBytes</span> rfc2898DeriveBytes =
+        <span class="c-kw">new</span> <span class="c-type">Rfc2898DeriveBytes</span>(passPhrase, array, <span class="c-num">1000</span>);
+    <span class="c-kw">byte</span>[] bytes2 = rfc2898DeriveBytes.<span class="c-fn">GetBytes</span>(<span class="c-num">32</span>);   // کلید <span class="c-num">۲۵۶</span> بیتی
+    <span class="c-kw">using</span> <span class="c-type">RijndaelManaged</span> rijndaelManaged = <span class="c-kw">new</span> <span class="c-type">RijndaelManaged</span>();
+    rijndaelManaged.BlockSize = <span class="c-num">256</span>;
+    rijndaelManaged.Mode = CipherMode.CBC;
+    rijndaelManaged.Padding = PaddingMode.PKCS7;
+    <span class="c-kw">using</span> <span class="c-type">ICryptoTransform</span> transform =
+        rijndaelManaged.<span class="c-fn">CreateEncryptor</span>(bytes2, array2);
+    <span class="c-kw">using</span> <span class="c-type">MemoryStream</span> memoryStream = <span class="c-kw">new</span> <span class="c-type">MemoryStream</span>();
+    <span class="c-kw">using</span> <span class="c-type">CryptoStream</span> cryptoStream =
+        <span class="c-kw">new</span> <span class="c-type">CryptoStream</span>(memoryStream, transform, CryptoStreamMode.Write);
+    cryptoStream.<span class="c-fn">Write</span>(bytes, <span class="c-num">0</span>, bytes.Length);
+    cryptoStream.<span class="c-fn">FlushFinalBlock</span>();
+    <span class="c-kw">byte</span>[] inArray = array.<span class="c-fn">Concat</span>(array2).<span class="c-fn">ToArray</span>()
+        .<span class="c-fn">Concat</span>(memoryStream.<span class="c-fn">ToArray</span>()).<span class="c-fn">ToArray</span>();
+    <span class="c-kw">return</span> <span class="c-type">Convert</span>.<span class="c-fn">ToBase64String</span>(inArray);
+}</code></pre></div><div class="warn-box"><div class="box-title">⚠️ کلید هاردکدشده در کد!</div><p>مشکل کجاست؟ در <b>عبور رمز</b>! کلاس UserPermission این متد را با یک عبارت رمز ثابت و هاردکد صدا می‌زند: <code dir="ltr">private readonly string _passPhrase = "NovinP****************";</code> — یعنی هرکسی که به همین DLL یا سورس دکامپایل‌شدهٔ آن دسترسی داشته باشد (دقیقاً مثل ما!) می‌تواند محتوای رمزشدهٔ سطوح دسترسی را باز کند. رمزنگاری قوی با کلید ضعیف، مثل قفل فولادیِ روی درِ پارچه‌ای است. راه درست: نگهداری کلید در ماژول امن (HSM/TPM) یا حداقل استفاده از DPAPI ویندوز.</p></div><h3 class="sec-title"><span class="sec-bullet"></span>۶-۳) پل ارتباطی با ابر؛ SignalR</h3><p class="body-text">یکی از جذاب‌ترین بخش‌های DAL، لایهٔ همگام‌سازی ابری است. نرم‌افزار با هاب <b>SignalR</b> سرور نوین پرداز (آدرس پیش‌فرض: <code dir="ltr">https://novinrank.ir/hubCore</code>) وارد می‌شود و شناسه‌های خود را معرفی می‌کند: نام کاربری NPACC، شمارهٔ سریال قفل سخت‌افزاری LK، شناسهٔ پردازنده و GUID بانک. بعد از این «ورود»، ترددهایی که در پنل تحت‌وب ثبت می‌شوند، به‌صورت زنده به مشتری محلی هدایت می‌شوند:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDAL.Settings/EntityCacheConfig.cs — پیکربندی ورود به هاب ابری</div><pre class="code-block" dir="ltr"><code><span class="c-type">List</span>&lt;ClientConfig&gt; list = <span class="c-kw">new</span> <span class="c-type">List</span>&lt;ClientConfig&gt;
+{
+    <span class="c-kw">new</span> ClientConfig
+    {
+        UserName = usernameSr,
+        Password = passwordSr,
+        Source = (ENSource)<span class="c-num">5</span>,
+        DbGuid = dbGuid,
+        Version = version,
+        CompressedMode = (ENCompressedMode)<span class="c-num">1</span>,
+        LkSerial = lkSerial,
+        CpuSerial = systemInfo,
+        Url = url
+    }
+};
+_cacheInstance.Context.LoginExtention.OnLoginResponse -= Instance_OnLoginResponse;
+_cacheInstance.Context.LoginExtention.OnLoginResponse += Instance_OnLoginResponse;
+...
+<span class="c-type">ReturnedSaveFuncInfoWithValue</span>&lt;LoginResponseEventArgs&gt; val =
+    <span class="c-kw">await</span> cacheInstance.<span class="c-fn">ConnectAsync</span>(connectionType, list, token2, <span class="c-kw">true</span>);</code></pre></div><div class="code-wrap"><div class="code-title"><span class="dot"></span>EntityCacheConfig.cs — دریافت دسته‌ای ترددها از سرور ابری</div><pre class="code-block" dir="ltr"><code><span class="c-kw">private</span> <span class="c-kw">static</span> <span class="c-kw">async</span> <span class="c-type">Task</span> <span class="c-fn">WebAttendanceLogOnPerson_OnSync</span>(<span class="c-kw">object</span> sender,
+    ConnectionEventArgs&lt;WebAttendanceLogOnPerson&gt; e)
+{
+    <span class="c-kw">try</span>
+    {
+        Utility.<span class="c-fn">MessageBoxShowByNotif</span>(showPopUp: <span class="c-kw">false</span>, (NotificationEnum)<span class="c-num">9</span>,
+            <span class="c-str">&quot;شروع عملیات سینک&quot;</span>, <span class="c-str">&quot;&quot;</span>, <span class="c-num">3</span>);
+        <span class="c-type">ReturnedSaveFuncInfoWithValue</span>&lt;(<span class="c-kw">int</span>, <span class="c-type">List</span>&lt;<span class="c-kw">string</span>&gt;)&gt; val =
+            <span class="c-kw">await</span> <span class="c-fn">SaveTaradod</span>(stringBuilder,
+                e.Connection.Context.<span class="c-type">Guid</span>, e.ConnectionData,
+                e.Connection.cancellationToken);
+        <span class="c-kw">if</span> (val.value.Item1 &gt; <span class="c-num">0</span>)
+        {
+            Utility.<span class="c-fn">MessageBoxShowByNotif</span>(showPopUp: <span class="c-kw">false</span>, (NotificationEnum)<span class="c-num">7</span>,
+                <span class="c-kw">string</span>.<span class="c-fn">Format</span>(<span class="c-str">&quot;اتمام عملیات سینک\r\n [تعداد ترددهای دریافت شده]: {0}&quot;</span>,
+                    val.value.Item1), <span class="c-str">&quot;[اتمام عملیات سینک]&quot;</span>, <span class="c-num">10</span>);
+        }
+        ...
+    }
+}</code></pre><div class="code-note">همچنین یک سرویس ویندوزی به نام NpCommunicationDeviceService (با هاب BioMetricServerCore) روی پورت 5001 نصب می‌شود که رلهٔ ارتباط دستگاه‌های زیستی با این هاب است.</div></div><div class="info-box"><div class="box-title">🔎 سینک دورهای ۳۰ دقیقه‌ای</div><p>DAL هر ۳۰ دقیقه یکبار اشخاصِ تغییریافتهٔ محلی را به سرور ابری می‌فرستد و تغییرات ثبت‌شده در پنل وب را برمی‌گرداند (دو جهتِ یک سینک). برای هر کارمند هم یک لینک ورود به «سلف‌سرویس» ساخته می‌شود: <code dir="ltr">https://nphozor.ir/Login/...</code> با یک هش بی‌اس۶‌۴ از نام‌کاربری + رمز + GUID شخص.</p></div><h3 class="sec-title"><span class="sec-bullet"></span>۷-۳) الگوهای طراحیِ قابل مشاهده در DAL</h3><div class="tbl-caption">جدول ۳-۲: الگوهای طراحی شناسایی‌شده در DAL</div><table class="tbl small"><thead><tr><th>الگو</th><th>کجا دیده می‌شود</th><th>توضیح کوتاه</th></tr></thead><tbody><tr><td>Active Record</td><td>همهٔ کلاس‌های Dal.*</td><td>هر شیء یک ردیف جدول با متدهای Save/Delete</td></tr><tr><td>Singleton (برای هر context)</td><td>EnrollManage، TimeAttendanceSettings</td><td>یک نمونهٔ یکتا در ConcurrentDictionary با کلید contextGuid</td></tr><tr><td>Repository</td><td>DeviceLogOnPersonRepository</td><td>تنها ریپازیتوری صریح؛ ذخیرهٔ تردد دریافتی از دستگاه</td></tr><tr><td>Mapper / DTO</td><td>فضای‌نام Mapper با ۱۷ کلاس</td><td>تبدیل موجودیت محلی به مدل ابری WebAtt*</td></tr><tr><td>Observer (رویدادها)</td><td>OnSaveTaradod، OnStatusErorTaradod</td><td>اعلان تغییرات به UI بدون وابستگی مستقیم</td></tr><tr><td>Retry (تلاش مجدد)</td><td>SaveSmsRefrencedIdsAsync</td><td>تا ۲۰ بار با فاصلهٔ ۵ ثانیه، به‌صورت بازگشتی!</td></tr><tr><td>Producer/Consumer</td><td>BufferBlock در Utility</td><td>صف اعلان‌ها با TPL Dataflow</td></tr><tr><td>کش با انقضا</td><td>Person.Persons + LastUpdateTime</td><td>کش ۶۰ ثانیه‌ای فهرست اشخاص</td></tr><tr><td>JSON Blob</td><td>JsonFishDet، JsonGharardadDet، تنظیمات</td><td>ذخیرهٔ جزئیات اسکیماپذیر به‌صورت JSON در یک ستون</td></tr></tbody></table><div class="code-wrap"><div class="code-title"><span class="dot"></span>LogOnPersonel.cs — الگوی Retry بازگشتی (۲۰ بار × ۵ ثانیه)</div><pre class="code-block" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">async</span> <span class="c-type">Task</span> <span class="c-fn">SaveSmsRefrencedIdsAsync</span>(<span class="c-kw">string</span> smsRefrencedIds,
+    <span class="c-type">CancellationToken</span> token, <span class="c-kw">short</span> tryCount = <span class="c-num">20</span>)
+{
+    <span class="c-kw">try</span>
+    {
+        ...
+    }
+    <span class="c-kw">catch</span> (<span class="c-type">Exception</span> ex2)
+    {
+        <span class="c-kw">if</span> (tryCount &lt;= <span class="c-num">0</span>)
+        {
+            Log.<span class="c-fn">Error</span>(ex2, $<span class="c-str">&quot;logonpersonel id = {Id}&quot;</span>);
+            <span class="c-kw">throw</span>;
+        }
+        <span class="c-kw">await</span> <span class="c-type">Task</span>.<span class="c-fn">Delay</span>(<span class="c-num">5000</span>);
+        <span class="c-kw">await</span> <span class="c-fn">SaveSmsRefrencedIdsAsync</span>(smsRefrencedIds, token,
+            (<span class="c-kw">short</span>)(tryCount - <span class="c-num">1</span>));   // تلاش مجدد بازگشتی
+    }
+}</code></pre><div class="code-note">روش بازگشتی خوانا اما برای تلاش‌های زیاد، مصرف پشته (Stack) دارد؛ نسخهٔ بهتر: حلقهٔ while یا کتابخانهٔ Polly.</div></div><h3 class="sec-title"><span class="sec-bullet"></span>۸-۳) نکات ویژهٔ «ایرانیِ» این کتابخانه</h3><ul class="blist"><li><b>تقویم شمسی:</b> مقدار <code dir="ltr">MinDateM = 1921/03/21</code> دقیقاً معادل <b>۱۳۰۰/۰۱/۰۱</b> شمسی است و نقش «تاریخ صفر/تهی» سیستم را دارد؛ همهٔ تاریخ‌ها به میلادی در بانک ذخیره و هنگام نمایش با کلاس Calendar به شمسی تبدیل می‌شوند.</li><li><b>مبدل صفحه‌کد داس:</b> کلاس ConvertDosPersianToWindows جدول جابه‌جایی بایت‌های فارسی «ایران‌سیستم» را به یونیکد دارد — برای تولید فایل‌های سازگار با نرم‌افزارهای حسابداری قدیمی!</li><li><b>جدول مالیات حقوق:</b> کلاس TaxTable جدول نرخ‌های مالیات حقوق ایران را از وب‌سرویس شرکت دانلود و در بانک ذخیره می‌کند.</li><li><b>قفل سخت‌افزاری (LK):</b> شناسهٔ قفل USB با متد <code dir="ltr">LK.GetSerialNumber(...)</code> خوانده می‌شود؛ نسخهٔ آزمایشی/رایگان را با پرچم‌های _isTrialVersion و _isFreeVersion از هم جدا می‌کند.</li><li><b>ربات تلگرام داخلی:</b> Utility یک متد SendTelegramMessage دارد که خطاها و حتی ترددهای زنده را برای سازنده به یک ربات تلگرام با توکن هاردکد می‌فرستد!</li><li><b>ورود به سلف‌سرویس:</b> برای هر شخص یک URL یکبارمصرف‌مانند با هش تولید می‌شود (nphozor.ir).</li></ul><div class="warn-box"><div class="box-title">⚠️ توکن تلگرام و تله‌متری خودکار</div><p>متد <code dir="ltr">Utility.SendTelegramMessage</code> یک توکن کامل ربات تلگرام را داخل کد دارد: <code dir="ltr">apiKey = "7555******:AA****..."</code> و پیام‌ها شامل نسخهٔ برنامه، نام کاربر ویندوز، IP‌های محلی و سریال قفل است. از دید حریم خصوصی مشتری‌ها، ارسال خودکار مشخصات نصب به سرور توسعه‌دهنده قابل نقد است؛ و توکنِ لو رفته هم یعنی هر کسی می‌تواند به آن رلاتور پیام بفرستد. اگر روزی خودتان چنین سیستمی ساختید، تنظیم ارسال تله‌متری را شفاف و قابل غیرفعال‌سازی کنید.</p></div><p class="body-text">در جمع‌بندی فصل: DAL یک لایهٔ دادهٔ کامل، خودنصب‌شونده و چندمنظوره است — از ساخت بانک و شِما تا رمزنگاری، سینک ابری، پیامک خودکار و حتی پایش کاربران. حالا که قلب سیستم را شناختیم، برویم سراغ لایه‌ای که با سخت‌افزار حرف می‌زند.</p><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-04</div><div class="ch-tag">فصل چهارم</div><h2 class="ch-title">کتابخانهٔ TimeAttendanceDevices؛ صحبت با دستگاه‌ها</h2><span class="ch-en" dir="ltr">TimeAttendanceDevices.dll — Device Drivers</span></div><p class="body-text">این کتابخانه (۲۹۴ کیلوبایت، ۴۸ فایل) «مترجمِ» نرم‌افزار و دستگاه‌های حضور و غیاب است. دنیای دستگاه‌های اثر انگشت شش‌دنگ است: هر سازنده‌ای زبان (پروتکل) خودش را دارد و این کتابخانه برای هر برند یک درایور جداگانه دارد. برندهای پشتیبانی‌شده: <b>ZKTeco</b>، <b>Hysoon</b> (دو نسل)، <b>Ebio/Grandin</b>، <b>Eizon/Riss</b>، <b>ZDC2911/Realand</b> و دوربین‌های نورمرئی <b>NP761</b>.</p><p class="body-text">نکتهٔ معماری جالب: برخلاف انتظار، این کتابخانه <b>اینترفیس مشترکی مانند IDevice ندارد!</b> هر درایور کلاسی مستقل است، اما همهٔ آن‌ها به‌طور قراردادی شکل یکسانی دارند: سازنده‌ای با (شماره دستگاه، رمز، IP، پورت)، پراپرتی <code dir="ltr">Conected</code> (با غلط املایی ثابت!) و متدی که لیست رکوردها را برمی‌گرداند. واحد‌کنندهٔ واقعی، کلاس <b>RecordAllDevice</b> است که خروجی هر برند را به موجودیت استاندارد <code dir="ltr">DeviceLogOnPerson</code> تبدیل می‌کند:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDevices/RecordAllDevice.cs — نرمال‌ساز رکوردهای همهٔ برندها</div><pre class="code-block" dir="ltr"><code>[Serializable]
+<span class="c-kw">public</span> <span class="c-kw">class</span> RecordAllDevice
+{
+    <span class="c-kw">public</span> <span class="c-kw">static</span> <span class="c-type">List</span>&lt;<span class="c-type">DeviceLogOnPerson</span>&gt; <span class="c-fn">GetAllFromRiss</span>(
+        <span class="c-kw">string</span> contextGuid, <span class="c-type">List</span>&lt;Record&gt; plst)
+    {
+        <span class="c-type">List</span>&lt;<span class="c-type">DeviceLogOnPerson</span>&gt; list = <span class="c-kw">new</span> <span class="c-type">List</span>&lt;<span class="c-type">DeviceLogOnPerson</span>&gt;();
+        <span class="c-kw">try</span>
+        {
+            <span class="c-kw">foreach</span> (Record item2 <span class="c-kw">in</span> plst)
+            {
+                <span class="c-type">DeviceLogOnPerson</span> item = <span class="c-kw">new</span> <span class="c-type">DeviceLogOnPerson</span>(contextGuid)
+                {
+                    DeviceNo = item2.DN,                 // شمارهٔ دستگاه
+                    DateTimeLogM = item2.Clock,          // زمان تردد
+                    IdTraffic = (<span class="c-kw">short</span>)item2.Verify,     // نوع تأیید (اثرانگشت/کارت...)
+                    IoMode = (<span class="c-kw">int</span>)item2.MDIN,            // حالت ورود/خروج
+                    PersonNo = (<span class="c-kw">int</span>)item2.DIN            // شمارهٔ کاربر روی دستگاه
+                };
+                list.<span class="c-fn">Add</span>(item);
+            }
+        }
+        <span class="c-kw">catch</span> (<span class="c-type">Exception</span> ex)
+        {
+            WebErrorLog.ErrorLogInstance.<span class="c-fn">StartLog</span>(ex, <span class="c-str">&quot;&quot;</span>, <span class="c-str">&quot;GetAllFromRiss&quot;</span>, ...);
+        }
+        <span class="c-kw">return</span> list;
+    }
+}</code></pre><div class="code-note">قرارداد ثابت در کل سیستم: PersonNo = شمارهٔ کاربر، DeviceNo = شمارهٔ دستگاه، DateTimeLogM = زمان میلادی، IdTraffic = نوع تردد.</div></div><div class="tbl-caption">جدول ۴-۱: هفت مسیر ارتباطی با دستگاه‌ها</div><table class="tbl small"><thead><tr><th>برند/نام‌فضایی</th><th>خانوادهٔ دستگاه</th><th>روش ارتباط</th><th>نحوهٔ خواندن تردد</th><th>Real-time</th></tr></thead><tbody><tr><td><code dir="ltr">.FLRZk</code></td><td>ZKTeco</td><td>کلاس COM به نام CZKEMClass (zkemkeeper)</td><td>ReadGeneralLogData + SSR_GetGeneralLogData</td><td>خیر (Polling)</td></tr><tr><td><code dir="ltr">.FLRHysoon</code></td><td>Hysoon نسل قدیم (FK)</td><td>P/Invoke به FK623Attend.dll</td><td>FK_LoadGeneralLogData + FK_GetGeneralLogData</td><td>خیر</td></tr><tr><td><code dir="ltr">.FLRHysoon (Dynamic)</code></td><td>Hysoon نسل جدید</td><td>سوکت TCP خام + پروتکل JSON</td><td>فرمان GetLogData صفحه‌بندی‌شده</td><td><b>بله</b> (HTTP Push)</td></tr><tr><td><code dir="ltr">.FLREbio</code></td><td>Ebio / Grandin</td><td>کنترل ActiveX با نام SBXPC</td><td>ReadAllGLogData + GetAllGLogData</td><td>خیر</td></tr><tr><td><code dir="ltr">.Eizon</code></td><td>Riss (ZD/ZDC/U260)</td><td>SDK مدیریت‌شدهٔ Riss.Devices</td><td>GetProperty(DeviceProperty.13)</td><td>خیر</td></tr><tr><td><code dir="ltr">.FLRZDC2911</code></td><td>Realand ZDC2911</td><td>SDK مدیریت‌شدهٔ ZDC2911.dll</td><td>Realand.GetALLGlog()</td><td>خیر</td></tr><tr><td><code dir="ltr">Listener761</code></td><td>دوربین نورمرئی NP761</td><td>سرور HTTP داخلی</td><td>دریافت POST از خود دستگاه</td><td><b>بله</b> (Push)</td></tr></tbody></table><h3 class="sec-title"><span class="sec-bullet"></span>۱-۴) ZKTeco؛ از طریق COM</h3><p class="body-text">معروف‌ترین سازندهٔ دستگاه‌های اثر انگشت دنیاست و SDK رسمی‌اش (zkemkeeper.dll) یک <b>کامپوننت COM</b> است. کلاس <code dir="ltr">ClsZK</code> این SDK را بسته‌بندی می‌کند:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDevices.FLRZk/ClsZK.cs — اتصال و خواندن ترددهای ZKTeco</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">class</span> ClsZK
+{
+    <span class="c-kw">private</span> <span class="c-kw">readonly</span> <span class="c-kw">int</span> _iMachineNumber = <span class="c-num">1</span>;
+    <span class="c-kw">private</span> <span class="c-kw">int</span> _Port = <span class="c-num">5005</span>;      // پورت پیش‌فرض ZKTeco
+    <span class="c-kw">public</span> CZKEMClass AxCZKEM1 { <span class="c-kw">get</span>; <span class="c-kw">set</span>; } = <span class="c-kw">new</span> <span class="c-fn">CZKEMClass</span>();
+
+    <span class="c-kw">public</span> <span class="c-fn">ClsZK</span>(<span class="c-kw">string</span> contextGuid, <span class="c-kw">int</span> DeviceNO, <span class="c-kw">string</span> CommunicationPass,
+                 <span class="c-kw">string</span> IP, <span class="c-kw">int</span> TCPPort)
+    {
+        ContextGuid = contextGuid;
+        _iMachineNumber = DeviceNO;
+        _IP = IP;
+        _Port = TCPPort;
+        Conected = AxCZKEM1.<span class="c-fn">Connect_Net</span>(IP, TCPPort);
+    }
+
+    <span class="c-kw">public</span> <span class="c-type">List</span>&lt;ZkRecord&gt; <span class="c-fn">GetLog</span>()
+    {
+        <span class="c-kw">if</span> (!Conected)
+        {
+            <span class="c-type">MessageBox</span>.<span class="c-fn">Show</span>(<span class="c-str">&quot;Please connect the device first&quot;</span>);
+            <span class="c-kw">return</span> <span class="c-kw">new</span> <span class="c-type">List</span>&lt;ZkRecord&gt;();
+        }
+        <span class="c-type">List</span>&lt;ZkRecord&gt; list = <span class="c-kw">new</span> <span class="c-type">List</span>&lt;ZkRecord&gt;();
+        AxCZKEM1.<span class="c-fn">EnableDevice</span>(_iMachineNumber, <span class="c-kw">false</span>);   // قفل موقت دستگاه
+        <span class="c-kw">if</span> (AxCZKEM1.<span class="c-fn">ReadGeneralLogData</span>(_iMachineNumber))
+        {
+            <span class="c-kw">string</span> sdwEnrollNumber = <span class="c-str">&quot;&quot;</span>;
+            <span class="c-kw">int</span> idwVerifyMode = <span class="c-num">0</span>, idwInOutMode = <span class="c-num">0</span>;
+            <span class="c-kw">int</span> idwYear = <span class="c-num">0</span>, idwMonth = <span class="c-num">0</span>, idwDay = <span class="c-num">0</span>;
+            <span class="c-kw">int</span> idwHour = <span class="c-num">0</span>, idwMinute = <span class="c-num">0</span>, idwSecond = <span class="c-num">0</span>;
+            <span class="c-kw">int</span> idwWorkcode = <span class="c-num">0</span>;
+            <span class="c-kw">while</span> (AxCZKEM1.<span class="c-fn">SSR_GetGeneralLogData</span>(_iMachineNumber,
+                <span class="c-kw">ref</span> sdwEnrollNumber, <span class="c-kw">ref</span> idwVerifyMode, <span class="c-kw">ref</span> idwInOutMode,
+                <span class="c-kw">ref</span> idwYear, <span class="c-kw">ref</span> idwMonth, <span class="c-kw">ref</span> idwDay, <span class="c-kw">ref</span> idwHour,
+                <span class="c-kw">ref</span> idwMinute, <span class="c-kw">ref</span> idwSecond, <span class="c-kw">ref</span> idwWorkcode))
+            {
+                list.<span class="c-fn">Add</span>(<span class="c-kw">new</span> <span class="c-fn">ZkRecord</span>(_iMachineNumber, sdwEnrollNumber,
+                    idwVerifyMode, idwInOutMode, idwYear, idwMonth, idwDay,
+                    idwHour, idwMinute, idwSecond, idwWorkcode));
+            }
+        }
+        AxCZKEM1.<span class="c-fn">EnableDevice</span>(_iMachineNumber, <span class="c-kw">true</span>);    // آزادسازی دستگاه
+        <span class="c-kw">return</span> list;
+    }
+}</code></pre><div class="code-note">الگوی سه‌مرحله‌ای کلاسیک کار با این دستگاه‌ها: (۱) EnableDevice(false) تا کاربر موقع انتقال داده کارت نزند، (۲) خواندن داده، (۳) EnableDevice(true).</div></div><div class="teacher-box"><div class="box-title">💡 COM و Interop یعنی چه؟</div><p><b>COM</b> (Component Object Model) فناوری سال‌های ۱۹۹۰ مایکروسافت برای ساخت اجزای نرم‌افزاری قابل استفادهٔ بین‌زبانی است. کتابخانهٔ COM مثل zkemkeeper.dll باید ابتدا در ویندوز با دستور regsvr32 «ثبت» شود و بعد هر زبانی — از VB6 تا #C — می‌تواند از آن شیء بسازد. در #C وقتی به COM ارجاع می‌دهید، ویژوال استودیو یک لایهٔ واسط به نام <b>Interop</b> می‌سازد (اینجا: Interop.zkemkeeper) که فراخوانی‌های شیءگرا را به فراخوانی COM ترجمه می‌کند. محدودیت مهم: COMهای ۳۲بیتی مثل این، فقط در پروسهٔ ۳۲بیتی (x86) کار می‌کنند.</p></div><h3 class="sec-title"><span class="sec-bullet"></span>۲-۴) Hysoon کلاسیک؛ P/Invoke به کتابخانهٔ بومی</h3><p class="body-text">درایور Hysoon قدیمی مستقیماً توابع کتابخانهٔ بومی <code dir="ltr">FK623Attend.dll</code> را با تکنیک <b>P/Invoke</b> صدا می‌زند و نکتهٔ هشداربرانگیزش این است که هندل اتصال (nCommHandleIndex) یک فیلد <b>استاتیک</b> است؛ یعنی هر پروسه فقط می‌تواند هم‌زمان به یک دستگاه Hysoon قدیمی وصل باشد!</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDevices.FLRHysoon/clsHysoon.cs — اتصال و خواندن با FK623Attend.dll</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-fn">clsHysoon</span>(<span class="c-kw">string</span> contextGuid, <span class="c-kw">int</span> deviceNum, <span class="c-kw">int</span> password,
+                  <span class="c-kw">string</span> ip, <span class="c-kw">int</span> port, <span class="c-kw">bool</span> getNewTaradodOnly)
+{
+    ContextGuid = contextGuid;
+    _GetNewTaradodOnly = getNewTaradodOnly;
+    _vnMachineNumber = deviceNum;
+    _vpszNetPassword = password;
+    _vpszIPAddress = ip;
+    _vpszNetPort = port;
+    _vnTimeOut = <span class="c-num">5000</span>;
+    _vnLicense = <span class="c-num">1261</span>;          // شمارهٔ لایسنس ثابت SDK هیسون
+    FKAttendDLL.nCommHandleIndex = FKAttendDLL.<span class="c-fn">FK_ConnectNet</span>(
+        _vnMachineNumber, _vpszIPAddress, _vpszNetPort,
+        _vnTimeOut, _vnProtocolType, _vpszNetPassword, _vnLicense);
+}
+
+<span class="c-kw">public</span> <span class="c-type">List</span>&lt;<span class="c-type">DeviceLogOnPerson</span>&gt; <span class="c-fn">GetAllLogOnPublic</span>()
+{
+    ...
+    <span class="c-kw">int</span> num4 = FKAttendDLL.<span class="c-fn">FK_EnableDevice</span>(FKAttendDLL.nCommHandleIndex, <span class="c-num">0</span>);
+    num4 = FKAttendDLL.<span class="c-fn">FK_LoadGeneralLogData</span>(FKAttendDLL.nCommHandleIndex,
+        _GetNewTaradodOnly ? <span class="c-num">1</span> : <span class="c-num">0</span>);
+    <span class="c-kw">while</span> (<span class="c-kw">true</span>)
+    {
+        num4 = FKAttendDLL.<span class="c-fn">FK_GetGeneralLogData</span>(FKAttendDLL.nCommHandleIndex,
+            <span class="c-kw">ref</span> personNo, <span class="c-kw">ref</span> num2, <span class="c-kw">ref</span> ioMode, <span class="c-kw">ref</span> dateTimeLogM);
+        <span class="c-kw">if</span> (num4 != <span class="c-num">1</span>)
+        {
+            <span class="c-kw">break</span>;   // پایان رکوردها
+        }
+        list.<span class="c-fn">Add</span>(<span class="c-kw">new</span> <span class="c-type">DeviceLogOnPerson</span>(ContextGuid)
+        {
+            PersonNo = personNo,
+            DeviceNo = _vnMachineNumber,
+            VerifyMode = num2.<span class="c-fn">ToString</span>(),
+            IoMode = ioMode,
+            DateTimeLogM = dateTimeLogM
+        });
+    }
+    <span class="c-fn">Disconnect</span>();
+    ...
+}</code></pre><div class="code-note">P/Invoke یعنی فراخوانی مستقیم توابع DLL غیرمدیریت‌شده از کد #C؛ اینجا ۷۸ تابع بومی FK* در فایل FKAttendDLL2.cs تعریف شده‌اند.</div></div><h3 class="sec-title"><span class="sec-bullet"></span>۳-۴) Hysoon جدید (Dynamic)؛ پروتکل JSON دست‌ساز</h3><p class="body-text">نسل جدید دستگاه‌های Hysoon پروتکل جالبی دارند: روی TCP، یک <b>سرآیند ۳۲ بایتی</b> و بعد بدنهٔ JSON می‌فرستند. کد ساخت بستهٔ ارسالی، مشخصات کامل سرآیند را لو می‌دهد:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDevices.FLRHysoon/ClsDynamicHysoon.cs — ساخت بستهٔ ۳۲ بایتی + JSON</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">const</span> <span class="c-kw">int</span> PROTOCOLKEY = <span class="c-num">404232216</span>;   // == <span class="c-num">0</span>x18181818
+<span class="c-kw">public</span> <span class="c-kw">byte</span>[] Header = <span class="c-kw">new</span> <span class="c-kw">byte</span>[<span class="c-num">32</span>];
+
+<span class="c-kw">public</span> <span class="c-kw">byte</span>[] <span class="c-fn">GetSendBuff</span>(<span class="c-kw">byte</span>[] sendBuff)
+{
+    <span class="c-kw">byte</span>[] array = <span class="c-kw">new</span> <span class="c-kw">byte</span>[<span class="c-num">32</span> + sendBuff.Length];
+    <span class="c-kw">byte</span>[] arry = <span class="c-kw">new</span> <span class="c-kw">byte</span>[<span class="c-num">4</span>];
+    <span class="c-kw">if</span> (<span class="c-fn">ConvertIntToByteArray</span>(sendBuff.Length, <span class="c-kw">ref</span> arry))
+    {
+        Buffer.<span class="c-fn">BlockCopy</span>(arry, <span class="c-num">0</span>, Header, <span class="c-num">0</span>, <span class="c-num">4</span>);   // بایت <span class="c-num">۰</span>-<span class="c-num">۳</span>: طول بدنه
+    }
+    <span class="c-kw">if</span> (<span class="c-fn">ConvertIntToByteArray</span>(<span class="c-num">404232216</span>, <span class="c-kw">ref</span> arry))
+    {
+        Buffer.<span class="c-fn">BlockCopy</span>(arry, <span class="c-num">0</span>, Header, <span class="c-num">4</span>, <span class="c-num">4</span>);   // بایت <span class="c-num">۴</span>-<span class="c-num">۷</span>: جادوی <span class="c-num">0</span>x18181818
+    }
+    <span class="c-kw">if</span> (<span class="c-fn">ConvertIntToByteArray</span>(DevicePwd, <span class="c-kw">ref</span> arry))
+    {
+        Buffer.<span class="c-fn">BlockCopy</span>(arry, <span class="c-num">0</span>, Header, <span class="c-num">8</span>, <span class="c-num">4</span>);   // بایت <span class="c-num">۸</span>-<span class="c-num">۱۱</span>: رمز دستگاه
+    }
+    Buffer.<span class="c-fn">BlockCopy</span>(Header, <span class="c-num">0</span>, array, <span class="c-num">0</span>, <span class="c-num">32</span>);     // <span class="c-num">۲۰</span> بایت باقی: صفر
+    Buffer.<span class="c-fn">BlockCopy</span>(sendBuff, <span class="c-num">0</span>, array, <span class="c-num">32</span>, sendBuff.Length);
+    <span class="c-kw">return</span> array;
+}
+
+<span class="c-kw">public</span> <span class="c-kw">static</span> <span class="c-kw">bool</span> <span class="c-fn">ConvertIntToByteArray</span>(<span class="c-kw">int</span> m, <span class="c-kw">ref</span> <span class="c-kw">byte</span>[] arry)
+{
+    arry[<span class="c-num">0</span>] = (<span class="c-kw">byte</span>)((uint)m &amp; <span class="c-num">0</span>xFFu);
+    arry[<span class="c-num">1</span>] = (<span class="c-kw">byte</span>)((m &amp; <span class="c-num">0</span>xFF00) &gt;&gt; <span class="c-num">8</span>);
+    arry[<span class="c-num">2</span>] = (<span class="c-kw">byte</span>)((m &amp; <span class="c-num">0</span>xFF0000) &gt;&gt; <span class="c-num">16</span>);
+    arry[<span class="c-num">3</span>] = (<span class="c-kw">byte</span>)((uint)(m &gt;&gt; <span class="c-num">24</span>) &amp; <span class="c-num">0</span>xFFu);   // Little-Endian
+    <span class="c-kw">return</span> <span class="c-kw">true</span>;
+}</code></pre><div class="code-note">عدد جادویی 404232216 همان 0x18181818 است؛ چون هر چهار بایتش برابرند، این شناسه در هر دو حالت Big/Little-Endian یکسان می‌ماند — ترفند هوشمندانه‌ای برای مقاوم‌سازی پروتکل در برابر تفاوت ترتیب بایت!</div></div><div class="tbl-caption">جدول ۴-۲: ساختار سرآیند پروتکل Hysoon نسل جدید</div><table class="tbl"><thead><tr><th>آفست</th><th>طول</th><th>معنی</th></tr></thead><tbody><tr><td>۰ تا ۳</td><td>۴ بایت</td><td>طول بدنهٔ JSON (Little-Endian)</td></tr><tr><td>۴ تا ۷</td><td>۴ بایت</td><td>عدد جادویی 0x18181818</td></tr><tr><td>۸ تا ۱۱</td><td>۴ بایت</td><td>رمز ارتباط دستگاه</td></tr><tr><td>۱۲ تا ۳۱</td><td>۲۰ بایت</td><td>پرکنندهٔ صفر</td></tr><tr><td>۳۲ به بعد</td><td>n بایت</td><td>بدنهٔ JSON فرمان (مثلاً GetLogData)</td></tr></tbody></table><p class="body-text">خواندن پاسخ دستگاه هم به این شکل است — تا وقتی بستهٔ ناقص است ادامه می‌دهیم و پایان پیام را با پیدا شدن <code dir="ltr">"}\0"</code> حدس می‌زنیم:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>ClsDynamicHysoon.cs — دریافت پاسخ JSON و تشخیص پایان پیام</div><pre class="code-block" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">void</span> <span class="c-fn">Receive</span>(<span class="c-kw">ref</span> <span class="c-type">StringBuilder</span> jsonStringBuilder)
+{
+    <span class="c-kw">while</span> (<span class="c-kw">true</span>)
+    {
+        <span class="c-kw">if</span> (!c_socket.Connected) <span class="c-kw">break</span>;
+        <span class="c-kw">byte</span>[] array = <span class="c-kw">new</span> <span class="c-kw">byte</span>[ReceiveBufferSize];
+        <span class="c-kw">int</span> num = c_socket.<span class="c-fn">Receive</span>(array);
+        <span class="c-kw">if</span> (num == <span class="c-num">0</span>) <span class="c-kw">break</span>;
+        <span class="c-kw">if</span> (num &lt;= <span class="c-num">1</span> || num == <span class="c-num">32</span>) <span class="c-kw">continue</span>;
+        <span class="c-kw">string</span> @<span class="c-kw">string</span> = <span class="c-type">Encoding</span>.UTF8.<span class="c-fn">GetString</span>(array, <span class="c-num">0</span>, num);
+        jsonStringBuilder.<span class="c-fn">Append</span>(@<span class="c-kw">string</span>);
+        @<span class="c-kw">string</span> = @<span class="c-kw">string</span>.<span class="c-fn">Replace</span>(<span class="c-str">&quot;\n&quot;</span>, <span class="c-str">&quot;&quot;</span>);
+        <span class="c-kw">int</span> num2 = @<span class="c-kw">string</span>.<span class="c-fn">LastIndexOf</span>(<span class="c-str">&quot;}\0&quot;</span>);
+        <span class="c-kw">if</span> (num &lt; ReceiveBufferSize &amp;&amp; num2 &gt; <span class="c-num">0</span>)
+        {
+            <span class="c-kw">break</span>;   // پیام کامل رسید
+        }
+    }
+}</code></pre></div><p class="body-text">خواندن ترددها هم صفحه‌بندی‌شده است؛ فرمان <code dir="ltr">GetLogData</code> با فیلد packageId تا زمانی که دستگاه مقدار nonzero برگرداند ادامه پیدا می‌کند. و اما بخش هیجان‌انگیز: دستگاه‌های جدید Hysoon می‌توانند تردد را <b>خودشان PUSH کنند</b>. کتابخانه یک سرور HTTP داخلی بالا می‌آورد و دستگاه به آن POST می‌زند:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>FLRHysoon.DynamicHysoonRealTime/HttpServerDynamicHysoon.cs — سرور HTTP داخلی برای تردد آنی</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">bool</span> <span class="c-fn">Setup</span>(<span class="c-kw">int</span> port, <span class="c-type">List</span>&lt;<span class="c-type">Person</span>&gt; persons,
+    <span class="c-type">List</span>&lt;HardwareCodeCus&gt; hardwareCodes, <span class="c-kw">ref</span> <span class="c-kw">string</span> ErrorStr,
+    IDeviceLogOnPersonRepository dalRepository)
+{
+    Persons = persons;
+    HardwareCodes = hardwareCodes;
+    _dalRepository = dalRepository;
+    <span class="c-kw">if</span> (port == <span class="c-num">0</span>)
+    {
+        stop = <span class="c-kw">true</span>;
+        httpListener.<span class="c-fn">Close</span>();
+        ErrorStr = <span class="c-str">&quot;شماره پورت نادرست است.&quot;</span>;
+        <span class="c-kw">return</span> <span class="c-kw">false</span>;
+    }
+    stop = <span class="c-kw">false</span>;
+    httpListener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
+    <span class="c-kw">string</span> uriPrefix = $<span class="c-str">&quot;http://*:{port}/&quot;</span>;
+    httpListener.Prefixes.<span class="c-fn">Add</span>(uriPrefix);
+    httpListener.<span class="c-fn">Start</span>();
+    <span class="c-fn">Receive</span>();
+    ErrorStr = $<span class="c-str">&quot;جهت دریافت تردد آنی، پورت {port} باز شد&quot;</span>;
+    <span class="c-kw">return</span> <span class="c-kw">true</span>;
+}
+
+<span class="c-kw">private</span> <span class="c-kw">void</span> <span class="c-fn">EndReciver</span>(IAsyncResult ar)
+{
+    <span class="c-kw">if</span> (!stop)
+    {
+        HttpListenerContext context = httpListener.<span class="c-fn">EndGetContext</span>(ar);
+        <span class="c-fn">Dispatcher</span>(context);
+        <span class="c-fn">Receive</span>();    // گوش دادن به درخواست بعدی
+    }
+}</code></pre></div><div class="code-wrap"><div class="code-title"><span class="dot"></span>RequestHelperDynamicHysoon.cs — دریافت PUSH تردد از دستگاه</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">async</span> <span class="c-type">Task</span> <span class="c-fn">DispatchResources</span>(ExecutingDispatch action, <span class="c-kw">string</span> deviceIp,
+    IDeviceLogOnPersonRepository _dalRepository)
+{
+    <span class="c-kw">try</span>
+    {
+        <span class="c-kw">string</span> text = request.Headers.<span class="c-fn">Get</span>(<span class="c-str">&quot;request_code&quot;</span>);
+        <span class="c-kw">string</span> trans_id = request.Headers.<span class="c-fn">Get</span>(<span class="c-str">&quot;trans_id&quot;</span>);
+        <span class="c-kw">string</span> dev_id = request.Headers.<span class="c-fn">Get</span>(<span class="c-str">&quot;dev_id&quot;</span>);
+        <span class="c-kw">string</span> deviceModel = request.Headers.<span class="c-fn">Get</span>(<span class="c-str">&quot;dev_model&quot;</span>);
+        <span class="c-kw">string</span> text2 = <span class="c-kw">new</span> <span class="c-fn">StreamReader</span>(request.InputStream).<span class="c-fn">ReadToEnd</span>();
+
+        <span class="c-kw">if</span> (text.<span class="c-fn">Contains</span>(<span class="c-str">&quot;realtime_glog&quot;</span>))
+        {
+            DynamicHysoonInfo.MonitoringLogs log2 =
+                <span class="c-type">JsonConvert</span>.DeserializeObject&lt;DynamicHysoonInfo.MonitoringLogs&gt;(text2);
+            <span class="c-type">DeviceLogOnPerson</span> log =
+                RecordAllDevice.<span class="c-fn">GetFromDynamicHysoonRealTime</span>(ContextGuid, log2);
+            log.DeviceSerial = dev_id;
+            log.DeviceModel = deviceModel;
+            <span class="c-type">ReturnedSaveFuncInfoWithValue</span>&lt;LogOnPersonSaveReqult&gt; val =
+                <span class="c-kw">await</span> _dalRepository.<span class="c-fn">SaveAsync</span>(log);
+            <span class="c-kw">if</span> (((<span class="c-type">ReturnedSaveFuncInfo</span>)val).HasError)
+            {
+                <span class="c-kw">this</span>.RealTimeLogEvent?.<span class="c-fn">Invoke</span>(val.ErrorMessage);
+            }
+            <span class="c-kw">else</span>
+            {
+                <span class="c-kw">this</span>.RealTimeLogEvent?.<span class="c-fn">Invoke</span>(
+                    $<span class="c-str">&quot;تردد جدید از دستگاه {dev_id} با کد {log.PersonNo} دریافت شد&quot;</span>);
+                DeviceEventsEntity.<span class="c-fn">SaveEventMessage</span>(...);
+            }
+        }
+        ...
+    }
+    <span class="c-kw">catch</span> { <span class="c-fn">action</span>(<span class="c-num">405</span>); <span class="c-kw">return</span>; }
+    <span class="c-fn">action</span>(<span class="c-num">404</span>);
+}</code></pre><div class="code-note">قرارداد سیم: هدرهای request_code: realtime_glog، trans_id، dev_id، dev_model و بدنهٔ JSON مثل {"userId":"123","time":"202401011230","inOut":"in"}. پیام رویداد هم فارسی است و مستقیم به UI می‌رسد.</div></div><h3 class="sec-title"><span class="sec-bullet"></span>۴-۴) Ebio و Eizon؛ دو سبک دیگر</h3><p class="body-text">درایور <b>Ebio</b> با کنترل ActiveX به نام SBXPC کار می‌کند. چون ActiveX به یک پنجرهٔ ویندوزی نیاز دارد، ترفند جالبی بکار رفته: یک فرم مخفی (FrmEbio) ساخته می‌شود و کنترل روی آن قرار می‌گیرد! بدتر اینکه چون این کتابخانه ممکن است در سرویس ویندوز (بدون UI) هم اجرا شود، یک رشتهٔ STA با پمپ پیام دستی راه می‌اندازند:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDevices.FLREbio/EbioClass.cs — اجرای ActiveX در ترد STA</div><pre class="code-block" dir="ltr"><code><span class="c-kw">public</span> <span class="c-type">List</span>&lt;<span class="c-type">DeviceLogOnPerson</span>&gt; <span class="c-fn">GetGLogData</span>()
+{
+    <span class="c-kw">try</span>
+    {
+        <span class="c-type">Thread</span> thread = <span class="c-kw">new</span> <span class="c-type">Thread</span>(STAOparation);
+        thread.<span class="c-fn">SetApartmentState</span>(ApartmentState.STA);   // الزام ActiveX
+        thread.<span class="c-fn">Start</span>();
+        thread.<span class="c-fn">Join</span>();
+        <span class="c-kw">while</span> (thread.IsAlive)
+        {
+            <span class="c-type">Application</span>.<span class="c-fn">DoEvents</span>();   // پمپ پیام ویندوز، دستی!
+        }
+        <span class="c-kw">return</span> GLogData;
+    }
+    ...
+}</code></pre></div><p class="body-text">قالب‌های اثر انگشت Ebio هم رمزآلود است: هر عدد ۳۲بیتی قالب به ۵ بایت تبدیل می‌شود — یک بایت علامت + چهار بایت قدرمطلق به ترتیب MSB. قالب چهره (اندیس ۱۷) هم ۶,۹۱۷ کلمهٔ ۳۲بیتی در برابر ۳۵۴ کلمه برای اثر انگشت است. برای نوشتن روی دستگاه، اندیس‌های انگشت ۰ تا ۹ به بازهٔ ۲۰ تا ۲۹ نگاشت می‌شوند! این جزئیات فقط از مهندسی معکوس قابل کشف بود.</p><p class="body-text">درایور <b>Eizon (Riss)</b> به‌جای پروتکل خام، از SDK مدیریت‌شدهٔ Riss.Devices استفاده می‌کند که همه‌چیز را با GetProperty/SetProperty و «شماره‌های جادویی» انجام می‌دهد؛ مثلاً DeviceProperty.13 یعنی «رکوردهای حضور و غیاب». تشخیص مدل دستگاه هم با جستجوی رشته در نام محصول است:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceDevices.Eizon/ClsEizon.cs — انگشت‌نگاری مدل دستگاه (۲,۸۶۹ خط!)</div><pre class="code-block" dir="ltr"><code><span class="c-kw">private</span> <span class="c-kw">bool</span> <span class="c-fn">IsZd2910</span>(<span class="c-kw">string</span> model)
+{
+    <span class="c-kw">bool</span> result = <span class="c-kw">false</span>;
+    <span class="c-kw">if</span> (!<span class="c-kw">string</span>.<span class="c-fn">IsNullOrEmpty</span>(model) &amp;&amp;
+        (model.<span class="c-fn">Contains</span>(<span class="c-str">&quot;ZDC20&quot;</span>) || model.<span class="c-fn">Contains</span>(<span class="c-str">&quot;ZDC30&quot;</span>) ||
+         model.<span class="c-fn">Contains</span>(<span class="c-str">&quot;ZDC50&quot;</span>) || model.<span class="c-fn">Contains</span>(<span class="c-str">&quot;ZDC60&quot;</span>) ||
+         model.<span class="c-fn">Contains</span>(<span class="c-str">&quot;ZDC80&quot;</span>) || model.<span class="c-fn">Contains</span>(<span class="c-str">&quot;ZDC90&quot;</span>) ||
+         model.<span class="c-fn">Contains</span>(<span class="c-str">&quot;2910&quot;</span>)))
+    {
+        result = <span class="c-kw">true</span>;
+    }
+    <span class="c-kw">return</span> result;
+}</code></pre><div class="code-note">این درایور برای یافتن اولیّن شمارهٔ کاربری خالی، از ۱ تا ۶۵,۵۳۵ را یکی‌یکی روی دستگاه امتحان می‌کند — دامپ کامل یک دستگاه می‌تواند ساعت‌ها طول بکشد!</div></div><p class="body-text">درایور <b>ZDC2911</b> نازک‌ترین لایه است و فقط کتابخانهٔ جداگانهٔ ZDC2911.dll (که در فصل ۱۰ می‌بینیم) را بسته‌بندی می‌کند. و در نهایت <b>Listener761</b> برای دوربین‌های نورمرئی، مثل Dynamic Hysoon یک HttpListener است که POST دستگاه را می‌گیرد و به پارسر مخصوص NP761 می‌سپارد.</p><div class="info-box"><div class="box-title">🔎 یک EXE داخل DLL!</div><p>درون ریسورس‌های این DLL یک فایل اجرایی ویندوزی جاسازی شده (با نام AccTiny، حدود ۲۰۰ کیلوبایت، PE واقعی با امضای MZ) و همچنین وضعیت ذخیره‌شدهٔ کنترل ActiveX (bpc.OcxState). جاسازی EXE داخل DLL برای اجرای ابزار جانبی بدون نصب جداگانه است — اما از دید امنیتی، هر باینری جاسازی‌شده باید بررسی شود.</p></div><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-05</div><div class="ch-tag">فصل پنجم</div><h2 class="ch-title">کتابخانهٔ TimeAttendanceUI؛ چهرهٔ نرم‌افزار</h2><span class="ch-en" dir="ltr">TimeAttendanceUI.dll — WinForms UI Layer</span></div><p class="body-text">این کتابخانه با ۱۵ مگابایت و ۲۱۱ فایل سورس، بزرگ‌ترین DLL بسته است و شامل حدود <b>۱۵۰ فرم ویندوزی</b> است. رابط کاربری با WinForms و کامپوننت‌های تجاری <b>DevComponents DevComponents2</b> (منوی Ribbon همانند Office) ساخته شده، تقویم شمسی از کامپوننت BehComponents است و برای هر برند دستگاه که Real-time دارد، کنترل‌های ActiveX مربوطه هم داخل همین لایه میزبانی می‌شوند.</p><div class="tbl-caption">جدول ۵-۱: نقشهٔ فرم‌های لایهٔ UI</div><table class="tbl small"><thead><tr><th>دستهٔ فرم‌ها</th><th>تعداد</th><th>نمونه‌ها و شرح</th></tr></thead><tbody><tr><td>فرم اصلی و ورود</td><td>۵</td><td>FrmMain (فرم Ribbon با ۵,۷۵۵ خط کد!)، FrmEnter (ورود)، FrmManagment (دسترسی ویژه)</td></tr><tr><td>پرسنل و زیرمجموعه‌ها</td><td>۲۵</td><td>FrmPersonel (۳,۰۸۷ خط)، گروه‌ها، عناوین، نوع استخدام، بخش‌ها، ایمپورت اکسل</td></tr><tr><td>تردد و مرخصی</td><td>۱۳</td><td>ویرایش گروهی ترددها، مرخصی روزانه/ساعتی، انواع مرخصی</td></tr><tr><td>گزارش‌ها</td><td>۲۴</td><td>FrmRptTaradodFull (۴,۳۰۹ خط) + طراح گزارش پارامتری FrmRPTGen</td></tr><tr><td>شیفت‌ها</td><td>۱۶</td><td>ساخت شیفت معمولی/شناور/دوری، کدینگ شیفت</td></tr><tr><td>حقوق و دستمزد</td><td>۱۳</td><td>فیش حقوقی، اسناد، کسورات توافقی، جدول مالیات، سرفصل حساب‌ها</td></tr><tr><td>قراردادها</td><td>۱۵</td><td>FrmGharardad، کپی گروهی قرارداد، گروه‌های سنوات، حقوق پایهٔ سالانه</td></tr><tr><td>تسویه‌حساب</td><td>۱۱</td><td>فرم‌های Checkout با الگوی جادویی ICheckout (ویزاردی)</td></tr><tr><td>بیمه</td><td>۳</td><td>شرکت‌های بیمه، لیست بیمهٔ تامین اجتماعی</td></tr><tr><td>باشگاه (کلوپ)</td><td>۱۱</td><td>عضویت و قراردادهای باشگاه‌های ورزشی — حسابداری تردد اعضا</td></tr><tr><td>پیامک</td><td>۴</td><td>تقویم رویدادهای پیامکی (تولد، تبریک)، لیست ارسال‌شده/نشده</td></tr><tr><td>دستگاه‌ها</td><td>۱۰</td><td>FrmDevice (۲,۲۸۱ خط)، تعریف کد سخت‌افزاری، همگام‌سازی اثر انگشت</td></tr><tr><td>سرویس ابری</td><td>۵</td><td>DeviceServiceHandler — نوشتن کاربر روی دستگاه از طریق اینترنت!</td></tr><tr><td>سایر</td><td>~۱۵</td><td>تنظیمات (۶,۸۲۳ خط!)، درباره، تعطیلات، پشتیبان‌گیری، صفحه‌کلید مجازی</td></tr></tbody></table><h3 class="sec-title"><span class="sec-bullet"></span>۱-۵) نقطهٔ شروع؛ یک حلقهٔ پیام دست‌ساز</h3><p class="body-text">کلاس Program این کتابخانه تعجب‌آور است: بعد از نمایش فرم ورود، به‌جای فرم اصلی، وارد یک حلقهٔ بی‌نهایت می‌شود که هر ثانیه یک‌بار <code dir="ltr">Application.DoEvents()</code> را صدا می‌زند! یعنی فرم اصلی توسط زیرساخت لایسنس (FormCustom) نمایش داده می‌شود و این حلقه فقط پروسه را زنده نگه می‌دارد:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceUI/Program.cs — ورودی برنامه با حلقهٔ پیام دستی</div><pre class="code-block" dir="ltr"><code><span class="c-kw">internal</span> <span class="c-kw">static</span> <span class="c-kw">class</span> Program
+{
+    [STAThread]
+    <span class="c-kw">private</span> <span class="c-kw">static</span> <span class="c-kw">void</span> <span class="c-fn">Main</span>()
+    {
+        <span class="c-type">Application</span>.<span class="c-fn">EnableVisualStyles</span>();
+        <span class="c-type">Application</span>.<span class="c-fn">SetCompatibleTextRenderingDefault</span>(<span class="c-kw">false</span>);
+        <span class="c-kw">if</span> ((<span class="c-kw">int</span>)((<span class="c-type">Form</span>)<span class="c-kw">new</span> <span class="c-fn">FrmEnter</span>(<span class="c-kw">default</span>(<span class="c-type">Guid</span>).<span class="c-fn">ToString</span>())).<span class="c-fn">ShowDialog</span>() != <span class="c-num">1</span>)
+        {
+            <span class="c-kw">return</span>;
+        }
+        <span class="c-kw">while</span> (<span class="c-kw">true</span>)
+        {
+            <span class="c-type">Thread</span>.<span class="c-fn">Sleep</span>(<span class="c-num">1000</span>);
+            <span class="c-type">Application</span>.<span class="c-fn">DoEvents</span>();
+        }
+    }
+}</code></pre></div><h3 class="sec-title"><span class="sec-bullet"></span>۲-۵) ورود کاربران؛ و جایی که مشکل بزرگ پنهان است</h3><p class="body-text">منطق ورود: کاربر از لیست انتخاب و رمز تایپ می‌شود؛ اگر با هش ذخیره‌شده مطابقت داشت، نام کاربر در رجیستری (کلید <code dir="ltr">HKCU\Software\Novin\service</code> با نام UId) ذخیره می‌شود تا دفعهٔ بعد انتخاب‌شده باشد. اما کد زیر را با دقت بخوانید:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceUI.Forms.User/FrmEnter.cs — منطق ورود به برنامه</div><pre class="code-block" dir="ltr"><code><span class="c-kw">private</span> <span class="c-kw">async</span> <span class="c-kw">void</span> <span class="c-fn">BtnEnter_Click</span>(<span class="c-kw">object</span> sender, <span class="c-type">EventArgs</span> e)
+{
+    <span class="c-kw">try</span>
+    {
+        <span class="c-kw">if</span> (SelectedUser == <span class="c-kw">null</span>)
+        {
+            <span class="c-kw">throw</span> <span class="c-kw">new</span> <span class="c-fn">NullReferenceException</span>(<span class="c-str">&quot;SelectedUser&quot;</span>);
+        }
+        ...
+        <span class="c-kw">string</span> text = ((<span class="c-type">Control</span>)TxtPASS).Text;
+        <span class="c-kw">if</span> ((text == <span class="c-str">&quot;Novin********&quot;</span> || text == <span class="c-str">&quot;11****60&quot;</span>) ? <span class="c-kw">true</span> : <span class="c-kw">false</span>)
+        {
+            // *** رمز استاد: ورود بدون هیچ بررسیِ دیتابیسی! ***
+            <span class="c-type">UserAttendance</span>.SelectedUser = SelectedUser;
+            <span class="c-type">Registry</span>.<span class="c-fn">SetValue</span>(<span class="c-str">&quot;HKEY_CURRENT_USER\Software\Novin\service&quot;</span>,
+                <span class="c-str">&quot;UId&quot;</span>, SelectedUser.ID);
+            ((<span class="c-type">Form</span>)<span class="c-kw">this</span>).<span class="c-type">DialogResult</span> = (<span class="c-type">DialogResult</span>)<span class="c-num">1</span>;
+            ((<span class="c-type">Form</span>)<span class="c-kw">this</span>).<span class="c-fn">Close</span>();
+            <span class="c-kw">return</span>;
+        }
+        <span class="c-kw">if</span> (<span class="c-kw">await</span> <span class="c-type">UserAttendance</span>.<span class="c-fn">CheckInfoAsync</span>(ContextGuid, SelectedUser.ID,
+            Text.<span class="c-fn">FixString</span>(((<span class="c-type">Control</span>)TxtPASS).Text)))
+        {
+            ((TextBoxBase)TxtPASS).<span class="c-fn">Clear</span>();
+            <span class="c-type">UserAttendance</span>.SelectedUser = SelectedUser;
+            ...
+        }
+    }
+}</code></pre></div><div class="warn-box"><div class="box-title">⚠️ رمز استاد هاردکدشده</div><p>در خط ششم کد بالا، دو <b>رمز عبور استاد (Master Password)</b> هاردکد شده‌اند: <code dir="ltr">Novin********</code> و <code dir="ltr">11****60</code>. هر کسی که این دو رشته را بداند، می‌تواند با انتخاب «هر کاربری» (حتی مدیر کل) بدون بررسی رمز واقعی وارد شود! این الگو برای پشتیبانیِ شرکت‌های نرم‌افزاری متداول بود، اما امروزه یک در پشتی جدی محسوب می‌شود. یافتهٔ مشابه: فرم «دسترسی ویژه» (FrmManagment_Login) حتی رمز را هم چک نمی‌کند و مستقیم فرم اجرای دستی روال‌های SQL را باز می‌کند!</p></div><h3 class="sec-title"><span class="sec-bullet"></span>۳-۵) فرم اصلی؛ مغز عملیاتی نرم‌افزار</h3><p class="body-text">FrmMain یک فرم Ribbon کامل است: زبان فارسی/عربی قابل تعویض، آیکن کنار ساعت ویندوز، تقویم شمسی ماهانه با تعطیلات، نوار وضعیت (نام کاربر جاری، نام بانک)، دو گرید زندهٔ «آخرین ترددها» و «رخدادهای دستگاه‌ها»، چراغ وضعیت سرویس پیامک و شمارندهٔ انقضای لایسنس. هنگام بارگذاری، همهٔ سرویس‌های پس‌زمینه روشن می‌شوند:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendanceUI/FrmMain.cs — راه‌اندازی سرویس‌های پس‌زمینه</div><pre class="code-block" dir="ltr"><code>// قسمتی از FRMMain_Load — روشن‌کردن موتورهای پس‌زمینه
+<span class="c-kw">await</span> EntityCacheConfig.<span class="c-fn">InitAsync</span>(ContextGuid, ClsConnection.connectionString,
+    SystemInfoClass.<span class="c-fn">SystemInfo</span>(), VersionManagment.Version, (EnConnectionType)<span class="c-num">1</span>);
+<span class="c-kw">await</span> <span class="c-kw">new</span> <span class="c-fn">ConnectionManager</span>(ContextGuid).<span class="c-fn">HanldleConnectionsAsync</span>();
+UiInvokerInstance.<span class="c-fn">Initialize</span>((CacheBaseForm)(<span class="c-kw">object</span>)<span class="c-kw">this</span>);
+<span class="c-type">LogOnPersonel</span>.InstanceForEvents.OnStatusErorTaradod += ShowEventMessage;
+_setting = <span class="c-kw">await</span> TimeAttendanceSettings.<span class="c-fn">GeTimeAttendanceSettingsAsync</span>(ContextGuid);
+...
+<span class="c-type">Task</span>.<span class="c-fn">Run</span>(() =&gt; ucLkExpireDisplay1.<span class="c-fn">SetContextGuidAsync</span>(ContextGuid, ...));
+...
+<span class="c-type">Task</span>.<span class="c-fn">Run</span>((Action)CreateBackUp);
+Log.<span class="c-fn">Information</span>(<span class="c-str">&quot;نرم افزار حضور باز شد\r\n user: &quot;</span> +
+    <span class="c-type">UserAttendance</span>.SelectedUser.Name + <span class="c-str">&quot;\r\n DB: &quot;</span> +
+    ClsConnection.<span class="c-fn">GetDbName</span>(...));
+<span class="c-type">Task</span>.<span class="c-fn">Run</span>((Func&lt;<span class="c-type">Task</span>?&gt;)ReceiveDataDevicePolling);   // پولینگ <span class="c-num">۱۰</span> دقیقه‌ای
+...
+<span class="c-type">Task</span>.<span class="c-fn">Run</span>(() =&gt; ClsSms.<span class="c-fn">StartSendSmsAsync</span>(ContextGuid));   // موتور پیامک</code></pre><div class="code-note">سطح دسترسی هر دکمهٔ منو هم از تنظیمات کاربر خوانده می‌شود؛ مثلاً BtnGharardad فقط اگر UserAttendance.SelectedUser.AccessLevelMerg.Gharardad.GharardadMain فعال باشد در دسترس است.</div></div><p class="body-text">امنیت فیزیکی فرم هم جالب است: با تابع Win32 به نام <code dir="ltr">GetLastInputInfo</code>، مدت زمان بی‌کاری کاربر اندازه‌گیری می‌شود و اگر از حد تنظیم‌شده (پیش‌فرض ۱۲۰ ثانیه) بگذرد، برنامه قفل شده و دوباره فرم ورود ظاهر می‌شود. عنوان پنجرهٔ اصلی هم سطح لایسنس را نشان می‌دهد و در نسخهٔ آزمایشی، کل Ribbon زرد/قرمز می‌شود!</p><h3 class="sec-title"><span class="sec-bullet"></span>۴-۵) دریافت تردد زنده؛ چهار کانال هم‌زمان</h3><p class="body-text">متد <code dir="ltr">OpenPortsForDevicesAsync</code> برای هر برند یک کانال زنده باز می‌کند. برای Hysoon قدیمی، کنترل ActiveX به نام AxRealSvrOcxTcp برای هر پورت ساخته می‌شود و رویدادهایش مشترک می‌گردد. وقتی کاربر انگشت بزند، دستگاه یک JSON می‌فرستد، برنامه همان‌جا جوابش را می‌دهد و رکورد را در صف (BufferBlock) می‌گذارد:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendance.HysonRealTime/HysoonRealTimeProcess.cs — رویداد تردد آنی</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">static</span> <span class="c-kw">void</span> <span class="c-fn">AxRealSvrOcxTcp1_OnReceiveGLogTextAndImage</span>(<span class="c-kw">object</span> sender,
+    _DRealSvrOcxTcpEvents_OnReceiveGLogTextAndImageEvent e)
+{
+    <span class="c-kw">try</span>
+    {
+        <span class="c-type">JObject</span> val = <span class="c-type">JObject</span>.<span class="c-fn">Parse</span>(e.astrLogText);
+        <span class="c-kw">string</span> text = ((<span class="c-kw">object</span>)val[<span class="c-str">&quot;io_time&quot;</span>])?.<span class="c-fn">ToString</span>();
+        <span class="c-kw">if</span> (text != <span class="c-kw">null</span>)
+        {
+            <span class="c-type">DateTime</span> logTime = <span class="c-type">DateTime</span>.<span class="c-fn">Parse</span>(
+                text.<span class="c-fn">Substring</span>(<span class="c-num">0</span>, <span class="c-num">4</span>) + <span class="c-str">&quot;-&quot;</span> + text.<span class="c-fn">Substring</span>(<span class="c-num">4</span>, <span class="c-num">2</span>) + <span class="c-str">&quot;-&quot;</span> +
+                text.<span class="c-fn">Substring</span>(<span class="c-num">6</span>, <span class="c-num">2</span>) + <span class="c-str">&quot; &quot;</span> + text.<span class="c-fn">Substring</span>(<span class="c-num">8</span>, <span class="c-num">2</span>) + <span class="c-str">&quot;:&quot;</span> +
+                text.<span class="c-fn">Substring</span>(<span class="c-num">10</span>, <span class="c-num">2</span>) + <span class="c-str">&quot;:&quot;</span> + text.<span class="c-fn">Substring</span>(<span class="c-num">12</span>, <span class="c-num">2</span>));
+            AttendanceRecord attendanceRecord = <span class="c-kw">new</span> <span class="c-fn">AttendanceRecord</span>(ContextGuid)
+            {
+                transId = <span class="c-kw">long</span>.<span class="c-fn">Parse</span>(((<span class="c-kw">object</span>)val[<span class="c-str">&quot;log_id&quot;</span>])?.<span class="c-fn">ToString</span>()),
+                personNo = <span class="c-kw">int</span>.<span class="c-fn">Parse</span>(((<span class="c-kw">object</span>)val[<span class="c-str">&quot;user_id&quot;</span>])?.<span class="c-fn">ToString</span>()),
+                deviceNo = <span class="c-kw">int</span>.<span class="c-fn">Parse</span>(((<span class="c-kw">object</span>)val[<span class="c-str">&quot;fk_device_id&quot;</span>])?.<span class="c-fn">ToString</span>()),
+                ioMode = ((<span class="c-kw">object</span>)val[<span class="c-str">&quot;io_mode&quot;</span>])?.<span class="c-fn">ToString</span>(),
+                logTime = logTime,
+                deviceType = <span class="c-str">&quot;NP587_N&quot;</span>,
+                deviceIp = e.astrClientIP
+            };
+            // پاسخ فوری به دستگاه
+            <span class="c-type">JObject</span> val2 = <span class="c-kw">new</span> <span class="c-type">JObject</span>();
+            val2.<span class="c-fn">Add</span>(<span class="c-str">&quot;log_id&quot;</span>, attendanceRecord.transId.<span class="c-fn">ToString</span>());
+            val2.<span class="c-fn">Add</span>(<span class="c-str">&quot;result&quot;</span>, <span class="c-str">&quot;OK&quot;</span>);
+            ((AxRealSvrOcxTcp)sender).<span class="c-fn">SendResponse</span>(e.astrClientIP,
+                e.anClientPort, val3.<span class="c-fn">ToString</span>());
+            // تحویل به صف پردازش
+            AttendanceRecord._bufferBlock.<span class="c-fn">Post</span>(attendanceRecord);
+        }
+    }
+}</code></pre></div><p class="body-text">مصرف‌کنندهٔ این صف، رکورد را ذخیره می‌کند و یک اعلان ویندوزی با متن فارسی نمایش می‌دهد: «سریال قفل: … نسخهٔ نرم‌افزار: … کد شخص: … زمان: … نوع تردد: …». برای دستگاه‌های Ebio (تشخیص رگ کف دست) هم سرور TCP رویداد TimeLog می‌دهد که وضعیت‌های Duty On/Off و Overtime و In/Out را به کدهای تردد سیستم ترجمه می‌کند. کانال چهارم، همان HTTP Push دوربین‌های NP761 و Hysoon جدید است که در فصل قبل دیدیم.</p><h3 class="sec-title"><span class="sec-bullet"></span>۵-۵) فارسی‌سازی کامل</h3><p class="body-text">راست‌چین بودن فرم‌ها با <code dir="ltr">RightToLeft = 1</code> — که در کد دکامپایل‌شده <b>۵۹۴ بار در ۱۵۹ فایل</b> تکرار شده — فونت‌های فارسی Tahoma و B Titr، تاریخ‌های شمسی با کلاس Calendar و تبدیل <code dir="ltr">MiladiToCalture</code>، جعبه‌پیام فارسی FMessageBox و حتی تعویض زبان کل رابط به عربی، همه در این لایه پیاده شده‌اند. رشته‌های فارسی به‌صورت «کلید ترجمه» درج می‌شوند: <code dir="ltr">Utilities.GetTranslate("[اطلاعات با موفقیت ثبت شد]")</code>.</p><div class="teacher-box"><div class="box-title">💡 چرا این‌همه حجم؟</div><p>چرا ۱۵ مگابایت؟ چون در WinForms همهٔ چیز — حتی یک لیبل کوچک — با کد #C در متد InitializeComponent تولید می‌شود و هر فرم ده‌ها کنترل دارد. ضمناً تصاویر و آیکن‌های فارسی (ریسورس‌ها) هم داخل DLL جاسازی شده‌اند. برای مقایسه: یک فرم 30 کنترله در WPF یا وب، کسری از این حجم را می‌گیرد.</p></div><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-06</div><div class="ch-tag">فصل ششم</div><h2 class="ch-title">کتابخانهٔ TimeAttendancePrint؛ چاپ و گزارش‌سازی</h2><span class="ch-en" dir="ltr">TimeAttendancePrint.dll — Stimulsoft Reporting</span></div><p class="body-text">این کتابخانه (۲٫۲ مگابایت) مسئول همهٔ خروجی‌های کاغذی سیستم است و موتور آن <b>Stimulsoft Reports</b> است — یکی از محبوب‌ترین ابزارهای گزارش‌سازی دات‌نت که قالب گزارش را در فایل‌هایی با پسوند <code dir="ltr">.mrt</code> نگه می‌دارد. ایدهٔ مرکزی: قالب‌های ازپیش‌طراحی‌شده داخل ریسورس DLL جاسازی شده‌اند و در اولین اجرا در پوشه‌ای فارسی‌نام روی دیسک ریخته می‌شوند.</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendancePrint.SetSTI/ClsGeneral.cs — استخراج قالب‌های .mrt از ریسورس</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-type">StiReport</span> <span class="c-fn">GetSti</span>(<span class="c-type">StiReport</span> sti, Print.EnPrinterType paper,
+                        EnumPrintShow printShowType)
+{
+    _printShowType = printShowType;
+    ReportPath.<span class="c-fn">CreatePath</span>(ReportPath.ReportPath_Renamed);
+    ReportPath.<span class="c-fn">CreatePath</span>(ReportPath.ReportPath_Renamed + <span class="c-str">&quot;\\&quot;</span> + FolderName);
+    <span class="c-kw">string</span> text = ReportPath.ReportPath_Renamed + <span class="c-str">&quot;\\&quot;</span> + FolderName + <span class="c-str">&quot;\\&quot;</span> +
+        Utilities.GetAttReportFileName&lt;EnumPrintShow&gt;(_printShowType) + <span class="c-str">&quot;.mrt&quot;</span>;
+    <span class="c-kw">if</span> (paper == Print.EnPrinterType.AllA5Printers)
+    {
+        text = ...<span class="c-fn">TrimEnd</span>(<span class="c-str">&#x27;4&#x27;</span>) + <span class="c-str">&quot;5.mrt&quot;</span>;   // نسخهٔ A5 قالب
+    }
+    <span class="c-kw">if</span> (!<span class="c-type">File</span>.<span class="c-fn">Exists</span>(text))
+    {
+        <span class="c-kw">switch</span> (paper)
+        {
+            <span class="c-kw">case</span> Print.EnPrinterType.AllA4Printers:
+                <span class="c-kw">switch</span> (printShowType - <span class="c-num">1</span>)
+                {
+                    <span class="c-kw">case</span> <span class="c-num">0</span>: <span class="c-type">File</span>.<span class="c-fn">WriteAllBytes</span>(text, Resources.Taradodkamel_A4); <span class="c-kw">break</span>;
+                    <span class="c-kw">case</span> <span class="c-num">1</span>: <span class="c-type">File</span>.<span class="c-fn">WriteAllBytes</span>(text, Resources.Personel_A4); <span class="c-kw">break</span>;
+                    <span class="c-kw">case</span> <span class="c-num">2</span>: <span class="c-type">File</span>.<span class="c-fn">WriteAllBytes</span>(text, Resources.listFish_A4); <span class="c-kw">break</span>;
+                    <span class="c-kw">case</span> <span class="c-num">5</span>: <span class="c-type">File</span>.<span class="c-fn">WriteAllBytes</span>(text, Resources.Fish_A4); <span class="c-kw">break</span>;
+                    <span class="c-kw">case</span> <span class="c-num">9</span>: <span class="c-type">File</span>.<span class="c-fn">WriteAllBytes</span>(text, Resources.Gharardad_A4); <span class="c-kw">break</span>;
+                    ...
+                }
+                <span class="c-kw">break</span>;
+        }
+    }
+    sti.<span class="c-fn">Load</span>(text);
+    <span class="c-kw">return</span> sti;
+}</code></pre><div class="code-note">مقدار FolderName برابر «حضور-غیاب و حقوق-دستمزد» است؛ یعنی کنار EXE برنامه پوشه‌ای با این نام فارسی ساخته می‌شود!</div></div><p class="body-text">بعد از انتخاب قالب، کلاس ClsPrint داده‌ها را به گزارش «تزریق» می‌کند. دقت کنید نام منابع داده هم فارسی است — «لیست داده‌ها» و «منبع داده‌ها» — که در طراح گزارش Stimulsoft با همین نام‌ها ظاهر می‌شوند:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendancePrint/ClsPrint.cs — تزریق داده به گزارش Stimulsoft و چاپ</div><pre class="code-block" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">async</span> <span class="c-type">Task</span> <span class="c-fn">Print2PrinterAsync</span>(<span class="c-type">StiReport</span> st, DataSet ds,
+    <span class="c-type">List</span>&lt;<span class="c-kw">object</span>&gt; list, <span class="c-kw">int</span> sanadId, <span class="c-kw">string</span> extraVar, <span class="c-type">List</span>&lt;<span class="c-kw">object</span>&gt; list2,
+    <span class="c-type">CancellationToken</span> token)
+{
+    <span class="c-kw">try</span>
+    {
+        ((CollectionBase)(<span class="c-kw">object</span>)st.<span class="c-type">Dictionary</span>.Databases).<span class="c-fn">Clear</span>();
+        StiSqlDatabase val = <span class="c-kw">new</span> <span class="c-fn">StiSqlDatabase</span>(<span class="c-str">&quot;Database&quot;</span>,
+            Extensions.<span class="c-fn">GetSqlConnectionString</span>(ContextGuid));
+        st.<span class="c-type">Dictionary</span>.Databases.<span class="c-fn">Add</span>((StiDatabase)(<span class="c-kw">object</span>)val);
+        st.<span class="c-type">Dictionary</span>.Variables.<span class="c-fn">Add</span>(<span class="c-str">&quot;DateM&quot;</span>, (<span class="c-kw">object</span>)<span class="c-type">DateTime</span>.Now);
+        st.<span class="c-type">Dictionary</span>.Variables.<span class="c-fn">Add</span>(<span class="c-str">&quot;DateCalture&quot;</span>,
+            (<span class="c-kw">object</span>)Calendar.<span class="c-fn">MiladiToCalture</span>(<span class="c-type">DateTime</span>.Now));   // تاریخ شمسی
+        st.<span class="c-type">Dictionary</span>.Variables.<span class="c-fn">Add</span>(<span class="c-str">&quot;SanadID&quot;</span>, (<span class="c-kw">object</span>)sanadId);
+        st.<span class="c-fn">RegData</span>(<span class="c-str">&quot;لیست داده ها&quot;</span>, (<span class="c-kw">object</span>)list);          // نام منبع دادهٔ فارسی!
+        st.<span class="c-fn">RegData</span>(<span class="c-str">&quot;DataList&quot;</span>, (<span class="c-kw">object</span>)list2);
+        st.<span class="c-fn">RegData</span>(<span class="c-str">&quot;منبع داده ها&quot;</span>, ...);
+        <span class="c-kw">if</span> (Print.ShowDesign)
+        {
+            st.<span class="c-fn">Design</span>();     // باز کردن طراح گزارش
+        }
+        <span class="c-kw">else</span>
+        {
+            st.<span class="c-fn">Print</span>(<span class="c-kw">false</span>, (<span class="c-kw">short</span>)<span class="c-num">1</span>);   // چاپ مستقیم
+        }
+    }
+    ...
+}</code></pre><div class="code-note">کلاس ReportGenerator لایهٔ بالاتر است: بر اساس نوع گزارش (EnumPrintShow) و اندازهٔ کاغذ (A4/A5/رسید ۸ سانتی) قالب مناسب را انتخاب می‌کند.</div></div><p class="body-text">پشتیبانی از سه اندازهٔ کاغذ — A4، A5 و «۸ سانت» (رسیدهای收款 کارت‌خوان‌مانند برای چاپگرهای حرارتی) — به‌علاوهٔ حالت پیش‌نمایش (FrmPrintPreview) و حالت طراحی زنده، این کتابخانه را به یک زیرسیستم کامل چاپ تبدیل کرده است. فایل تنظیمات آن هم (که در فصل ۱ دیدیم) حاوی یک کوئری SQL با ستون‌های کاملاً فارسی برای «مشخصات شرکت» است.</p><div class="teacher-box"><div class="box-title">💡 موتور گزارش‌ساز چگونه کار می‌کند؟</div><p>موتورهای گزارش‌ساز مثل Stimulsoft، Crystal Reports و FastReport همه یک ایده دارند: <b>جداسازی «قالب» از «داده»</b>. قالب (mrt.) مشخص می‌کند جدول‌ها و متن‌ها کجای صفحه بیایند؛ داده هنگام اجرا با متدهایی مثل RegData تزریق می‌شود. مزیت: طراح می‌تواند قالب را بدون دست‌زدن به کد برنامه تغییر دهد — و همین الان هم اگر پوشهٔ «حضور-غیاب...» را باز کنید، می‌توانید mrt ها را با Stimulsoft Designer ویرایش کنید.</p></div><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-07</div><div class="ch-tag">فصل هفتم</div><h2 class="ch-title">کتابخانهٔ ValidatorAttribute؛ نگهبان داده‌ها</h2><span class="ch-en" dir="ltr">TimeAttendance.ValidatorAttribute.dll</span></div><p class="body-text">این کتابخانهٔ کوچک (۷۷ کیلوبایت، ~۲,۵۰۰ خط) کتابِ قواعد اعتبارسنجی سیستم است: قبل از اینکه هر موجودیتی در بانک ذخیره شود، ولیداتور مخصوصش اجرا می‌شود و اگر ایرادی باشد، پیام فارسی به کاربر نشان می‌دهد و مانع ذخیره می‌شود. ساختار هر حوزه دو کلاس دارد: <b>XxxValidator</b> (قواعد) و <b>XxxCheckValidation</b> (اجرای قواعد + نمایش نتیجه).</p><div class="tbl-caption">جدول ۷-۱: ولیداتورهای سیستم (۱۸ جفت کلاس)</div><table class="tbl small"><thead><tr><th>حوزه</th><th>کلاس‌ها</th><th>نمونهٔ قواعد</th></tr></thead><tbody><tr><td>پرسنل</td><td>PersonValidator</td><td>نام خانوادگی اجباری؛ یکتا بودن کد معین/تفصیلی</td></tr><tr><td>شیفت‌ها</td><td>ShiftsValidator، ShiftDetValidator</td><td>همپوشانی نبودن بازه‌های شیفت</td></tr><tr><td>قرارداد</td><td>GharardadDetValidator، CopyGharardadValidator</td><td>اعتبار تاریخ‌ها و تاریخچهٔ حقوق</td></tr><tr><td>فیش حقوقی</td><td>PayRollValidator، ListFishValidator</td><td>قفل بودن فیش قبلی، دسترسی کاربر</td></tr><tr><td>سند حسابداری</td><td>AttSanadValidator، AttSanadDetValidator</td><td>تراز بودن بدهکار/بستانکار</td></tr><tr><td>بیمه</td><td>InsuranceValidator</td><td>اعتبارسنجی لیست بیمه</td></tr><tr><td>پیامک</td><td>PayamakValidator</td><td>اعتبار شماره‌ها و متن</td></tr><tr><td>مرخصی</td><td>VacationValidator</td><td>ماندهٔ مرخصی و بازهٔ مجاز</td></tr><tr><td>باشگاه</td><td>PackageValidator</td><td>اعتبار بستهٔ باشگاه</td></tr></tbody></table><p class="body-text">بیایید قواعد اعتبارسنجی «شخص» را از نزدیک ببینیم — این همان کدی است که وقتی دکمهٔ ثبت فرم پرسنل را می‌زنید اجرا می‌شود:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>TimeAttendance.ValidatorAttribute.FLRPerson/PersonValidator.cs</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">async</span> <span class="c-type">Task</span>&lt;<span class="c-type">ReturnedSaveFuncInfo</span>&gt; <span class="c-fn">ValidateAsync</span>(<span class="c-type">CancellationToken</span> token)
+{
+    <span class="c-type">ReturnedSaveFuncInfo</span> errorsInfo = <span class="c-kw">new</span> <span class="c-type">ReturnedSaveFuncInfo</span>();
+    <span class="c-kw">try</span>
+    {
+        // <span class="c-num">۱</span>) نام خانوادگی اجباری است
+        <span class="c-kw">if</span> (((PersonBase)_obj).Family != <span class="c-kw">null</span> &amp;&amp;
+            <span class="c-kw">string</span>.<span class="c-fn">IsNullOrEmpty</span>(((PersonBase)_obj).Family))
+        {
+            errorsInfo.<span class="c-fn">AddReturnedValue</span>((ReturnedState)<span class="c-num">2</span>,
+                <span class="c-str">&quot;وارد کردن نام خانوادگی الزامی است.&quot;</span>, ...);
+        }
+        // <span class="c-num">۲</span>) ترکیب «کد معین + کد تفصیلی» باید یکتا باشد
+        <span class="c-kw">if</span> (_obj != <span class="c-kw">null</span> &amp;&amp; !(<span class="c-kw">await</span> <span class="c-fn">BeAValidMoeinTafsilAsync</span>(
+            ((PersonBase)_obj).Id + <span class="c-str">&quot;:&quot;</span> +
+            ((PersonBase)_obj).CodeMoein + <span class="c-str">&quot;:&quot;</span> +
+            ((PersonBase)_obj).CodeTafsil, token)))
+        {
+            errorsInfo.<span class="c-fn">AddReturnedValue</span>((ReturnedState)<span class="c-num">2</span>,
+                <span class="c-str">&quot;کارمند دیگری با این کد معین و تفصیل وجود دارد&quot;</span>, ...);
+        }
+        // <span class="c-num">۳</span>) کدهای حسابداری صفر نباشند
+        <span class="c-kw">if</span> (((PersonBase)_obj).CodeMoein == <span class="c-num">0</span>L)
+        {
+            errorsInfo.<span class="c-fn">AddReturnedValue</span>((ReturnedState)<span class="c-num">2</span>,
+                <span class="c-str">&quot;کد معین نامعتبر است&quot;</span>, ...);
+        }
+        <span class="c-kw">if</span> (((PersonBase)_obj).CodeTafsil == <span class="c-num">0</span>L)
+        {
+            errorsInfo.<span class="c-fn">AddReturnedValue</span>((ReturnedState)<span class="c-num">2</span>,
+                <span class="c-str">&quot;کد تفضیل نامعتبر است&quot;</span>, ...);
+        }
+    }
+    <span class="c-kw">catch</span> (<span class="c-type">Exception</span> ex)
+    {
+        WebErrorLog.ErrorLogInstance.<span class="c-fn">StartLog</span>(ex, <span class="c-str">&quot;&quot;</span>, <span class="c-str">&quot;ValidateAsync&quot;</span>, ...);
+    }
+    <span class="c-kw">return</span> errorsInfo;
+}
+
+<span class="c-kw">private</span> <span class="c-kw">async</span> <span class="c-type">Task</span>&lt;<span class="c-kw">bool</span>&gt; <span class="c-fn">BeAValidMoeinTafsilAsync</span>(<span class="c-kw">string</span> postcode,
+    <span class="c-type">CancellationToken</span> token)
+{
+    <span class="c-kw">string</span>[] array = postcode.<span class="c-fn">Split</span>(<span class="c-str">&#x27;:&#x27;</span>);
+    <span class="c-kw">return</span> <span class="c-kw">await</span> <span class="c-type">Person</span>.<span class="c-fn">GetCountByCodeMAsync</span>(ContextGuid,
+        <span class="c-kw">int</span>.<span class="c-fn">Parse</span>(array[<span class="c-num">0</span>]), array[<span class="c-num">1</span>], array[<span class="c-num">2</span>], token) &lt;= <span class="c-num">0</span>;
+}</code></pre></div><p class="body-text">و این هم لایهٔ اجرا که نتیجهٔ اعتبارسنجی را به کاربر نشان می‌دهد و تصمیم ادامه/توقف را برمی‌گرداند:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>PersonCheckValidation.cs — نمایش نتیجهٔ اعتبارسنجی</div><pre class="code-block" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">static</span> <span class="c-kw">async</span> <span class="c-type">Task</span>&lt;<span class="c-type">DialogResult</span>&gt; <span class="c-fn">CheckValidationAsync</span>(
+    <span class="c-kw">string</span> contextGuid, <span class="c-type">Person</span> pObj, <span class="c-kw">bool</span> isShowMessage,
+    <span class="c-type">CancellationToken</span> token)
+{
+    <span class="c-kw">try</span>
+    {
+        <span class="c-type">ReturnedSaveFuncInfo</span> val =
+            <span class="c-kw">await</span> <span class="c-kw">new</span> <span class="c-fn">PersonValidator</span>(contextGuid, pObj).<span class="c-fn">ValidateAsync</span>(token);
+        <span class="c-type">DialogResult</span> result;
+        <span class="c-kw">if</span> (val.HasError || val.HasInformation || val.HasWarning)
+        {
+            FrmShowErrorMessage val2 = <span class="c-kw">new</span> <span class="c-fn">FrmShowErrorMessage</span>(
+                contextGuid, val, <span class="c-str">&quot;&quot;</span>, (MessageBoxButtons)<span class="c-num">3</span>, <span class="c-kw">false</span>, ...);
+            ((<span class="c-type">Form</span>)val2).<span class="c-fn">ShowDialog</span>();      // نمایش خطاها به کاربر
+            result = ((<span class="c-type">Form</span>)val2).<span class="c-type">DialogResult</span>;
+        }
+        <span class="c-kw">else</span>
+        {
+            result = (<span class="c-type">DialogResult</span>)<span class="c-num">6</span>;       // Yes → ادامهٔ ذخیره‌سازی
+        }
+        <span class="c-kw">return</span> result;
+    }
+    ...
+}</code></pre><div class="code-note">در فرم پرسنل (فصل ۵) دیدیم که BtnAccept_Click اول همین متد را صدا می‌زند و فقط اگر نتیجه Yes بود به SaveAsync می‌رسد — یعنی ولیدیشن واقعاً اجباری است.</div></div><div class="teacher-box"><div class="box-title">💡 شباهت به FluentValidation</div><p>این معماری با الگوی معروف <b>FluentValidation</b> در دنیای دات‌نت شباهت دارد: قواعد در کلاسی جدا از موجودیت و جدا از UI تعریف می‌شوند و خروجی یک «کیف نتیجه» (ReturnedSaveFuncInfo) است که هم خطا، هم هشدار و هم اطلاعات می‌تواند داشته باشد. مزیتش: همان قواعد در ذخیرهٔ دستی، ایمپورت اکسل و سینک ابری هم به کار می‌آیند.</p></div><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-08</div><div class="ch-tag">فصل هشتم</div><h2 class="ch-title">کتابخانهٔ Tele؛ مودم صوتی و تردد تلفنی</h2><span class="ch-en" dir="ltr">Tele.dll — AT Command Voice Modem</span></div><p class="body-text">جذاب‌ترین کتابخانهٔ کوچک بسته! Tele (۲۳ کیلوبایت) یک <b>مودم صوتی</b> را از طریق پورت سریال کنترل می‌کند تا کارکنانی که دسترسی به دستگاه ندارند، با <b>تماس تلفنی</b> و واردکردن کد پرسنلی با کلیدهای گوشی، تردد ثبت کنند — کلاس اصلی آن به‌حق نام <code dir="ltr">NovinPhone</code> دارد. این کتابخانه دلیل حضور فایل System.IO.Ports.dll در بسته است.</p><p class="body-text">زبان مودم‌ها <b>دستورات AT</b> است (AT از کلمهٔ Attention). مودم را با متن سریال_config می‌کنند و پاسخ OK یا ERROR می‌گیرند. جدول مهم‌ترین دستورات استفاده‌شده در این کتابخانه:</p><div class="tbl-caption">جدول ۸-۱: دستورات AT بکاررفته در Tele.dll</div><table class="tbl"><thead><tr><th>دستور AT</th><th>کارکرد در Tele</th><th>توضیح</th></tr></thead><tbody><tr><td><code dir="ltr">ATZ</code></td><td>ریست مودم</td><td>بازگشت به تنظیمات کارخانه</td></tr><tr><td><code dir="ltr">AT</code></td><td>تست سلامت</td><td>پاسخ OK یعنی مودم زنده است</td></tr><tr><td><code dir="ltr">AT+VCID=1</code></td><td>فعال‌سازی شناسهٔ تماس‌گیرنده</td><td>Caller ID برای ثبت شمارهٔ تماس</td></tr><tr><td><code dir="ltr">AT S0=3</code></td><td>پاسخ خودکار بعد از ۳ زنگ</td><td>پیش‌فرض autoAnswerCount = 3</td></tr><tr><td><code dir="ltr">AT+FCLASS=8</code></td><td>ورود به حالت صوت</td><td>مودم به‌جای دیتا، صوت را مدیریت می‌کند</td></tr><tr><td><code dir="ltr">ATD&lt;شماره&gt;;</code></td><td>شماره‌گیری</td><td>تماس خروجی (مثلاً برای اطلاع‌رسانی)</td></tr><tr><td><code dir="ltr">AT+VTX</code></td><td>ارسال صوت خام</td><td>شروع استریم WAV به تماس‌گیرنده</td></tr><tr><td><code dir="ltr">AT+VSM=9,8000</code></td><td>تنظیم فرمت صوت</td><td>نمونه‌برداری ۸ کیلوهرتز</td></tr></tbody></table><p class="body-text">اجرای صوت فایل WAV برای شنیدن منوی صوتی، شاید آموزنده‌ترین بخش این کتابخانه باشد:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>Tele/NovinPhone.cs — پخش فایل WAV روی خط تلفن</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">void</span> <span class="c-fn">Play_Wave</span>(<span class="c-kw">string</span> path)
+{
+    <span class="c-kw">try</span>
+    {
+        <span class="c-kw">if</span> (Status == ENStatus.PlayingVoice ||
+            Status == ENStatus.Dissconnectd)
+        {
+            <span class="c-kw">return</span>;
+        }
+        StopPlaying = <span class="c-kw">false</span>;
+        Status = ENStatus.PlayingVoice;
+        <span class="c-fn">VoiceMode</span>();
+        <span class="c-fn">ExecCommnad</span>(<span class="c-str">&quot;AT+FCLASS=8&quot;</span>);      // حالت صوتی
+        <span class="c-fn">ExecCommnad</span>(<span class="c-str">&quot;AT+VSM9,8000&quot;</span>);     // فرمت <span class="c-num">۸</span> کیلوهرتز
+        <span class="c-fn">ExecCommnad</span>(<span class="c-str">&quot;AT+VSD\u00128,0&quot;</span>);
+        <span class="c-fn">ExecCommnad</span>(<span class="c-str">&quot;AT+VTX&quot;</span>);           // شروع ارسال صوت
+        <span class="c-kw">byte</span>[] array = <span class="c-type">File</span>.<span class="c-fn">ReadAllBytes</span>(path);
+        _serial.DtrEnable = <span class="c-kw">true</span>;
+        <span class="c-kw">int</span> num = <span class="c-num">44</span>;                    // پرش از روی هدر <span class="c-num">۴۴</span> بایتی WAV!
+        <span class="c-kw">int</span> num2 = <span class="c-num">1024</span>;                 // تکه‌های <span class="c-num">۱</span> کیلوبایتی
+        <span class="c-kw">while</span> (<span class="c-kw">true</span>)
+        {
+            <span class="c-type">Thread</span>.<span class="c-fn">Sleep</span>(<span class="c-num">80</span>);            // ریتم ارسال: هر <span class="c-num">۸۰</span> میلی‌ثانیه
+            <span class="c-kw">if</span> (StopPlaying)
+            {
+                Status = ENStatus.PlayingVoiceFinished;
+                StopPlaying = <span class="c-kw">false</span>;
+                <span class="c-fn">OnPlayingFinished</span>();
+                <span class="c-kw">return</span>;
+            }
+            _serial.<span class="c-fn">Write</span>(array, num, num2);
+            num += num2;
+            <span class="c-kw">if</span> (array.Length - num &lt; <span class="c-num">800</span>)
+            {
+                num2 = array.Length - num;
+            }
+            <span class="c-kw">if</span> (num2 &lt;= <span class="c-num">0</span>) <span class="c-kw">break</span>;
+            <span class="c-type">Application</span>.<span class="c-fn">DoEvents</span>();
+        }
+        <span class="c-fn">ExecCommnad</span>(<span class="c-str">&quot;AT+FCLASS=0&quot;</span>);      // بازگشت به حالت دیتا
+        <span class="c-fn">OnPlayingFinished</span>();
+    }
+    <span class="c-kw">catch</span> (<span class="c-type">Exception</span> ex2) { ... }
+}</code></pre><div class="code-note">نکتهٔ فنی: ۴۴ بایت اول فایل WAV هدرِ استاندارد RIFF است و مستقیم به مودم فرستاده نمی‌شود؛ فقط دادهٔ خام صوت ارسال می‌شود.</div></div><p class="body-text">کلاس <code dir="ltr">CLSNumberDetector</code> گوش می‌دهد که تماس‌گیرنده چه اعدادی با کلیدهای گوشی فشرده است (دیتون‌های DTMF که به‌صورت کاراکتر از مودم می‌رسند) و هرچه تا فشردن * یا # تایپ شد را به‌عنوان کد پرسنلی برمی‌گرداند:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>Tele/CLSNumberDetector.cs — دریافت کد پرسنلی از کلیدهای تلفن</div><pre class="code-block" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">static</span> <span class="c-kw">string</span> <span class="c-fn">GetInput</span>(NovinPhone phone, <span class="c-kw">short</span> maxSeconds)
+{
+    <span class="c-type">DateTime</span> now = <span class="c-type">DateTime</span>.Now;
+    <span class="c-kw">string</span> text = <span class="c-str">&quot;&quot;</span>;
+    <span class="c-kw">while</span> (<span class="c-type">Math</span>.<span class="c-fn">Abs</span>(now.<span class="c-fn">Subtract</span>(<span class="c-type">DateTime</span>.Now).Seconds) &lt; maxSeconds)
+    {
+        <span class="c-type">Thread</span>.<span class="c-fn">Sleep</span>(<span class="c-num">100</span>);
+        <span class="c-kw">string</span> text2 = phone.<span class="c-fn">ReadLine</span>();
+        <span class="c-kw">if</span> (!(text2 == <span class="c-str">&quot;&quot;</span>) &amp;&amp; !(text2 == <span class="c-str">&quot;-&quot;</span>))
+        {
+            <span class="c-kw">if</span> (text2 == <span class="c-str">&quot;*&quot;</span> || text2 == <span class="c-str">&quot;#&quot;</span>)
+            {
+                <span class="c-kw">return</span> text;         // پایان ورودی کاربر
+            }
+            text += ATCommandManager.<span class="c-fn">GetInputNumber</span>(text2);
+        }
+    }
+    <span class="c-kw">return</span> text;                     // پایان مهلت زمانی
+}</code></pre><div class="code-note">رویدادهای NovinPhone: Ring (زنگ)، ConnectCall، EndCall، Tone (هر کلید)، PlayingFinished و TerminalNewMessage. تمام وضعیت‌ها هم در enum وضعیت (ENStatus) مدیریت می‌شوند: زنگ‌خوردن، در حال تماس، پخش صوت، ضبط صوت...</div></div><div class="info-box"><div class="box-title">🔎 ثبت کامل لاگ ارتباط سریال</div><p>متد <code dir="ltr">GetInputNumber</code> در ATCommandManager کار پاک‌سازی ورودی را انجام می‌دهد: پسوندهای H0/H1 و کاراکترهای + = کنار ارقام را حذف می‌کند و فقط رقم‌ها را نگه می‌دارد. همچنین کلاس FileManager هر گفتگوی سریال را در سه فایل Input.txt، Output.txt و ALL.txt کنار برنامه ثبت می‌کند — برای عیب‌یابی مودم بدون ابزار خاص.</p></div><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-09</div><div class="ch-tag">فصل نهم</div><h2 class="ch-title">کتابخانهٔ WebSmsStandard؛ ارسال پیامک</h2><span class="ch-en" dir="ltr">WebSmsStandard.dll — SMS REST Client</span></div><p class="body-text">این کتابخانه (۲۶ کیلوبایت) کلاینت REST سرویس پیامکِ خود شرکت است و به آدرس <code dir="ltr">http://webservice.novinp.ir/sms/Npsms/...</code> متصل می‌شود. کارش ساده اما مهم است: در DAL دیدیم که موتور پیامک (ClsSms) برای غیبت‌های روزانه یا ترددهای ناقص، پیامک‌های خودکار می‌سازد؛ ارسال واقعیِ آن‌ها از همین‌جا انجام می‌شود.</p><p class="body-text">مدل درخواست، ساده و JSON-محور است:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>WebSmsStandard/SmsModelV2.cs — مدل درخواست ارسال</div><pre class="code-block" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">class</span> SmsModelV2 : SmsModelBase
+{
+    <span class="c-kw">public</span> <span class="c-type">List</span>&lt;<span class="c-kw">string</span>&gt; Numbers { <span class="c-kw">get</span>; <span class="c-kw">set</span>; }    // شماره‌های گیرنده
+    <span class="c-kw">public</span> <span class="c-type">List</span>&lt;<span class="c-kw">string</span>&gt; Messages { <span class="c-kw">get</span>; <span class="c-kw">set</span>; }   // متن‌ها (نسبت <span class="c-num">۱</span> به <span class="c-num">۱</span>)
+}
+
+// فیلدهای کلاس پایه SmsModelBase:
+// UserName, Password, Domain, SenderNumber</code></pre></div><div class="code-wrap"><div class="code-title"><span class="dot"></span>WebSmsStandard/SmsSender.cs — ارسال با تلاش مجدد (۱۰ بار)</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">private</span> <span class="c-kw">static</span> <span class="c-kw">async</span> <span class="c-type">Task</span>&lt;<span class="c-kw">long</span>[]&gt; <span class="c-fn">SendSmsAsync_</span>(
+    <span class="c-kw">string</span> Username, <span class="c-kw">string</span> Pass, <span class="c-kw">string</span> Domain, <span class="c-type">List</span>&lt;<span class="c-kw">string</span>&gt; listMSG,
+    <span class="c-type">List</span>&lt;<span class="c-kw">string</span>&gt; listNum, <span class="c-kw">string</span> SenderNumber, <span class="c-type">CancellationToken</span> inputToken,
+    <span class="c-kw">int</span> tryCount = <span class="c-num">10</span>)
+{
+    ...
+    SmsModelV2 smsModelV = <span class="c-kw">new</span> SmsModelV2
+    {
+        UserName = Username,
+        Password = Pass,
+        Domain = Domain,
+        SenderNumber = SenderNumber,
+        Messages = listMSG,
+        Numbers = listNum
+    };
+    <span class="c-kw">try</span>
+    {
+        <span class="c-type">HttpResponseMessage</span> response = <span class="c-kw">await</span> HttpHelpers.<span class="c-fn">PostStreamAsync</span>(
+            (<span class="c-kw">object</span>)smsModelV,
+            <span class="c-str">&quot;http://webservice.novinp.ir/sms/Npsms/SendSmsV2/&quot;</span>, token);
+        ...
+        <span class="c-kw">if</span> (response != <span class="c-kw">null</span> &amp;&amp; response.IsSuccessStatusCode)
+        {
+            ActiveSendJsonResponse activeSendJsonResponse =
+                <span class="c-kw">await</span> HttpHelpers.ReadJsonResponseAsync&lt;ActiveSendJsonResponse&gt;(response);
+            <span class="c-kw">if</span> (activeSendJsonResponse != <span class="c-kw">null</span> &amp;&amp;
+                activeSendJsonResponse.Result != <span class="c-kw">null</span>)
+            {
+                <span class="c-kw">return</span> activeSendJsonResponse.Result.<span class="c-fn">ToArray</span>();  // شناسه‌های پیامک
+            }
+        }
+    }
+    <span class="c-kw">catch</span> (<span class="c-type">OperationCanceledException</span>)
+    {
+        <span class="c-kw">if</span> (tryCount &gt; <span class="c-num">0</span> &amp;&amp; !inputToken.IsCancellationRequested)
+        {
+            <span class="c-kw">await</span> <span class="c-type">Task</span>.<span class="c-fn">Delay</span>(<span class="c-kw">new</span> <span class="c-fn">Random</span>().<span class="c-fn">Next</span>(<span class="c-num">30000</span>));   // مکث تصادفی تا <span class="c-num">۳۰</span> ثانیه
+            <span class="c-kw">return</span> <span class="c-kw">await</span> <span class="c-fn">SendSmsAsync_</span>(Username, Pass, Domain, listMSG,
+                listNum, SenderNumber, inputToken, tryCount - <span class="c-num">1</span>);
+        }
+        <span class="c-kw">return</span> <span class="c-kw">new</span> <span class="c-kw">long</span>[<span class="c-num">1</span>] { -<span class="c-num">119</span>L };
+    }
+    ...
+}</code></pre><div class="code-note">خروجی آرایه‌ای از long است: شناسهٔ هر پیامک برای پیگیری وضعیت تحویل؛ اعداد منفی هم کدهای خطای داخلی هستند (مثلاً -119 = لغو عملیات، -110 = خطای شبکه).</div></div><p class="body-text">بخش آموزشیِ این کتابخانه، کلاس <code dir="ltr">RetryClientFactory</code> است که ترفند حرفه‌ای «تزریق هندلر retry در HttpClient» را نشان می‌دهد — الگویی که در پروژه‌های مدرن هم روز اول استفاده می‌شود:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>WebSmsStandard/RetryClientFactory.cs — الگوی Retry در سطح HttpClient</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">internal</span> <span class="c-kw">class</span> RetryClientFactory
+{
+    <span class="c-kw">public</span> <span class="c-kw">class</span> RetryHandler : DelegatingHandler
+    {
+        <span class="c-kw">private</span> <span class="c-kw">readonly</span> <span class="c-kw">int</span> _maxRetries = <span class="c-num">3</span>;
+        <span class="c-kw">private</span> <span class="c-kw">readonly</span> <span class="c-kw">int</span> _delay = <span class="c-num">2000</span>;
+
+        <span class="c-kw">public</span> <span class="c-fn">RetryHandler</span>(HttpMessageHandler innerHandler,
+                            <span class="c-kw">int</span> maxRetries, <span class="c-kw">int</span> delay) : <span class="c-kw">base</span>(innerHandler)
+        {
+            _maxRetries = maxRetries;
+            _delay = delay;
+        }
+
+        <span class="c-kw">protected</span> <span class="c-kw">override</span> <span class="c-kw">async</span> <span class="c-type">Task</span>&lt;<span class="c-type">HttpResponseMessage</span>&gt; <span class="c-fn">SendAsync</span>(
+            HttpRequestMessage request, <span class="c-type">CancellationToken</span> cancellationToken)
+        {
+            <span class="c-type">HttpResponseMessage</span> response = <span class="c-kw">null</span>;
+            <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">0</span>; i &lt; _maxRetries; i++)
+            {
+                response = <span class="c-kw">await</span> <span class="c-kw">base</span>.<span class="c-fn">SendAsync</span>(request, cancellationToken);
+                <span class="c-kw">if</span> (response.IsSuccessStatusCode)
+                {
+                    <span class="c-kw">return</span> response;
+                }
+                // مکث نمایی با کمی تصادفی‌سازی (Jitter)
+                <span class="c-kw">await</span> <span class="c-type">Task</span>.<span class="c-fn">Delay</span>((<span class="c-kw">int</span>)((<span class="c-kw">new</span> <span class="c-fn">Random</span>().<span class="c-fn">NextDouble</span>() + 0.5) * _delay));
+            }
+            <span class="c-kw">return</span> response;
+        }
+    }
+
+    <span class="c-kw">public</span> <span class="c-type">HttpClient</span> <span class="c-fn">GetClient</span>()
+    {
+        <span class="c-kw">return</span> <span class="c-kw">new</span> <span class="c-type">HttpClient</span>(<span class="c-kw">new</span> <span class="c-fn">RetryHandler</span>(<span class="c-kw">new</span> <span class="c-fn">HttpClientHandler</span>(),
+            _maxRetries, _delay));
+    }
+}</code></pre></div><div class="teacher-box"><div class="box-title">💡 DelegatingHandler چیست؟</div><p><code dir="ltr">DelegatingHandler</code> یک لایهٔ میانی در خط لولهٔ HttpClient است؛ مثل یک پستچی وسطی که هر درخواست را اول خودش بررسی می‌کند، به مقصد می‌فرستد و در صورت نیاز دوباره تلاش می‌کند. الگوی Retry با «مکث تصادفی» (Jitter) هم از هم‌زمان‌شدن هزاران تلاشِ مجدد پس از قطعی سرور جلوگیری می‌کند — همان چیزی که در کتابخانه‌های Polly و resilience مدرن هم هست.</p></div><p class="body-text">متد دیگر، <code dir="ltr">GetDeliveryAsync</code> است که وضعیت تحویلِ پیامک‌های ارسال‌شده را با POST فرم-انکد (نه JSON) می‌پرسد و آرایه‌ای از کدهای وضعیت برمی‌گرداند؛ و <code dir="ltr">GetCreditAsync</code> موجودی پنل پیامک را نشان می‌دهد. همچنین کلاس OutBox_Other_Info مدل صف خروجی پیامک‌ها را در بانک محلی نگه می‌دارد.</p><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-10</div><div class="ch-tag">فصل دهم</div><h2 class="ch-title">کتابخانه‌های ZK، ZDC2911 و zkemkeeper؛ دنیای بومی</h2><span class="ch-en" dir="ltr">ZK.dll / ZDC2911.dll / zkemkeeper.dll / zkemsdk.dll</span></div><h3 class="sec-title"><span class="sec-bullet"></span>۱-۱۰) ZK.dll؛ ابزار کوچک تست دستگاه</h3><p class="body-text">فایل ZK.dll (۱۰ کیلوبایت) یک برنامهٔ کوچک WinForms است (کلاس‌های Program و Form1 را دارد) که کارش خواندن ترددهای دستگاه ZKTeco است — عملاً نسخهٔ آزمایشی/جیبی‌شدهٔ همان ClsZK که در فصل ۴ دیدیم، به‌علاوهٔ یک کلاس Record با ۱۴ پراپرتی و پراپرتی محاسباتی <code dir="ltr">DateM</code> که اجزای سال/ماه/روز را به DateTime تبدیل می‌کند. جالب‌ترین بخشش این است که مستقیماً بعد از اتصال در سازنده، GetLog را اجرا می‌کند؛ یعنی «وصل شو و بلافاصله همه‌چیز را بخوان»!</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>ZK/ZK.cs — سازندهٔ کلاس ZK</div><pre class="code-block" dir="ltr"><code><span class="c-kw">public</span> <span class="c-fn">ZK</span>(<span class="c-kw">int</span> MachineNum, <span class="c-kw">string</span> IP, <span class="c-kw">int</span> port, <span class="c-kw">string</span> Pass)
+{
+    _iMachineNumber = MachineNum;
+    _IP = IP;
+    _Port = port;
+    _Pass = Pass;
+    _bIsConnected = axCZKEM1.<span class="c-fn">Connect_Net</span>(IP, port);
+    <span class="c-fn">GetLog</span>();     // خواندن فوری پس از اتصال!
+}</code></pre><div class="code-note">پورت پیش‌فرض 5005 است — پورت استاندارد TCP دستگاه‌های ZKTeco.</div></div><h3 class="sec-title"><span class="sec-bullet"></span>۲-۱۰) ZDC2911.dll؛ SDK شرکت Realand</h3><p class="body-text">این DLL (۱۱۶ کیلوبایت) در واقع SDK نمونهٔ سازندهٔ Realand برای دستگاه‌های ZDC2911 است که تیم نوین پرداز آن را به‌صورت درون‌سازی (Embed) استفاده کرده. کلاس اصلی <code dir="ltr">Realand</code> یک فرم ویندوزی داخلی (CMForm) را بسته‌بندی می‌کند و از SDK مدیریت‌شدهٔ <code dir="ltr">Riss.Devices</code> استفاده می‌کند:</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>ZDC2911/Realand.cs — لایهٔ بسته‌بندی SDK</div><pre class="code-block tall" dir="ltr"><code><span class="c-kw">public</span> <span class="c-kw">class</span> Realand
+{
+    <span class="c-kw">private</span> CMForm frm = <span class="c-kw">null</span>;
+
+    <span class="c-kw">public</span> <span class="c-fn">Realand</span>(<span class="c-kw">int</span> DeviceNumber, <span class="c-kw">string</span> Password, <span class="c-kw">string</span> IP, <span class="c-kw">int</span> Port)
+    {
+        frm = <span class="c-kw">new</span> <span class="c-fn">CMForm</span>(DeviceNumber, Password, IP, Port);
+    }
+
+    <span class="c-kw">public</span> <span class="c-kw">bool</span> <span class="c-fn">Connect</span>()  { <span class="c-kw">return</span> frm.<span class="c-fn">Connect</span>(); }
+    <span class="c-kw">public</span> <span class="c-kw">bool</span> <span class="c-fn">Disconnect</span>() { <span class="c-kw">return</span> frm.<span class="c-fn">DisConnect</span>(); }
+
+    <span class="c-kw">public</span> <span class="c-type">List</span>&lt;Records&gt; <span class="c-fn">GetALLGlog</span>()
+    {
+        <span class="c-type">List</span>&lt;Record&gt; aLLGlog = frm.<span class="c-fn">GetALLGlog</span>();
+        <span class="c-kw">if</span> (aLLGlog == <span class="c-kw">null</span>)
+        {
+            <span class="c-kw">return</span> <span class="c-kw">null</span>;
+        }
+        <span class="c-type">List</span>&lt;Records&gt; list = <span class="c-kw">new</span> <span class="c-type">List</span>&lt;Records&gt;();
+        <span class="c-kw">foreach</span> (Record item <span class="c-kw">in</span> aLLGlog)
+        {
+            Records records = <span class="c-kw">new</span> <span class="c-fn">Records</span>();
+            records.Action = item.Action;
+            records.Antipassback = item.Antipassback;
+            records.Clock = item.Clock;          // زمان تردد
+            records.DIN = item.DIN;              // شمارهٔ کاربر
+            records.DN = item.DN;                // شمارهٔ دستگاه
+            records.Verify = item.Verify;        // نوع تأیید
+            list.<span class="c-fn">Add</span>(records);
+        }
+        <span class="c-kw">return</span> list;
+    }
+}</code></pre><div class="code-note">نام‌گذاری فیلدهای Record در این SDK (DN/DIN/Clock/Verify/MDIN) دقیقاً همان SDK Riss است؛ این دو خانوادهٔ سخت‌افزاری خویشاوندند! ZDC2911 همچنین ۱۰ فرم UI نمونه (GLogForm، EnrollForm، RealTimeLogForm...) دارد که نشان می‌دهد SDK به‌صورت یک برنامهٔ دمو هم قابل اجراست.</div></div><h3 class="sec-title"><span class="sec-bullet"></span>۳-۱۰) zkemkeeper.dll و zkemsdk.dll؛ قلب بومی ZKTeco</h3><p class="body-text">این دو فایل با هم ۸۵۸ کیلوبایت و برخلاف بقیهٔ DLL های بسته، <b>دات‌نت نیستند</b> — فایل‌های بومی PE ۳۲بیتی (x86) هستند. <code dir="ltr">zkemkeeper.dll</code> همان SDK رسمی ZKTeco است که کلاس COM معروف <b>CZKEM</b> را ارائه می‌دهد؛ یعنی همان چیزی که ClsZK و ZK.dll از طریق Interop با آن کار می‌کنند. <code dir="ltr">zkemsdk.dll</code> هم لایهٔ پایین‌تر همان خانواده است. با اسکن نمادهای داخلی این دو فایل، فهرست توابع زیر شناسایی شد:</p><div class="tbl-caption">جدول ۱۰-۱: توابع نمونهٔ داخل zkemkeeper.dll و zkemsdk.dll (استخراج با اسکن نمادها)</div><table class="tbl small"><thead><tr><th>نمونهٔ تابع بومی</th><th>کارکرد</th></tr></thead><tbody><tr><td><code dir="ltr">Z_Connect_NET / Z_Connect_COM / Z_Connect_USB</code></td><td>اتصال از راه شبکه / پورت سریال / USB</td></tr><tr><td><code dir="ltr">Z_ReadLogEx / Z_GetLog / Z_GetOpLog</code></td><td>خواندن ترددها و لاگ عملیات</td></tr><tr><td><code dir="ltr">Z_GetUserInfo / Z_SetUserInfo</code></td><td>خواندن/نوشتن اطلاعات کاربران</td></tr><tr><td><code dir="ltr">Z_GetUserTmp / Z_SetUserTmp</code></td><td>انتقال قالب اثر انگشت</td></tr><tr><td><code dir="ltr">Z_EnableDevice / Z_DisableDevice</code></td><td>قفل/آزادسازی دستگاه هنگام انتقال داده</td></tr><tr><td><code dir="ltr">Z_GetDeviceStatus / Z_GetDeviceInfo</code></td><td>وضعیت و مشخصات دستگاه</td></tr><tr><td><code dir="ltr">Z_SetTime / Z_GetTime</code></td><td>همگام‌سازی ساعت دستگاه</td></tr><tr><td><code dir="ltr">Z_PowerOffDevice / Z_RebootDevice</code></td><td>خاموش/ریست دستگاه از راه دور</td></tr><tr><td><code dir="ltr">Z_ClearLogData</code></td><td>پاک‌کردن تاریخچهٔ ترددها</td></tr><tr><td><code dir="ltr">_SSR_Z_GetUserInfo ...</code></td><td>توابط سری SSR (SSR_GetGeneralLogData و…)</td></tr></tbody></table><div class="teacher-box"><div class="box-title">💡 نصب و استفاده از COM بومی</div><p>DLL های بومی ۳۲بیتی مثل این‌ها باید قبل از استفاده در ویندوز «ثبت» شوند: دستور <code dir="ltr">regsvr32 zkemkeeper.dll</code> آن‌ها را در رجیستری معرفی می‌کند تا بقیهٔ برنامه‌ها بتوانند از COM آن‌ها شیء بسازند. دو نکتهٔ عملی: (۱) چون ۳۲بیتی‌اند، برنامهٔ میزبان هم باید با پلتفرم x86 کامپایل شده باشد وگرنه خطای می‌گیرد؛ (۲) تابع نهایی‌شان معمولاً اسم مدل دستگاه را لاگ می‌کند — راه‌انداز رسمی همراه با نصب‌کنندهٔ SDK خود ZKTeco روی سیستم باید کپی شود. برای کار مستقیم با این SDK در پروژهٔ خودتان، بعد از افزودن ارجاع COM به zkemkeeper، ویژوال استودیو Interop آن را می‌سازد.</p></div><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-11</div><div class="ch-tag">فصل یازدهم</div><h2 class="ch-title">کتابخانه‌های جانبی؛ اعلان و انیمیشن</h2><span class="ch-en" dir="ltr">Tulpep.NotificationWindow + WinFormAnimation</span></div><p class="body-text">دو کتابخانهٔ متن‌باز این بسته، از مخزن عمومی NuGet آمده‌اند و کارشان «زیباسازی» تجربهٔ کاربری است — هرچند نقش‌شان در این سیستم پررنگ است، چون <b>همهٔ اعلان‌های نرم‌افزار</b> (از «تردد جدید دریافت شد» گرفته تا خطاهای ذخیره‌سازی) با این دو نمایش داده می‌شوند.</p><h3 class="sec-title"><span class="sec-bullet"></span>۱-۱۱) Tulpep.NotificationWindow؛ اعلان شیشه‌ای ویندوز</h3><p class="body-text">این کتابخانه (۲۸ کیلوبایت) کامپوننتی به نام <code dir="ltr">PopupNotifier</code> ارائه می‌دهد: پنجرهٔ اعلانی گوشهٔ پایین صفحه با عنوان، متن، آیکن و دکمهٔ بستن — همان چیزی که همهٔ ما به‌عنوان «نوتیفیکیشن ویندوز» می‌شناسیم. ساختارش آموزشی است: یک Component با ده‌ها پراپرتی قابل تنظیم (رنگ سربرگ، رنگ متن، فونت، مدت نمایش، سرعت انیمیشن...) و یک فرم داخلی (PopupNotifierForm) که خودش را بدون فعال‌شدنِ پنجرهٔ اصلی نشان می‌دهد — با تابع Win32 به نام ShowWindow و پرچم <code dir="ltr">SW_SHOWNOACTIVATE = 4</code>. تایمری هم (tmrAnimation) موقعیت و شفافیت پنجره را قدم‌به‌قدم تغییر می‌دهد تا اعلان «سُر بخورد» بالا.</p><div class="code-wrap"><div class="code-title"><span class="dot"></span>Tulpep.NotificationWindow/PopupNotifier.cs — اعلان شیشه‌ای با تایمر انیمیشن</div><pre class="code-block" dir="ltr"><code>[<span class="c-fn">ToolboxBitmap</span>(<span class="c-fn">typeof</span>(PopupNotifier), <span class="c-str">&quot;Icon.ico&quot;</span>)]
+[<span class="c-fn">DefaultEvent</span>(<span class="c-str">&quot;Click&quot;</span>)]
+<span class="c-kw">public</span> <span class="c-kw">class</span> PopupNotifier : Component
+{
+    <span class="c-kw">private</span> <span class="c-kw">const</span> <span class="c-kw">int</span> SW_SHOWNOACTIVATE = <span class="c-num">4</span>;
+    <span class="c-kw">private</span> <span class="c-kw">const</span> <span class="c-kw">int</span> HWND_TOPMOST = -<span class="c-num">1</span>;
+    <span class="c-kw">private</span> <span class="c-kw">const</span> uint SWP_NOACTIVATE = <span class="c-num">16</span>u;
+
+    <span class="c-kw">private</span> PopupNotifierForm frmPopup;
+    <span class="c-kw">private</span> <span class="c-type">Timer</span> tmrAnimation;
+    <span class="c-kw">private</span> <span class="c-type">Timer</span> tmrWait;
+    <span class="c-kw">private</span> <span class="c-kw">bool</span> isAppearing = <span class="c-kw">true</span>;
+
+    [<span class="c-fn">Description</span>(<span class="c-str">&quot;Color of the window header.&quot;</span>)]
+    [<span class="c-fn">Category</span>(<span class="c-str">&quot;Header&quot;</span>)]
+    [<span class="c-fn">DefaultValue</span>(<span class="c-fn">typeof</span>(Color), <span class="c-str">&quot;ControlDark&quot;</span>)]
+    <span class="c-kw">public</span> Color HeaderColor { <span class="c-kw">get</span>; <span class="c-kw">set</span>; }
+    ...
+}</code></pre><div class="code-note">استفادهٔ ویژگی‌های Description/Category/DefaultValue یعنی این کامپوننت برای «جعبه‌ابزار ویژوال استودیو» طراحی شده — در Designer می‌افتد و با موس تنظیم می‌شود.</div></div><h3 class="sec-title"><span class="sec-bullet"></span>۲-۱۱) WinFormAnimation؛ انیمیشن سبک‌وزن فرم‌ها</h3><p class="body-text">کتابخانهٔ WinFormAnimation (۳۸ کیلوبایت) موتور حرکت است: کلاس‌های <code dir="ltr">Animator</code> (یک‌بعدی)، <code dir="ltr">Animator2D</code> (دو‌بعدی) و <code dir="ltr">Animator3D</code> به‌همراه <code dir="ltr">Path</code> ها که مسیر حرکت (مثلاً از نقطهٔ الف تا ب با شتاب اولیه) را توصیف می‌کنند. در این سیستم، جفتِ این دو کتابخانه اعلان‌ها را «سُر می‌دهد»: PopupNotifier پنجره را می‌سازد و انیمیشنِ بالا آمدن/محو شدن را با همین کتابخانه انجام می‌دهد. تابع‌های انیمیشن آمادهٔ آن (KnownAnimationFunctions) شامل شتاب‌های خطی، درجه‌دو، Sine و EaseOut است.</p><p class="body-text">در کد دکامپایل‌شده، نقطهٔ اتصال این دو کتابخانه به سیستم اصلی، کلاس‌های <code dir="ltr">ClsNotif</code> و <code dir="ltr">MyPopupForm</code> در فضای‌نام TimeAttendanceDAL.Utility هستند که همهٔ فرم‌ها از طریق <code dir="ltr">Utility.MessageBoxShowByNotif(...)</code> با آن صدا می‌زنند — یعنی UI حتی برای نمایش یک پیام ساده هم به DAL وابسته است! (نکتهٔ معماری: بهتر بود این لایهٔ کمکی جدا بود.)</p><div class="teacher-box"><div class="box-title">💡 چرا اعلان شیشه‌ای به‌جای MessageBox؟</div><p>چرا از MessageBox معمولی ویندوز استفاده نکردند؟ چون MessageBox «بلاک‌کننده» است: تا دکمهٔ OK را نزنید نمی‌توانید با برنامه کار کنید. در سیستم حضور و غیاب که هر چند ثانیه ممکن است تردد جدید برسد، انبوه پیام‌های بلاک‌کننده یعنی قفل‌شدن کار کاربر. اعلان‌های شیشه‌ای خودمحو (بعد از چند ثانیه محو می‌شوند) راه‌حل درستِ این مسئله‌اند.</p></div><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-12</div><div class="ch-tag">فصل دوازدهم</div><h2 class="ch-title">کتابخانه‌های System.* مایکروسافت؛ زیرساخت</h2><span class="ch-en" dir="ltr">Microsoft BCL Libraries (26 files)</span></div><p class="body-text">بیست‌وشش فایل با پیشوند System. در این بسته، هیچ‌کدام اختصاصی نیستند؛ این‌ها کتابخانه‌های استاندارد مایکروسافت‌اند که توسعه‌دهنده کنار برنامه کپی کرده تا روی سیستم‌‌های مقصد نصب جداگانه لازم نباشد (روش معروف XCOPY Deploy). در جدول زیر مهم‌ترین‌شان را با نقششان در «این سیستم خاص» مرور می‌کنیم — چون دیدن این مجموعه خودش درس آموزشی خوبی است: می‌بینید یک نرم‌افزار ویندوزی واقعی برای کار کردن به کدام قطعات استاندارد نیاز دارد.</p><div class="tbl-caption">جدول ۱۲-۱: مرور کتابخانه‌های مایکروسافتی بسته (خلاصه‌شده بر اساس نقش)</div><table class="tbl small"><thead><tr><th>کتابخانه</th><th>نقش عمومی</th><th>چرا این سیستم به آن نیاز دارد</th></tr></thead><tbody><tr><td><code>System.Data.SqlClient</code></td><td>کلاینت SQL Server (ADO.NET)</td><td>همهٔ کارهای بانک اطلاعاتی DAL</td></tr><tr><td><code>System.Text.Json</code> + <code>Encodings.Web</code> + <code>Encoding.CodePages</code></td><td>سریالایز JSON و صفحه‌کدها</td><td>تنظیمات JSON، پروتکل Hysoon، خروجی ابری؛ CodePages برای صفحه‌کد فارسی 1256</td></tr><tr><td><code>System.Memory</code> + <code>Numaics.Vectors</code> + <code>Runtime.CompilerServices.Unsafe</code> + <code>ValueTuple</code> + <code>Tasks.Extensions</code></td><td>پیش‌نیازهای عملکردی جدید در دات‌نت قدیمی</td><td>Span، تاپل، async در NET Framework 4.8</td></tr><tr><td><code>System.IO.Ports</code></td><td>پورت سریال (سریال‌پورت)</td><td>کتابخانهٔ Tele برای مودم صوتی</td></tr><tr><td><code>System.Drawing.Common</code></td><td>گرافیک GDI+</td><td>رندر فرم‌ها، تصاویر پرسنل، اسکرین‌شات</td></tr><tr><td><code>System.IdentityModel.Tokens.Jwt</code></td><td>توکن‌های JWT</td><td>احراز هویت با سرور ابری نوین پرداز</td></tr><tr><td><code>System.Collections.Immutable</code></td><td>کالکشن‌های تغییرناپذیر</td><td>لیست‌های امن در چندتردی</td></tr><tr><td><code>System.Threading.Channels</code> + <code>Tasks.Dataflow</code></td><td>صف‌های تولیدکننده/مصرف‌کننده</td><td>صف اعلان‌ها و BufferBlock ترددهای زنده</td></tr><tr><td><code>System.IO.Pipelines</code> + <code>Net.WebSockets.WebSocketProtocol</code></td><td>I/O و وب‌سوکت مدرن</td><td>زیرساخت SignalR (ارتباط ابری)</td></tr><tr><td><code>System.Configuration.ConfigurationManager</code></td><td>خواندن فایل‌های config</td><td>همان فایل‌های .config کنار DLL ها</td></tr><tr><td><code>System.Security.*</code> (۴ فایل)</td><td>کریپتوگرافی و ACL ویندوز</td><td>رمزنگاری AES در DAL و دسترسی فایل</td></tr><tr><td><code>System.CodeDom</code> + <code>ComponentModel.Annotations</code> + <code>Diagnostics.DiagnosticSource</code></td><td>تولید کد، دیتا-انوتیشن، ردیابی</td><td>فرمول‌های حقوق، اعتبارسنجی، لاگ ردیابی</td></tr></tbody></table><div class="info-box"><div class="box-title">🔎 فسیل‌شناسی نسخه‌ها</div><p>نسخهٔ فایل‌ها از 2018 تا 2024 متغیر است (مثلاً System.Text.Json از سپتامبر 2024 ولی System.Memory از 2022) — نشانهٔ این که طی سال‌ها با آپدیت بسته‌های NuGet، DLL های تازه‌تر جایگزین شده‌اند بدون اینکه کل پروژه بازنویسی شود. این «زندگی طولانی» پروژه‌های WinForms صنعتی است: از 2013 (سال کپی‌رایت در کدها) تا امروز!</p></div><div class="chapter-header"><div class="ch-marker" dir="ltr">CH-13</div><div class="ch-tag">فصل سیزدهم</div><h2 class="ch-title">جمع‌بندی؛ درس‌ها و یافته‌های امنیتی</h2><span class="ch-en" dir="ltr">Lessons &amp; Security Findings</span></div><h3 class="sec-title"><span class="sec-bullet"></span>۱-۱۳) آنچه یاد گرفتیم</h3><p class="body-text">در این سفر، یک نرم‌افزار صنعتی کامل را کالبدشکافی کردیم: دیدیم چگونه یک معماری چندلایهٔ WinForms + SQL Server با ده‌ها فرم، شش برند سخت‌افزار، سینک ابری SignalR، پیامک خودکار و حتی مودم تلفنی، در قالب ۱۳ کتابخانهٔ اختصاصی سازمان‌دهی شده است. الگوهای مهمی که دیدیم می‌تواند چراغ راه پروژه‌های شما باشد:</p><ul class="blist"><li><b>تفکیک مسئولیت:</b> UI هیچ SQL ای اجرا نمی‌کند؛ همه‌چیز از DAL با روال‌های ذخیره‌شده می‌گذرد — دقیقاً همان‌طور که کتاب‌های معماری توصیه می‌کنند.</li><li><b>قرارداد دادهٔ مشترک:</b> با کلاس DeviceLogOnPerson، هفت مسیر سخت‌افزاری متفاوت به یک شکل در می‌آیند.</li><li><b>تحمل خطا:</b> try/catch سراسری + لاگ WebErrorLog + تلاش مجدد بازگشتی؛ نرم‌افزار صنعتی باید «نمرده» بماند.</li><li><b>کش هوشمند:</b> کش ۶۰ ثانیه‌ای پرسنل و Singleton بر اساس contextGuid.</li><li><b>رمزنگاری با کلید مناسب:</b> پیاده‌سازی AES درست بود اما کلیدش داخل کد بود — قفل فولادی روی در پارچه‌ای.</li><li><b>خودکارسازی نصب:</b> از ساخت بانک و اجرای اسکریپت‌های شِما تا پرکردن تقویم شمسی و جدول مالیات، همه خودکار.</li></ul><h3 class="sec-title"><span class="sec-bullet"></span>۲-۱۳) کارنامهٔ امنیتی</h3><div class="tbl-caption">جدول ۱۳-۱: یافته‌های امنیتی گزارش‌شده از کد دکامپایل‌شده</div><table class="tbl small"><thead><tr><th>یافته</th><th>محل</th><th>شدت</th><th>توضیح</th></tr></thead><tbody><tr><td>رمزهای استاد ورود</td><td>FrmEnter.cs (UI)</td><td><span class="pill pill-err">بحرانی</span></td><td>دو رمز ثابت که با هر کاربری ورود می‌دهند</td></tr><tr><td>کلید رمزنگاری هاردکد</td><td>UserPermission.cs (DAL)</td><td><span class="pill pill-err">بالا</span></td><td>عبارت "NovinP****************" برای AES</td></tr><tr><td>تزریق SQL</td><td>Shifts.cs و چند متد دیگر</td><td><span class="pill pill-warn">متوسط</span></td><td>چسباندن رشته به کوئری به‌جای پارامتر</td></tr><tr><td>توکن ربات تلگرام</td><td>Utility.cs (DAL)</td><td><span class="pill pill-warn">متوسط</span></td><td>توکن کامل + ارسال خودکار مشخصات نصب</td></tr><tr><td>کاربر مدیر بدون رمز</td><td>UserAttendance.cs</td><td><span class="pill pill-warn">متوسط</span></td><td>در اولین اجرا کاربری «مدیر» با رمز خالی ساخته می‌شود</td></tr><tr><td>فرم دسترسی ویژه بدون رمز</td><td>FrmManagment_Login.cs</td><td><span class="pill pill-err">بالا</span></td><td>اجرای مستقیم روال‌های SQL بدون احراز هویت</td></tr><tr><td>اتصال SMS روی HTTP</td><td>SmsSender.cs</td><td><span class="pill pill-warn">کم</span></td><td>ارسال نام کاربری/رمز بدون رمزگذاری انتقالی (http نه https)</td></tr></tbody></table><p class="body-text">این یافته‌ها را «برای سوءاستفاده» نبینید؛ برای <b>یادگیری</b> هستند. اگر روزی خودتان سیستمی با این مقیاس ساختید، همین هفت مورد چک‌لیست بازبینی امنیتی شماست: رمز استاد نگذارید، کلید را در ماژول امن نگه دارید، همیشه کوئری پارامتری بنویسید، توکن‌ها را بیرون از کد نگه دارید، کاربر پیش‌فرض با رمز قوی یا بدون رمز نسازید، فرم‌های مدیریتی را احراز هویت کنید و ترافیک حساس را روی TLS ببرید.</p><h3 class="sec-title"><span class="sec-bullet"></span>۳-۱۳) اگر بخواهیم ادامه دهیم...</h3><ul class="blist"><li>می‌توانید فایل‌های .pdb موجود در بسته را در ILSpy یا dnSpy کنار DLL ها باز کنید تا شماره خطوط سورس اصلی را هم ببینید.</li><li>قسمت‌های محاسباتی TaradodFullDet (۴,۰۰۰+ خط) ارزش خواندن تک‌تک را دارد: جفت‌کردن ورود/خروج، شیفت شب، جمعه‌کاری، مرخصی ساعتی...</li><li>برای آزمایش امنیتی خودتان: از بستهٔ SQL Server و بانک AttendanceN یک نمونهٔ آزمایشی بسازید و اسکریپت‌های Create_* را اجرا کنید تا شِما را از نزدیک ببینید.</li><li>اگر پروژه‌ای مشابه دارید، مطالعهٔ الگوی «کلاس‌های کمکی کوچک» (مثل SmsCalendar) برای شروع عالی است؛ سپس سراغ کلاس‌های غول‌پیکر (Fish با ۸۵KB کد) بروید تا ببینید چطور «نباید» بزرگ شد!</li></ul><h3 class="sec-title"><span class="sec-bullet"></span>۴-۱۳) چک‌لیست معلم؛ برای پروژهٔ بعدی شما</h3><p class="body-text">اگر خلاصهٔ این گزارش را در ده بند بخواهیم — چک‌لیستی که می‌توانید هنگام طراحی یا بازبینی هر نرم‌افزار سازمانی کنار دستتان بگذارید:</p><ul class="blist"><li>لایه‌ها را جدا نگه دارید: UI فقط نمایش، DAL فقط داده — و بین‌شان قرارداد مشخص (متدهای async با contextGuid).</li><li>برای هر جدول، چهار روال استاندارد بسازید (Insert/Update/SelectRow/SelectAll) و قاعدهٔ نام‌گذاری را هرگز نشکنید.</li><li>روی داده‌های پرخواننده (مثل فهرست پرسنل) کش با انقضای زمانی بگذارید و آن را زودتر از موعد باطل نکنید.</li><li>هر عملیات حساس (ذخیره، حذف، تغییر دسترسی) را با لاگ حسابرسی همراه کنید: چه‌کسی، چه‌زمانی، چه چیزی.</li><li>کلید و رمز را از کد جدا کنید؛ هاردکدکردن passphrase یعنی دادن کلید به هر خوانندهٔ دیکامپایلر.</li><li>کوئری همیشه پارامتری — حتی برای یک عدد ساده؛ تزریق SQL از همین «موارد استثنای کوچک» وارد می‌شود.</li><li>برای ارتباط زنده با سخت‌افزار، از رویداد/Push استفاده کنید و در نبود آن، پولینگ با فاصلهٔ معقول بگذارید.</li><li>پیام‌های کاربر را در لایهٔ مناسب و به زبان کاربر تولید کنید؛ فارسی‌نویسی تمیز نیمی از تجربهٔ کاربری است.</li><li>خطا را ببلعید اما گم نکنید: try/catch سراسری + لاگ ساخت‌یافته (Serilog) + تلاش مجدد با مکث تصادفی.</li><li>پیش از انتشار، یک بار خودتان را جای مهاجم بگذارید و همان هفت سطر جدول ۱۳-۱ را نقض ناپذیر کنید.</li></ul><p class="body-text">امیدواریم این گزارش، چراغی روشن در مسیر یادگیری معماری نرم‌افزارهای واقعی بوده باشد. کد واقعی همیشه پر از درس‌های نهان است — چه در نکات درستش و چه در اشتباه‌هایش. موفق باشید!</p></div>
+<div class="ending">
+  <div class="deco-circle dc1"></div>
+  <div class="deco-circle dc2"></div>
+  <div class="ending-big">پایان سفر،<br>آغاز تمرین</div>
+  <div class="ending-sub">
+    حالا که معماری یک نرم‌افزار صنعتی واقعی را از درون دیده‌اید، بهترین قدم بعدی،
+    باز کردن ILSpy و کاوش خودتان است. کد واقعی، بهترین معلم است.
+  </div>
+  <div class="ending-stats">
+    <div class="ending-stat"><div class="v">۱۳</div><div class="l">کتابخانهٔ تحلیل‌شده</div></div>
+    <div class="ending-stat"><div class="v">۴۵۰+</div><div class="l">کلاس بررسی‌شده</div></div>
+    <div class="ending-stat"><div class="v">۶۰+</div><div class="l">قطعه کد واقعی</div></div>
+    <div class="ending-stat"><div class="v">۷</div><div class="l">یافتهٔ امنیتی</div></div>
+  </div>
+  <div class="ending-foot">گزارش آموزشی تحلیل کتابخانه‌های سیستم حضور و غیاب نوین پرداز — آبان ۱۴۰۵</div>
+</div>
+
+</body>
+</html>

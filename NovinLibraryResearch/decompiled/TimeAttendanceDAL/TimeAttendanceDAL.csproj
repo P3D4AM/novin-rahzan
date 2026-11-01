@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>TimeAttendanceDAL</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="PacketParserStandard" />
+    <Reference Include="EntityCacheStandard" />
+    <Reference Include="System.Data">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="SmartAssembly.Attributes" />
+    <Reference Include="System.Core">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevComponents.DotNetBar2" />
+    <Reference Include="System.Threading.Tasks.Dataflow">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
+    <Reference Include="ClientHubStandard" />
+    <Reference Include="Newtonsoft.Json" />
+    <Reference Include="Serilog" />
+    <Reference Include="FormCustom" />
+    <Reference Include="TimeAttendanceDevices">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/TimeAttendanceDevices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report" />
+    <Reference Include="AccSqlServerPersistence" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Microsoft.CSharp">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/Microsoft.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="LK" />
+    <Reference Include="Serilog.Enrichers.Environment" />
+    <Reference Include="Serilog.Sinks.Console" />
+    <Reference Include="Serilog.Sinks.Async" />
+    <Reference Include="Serilog.Sinks.File" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.DataSetExtensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

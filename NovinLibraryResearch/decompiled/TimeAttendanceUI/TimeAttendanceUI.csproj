@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>TimeAttendanceUI</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="FormCustom" />
+    <Reference Include="TimeAttendanceDAL">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/TimeAttendanceDAL.dll</HintPath>
+    </Reference>
+    <Reference Include="DevComponents.DotNetBar2" />
+    <Reference Include="PacketParserStandard" />
+    <Reference Include="AxInterop.RealSvrOcxTcpLib" />
+    <Reference Include="TimeAttendanceDevices">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/TimeAttendanceDevices.dll</HintPath>
+    </Reference>
+    <Reference Include="BehComponents" />
+    <Reference Include="EntityCacheStandard" />
+    <Reference Include="System.Data">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="TimeAttendancePrint">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/TimeAttendancePrint.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.SignalR.Client.Core" />
+    <Reference Include="ClientHubStandard" />
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json" />
+    <Reference Include="System.Threading.Tasks.Dataflow">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
+    <Reference Include="SmartAssembly.Attributes" />
+    <Reference Include="Serilog" />
+    <Reference Include="ExcelDataReader" />
+    <Reference Include="ExcelDataReader.DataSet" />
+    <Reference Include="PayamakUi" />
+    <Reference Include="AxInterop.SBXPCLib" />
+    <Reference Include="AccSqlServerPersistence" />
+    <Reference Include="LK" />
+    <Reference Include="SBXPCSampleCSharp" />
+    <Reference Include="FK623AttendDllCSSample" />
+    <Reference Include="NPResourceManagement" />
+    <Reference Include="TimeAttendance.ValidatorAttribute">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/TimeAttendance.ValidatorAttribute.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding.CodePages">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/System.Text.Encoding.CodePages.dll</HintPath>
+    </Reference>
+    <Reference Include="BackUpDLL" />
+    <Reference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+</Project>
