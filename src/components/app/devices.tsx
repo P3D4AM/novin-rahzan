@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { SessionUser, Bootstrap, api, DeviceT } from './types'
 import { faDigits, faTime } from './jalali-ui'
 import { useToast } from '@/hooks/use-toast'
-import { Plus, Trash2, Pencil, Loader2, Plug, RefreshCw, Users, Upload, Fingerprint, Wifi, WifiOff, RadioTower, Activity } from 'lucide-react'
+import { Plus, Trash2, Pencil, Loader2, Plug, RefreshCw, Users, Upload, Fingerprint, Wifi, WifiOff, RadioTower, Activity, Download } from 'lucide-react'
 
 interface Props { user: SessionUser; boot: Bootstrap; reloadBoot: () => void }
 
@@ -40,6 +40,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
   const [importOpen, setImportOpen] = useState(false)
   const [importMode, setImportMode] = useState('punches')
   const [importing, setImporting] = useState(false)
+  const [syncDays, setSyncDays] = useState<Record<string, string>>({})
   const { toast } = useToast()
 
   const blank = { name: '', type: 'NOVIN_NP', ipAddress: '', port: 5005, protocol: 'TCP', location: '', enabled: true, syncIntervalMin: 0, serialNumber: '' }
@@ -82,17 +83,20 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
     }
   }
 
-  const action = async (id: string, act: 'test' | 'sync' | 'users') => {
+  const action = async (id: string, act: 'test' | 'sync' | 'users', daysBack?: number | null) => {
     setBusy(`${id}:${act}`)
     setTestResult(null)
     try {
-      const res = await api<{ result: Record<string, unknown> }>('/api/devices', { method: 'PATCH', body: JSON.stringify({ id, action: act }) })
+      const res = await api<{ result: Record<string, unknown> }>('/api/devices', {
+        method: 'PATCH',
+        body: JSON.stringify(daysBack !== undefined ? { id, action: act, daysBack } : { id, action: act }),
+      })
       setTestResult(res.result)
       reloadBoot()
       loadLogs()
       if (act === 'sync') {
-        const r = res.result as { created?: number; skipped?: number; unmatched?: number }
-        toast({ title: 'همگام‌سازی انجام شد', description: `${faDigits(r.created ?? 0)} تردد جدید، ${faDigits(r.skipped ?? 0)} تکراری` })
+        const r = res.result as { created?: number; skipped?: number; unmatched?: number; total?: number }
+        toast({ title: 'دریافت از دستگاه انجام شد', description: `${faDigits(r.created ?? 0)} تردد جدید از ${faDigits(r.total ?? 0)} تردد حافظه دستگاه · ${faDigits(r.skipped ?? 0)} تکراری` })
       }
     } catch (err) {
       toast({ title: 'خطا', description: err instanceof Error ? err.message : '', variant: 'destructive' })
@@ -190,22 +194,48 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                 <div className="space-y-1 text-muted-foreground">
                   <div className="flex justify-between">
                     <span>نوع</span>
-                    <span>{d.type === 'NOVIN_NP' ? 'نوین پرداز NP (پوش لحظه‌ای)' : 'ZKTeco و سازگارها'}</span>
+                    <span>{d.type === 'NOVIN_NP' ? 'نوین پرداز NP (پوش + دانلود)' : 'ZKTeco و سازگارها'}</span>
                   </div>
-                  {d.type === 'NOVIN_NP' ? (
-                    <div className="flex justify-between"><span>سریال دستگاه</span><span dir="ltr" className="font-mono text-xs">{d.serialNumber ?? '—'}</span></div>
-                  ) : (
-                    <div className="flex justify-between"><span>پروتکل</span><span dir="ltr">ZKTeco · {d.protocol} · {faDigits(d.port)}</span></div>
-                  )}
+                  {d.type === 'NOVIN_NP' && <div className="flex justify-between"><span>سریال دستگاه</span><span dir="ltr" className="font-mono text-xs">{d.serialNumber ?? '—'}</span></div>}
+                  {d.type === 'NOVIN_NP' && <div className="flex justify-between"><span>آدرس دستگاه</span><span dir="ltr" className="font-mono text-xs">{d.ipAddress ? `${d.ipAddress}:${d.port}` : '— (برای تست/دانلود وارد کنید)'}</span></div>}
+                  {d.type !== 'NOVIN_NP' && <div className="flex justify-between"><span>پروتکل</span><span dir="ltr">ZKTeco · {d.protocol} · {faDigits(d.port)}</span></div>}
                   {d.type !== 'NOVIN_NP' && <div className="flex justify-between"><span>آدرس</span><span dir="ltr" className="font-mono text-xs">{d.ipAddress ?? '—'}</span></div>}
                   {d.serialNumber && d.type !== 'NOVIN_NP' && <div className="flex justify-between"><span>سریال</span><span dir="ltr" className="font-mono text-xs">{d.serialNumber}</span></div>}
                   {d.location && <div className="flex justify-between"><span>موقعیت</span><span>{d.location}</span></div>}
-                  <div className="flex justify-between"><span>آخرین همگام‌سازی</span><span>{d.lastSyncAt ? faTime(d.lastSyncAt) : '—'}</span></div>
-                  <div className="flex justify-between"><span>آخرین دریافت</span><span>{d.lastSyncCount ? `${faDigits(d.lastSyncCount)} تردد` : '—'}</span></div>
+                  <div className="flex justify-between"><span>آخرین دریافت</span><span>{d.lastSyncAt ? faTime(d.lastSyncAt) : '—'}</span></div>
+                  {d.type === 'NOVIN_NP' && d.lastLogAt && <div className="flex justify-between"><span>تا تاریخِ دریافت‌شده</span><span>{faTime(d.lastLogAt)}</span></div>}
+                  {d.lastSyncCount ? <div className="flex justify-between"><span>آخرین تعداد دریافت</span><span>{faDigits(d.lastSyncCount)} تردد</span></div> : null}
+                  {d.syncIntervalMin ? <div className="flex justify-between"><span>دریافت خودکار</span><span>هر {faDigits(d.syncIntervalMin)} دقیقه</span></div> : null}
                 </div>
                 {d.type === 'NOVIN_NP' ? (
-                  <div className="text-xs rounded-lg bg-muted/60 p-2.5 leading-6 text-muted-foreground">
-                    دریافت ترددها <b>خودکار و لحظه‌ای</b> است؛ به‌محض ثبت در دستگاه اینجا ظاهر می‌شود. اگر ترددی نمی‌رسد: سریال، آدرس سرور دستگاه و «شناسه روی دستگاه» پرسنل را بررسی کنید (جزئیات در تاریخچه عملیات).
+                  <div className="space-y-2 pt-1">
+                    <div className="flex flex-wrap gap-1.5">
+                      <Button size="sm" variant="outline" onClick={() => action(d.id, 'test')} disabled={busy !== null} className="gap-1">
+                        {busy === `${d.id}:test` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plug className="h-3.5 w-3.5" />} تست اتصال
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Select value={syncDays[d.id] ?? 'auto'} onValueChange={(v) => setSyncDays({ ...syncDays, [d.id]: v })}>
+                        <SelectTrigger className="h-8 w-[170px] text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="auto" className="text-xs">ادامه از آخرین دریافت</SelectItem>
+                          <SelectItem value="1" className="text-xs">۱ روز اخیر</SelectItem>
+                          <SelectItem value="3" className="text-xs">۳ روز اخیر</SelectItem>
+                          <SelectItem value="7" className="text-xs">۷ روز اخیر</SelectItem>
+                          <SelectItem value="14" className="text-xs">۱۴ روز اخیر</SelectItem>
+                          <SelectItem value="30" className="text-xs">۳۰ روز اخیر</SelectItem>
+                          <SelectItem value="90" className="text-xs">۹۰ روز اخیر</SelectItem>
+                          <SelectItem value="365" className="text-xs">یک سال اخیر</SelectItem>
+                          <SelectItem value="3650" className="text-xs">همه ترددهای حافظه</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button size="sm" onClick={() => action(d.id, 'sync', syncDays[d.id] === 'auto' ? null : Number(syncDays[d.id] ?? 'auto'))} disabled={busy !== null} className="gap-1">
+                        {busy === `${d.id}:sync` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />} دانلود ترددها
+                      </Button>
+                    </div>
+                    <div className="text-xs rounded-lg bg-muted/60 p-2.5 leading-6 text-muted-foreground">
+                      ترددهای جدید به‌صورت لحظه‌ای (پوش) هم دریافت می‌شوند؛ دکمه «دانلود ترددها» اطلاعات ذخیره‌شده در حافظه دستگاه را می‌گیرد و دفعه بعد به‌صورت خودکار از همان‌جا ادامه می‌دهد.
+                    </div>
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-1.5 pt-1">
@@ -234,7 +264,33 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-base">نتیجه عملیات</CardTitle></CardHeader>
             <CardContent>
-              <pre className="text-xs bg-muted rounded-lg p-3 overflow-auto max-h-60" dir="ltr">{JSON.stringify(testResult, null, 2)}</pre>
+              {typeof testResult.ok === 'boolean' && 'serialNumber' in testResult ? (
+                <div className="space-y-2 text-sm">
+                  {testResult.ok ? (
+                    <>
+                      <div className="flex items-center gap-2 font-semibold text-emerald-600"><Wifi className="h-4 w-4" /> ارتباط با دستگاه برقرار شد</div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">شماره سریال دستگاه</span><span dir="ltr" className="font-mono">{String(testResult.serialNumber ?? '—')}</span></div>
+                        {testResult.deviceTime ? (
+                          <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">ساعت دستگاه</span><span>{faTime(String(testResult.deviceTime))}</span></div>
+                        ) : null}
+                        {testResult.serialMatch === false ? (
+                          <div className="md:col-span-2 text-amber-600 text-xs leading-5 rounded-lg bg-amber-50 dark:bg-amber-950/30 p-2">این سریال با سریال ثبت‌شده در پرونده دستگاه یکی نیست — پیام‌های لحظه‌ای (پوش) با سریال پرونده مطابقت داده می‌شوند. پیشنهاد: سریال پرونده را اصلاح کنید.</div>
+                        ) : null}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 font-semibold text-red-600"><WifiOff className="h-4 w-4" /> ارتباط برقرار نشد</div>
+                      <div className="text-sm">{String(testResult.error ?? '')}</div>
+                      {testResult.detail ? <div dir="ltr" className="text-xs font-mono text-muted-foreground">{String(testResult.detail)}</div> : null}
+                      <div className="text-xs text-muted-foreground leading-5 pt-1">راهنمایی: IP دستگاه را از منوی تنظیمات شبکه دستگاه بررسی کنید، مطمئن شوید سیستم و دستگاه در یک شبکه‌اند و پورت 5005 روی دستگاه باز است.</div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <pre className="text-xs bg-muted rounded-lg p-3 overflow-auto max-h-60" dir="ltr">{JSON.stringify(testResult, null, 2)}</pre>
+              )}
             </CardContent>
           </Card>
         )}
@@ -242,7 +298,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
         <Card>
           <CardContent className="text-sm text-muted-foreground leading-7 p-4">
             <div className="font-semibold text-foreground mb-1">راهنمای اتصال دستگاه‌ها:</div>
-            <div>• <b>دستگاه‌های نوین پرداز (NP756+، NP756، NP746، NP770 و…):</b> روی «دستگاه جدید» نوع را «نوین پرداز NP» بگذارید و <b>شماره سریال دستگاه</b> را (مثل 7561202505176 — پشت دستگاه/باگ گزارش اطلاعات) وارد کنید. سپس در منوی دستگاه ← تنظیمات ← ارتباط: نوع را «داخلی» یا «اینترنت»، <b>آدرس سرور = IP سیستمِ نرم‌افزار</b> و <b>پورت 5005</b> قرار دهید. ترددها از همان لحظه به‌صورت خودکار دریافت می‌شوند.</div>
+            <div>• <b>دستگاه‌های نوین پرداز (NP756+، NP756، NP746، NP770 و…):</b> روی «دستگاه جدید» نوع را «نوین پرداز NP» بگذارید و <b>شماره سریال دستگاه</b> را (مثل 7561202505176 — پشت دستگاه/باگ گزارش اطلاعات) وارد کنید و در قسمت IP هم آدرس دستگاه را بنویسید. سپس: <b>تست اتصال</b> را بزنید تا مطمئن شوید ارتباط برقرار است؛ با <b>دانلود ترددها</b> می‌توانید اطلاعات قبلیِ حافظه دستگاه را (تا چند روز قبل، به انتخاب خودتان) بگیرید؛ دفعات بعدی خودکار از همان‌جا ادامه می‌دهد. علاوه بر آن، ترددهای جدید به‌صورت لحظه‌ای هم دریافت می‌شوند: در منوی دستگاه ← تنظیمات ← ارتباط: آدرس سرور = IP سیستمِ نرم‌افزار و پورت 5005.</div>
             <div>• <b>ZKTeco و سازگارها:</b> IP و پورت ۴۳۷۰ دستگاه را وارد کنید و «تست اتصال» بزنید؛ ترددها با «همگام‌سازی» دریافت می‌شوند.</div>
             <div>• <b>سایر برندها (FK، SBX، Hysoon و…):</b> از خروجی Excel/CSV دستگاه استفاده کنید و از تب «ورود داده از فایل» بارگذاری کنید.</div>
             <div>• برای مطابقت خودکار، «شناسه روی دستگاه» هر پرسنلی را در پرونده‌اش ثبت کنید یا کد پرسنلی را با شماره کارت/شناسه دستگاه یکی نگه دارید.</div>
@@ -314,12 +370,23 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
             <div className="space-y-1.5">
               <Label>شماره سریال دستگاه {form.type === 'NOVIN_NP' ? '*' : '(اختیاری)'}</Label>
               <Input dir="ltr" className="font-mono" value={form.serialNumber} onChange={(e) => setForm({ ...form, serialNumber: e.target.value })} placeholder="7561202505176" />
-              {form.type === 'NOVIN_NP' && <div className="text-xs text-muted-foreground leading-5">پیام‌های دستگاه با این سریال مطابقت داده می‌شوند — بدون سریال درست، دستگاه متصل نمی‌شود (مثل نرم‌افزار اصلی). سریال روی برچسب دستگاه یا در منوی «گزارش اطلاعات» دستگاه موجود است.</div>}
+              {form.type === 'NOVIN_NP' && <div className="text-xs text-muted-foreground leading-5">پیام‌های دستگاه با این سریال مطابقت داده می‌شوند — بدون سریال درست، دستگاه متصل نمی‌شود (مثل نرم‌افزار اصلی). سریال روی برچسب دستگاه یا در منوی «گزارش اطلاعات» دستگاه موجود است. با «تست اتصال» سریال واقعی از خود دستگاه خوانده می‌شود.</div>}
             </div>
             {form.type === 'NOVIN_NP' ? (
-              <div className="text-xs rounded-lg bg-muted/60 p-3 leading-6 text-muted-foreground">
-                این دستگاه‌ها خودشان به سرور وصل می‌شوند — IP لازم نیست.<br />
-                تنظیمات دستگاه: منو ← تنظیمات ← ارتباط ← نوع: <b>داخلی</b> · آدرس سرور: <b>IP همین سیستم</b> · پورت: <b>5005</b>
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1.5">
+                    <Label>IP دستگاه (برای تست/دانلود)</Label>
+                    <Input dir="ltr" value={form.ipAddress} onChange={(e) => setForm({ ...form, ipAddress: e.target.value })} placeholder="192.168.1.201" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>پورت</Label>
+                    <Input type="number" dir="ltr" value={form.port} onChange={(e) => setForm({ ...form, port: Number(e.target.value) })} />
+                  </div>
+                </div>
+                <div className="text-xs rounded-lg bg-muted/60 p-3 leading-6 text-muted-foreground">
+                  دریافت ترددها به دو روش کار می‌کند: <b>لحظه‌ای (پوش)</b> — دستگاه خودش به سرور وصل می‌شود؛ کافی است در منوی دستگاه ← تنظیمات ← ارتباط، آدرس سرور را IP همین سیستم و پورت را 5005 بگذارید. و <b>دانلود مستقیم</b> — با وارد کردن IP دستگاه بالا، ترددهای ذخیره‌شده در حافظه دستگاه دریافت می‌شود (همان روش نرم‌افزار اصلی).
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-2">
@@ -335,9 +402,11 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
               </div>
             )}
             <div className="space-y-1.5"><Label>موقعیت نصب</Label><Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="مثلاً ورودی ساختمان" /></div>
-            {form.type !== 'NOVIN_NP' && (
-              <div className="space-y-1.5"><Label>همگام‌سازی خودکار (دقیقه، ۰=غیرفعال)</Label><Input type="number" dir="ltr" value={form.syncIntervalMin} onChange={(e) => setForm({ ...form, syncIntervalMin: Number(e.target.value) })} /></div>
-            )}
+            <div className="space-y-1.5">
+              <Label>دریافت خودکار از دستگاه (دقیقه، ۰=غیرفعال)</Label>
+              <Input type="number" dir="ltr" value={form.syncIntervalMin} onChange={(e) => setForm({ ...form, syncIntervalMin: Number(e.target.value) })} />
+              <div className="text-xs text-muted-foreground leading-5">اگر مقداری بگذارید، نرم‌افزار هر چند دقیقه یک‌بار به دستگاه وصل می‌شود و فقط ترددهای جدید را می‌گیرد — از همان‌جایی که قبلاً تمام شده، ادامه می‌دهد.</div>
+            </div>
             <div className="flex items-center gap-2"><Switch id="dev-en" checked={form.enabled} onCheckedChange={(v) => setForm({ ...form, enabled: v })} /><Label htmlFor="dev-en">فعال</Label></div>
           </div>
           <DialogFooter>

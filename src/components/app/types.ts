@@ -120,6 +120,7 @@ export interface DeviceT {
   status: string
   lastSyncAt?: string | null
   lastSyncCount: number
+  lastLogAt?: string | null
   syncIntervalMin?: number
 }
 

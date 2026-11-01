@@ -4,6 +4,8 @@ import { requireRole, ApiError } from '@/lib/auth'
 import { fail, errorMessage } from '@/lib/api'
 import { zkTest, zkGetUsers, importDeviceLogs } from '@/lib/zk'
 import { getEbioStatus } from '@/lib/ebio'
+import { npTest } from '@/lib/sbxpc'
+import { importNpDeviceLogs } from '@/lib/np-sync'
 import { emitRealtime } from '@/lib/notify'
 
 export async function GET(req: NextRequest) {
@@ -88,10 +90,48 @@ export async function PATCH(req: NextRequest) {
     const device = await db.device.findUnique({ where: { id: b.id } })
     if (!device) throw new ApiError(404, 'دستگاه یافت نشد')
 
+    /* ---------------- Novin Pardaz NP devices (pull mode) ---------------- */
     if (device.type === 'NOVIN_NP') {
-      throw new ApiError(400,
-        'دستگاه‌های نوین پرداز (NP) در حالت «اتصال رو به سرور» کار می‌کنند: خودِ دستگاه به این نرم‌افزار روی پورت 5005 متصل می‌شود و ترددها به‌صورت لحظه‌ای دریافت می‌شوند — نیازی به تست/همگام‌سازی دستی نیست. فقط مطمئن شوید سریال دستگاه درست وارد شده و آدرس سرور روی منوی دستگاه، IP همین سیستم است.')
+      if (b.action === 'test') {
+        if (!device.ipAddress?.trim()) {
+          throw new ApiError(400,
+            'برای تست اتصال، آدرس IP دستگاه را در پرونده دستگاه وارد کنید (مثل 192.168.1.201). ' +
+            'دستگاه‌های NP روی پورت 5005 هم به نرم‌افزار وصل می‌شوند (پوش لحظه‌ای) و هم از همان پورت پاسخ فرمان‌های دانلود را می‌دهند.')
+        }
+        const t = await npTest(device.ipAddress.trim(), device.port || 5005)
+        const serialMatch = t.ok && t.serialNumber && device.serialNumber
+          ? t.serialNumber.trim().toLowerCase() === device.serialNumber.trim().toLowerCase()
+          : null
+        await db.device.update({
+          where: { id: device.id },
+          data: {
+            status: t.ok ? 'ONLINE' : 'OFFLINE',
+            ...(t.ok && t.serialNumber && !device.serialNumber ? { serialNumber: t.serialNumber } : {}),
+          },
+        })
+        await db.deviceLog.create({
+          data: {
+            deviceId: device.id,
+            level: t.ok ? 'SUCCESS' : 'ERROR',
+            message: t.ok
+              ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber}${t.deviceTime ? ` · ساعت دستگاه: ${new Date(t.deviceTime).toLocaleString('fa-IR')}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
+              : `خطای اتصال مستقیم: ${t.error}${t.detail ? ` [${t.detail}]` : ''}`,
+          },
+        })
+        return NextResponse.json({ result: { ...t, serialMatch } })
+      }
+
+      if (b.action === 'sync') {
+        const daysBack = typeof b.daysBack === 'number' && b.daysBack > 0 ? b.daysBack : null
+        const result = await importNpDeviceLogs(device.id, { daysBack })
+        await emitRealtime('device-sync', { deviceId: device.id, ...result })
+        return NextResponse.json({ result })
+      }
+
+      throw new ApiError(400, 'برای دستگاه‌های نوین پرداز فقط «تست اتصال» و «دانلود ترددها» پشتیبانی می‌شود')
     }
+
+    /* ---------------- ZKTeco & compatible ---------------- */
 
     if (b.action === 'test') {
       if (!device.ipAddress) throw new ApiError(400, 'آدرس IP تنظیم نشده است')

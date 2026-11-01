@@ -248,6 +248,7 @@ model Device {
   status        String       @default("UNKNOWN") // ONLINE | OFFLINE | UNKNOWN
   lastSyncAt    DateTime?
   lastSyncCount Int          @default(0)
+  lastLogAt     DateTime? // bookmark: newest device log already imported (incremental pull sync)
   syncIntervalMin Int        @default(0) // 0 = manual only
   createdAt     DateTime     @default(now())
   logs          DeviceLog[]
