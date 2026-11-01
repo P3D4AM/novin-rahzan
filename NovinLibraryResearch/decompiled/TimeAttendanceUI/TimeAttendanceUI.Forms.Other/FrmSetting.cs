@@ -4506,7 +4506,7 @@ public class FrmSetting : BaseForm
 		((PanelControl)GrpWebservice).StyleMouseOver.CornerType = (eCornerType)1;
 		((Control)GrpWebservice).TabIndex = 30;
 		((ListControl)CmbURL).FormattingEnabled = true;
-		CmbURL.Items.AddRange(new object[4] { "http://www.NovinRank.ir/hubCore", "http://www.Api.NovinP.com/hubCore", "http://www.WebService.NpMail.ir/hubCore", "http://localhost:7005/hubCore" });
+		CmbURL.Items.AddRange(new object[1] { "http://localhost:7005/hubCore" }); // [SANITIZED] نشانی‌های هاب ابری سازنده از فهرست تنظیمات حذف شد
 		((Control)CmbURL).Location = new Point(170, 22);
 		((Control)CmbURL).Name = "CmbURL";
 		((Control)CmbURL).Size = new Size(247, 21);

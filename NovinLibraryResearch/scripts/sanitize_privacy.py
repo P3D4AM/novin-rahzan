@@ -27,6 +27,11 @@ TG1 = "7555" + "568603:AA" + "F5cI43lnT1QQEkd7BF-dwi6E3GP7vc614"   # bot token #
 TG2 = "20544" + "12240:AA" + "EG499riu4VTE1rQGXKtnw5afIiouEIQYY"   # bot token #2
 BOT1 = "@shafiei" + "XmBot"
 HUB = "https://novin" + "rank.ir/hubCore"
+LOGCB = "http://Novin" + "Rank.ir"                      # device log callback (FrmDevice.cs)
+HUB1 = "http://www.Novin" + "Rank.ir/hubCore"           # vendor hub #1 (FrmSetting.cs)
+HUB2 = "http://www.Api.Novin" + "P.com/hubCore"         # vendor hub #2
+HUB3 = "http://www.WebService.Np" + "Mail.ir/hubCore"   # vendor hub #3
+LOCALHUB = "http://localhost:7005/hubCore"              # local hub (kept)
 
 # masked replacements (length-preserving where layout matters)
 MP1_MASK = "Novin********"          # 13 chars
@@ -177,7 +182,37 @@ def sanitize_sources(root):
         r'\t*WebTelegramMessage\.GetAttendanceRealTimeMonitoring_bot\(\)\.Sent2web\([^\n]*\);\n',
         (f'\t\t\t\t// {SAN} ارسال رشتهٔ وضعیت دستگاه به ربات تلگرام حذف شد\n'))
 
-    print("== sources sanitized ==")
+    print("== sources sanitized (pass 1) ==")
+
+
+# ---------------------------------------------------------------------------
+# PART 1b — pass 2: دو مسیر تله‌متری که در بازبینی نهایی پیدا شد
+# ---------------------------------------------------------------------------
+def sanitize_sources_v2(root):
+    print("== sanitizing decompiled sources (pass 2) ==")
+    p = lambda *a: os.path.join(root, *a)
+
+    # --- 11) FrmDevice.cs : device log callback pointed at the vendor server ---
+    # در حالت غیر RealTime، کالبکِ لاگ دستگاه روی دامنهٔ سازنده تنظیم می‌شد؛ یعنی
+    # لاگ ترددها به‌جای سرور محلیِ مشتری، به سرور سازنده ارسال می‌شد.
+    f = p('TimeAttendanceUI', 'TimeAttendanceUI.Forms.Device', 'FrmDevice.cs')
+    apply_regex(
+        f,
+        r'val\.AddReturnedValue\(await sdk\.SetLogCallBackAsync\("' + re.escape(LOGCB) + r'", 0\)[^\n]*404\);\n',
+        ('// ' + SAN + ' کالبک لاگ دستگاه به دامنهٔ سازنده حذف شد: در حالت غیر '
+         'RealTime لاگ دستگاه‌ها به سرور سازنده ارسال می‌شد.\n'))
+
+    # --- 12) FrmSetting.cs : drop vendor cloud-hub URLs from the settings list ---
+    # فهرست کشویی «وب‌سرویس» چهار نشانی هاب ابری (سه‌تای آن دامنهٔ سازنده) را پیش‌پر
+    # می‌کرد؛ پیش‌فرض کلاس WebServiceKey قبلاً خالی شده بود اما این فهرست باقی مانده بود.
+    f = p('TimeAttendanceUI', 'TimeAttendanceUI.Forms.Other', 'FrmSetting.cs')
+    apply_exact(
+        f,
+        'CmbURL.Items.AddRange(new object[4] { "' + HUB1 + '", "' + HUB2 + '", "' + HUB3 + '", "' + LOCALHUB + '" });',
+        ('CmbURL.Items.AddRange(new object[1] { "' + LOCALHUB + '" }); // ' + SAN +
+         ' نشانی‌های هاب ابری سازنده از فهرست تنظیمات حذف شد'))
+
+    print("== sources sanitized (pass 2) ==")
 
 
 # ---------------------------------------------------------------------------
@@ -235,7 +270,13 @@ def verify(root):
         'tg-token-2': TG2,
         'bot-handle': BOT1,
         'cloud-hub': HUB,
+        'log-callback': LOGCB,
+        'vendor-hub-1': HUB1,
+        'vendor-hub-2': HUB2,
+        'vendor-hub-3': HUB3,
     }
+    # نشانی‌ها/اندپوینت‌ها: باید از سورس‌ها (.cs) حذف شوند؛ اشاره در مستندات مجاز است
+    doc_ok = {'cloud-hub', 'log-callback', 'vendor-hub-1', 'vendor-hub-2', 'vendor-hub-3'}
     bad = 0
     for dirpath, _dirs, files in os.walk(root):
         for name in files:
@@ -248,8 +289,8 @@ def verify(root):
             except Exception:
                 continue
             for label, sec in secrets.items():
-                # hub URL: public endpoint — must vanish from sources, allowed in prose/docs
-                if label == 'cloud-hub' and not name.endswith('.cs'):
+                # endpoints: must vanish from sources, allowed in prose/docs
+                if label in doc_ok and not name.endswith('.cs'):
                     continue
                 if sec in text:
                     print(f"  !! {label} still present in {fp}")
@@ -261,9 +302,11 @@ def verify(root):
 
 if __name__ == '__main__':
     mode = sys.argv[1] if len(sys.argv) > 1 else 'all'
-    if mode in ('sources', 'all'):
-        target = sys.argv[2] if len(sys.argv) > 2 else '/tmp/novin-rahzan/NovinLibraryResearch/decompiled'
-        sanitize_sources(target)
+    target = sys.argv[2] if len(sys.argv) > 2 else '/tmp/novin-rahzan/NovinLibraryResearch/decompiled'
+    if mode in ('sources', 'sources-v2', 'all'):
+        if mode in ('sources', 'all'):
+            sanitize_sources(target)
+        sanitize_sources_v2(target)
     if mode in ('scripts', 'all'):
         sdir = '/home/z/my-project/scripts'
         sanitize_report_scripts(sdir)

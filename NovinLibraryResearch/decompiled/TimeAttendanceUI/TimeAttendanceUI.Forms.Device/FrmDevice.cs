@@ -650,7 +650,7 @@ public class FrmDevice : BaseForm
 				else
 				{
 					ReturnedSaveFuncInfo val = ret;
-					val.AddReturnedValue(await sdk.SetLogCallBackAsync("http://NovinRank.ir", 0), (ReturnedState)0, "UpdateDeviceAsync", "D:\\Projects\\NPACC\\WebService_Team\\TimeAttendance\\TimeAttendanceUI\\Forms\\Device\\FRMDevice.cs", 404);
+					// [SANITIZED] کالبک لاگ دستگاه به دامنهٔ سازنده حذف شد: در حالت غیر RealTime لاگ دستگاه‌ها به سرور سازنده ارسال می‌شد.
 				}
 			}
 		}
