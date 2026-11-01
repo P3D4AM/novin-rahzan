@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>System.ComponentModel.Annotations</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net40</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="System.ComponentModel.Annotations.Resources.System.ComponentModel.Annotations.rd.xml" />
+    <EmbeddedResource Include="System.ComponentModel.Annotations.Resources.System.ComponentModel.Annotations.rd.xml" LogicalName="System.ComponentModel.Annotations.Resources.System.ComponentModel.Annotations.rd.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.ComponentModel.DataAnnotations.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

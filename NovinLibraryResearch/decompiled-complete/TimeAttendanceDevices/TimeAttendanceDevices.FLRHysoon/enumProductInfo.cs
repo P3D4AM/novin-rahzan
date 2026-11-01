@@ -1,0 +1,12 @@
+namespace TimeAttendanceDevices.FLRHysoon;
+
+public enum enumProductInfo
+{
+	PRODUCT_SERIALNUMBER = 1,
+	PRODUCT_BACKUPNUMBER,
+	PRODUCT_CODE,
+	PRODUCT_NAME,
+	PRODUCT_WEB,
+	PRODUCT_DATE,
+	PRODUCT_SENDTO
+}

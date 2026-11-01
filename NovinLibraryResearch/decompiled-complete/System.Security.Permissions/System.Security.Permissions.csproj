@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>System.Security.Permissions</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net40</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="System.Configuration">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Net">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/WindowsBase.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceProcess">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.ServiceProcess.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Transactions">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Transactions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

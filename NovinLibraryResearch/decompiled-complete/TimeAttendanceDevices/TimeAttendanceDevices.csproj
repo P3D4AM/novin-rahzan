@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>TimeAttendanceDevices</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="AxInterop.SBXPCLib" />
+    <Reference Include="System.Core">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="PacketParserStandard" />
+    <Reference Include="TimeAttendanceDAL">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/TimeAttendanceDAL.dll</HintPath>
+    </Reference>
+    <Reference Include="Riss.Devices" />
+    <Reference Include="ZDC2911">
+      <HintPath>../../upload/novindlls_extracted/NovinDll's/ZDC2911.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.zkemkeeper" />
+    <Reference Include="System.Data">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp">
+      <HintPath>../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/Microsoft.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog" />
+    <Reference Include="Newtonsoft.Json" />
+    <Reference Include="FK623AttendDllCSSample" />
+  </ItemGroup>
+</Project>

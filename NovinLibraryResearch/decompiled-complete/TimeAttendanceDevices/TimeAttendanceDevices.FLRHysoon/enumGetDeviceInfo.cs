@@ -1,0 +1,16 @@
+namespace TimeAttendanceDevices.FLRHysoon;
+
+public enum enumGetDeviceInfo
+{
+	DI_MANAGERS = 1,
+	DI_MACHINENUM = 2,
+	DI_LANGAUGE = 3,
+	DI_POWEROFF_TIME = 4,
+	DI_LOCK_CTRL = 5,
+	DI_GLOG_WARNING = 6,
+	DI_SLOG_WARNING = 7,
+	DI_VERIFY_INTERVALS = 8,
+	DI_RSCOM_BPS = 9,
+	DI_DATE_SEPARATE = 10,
+	DI_VERIFY_KIND = 24
+}
