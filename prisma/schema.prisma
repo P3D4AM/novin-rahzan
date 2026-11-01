@@ -1,0 +1,302 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ===================== Users & Sessions =====================
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  passwordHash String
+  role         String    @default("EMPLOYEE") // SUPER_ADMIN | ADMIN | APPROVER | EMPLOYEE
+  fullName     String
+  phone        String?
+  email        String?
+  active       Boolean   @default(true)
+  personnelId  String?   @unique
+  personnel    Personnel? @relation(fields: [personnelId], references: [id], onDelete: SetNull)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  sessions     Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ===================== Organization =====================
+model Department {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  description String?
+  createdAt   DateTime     @default(now())
+  personnel   Personnel[]
+}
+
+model JobTitle {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  personnel Personnel[]
+}
+
+model EmploymentType {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  personnel Personnel[]
+}
+
+model Personnel {
+  id               String         @id @default(cuid())
+  personnelCode    String         @unique
+  firstName        String
+  lastName         String
+  nationalId       String?
+  fatherName       String?
+  gender           String? // MALE | FEMALE
+  birthDate        String? // Jalali string "1370/05/12"
+  phone            String?
+  email            String?
+  address          String?
+  photoUrl         String?
+  departmentId     String?
+  jobTitleId       String?
+  employmentTypeId String?
+  hireDate         String? // Jalali string
+  endDate          String? // Jalali string
+  status           String         @default("ACTIVE") // ACTIVE | INACTIVE | TERMINATED
+  pin              String         @unique // 4-digit kiosk PIN
+  qrToken          String         @unique @default(uuid())
+  deviceUserId     Int? // user id on ZK device
+  annualLeaveDays  Float          @default(26)
+  defaultShiftId   String?
+  notes            String?
+  department       Department?    @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  jobTitle         JobTitle?      @relation(fields: [jobTitleId], references: [id], onDelete: SetNull)
+  employmentType   EmploymentType? @relation(fields: [employmentTypeId], references: [id], onDelete: SetNull)
+  defaultShift     Shift?         @relation("defaultShift", fields: [defaultShiftId], references: [id], onDelete: SetNull)
+  user             User?
+  punches          PunchRecord[]
+  dailyRecords     DailyAttendance[]
+  leaveRequests    LeaveRequest[]
+  overtimeRequests OvertimeRequest[]
+  assignments      ShiftAssignment[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+// ===================== Shifts =====================
+model Shift {
+  id           String          @id @default(cuid())
+  name         String          @unique
+  color        String          @default("#10b981")
+  type         String          @default("FIXED") // FIXED | SPLIT
+  lateGraceMin Int             @default(10)
+  earlyGraceMin Int            @default(10)
+  overtimeEligible Boolean     @default(true)
+  isActive     Boolean         @default(true)
+  segments     ShiftSegment[]
+  personnel    Personnel[]     @relation("defaultShift")
+  assignments  ShiftAssignment[]
+  dailyRecords DailyAttendance[]
+}
+
+model ShiftSegment {
+  id       String @id @default(cuid())
+  shiftId  String
+  order    Int    @default(1)
+  startMin Int // minutes from 00:00
+  endMin   Int // minutes from 00:00; if endMin <= startMin -> crosses midnight
+  breakMin Int    @default(0)
+  shift    Shift  @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+}
+
+model ShiftRotation {
+  id       String  @id @default(cuid())
+  name     String  @unique
+  pattern  String // JSON: [{ "shiftId": "...", "days": 2 }, { "off": true, "days": 1 }]
+  isActive Boolean @default(true)
+}
+
+model ShiftAssignment {
+  id       String   @id @default(cuid())
+  personId String
+  date     DateTime // day (UTC midnight)
+  shiftId  String? // null => off day (تعطیلی شخصی)
+  note     String?
+  person   Personnel @relation(fields: [personId], references: [id], onDelete: Cascade)
+  shift    Shift?    @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+
+  @@unique([personId, date])
+}
+
+model Holiday {
+  id        String   @id @default(cuid())
+  date      DateTime // day
+  title     String
+  type      String   @default("OFFICIAL") // OFFICIAL | COMPANY
+  createdAt DateTime @default(now())
+
+  @@unique([date])
+}
+
+// ===================== Attendance =====================
+model PunchRecord {
+  id            String   @id @default(cuid())
+  personId      String
+  timestamp     DateTime
+  direction     String   @default("AUTO") // IN | OUT | AUTO
+  source        String   @default("WEB") // WEB | KIOSK | QR | DEVICE | MANUAL | IMPORT
+  deviceId      String?
+  deviceUserId  Int?
+  rawPayload    String?
+  edited        Boolean  @default(false)
+  editReason    String?
+  latitude      String?
+  longitude     String?
+  createdAt     DateTime @default(now())
+  person        Personnel @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([personId, timestamp, source])
+}
+
+model DailyAttendance {
+  id                String   @id @default(cuid())
+  personId          String
+  date              DateTime
+  status            String   @default("PENDING") // PRESENT | ABSENT | LEAVE | MISSION | HOLIDAY | OFF | INCOMPLETE | IGNORED
+  shiftId           String?
+  firstIn           DateTime?
+  lastOut           DateTime?
+  workedMinutes     Int      @default(0)
+  lateMinutes       Int      @default(0)
+  earlyLeaveMinutes Int      @default(0)
+  overtimeMinutes   Int      @default(0)
+  leaveTypeId       String?
+  leaveMinutes      Int      @default(0)
+  note              String?
+  shift             Shift?     @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+  leaveType         LeaveType? @relation(fields: [leaveTypeId], references: [id], onDelete: SetNull)
+  person            Personnel @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([personId, date])
+}
+
+// ===================== Leave =====================
+model LeaveType {
+  id               String  @id @default(cuid())
+  name             String  @unique
+  paid             Boolean @default(true)
+  requiresApproval Boolean @default(true)
+  color            String  @default("#f59e0b")
+  countsTowardsBalance Boolean @default(true)
+  requests         LeaveRequest[]
+  dailyRecords     DailyAttendance[]
+}
+
+model LeaveRequest {
+  id               String    @id @default(cuid())
+  personId         String
+  leaveTypeId      String
+  kind             String    @default("DAILY") // DAILY | HOURLY
+  startDateTime    DateTime
+  endDateTime      DateTime
+  durationMinutes  Int       @default(0)
+  reason           String?
+  status           String    @default("PENDING") // PENDING | APPROVED | REJECTED | CANCELLED
+  approverId       String?
+  decisionNote     String?
+  decidedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  leaveType        LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+  person           Personnel @relation(fields: [personId], references: [id], onDelete: Cascade)
+}
+
+// ===================== Overtime =====================
+model OvertimeRequest {
+  id         String    @id @default(cuid())
+  personId   String
+  date       DateTime
+  minutes    Int
+  reason     String?
+  status     String    @default("PENDING") // PENDING | APPROVED | REJECTED
+  approverId String?
+  decidedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  person     Personnel @relation(fields: [personId], references: [id], onDelete: Cascade)
+}
+
+// ===================== Devices =====================
+model Device {
+  id            String       @id @default(cuid())
+  name          String
+  type          String       @default("ZKTECO") // ZKTECO | IMPORT
+  ipAddress     String?
+  port          Int          @default(4370)
+  protocol      String       @default("TCP") // TCP | UDP
+  location      String?
+  serialNumber  String?
+  enabled       Boolean      @default(true)
+  status        String       @default("UNKNOWN") // ONLINE | OFFLINE | UNKNOWN
+  lastSyncAt    DateTime?
+  lastSyncCount Int          @default(0)
+  syncIntervalMin Int        @default(0) // 0 = manual only
+  createdAt     DateTime     @default(now())
+  logs          DeviceLog[]
+}
+
+model DeviceLog {
+  id        String   @id @default(cuid())
+  deviceId  String?
+  level     String   @default("INFO") // INFO | WARN | ERROR | SUCCESS
+  message   String
+  createdAt DateTime @default(now())
+  device    Device?  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+}
+
+// ===================== Notifications =====================
+model NotificationRule {
+  id             String  @id @default(cuid())
+  type           String // ABSENT | LATE | CHECKIN | LEAVE_REQUEST | OT_REQUEST
+  enabled        Boolean @default(true)
+  thresholdMin   Int     @default(0)
+  scope          String  @default("ALL") // ALL or comma separated person ids
+  notifyRole     String  @default("ADMIN") // ADMIN | APPROVER | SUPER_ADMIN
+  createdAt      DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  role      String? // broadcast target role
+  title     String
+  body      String
+  type      String   @default("INFO")
+  refId     String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ===================== Settings & Audit =====================
+model Setting {
+  id    String @id
+  value String
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String?
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
+}
