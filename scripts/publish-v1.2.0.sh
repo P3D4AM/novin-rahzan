@@ -65,12 +65,13 @@ except urllib.error.HTTPError as e:
         raise
 PYEOF
 
-# 3) upload the asset
+# 3) upload the asset (must go to uploads.github.com, not api.github.com)
 REL_ID=$(sed -n 's/release_id: //p' scripts/release-id.txt | tr -d ' \n')
+UPLOADS_API="https://uploads.github.com/repos/$REPO"
 echo "▸ uploading $ZIP to release $REL_ID …"
-curl -sS -X POST \
+curl -sS -f -X POST \
   -H "$AUTH" -H "Content-Type: application/zip" \
-  --data-binary "@../$ZIP" \
-  "$API/releases/$REL_ID/assets?name=$ZIP" | head -c 400
+  --data-binary "@./$ZIP" \
+  "$UPLOADS_API/releases/$REL_ID/assets?name=$ZIP" | head -c 400
 echo
 echo "✓ done — https://github.com/$REPO/releases/tag/$TAG"
