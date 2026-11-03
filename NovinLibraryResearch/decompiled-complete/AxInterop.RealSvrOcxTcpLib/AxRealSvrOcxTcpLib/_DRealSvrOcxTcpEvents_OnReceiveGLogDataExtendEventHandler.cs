@@ -1,0 +1,3 @@
+namespace AxRealSvrOcxTcpLib;
+
+public delegate void _DRealSvrOcxTcpEvents_OnReceiveGLogDataExtendEventHandler(object sender, _DRealSvrOcxTcpEvents_OnReceiveGLogDataExtendEvent e);

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>LK</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="SmartAssembly.Attributes" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="PacketParserStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/PacketParserStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog" />
+    <Reference Include="ActivationPacketParserStandard" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Serilog.Enrichers.Environment" />
+  </ItemGroup>
+</Project>

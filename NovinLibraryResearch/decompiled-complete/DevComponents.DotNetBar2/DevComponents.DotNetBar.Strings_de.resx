@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="cust_btn_close" xml:space="preserve"><value>Schließen</value></data>
+  <data name="cust_btn_reset" xml:space="preserve"><value>&amp;Zurücksetzen...</value></data>
+  <data name="barname_caption" xml:space="preserve"><value>Neue Symbolleiste</value></data>
+  <data name="barrename_caption" xml:space="preserve"><value>Symbolleiste umbenennen</value></data>
+  <data name="cust_mnu_addremove" xml:space="preserve"><value>&amp;Schaltflächen hinzufügen oder entfernen</value></data>
+  <data name="barname_cancel" xml:space="preserve"><value>Abbrechen</value></data>
+  <data name="cust_btn_resetusage" xml:space="preserve"><value>&amp;Meine Nutzungsdaten zurücksetzen</value></data>
+  <data name="sys_morebuttons" xml:space="preserve"><value>Weitere Schaltflächen</value></data>
+  <data name="cust_tab_commands" xml:space="preserve"><value>Befehle</value></data>
+  <data name="cust_pm_reset" xml:space="preserve"><value>Zurücksetzen</value></data>
+  <data name="cust_chk_showsk" xml:space="preserve"><value>&amp;Tastaturkürzel in QuickInfos anzeigen</value></data>
+  <data name="cust_chk_showst" xml:space="preserve"><value>Quick&amp;Infos auf Symbolleisten anzeigen</value></data>
+  <data name="mdisysmenu_close" xml:space="preserve"><value>Schließen</value></data>
+  <data name="cust_pm_stytextonly" xml:space="preserve"><value>Nur Text (immer)</value></data>
+  <data name="cust_cbo_slide" xml:space="preserve"><value>Dia</value></data>
+  <data name="sys_custombar" xml:space="preserve"><value>Benutzeranpassungsleiste</value></data>
+  <data name="cust_mnu_cust" xml:space="preserve"><value>Anpassen...</value></data>
+  <data name="mdisysmenu_minimize" xml:space="preserve"><value>Minimieren</value></data>
+  <data name="cust_chk_delay" xml:space="preserve"><value>Vollständige Menüs nach kurzer Verzögerung anzeigen</value></data>
+  <data name="cust_tab_toolbars" xml:space="preserve"><value>Symbolleisten</value></data>
+  <data name="barname_name" xml:space="preserve"><value>&amp;Symbolleistenname:</value></data>
+  <data name="cust_lbl_menuan" xml:space="preserve"><value>Menüanimation:</value></data>
+  <data name="cust_cbo_none" xml:space="preserve"><value>(Keine)</value></data>
+  <data name="cust_cbo_fade" xml:space="preserve"><value>Einblenden</value></data>
+  <data name="mdisysmenu_maximize" xml:space="preserve"><value>Maximieren</value></data>
+  <data name="cust_btn_new" xml:space="preserve"><value>&amp;Neu...</value></data>
+  <data name="cust_chk_fullmenus" xml:space="preserve"><value>Immer vollständige Menüs anzeigen</value></data>
+  <data name="cust_pm_name" xml:space="preserve"><value>Name:</value></data>
+  <data name="mdisystt_restore" xml:space="preserve"><value>Wiederherstellen</value></data>
+  <data name="cust_btn_keyboard" xml:space="preserve"><value>&amp;Tastatur...</value></data>
+  <data name="cust_lbl_pmt" xml:space="preserve"><value>Personalisierte Menüs und Symbolleisten</value></data>
+  <data name="cust_cbo_system" xml:space="preserve"><value>Systemvorgabe</value></data>
+  <data name="cust_cbo_random" xml:space="preserve"><value>Zufall</value></data>
+  <data name="cust_cbo_unfold" xml:space="preserve"><value>Entfalten</value></data>
+  <data name="cust_lbl_cmdsins" xml:space="preserve"><value>Um einen Befehl zu einer Leiste hinzuzufügen, wählen Sie die Kategorie, und ziehen Sie den Befehl aus diesem Feld auf eine Leiste.</value></data>
+  <data name="cust_pm_begingroup" xml:space="preserve"><value>Beginn Gruppe</value></data>
+  <data name="barname_ok" xml:space="preserve"><value>OK</value></data>
+  <data name="cust_lbl_other" xml:space="preserve"><value>Sonstiges:</value></data>
+  <data name="mdisystt_minimize" xml:space="preserve"><value>Minimieren</value></data>
+  <data name="cust_caption" xml:space="preserve"><value>Anpassen</value></data>
+  <data name="cust_lbl_tlbs" xml:space="preserve"><value>&amp;Symbolleisten:</value></data>
+  <data name="cust_lbl_cats" xml:space="preserve"><value>Kate&amp;gorien:</value></data>
+  <data name="cust_lbl_cmds" xml:space="preserve"><value>&amp;Befehle:</value></data>
+  <data name="cust_tab_options" xml:space="preserve"><value>Optionen</value></data>
+  <data name="cust_mnu_reset" xml:space="preserve"><value>Leiste zurücksetzen</value></data>
+  <data name="cust_pm_styimagetext" xml:space="preserve"><value>Bild und Text (immer)</value></data>
+  <data name="cust_mnu_tooltip" xml:space="preserve"><value>Leistenoptionen</value></data>
+  <data name="mdisystt_close" xml:space="preserve"><value>Schließen</value></data>
+  <data name="cust_btn_delete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="cust_pm_delete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="cust_msg_delete" xml:space="preserve"><value>Möchten Sie die Symbolleiste &lt;barname&gt; wirklich löschen?</value></data>
+  <data name="mdisysmenu_size" xml:space="preserve"><value>Größe</value></data>
+  <data name="mdisysmenu_move" xml:space="preserve"><value>Verschieben</value></data>
+  <data name="mdisysmenu_next" xml:space="preserve"><value>Weiter</value></data>
+  <data name="mdisysmenu_restore" xml:space="preserve"><value>Wiederherstellen</value></data>
+  <data name="cust_pm_stydef" xml:space="preserve"><value>Vorgabestil</value></data>
+  <data name="cust_btn_rename" xml:space="preserve"><value>&amp;Umbenennen...</value></data>
+  <data name="barname_msginvalidname" xml:space="preserve"><value>Symbolleistenname muß angegeben werden.</value></data>
+  </root>

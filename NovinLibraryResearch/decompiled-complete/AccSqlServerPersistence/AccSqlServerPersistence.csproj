@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>AccSqlServerPersistence</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="AccSqlServerPersistence.Resources.AccModel.Acc_sp.txt" />
+    <None Remove="AccSqlServerPersistence.Resources.AccModel.DropConstraintForClientsOfSignalR.txt" />
+    <None Remove="AccSqlServerPersistence.Resources.AccModel.FixData.txt" />
+    <None Remove="AccSqlServerPersistence.Resources.AdvertiseModel.Advertise_sp.txt" />
+    <None Remove="AccSqlServerPersistence.Resources.AttendanceModel.Attendance_sp.txt" />
+    <None Remove="AccSqlServerPersistence.Resources.DropConstraintForClientsOfAccounting.txt" />
+    <None Remove="AccSqlServerPersistence.Resources.DropReportGenerator.txt" />
+    <None Remove="AccSqlServerPersistence.Resources.ErteghaFuctions_Baje.txt" />
+    <None Remove="AccSqlServerPersistence.Resources.FixAccountingData.txt" />
+    <None Remove="AccSqlServerPersistence.Resources.GlobalModel.Global_sp.txt" />
+    <EmbeddedResource Include="AccSqlServerPersistence.Resources.AccModel.Acc_sp.txt" LogicalName="AccSqlServerPersistence.Resources.AccModel.Acc_sp.txt" />
+    <EmbeddedResource Include="AccSqlServerPersistence.Resources.AccModel.DropConstraintForClientsOfSignalR.txt" LogicalName="AccSqlServerPersistence.Resources.AccModel.DropConstraintForClientsOfSignalR.txt" />
+    <EmbeddedResource Include="AccSqlServerPersistence.Resources.AccModel.FixData.txt" LogicalName="AccSqlServerPersistence.Resources.AccModel.FixData.txt" />
+    <EmbeddedResource Include="AccSqlServerPersistence.Resources.AdvertiseModel.Advertise_sp.txt" LogicalName="AccSqlServerPersistence.Resources.AdvertiseModel.Advertise_sp.txt" />
+    <EmbeddedResource Include="AccSqlServerPersistence.Resources.AttendanceModel.Attendance_sp.txt" LogicalName="AccSqlServerPersistence.Resources.AttendanceModel.Attendance_sp.txt" />
+    <EmbeddedResource Include="AccSqlServerPersistence.Resources.DropConstraintForClientsOfAccounting.txt" LogicalName="AccSqlServerPersistence.Resources.DropConstraintForClientsOfAccounting.txt" />
+    <EmbeddedResource Include="AccSqlServerPersistence.Resources.DropReportGenerator.txt" LogicalName="AccSqlServerPersistence.Resources.DropReportGenerator.txt" />
+    <EmbeddedResource Include="AccSqlServerPersistence.Resources.ErteghaFuctions_Baje.txt" LogicalName="AccSqlServerPersistence.Resources.ErteghaFuctions_Baje.txt" />
+    <EmbeddedResource Include="AccSqlServerPersistence.Resources.FixAccountingData.txt" LogicalName="AccSqlServerPersistence.Resources.FixAccountingData.txt" />
+    <EmbeddedResource Include="AccSqlServerPersistence.Resources.GlobalModel.Global_sp.txt" LogicalName="AccSqlServerPersistence.Resources.GlobalModel.Global_sp.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="EntityCacheStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/EntityCacheStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.SqlClient" />
+    <Reference Include="System.Data">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="PacketParserStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/PacketParserStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore" />
+    <Reference Include="System.ComponentModel.DataAnnotations">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.ComponentModel.DataAnnotations.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json" />
+    <Reference Include="System.Core">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions" />
+    <Reference Include="ClientHubStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/ClientHubStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject" />
+    <Reference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <Reference Include="Microsoft.Extensions.Logging" />
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces" />
+    <Reference Include="Serilog" />
+    <Reference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <Reference Include="Crc32.NET" />
+    <Reference Include="Serilog.Enrichers.Environment" />
+    <Reference Include="Serilog.Sinks.Async" />
+    <Reference Include="SignalRCoreConnectionCore" />
+    <Reference Include="Serilog.Sinks.File" />
+  </ItemGroup>
+</Project>

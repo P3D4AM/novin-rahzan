@@ -1,0 +1,55 @@
+using Stimulsoft.Base.Json;
+using Stimulsoft.Base.Json.Converters;
+
+namespace Stimulsoft.Report.Dashboard;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum StiChartSeriesType
+{
+	ClusteredColumn = 1,
+	StackedColumn,
+	FullStackedColumn,
+	Pareto,
+	Histogram,
+	Line,
+	StackedLine,
+	FullStackedLine,
+	Spline,
+	StackedSpline,
+	FullStackedSpline,
+	SteppedLine,
+	Area,
+	StackedArea,
+	FullStackedArea,
+	SplineArea,
+	StackedSplineArea,
+	FullStackedSplineArea,
+	SteppedArea,
+	Range,
+	SplineRange,
+	SteppedRange,
+	RangeBar,
+	ClusteredBar,
+	StackedBar,
+	FullStackedBar,
+	Scatter,
+	ScatterLine,
+	ScatterSpline,
+	Pie,
+	Pie3d,
+	RadarPoint,
+	RadarLine,
+	RadarArea,
+	Funnel,
+	FunnelWeightedSlices,
+	Candlestick,
+	Stock,
+	Treemap,
+	Gantt,
+	Doughnut,
+	Bubble,
+	Pictorial,
+	Sunburst,
+	Waterfall,
+	BoxAndWhisker
+}

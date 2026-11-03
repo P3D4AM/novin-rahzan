@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>PayamakUi</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="FormCustom">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/FormCustom.dll</HintPath>
+    </Reference>
+    <Reference Include="DevComponents.DotNetBar2">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/DevComponents.DotNetBar2.dll</HintPath>
+    </Reference>
+    <Reference Include="PacketParserStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/PacketParserStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="ClientHubStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/ClientHubStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="mCoreLib" />
+    <Reference Include="Tele" />
+    <Reference Include="System.Data">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityCacheStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/EntityCacheStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.SignalR.Client.Core" />
+    <Reference Include="System.Threading.Tasks.Extensions" />
+    <Reference Include="PayamakSettings" />
+    <Reference Include="System.Core">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog" />
+  </ItemGroup>
+</Project>

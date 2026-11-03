@@ -1,0 +1,388 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.Report.Win</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewDefault.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewDefault_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewDefault_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewHtml.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewHtml_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewHtml_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewJs.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewJs_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewJs_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewWeb.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewWeb_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.BigPreviewWeb_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.biPlatformDefault.Image.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.biPlatformHtml.Image.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.biPlatformJs.Image.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.biPlatformWeb.Image.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.biResources.Image.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Bookmarks.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Bookmarks_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Bookmarks_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Bookmarks_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Bookmarks_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Close_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Close_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Close_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.CollapseAll.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.CollapseAll_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.CollapseAll_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Delete.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Delete_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Delete_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.DotMatrix.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.DotMatrix_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.DotMatrix_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.DotMatrix_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.DotMatrix_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Editor.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Editor_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Editor_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Editor_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Editor_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ExpandAll.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ExpandAll_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ExpandAll_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Find.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FindClose.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FindClose_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FindClose_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FindNext.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FindNext_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FindNext_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FindPrevious.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FindPrevious_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FindPrevious_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Find_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Find_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Find_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Find_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FullScreen.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FullScreen_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FullScreen_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FullScreen_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.FullScreen_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Help.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Help_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Help_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Information.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Information_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Information_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Items_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Items_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Item_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Item_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageDelete.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageDelete_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageDelete_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageDesign.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageDesign_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageDesign_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageFirst.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageFirst_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageFirst_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageLast.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageLast_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageLast_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageNew.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageNew_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageNew_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageNext.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageNext_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageNext_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PagePrevious.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PagePrevious_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PagePrevious_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageSize.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageSize_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageSize_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageSize_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PageSize_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Parameters.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Parameters_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Parameters_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Parameters_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Parameters_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PreviewHtml.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PreviewJs.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.PreviewWeb.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportOpen.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportOpen_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportOpen_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportPrint.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportPrint_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportPrint_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportPrint_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportPrint_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportSave.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportSave_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportSave_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Report_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Report_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Resources.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Resources_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Resources_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Resources_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Resources_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.SaveDocumentFile.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.SaveDocumentFile_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.SaveDocumentFile_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.SendEMail.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.SendEMail_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.SendEMail_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Thumbnails.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Thumbnails_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Thumbnails_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Thumbnails_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.Thumbnails_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeContinuous.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeContinuousTooltip.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeContinuousTooltip_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeContinuousTooltip_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeContinuous_Tooltip.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeContinuous_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeContinuous_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeMultiplePagesTooltip.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeMultiplePagesTooltip_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeMultiplePagesTooltip_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages_Tooltip.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeSinglePage.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeSinglePageTooltip.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeSinglePageTooltip_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeSinglePageTooltip_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeSinglePage_Tooltip.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeSinglePage_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ViewModeSinglePage_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomMultiplePages.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomMultiplePages_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomMultiplePages_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomOnePage.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomOnePage_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomOnePage_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomOnePage_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomOnePage_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomPageWidth.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x3.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x4.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomTwoPages.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomTwoPages_x1_5.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ZoomTwoPages_x2.png" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportOpen_Ico.ico" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportPrint_Ico.ico" />
+    <None Remove="Stimulsoft.Report.Win.Resources.ReportSave_Ico.ico" />
+    <None Remove="Stimulsoft.Report.Win.Toolbox.StiDotMatrixViewerControl.bmp" />
+    <None Remove="Stimulsoft.Report.Win.Toolbox.StiRibbonViewerControl.bmp" />
+    <None Remove="Stimulsoft.Report.Win.Toolbox.StiViewerControl.bmp" />
+    <None Remove="Stimulsoft.Report.Win.Viewer.BackCompatibility.Toolbox.StiViewerControl.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewDefault.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewDefault.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewDefault_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewDefault_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewDefault_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewDefault_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewHtml.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewHtml.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewHtml_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewHtml_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewHtml_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewHtml_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewJs.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewJs.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewJs_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewJs_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewJs_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewJs_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewWeb.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewWeb.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewWeb_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewWeb_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.BigPreviewWeb_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.BigPreviewWeb_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.biPlatformDefault.Image.png" LogicalName="Stimulsoft.Report.Win.Resources.biPlatformDefault.Image.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.biPlatformHtml.Image.png" LogicalName="Stimulsoft.Report.Win.Resources.biPlatformHtml.Image.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.biPlatformJs.Image.png" LogicalName="Stimulsoft.Report.Win.Resources.biPlatformJs.Image.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.biPlatformWeb.Image.png" LogicalName="Stimulsoft.Report.Win.Resources.biPlatformWeb.Image.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.biResources.Image.png" LogicalName="Stimulsoft.Report.Win.Resources.biResources.Image.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Bookmarks.png" LogicalName="Stimulsoft.Report.Win.Resources.Bookmarks.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Bookmarks_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Bookmarks_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Bookmarks_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Bookmarks_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Bookmarks_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.Bookmarks_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Bookmarks_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.Bookmarks_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Close_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Close_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Close_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.Close_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Close_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.Close_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.CollapseAll.png" LogicalName="Stimulsoft.Report.Win.Resources.CollapseAll.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.CollapseAll_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.CollapseAll_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.CollapseAll_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.CollapseAll_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Delete.png" LogicalName="Stimulsoft.Report.Win.Resources.Delete.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Delete_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Delete_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Delete_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Delete_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.DotMatrix.png" LogicalName="Stimulsoft.Report.Win.Resources.DotMatrix.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.DotMatrix_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.DotMatrix_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.DotMatrix_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.DotMatrix_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.DotMatrix_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.DotMatrix_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.DotMatrix_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.DotMatrix_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Editor.png" LogicalName="Stimulsoft.Report.Win.Resources.Editor.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Editor_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Editor_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Editor_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Editor_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Editor_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.Editor_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Editor_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.Editor_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ExpandAll.png" LogicalName="Stimulsoft.Report.Win.Resources.ExpandAll.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ExpandAll_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ExpandAll_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ExpandAll_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ExpandAll_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Find.png" LogicalName="Stimulsoft.Report.Win.Resources.Find.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FindClose.png" LogicalName="Stimulsoft.Report.Win.Resources.FindClose.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FindClose_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.FindClose_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FindClose_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.FindClose_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FindNext.png" LogicalName="Stimulsoft.Report.Win.Resources.FindNext.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FindNext_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.FindNext_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FindNext_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.FindNext_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FindPrevious.png" LogicalName="Stimulsoft.Report.Win.Resources.FindPrevious.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FindPrevious_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.FindPrevious_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FindPrevious_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.FindPrevious_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Find_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Find_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Find_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Find_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Find_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.Find_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Find_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.Find_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FullScreen.png" LogicalName="Stimulsoft.Report.Win.Resources.FullScreen.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FullScreen_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.FullScreen_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FullScreen_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.FullScreen_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FullScreen_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.FullScreen_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.FullScreen_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.FullScreen_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Help.png" LogicalName="Stimulsoft.Report.Win.Resources.Help.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Help_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Help_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Help_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Help_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Information.png" LogicalName="Stimulsoft.Report.Win.Resources.Information.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Information_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Information_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Information_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Information_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Items_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Items_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Items_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Items_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Item_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Item_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Item_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Item_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageDelete.png" LogicalName="Stimulsoft.Report.Win.Resources.PageDelete.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageDelete_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.PageDelete_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageDelete_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.PageDelete_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageDesign.png" LogicalName="Stimulsoft.Report.Win.Resources.PageDesign.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageDesign_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.PageDesign_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageDesign_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.PageDesign_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageFirst.png" LogicalName="Stimulsoft.Report.Win.Resources.PageFirst.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageFirst_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.PageFirst_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageFirst_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.PageFirst_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageLast.png" LogicalName="Stimulsoft.Report.Win.Resources.PageLast.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageLast_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.PageLast_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageLast_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.PageLast_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageNew.png" LogicalName="Stimulsoft.Report.Win.Resources.PageNew.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageNew_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.PageNew_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageNew_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.PageNew_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageNext.png" LogicalName="Stimulsoft.Report.Win.Resources.PageNext.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageNext_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.PageNext_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageNext_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.PageNext_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PagePrevious.png" LogicalName="Stimulsoft.Report.Win.Resources.PagePrevious.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PagePrevious_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.PagePrevious_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PagePrevious_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.PagePrevious_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageSize.png" LogicalName="Stimulsoft.Report.Win.Resources.PageSize.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageSize_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.PageSize_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageSize_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.PageSize_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageSize_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.PageSize_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PageSize_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.PageSize_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Parameters.png" LogicalName="Stimulsoft.Report.Win.Resources.Parameters.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Parameters_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Parameters_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Parameters_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Parameters_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Parameters_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.Parameters_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Parameters_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.Parameters_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PreviewHtml.png" LogicalName="Stimulsoft.Report.Win.Resources.PreviewHtml.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PreviewJs.png" LogicalName="Stimulsoft.Report.Win.Resources.PreviewJs.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.PreviewWeb.png" LogicalName="Stimulsoft.Report.Win.Resources.PreviewWeb.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportOpen.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportOpen.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportOpen_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportOpen_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportOpen_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportOpen_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportPrint.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportPrint.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportPrint_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportPrint_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportPrint_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportPrint_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportPrint_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportPrint_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportPrint_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportPrint_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportSave.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportSave.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportSave_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportSave_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportSave_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ReportSave_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Report_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Report_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Report_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Report_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Resources.png" LogicalName="Stimulsoft.Report.Win.Resources.Resources.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Resources_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Resources_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Resources_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Resources_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Resources_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.Resources_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Resources_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.Resources_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.SaveDocumentFile.png" LogicalName="Stimulsoft.Report.Win.Resources.SaveDocumentFile.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.SaveDocumentFile_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.SaveDocumentFile_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.SaveDocumentFile_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.SaveDocumentFile_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.SendEMail.png" LogicalName="Stimulsoft.Report.Win.Resources.SendEMail.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.SendEMail_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.SendEMail_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.SendEMail_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.SendEMail_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Thumbnails.png" LogicalName="Stimulsoft.Report.Win.Resources.Thumbnails.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Thumbnails_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.Thumbnails_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Thumbnails_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.Thumbnails_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Thumbnails_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.Thumbnails_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.Thumbnails_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.Thumbnails_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeContinuous.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeContinuous.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeContinuousTooltip.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeContinuousTooltip.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeContinuousTooltip_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeContinuousTooltip_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeContinuousTooltip_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeContinuousTooltip_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeContinuous_Tooltip.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeContinuous_Tooltip.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeContinuous_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeContinuous_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeContinuous_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeContinuous_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeMultiplePagesTooltip.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeMultiplePagesTooltip.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeMultiplePagesTooltip_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeMultiplePagesTooltip_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeMultiplePagesTooltip_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeMultiplePagesTooltip_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages_Tooltip.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages_Tooltip.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeMultiplePages_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeSinglePage.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeSinglePage.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeSinglePageTooltip.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeSinglePageTooltip.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeSinglePageTooltip_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeSinglePageTooltip_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeSinglePageTooltip_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeSinglePageTooltip_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeSinglePage_Tooltip.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeSinglePage_Tooltip.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeSinglePage_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeSinglePage_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ViewModeSinglePage_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ViewModeSinglePage_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomMultiplePages.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomMultiplePages.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomMultiplePages_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomMultiplePages_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomMultiplePages_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomMultiplePages_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomOnePage.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomOnePage.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomOnePage_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomOnePage_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomOnePage_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomOnePage_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomOnePage_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomOnePage_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomOnePage_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomOnePage_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomPageWidth.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomPageWidth.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x3.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x4.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomPageWidth_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomTwoPages.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomTwoPages.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomTwoPages_x1_5.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomTwoPages_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ZoomTwoPages_x2.png" LogicalName="Stimulsoft.Report.Win.Resources.ZoomTwoPages_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportOpen_Ico.ico" LogicalName="Stimulsoft.Report.Win.Resources.ReportOpen_Ico.ico" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportPrint_Ico.ico" LogicalName="Stimulsoft.Report.Win.Resources.ReportPrint_Ico.ico" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Resources.ReportSave_Ico.ico" LogicalName="Stimulsoft.Report.Win.Resources.ReportSave_Ico.ico" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Toolbox.StiDotMatrixViewerControl.bmp" LogicalName="Stimulsoft.Report.Win.Toolbox.StiDotMatrixViewerControl.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Toolbox.StiRibbonViewerControl.bmp" LogicalName="Stimulsoft.Report.Win.Toolbox.StiRibbonViewerControl.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Toolbox.StiViewerControl.bmp" LogicalName="Stimulsoft.Report.Win.Toolbox.StiViewerControl.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Report.Win.Viewer.BackCompatibility.Toolbox.StiViewerControl.bmp" LogicalName="Stimulsoft.Report.Win.Viewer.BackCompatibility.Toolbox.StiViewerControl.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Stimulsoft.Report">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/Stimulsoft.Report.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Controls.Win" />
+    <Reference Include="Stimulsoft.Controls" />
+    <Reference Include="Stimulsoft.Base" />
+    <Reference Include="System.Core">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

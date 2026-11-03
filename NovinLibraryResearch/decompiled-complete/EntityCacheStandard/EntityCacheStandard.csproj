@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <AssemblyName>EntityCacheStandard</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="PacketParserStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/PacketParserStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json" />
+    <Reference Include="ClientHubStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/ClientHubStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject" />
+    <Reference Include="System.Threading.Tasks.Dataflow">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces" />
+    <Reference Include="Microsoft.AspNetCore.SignalR.Client.Core" />
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SignalRCoreConnectionCore" />
+    <Reference Include="Serilog" />
+    <Reference Include="Crc32.NET" />
+  </ItemGroup>
+</Project>

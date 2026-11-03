@@ -1,0 +1,3 @@
+namespace AxRealSvrOcxTcpLib;
+
+public delegate void _DRealSvrOcxTcpEvents_OnReceiveGLogTextOnDoorOpenEventHandler(object sender, _DRealSvrOcxTcpEvents_OnReceiveGLogTextOnDoorOpenEvent e);

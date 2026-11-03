@@ -1,0 +1,25 @@
+﻿IF (OBJECT_ID('FK_Acc_AghsatShakhsi_Acc_Pardakht_PardakhtGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_AghsatShakhsi] DROP CONSTRAINT [FK_Acc_AghsatShakhsi_Acc_Pardakht_PardakhtGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_CashiersLog_Acc_Sanad_CashierGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_CashiersLog] DROP CONSTRAINT [FK_Acc_CashiersLog_Acc_Sanad_CashierGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_AghsatAshkhas_Acc_Reception_ReceptionGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_AghsatAshkhas] DROP CONSTRAINT [FK_Acc_AghsatAshkhas_Acc_Reception_ReceptionGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_Vam_Acc_Pardakht_PardakhtGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_Vam] DROP CONSTRAINT [FK_Acc_Vam_Acc_Pardakht_PardakhtGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_Order_Acc_Pardakht_PardakhtGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_Order] DROP CONSTRAINT [FK_Acc_Order_Acc_Pardakht_PardakhtGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_Order_Acc_Reception_ReceptionGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_Order] DROP CONSTRAINT FK_Acc_Order_Acc_Reception_ReceptionGuid
+GO
+
+

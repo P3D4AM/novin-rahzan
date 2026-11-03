@@ -1,0 +1,520 @@
+using System;
+using AccSqlServerPersistence.Model;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+
+namespace AccSqlServerPersistence.Migrations.Global_Model;
+
+[DbContext(typeof(Global_ModelContext))]
+[Migration("20220207080241_Add_ReportGenerator_To_Global_Context")]
+public class Add_ReportGenerator_To_Global_Context : Migration
+{
+	protected override void Up(MigrationBuilder migrationBuilder)
+	{
+		migrationBuilder.CreateTable("Global_ReportGenerator", (ColumnsBuilder table) => new
+		{
+			Guid = table.Column<Guid>((string)null, (bool?)null, (int?)null, false, (string)null, false, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			Modified = table.Column<DateTime>("datetime", (bool?)null, (int?)null, false, (string)null, false, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			Status = table.Column<bool>((string)null, (bool?)null, (int?)null, false, (string)null, false, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			Title = table.Column<string>((string)null, (bool?)null, (int?)null, false, (string)null, true, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			Description = table.Column<string>((string)null, (bool?)null, (int?)null, false, (string)null, true, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			Rpt = table.Column<string>((string)null, (bool?)null, (int?)null, false, (string)null, true, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			SqlQuery = table.Column<string>((string)null, (bool?)null, (int?)null, false, (string)null, true, (object)null, (string)null, (string)null, (bool?)null, (string)null)
+		}, "Dbo", table =>
+		{
+			table.PrimaryKey("PK_Global_ReportGenerator", x => (object)x.Guid);
+		}, (string)null);
+		migrationBuilder.CreateTable("Global_ReportGeneratorDet", (ColumnsBuilder table) => new
+		{
+			Guid = table.Column<Guid>((string)null, (bool?)null, (int?)null, false, (string)null, false, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			Modified = table.Column<DateTime>("datetime", (bool?)null, (int?)null, false, (string)null, false, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			RepGuid = table.Column<Guid>((string)null, (bool?)null, (int?)null, false, (string)null, false, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			ParameterName = table.Column<string>((string)null, (bool?)null, (int?)null, false, (string)null, true, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			ParameterType = table.Column<short>((string)null, (bool?)null, (int?)null, false, (string)null, false, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			Order = table.Column<short>((string)null, (bool?)null, (int?)null, false, (string)null, false, (object)null, (string)null, (string)null, (bool?)null, (string)null),
+			Status = table.Column<bool>((string)null, (bool?)null, (int?)null, false, (string)null, false, (object)null, (string)null, (string)null, (bool?)null, (string)null)
+		}, "Dbo", table =>
+		{
+			table.PrimaryKey("PK_Global_ReportGeneratorDet", x => (object)x.Guid);
+			table.ForeignKey("FK_Global_ReportGeneratorDet_Global_ReportGenerator_RepGuid", x => (object)x.RepGuid, "Global_ReportGenerator", "Guid", "Dbo", (ReferentialAction)0, (ReferentialAction)0);
+		}, (string)null);
+		migrationBuilder.CreateIndex("IX_Global_ReportGeneratorDet_RepGuid", "Global_ReportGeneratorDet", "RepGuid", "Dbo", false, (string)null);
+	}
+
+	protected override void Down(MigrationBuilder migrationBuilder)
+	{
+		migrationBuilder.DropTable("Global_ReportGeneratorDet", "Dbo");
+		migrationBuilder.DropTable("Global_ReportGenerator", "Dbo");
+	}
+
+	protected override void BuildTargetModel(ModelBuilder modelBuilder)
+	{
+		RelationalModelBuilderExtensions.HasDefaultSchema(modelBuilder, "Dbo").HasAnnotation("ProductVersion", (object)"3.1.22").HasAnnotation("Relational:MaxIdentifierLength", (object)128)
+			.HasAnnotation("SqlServer:ValueGenerationStrategy", (object)(SqlServerValueGenerationStrategy)2);
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Accounting.CheckedSave", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("DateM"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("DetailGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("EntityGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("IsDebit"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("ReportType"), "smallint");
+			b.HasKey(new string[1] { "Guid" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Global_CheckedSave");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Accounting.En2Fa", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("FName"), "nvarchar(150)").HasMaxLength(150);
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("LName").IsRequired(true), "nvarchar(150)").HasMaxLength(150);
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			b.HasKey(new string[1] { "Guid" }).HasAnnotation("SqlServer:Clustered", (object)false);
+			b.HasIndex(new string[1] { "LName" }).IsUnique(true).HasAnnotation("SqlServer:Clustered", (object)true);
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_L2F");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Accounting.MetaData", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("EntityGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("EntityType"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Key"), "nvarchar(450)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("DataType"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Value"), "nvarchar(max)");
+			b.HasKey(new string[3] { "EntityGuid", "EntityType", "Key" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Global_MetaData");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Accounting.Naghz", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("Count"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Message"), "nvarchar(450)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			b.HasKey(new string[1] { "Guid" });
+			RelationalIndexBuilderExtensions.HasFilter(b.HasIndex(new string[1] { "Message" }).IsUnique(true), "[Message] IS NOT NULL");
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_Naghz");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Accounting.ReportGenerator", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Description"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Rpt"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SqlQuery"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Title"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Guid" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Global_ReportGenerator");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Accounting.ReportGeneratorDet", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("Order"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("ParameterName"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("ParameterType"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("RepGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			b.HasKey(new string[1] { "Guid" });
+			b.HasIndex(new string[1] { "RepGuid" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Global_ReportGeneratorDet");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.ContactUs", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Address"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("CodeMeli"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime?>(b.Property<DateTime?>("DateBirth"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("DateM"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime?>(b.Property<DateTime?>("DeliveryDate"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("DeliveryId"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryShortMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Description"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Email"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Family"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Fax"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("HostRefrenced"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("Id"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Ip"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Jensiat"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Message"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Mob"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Mob2"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("NahveAshnaee"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Name"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Ostan"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("ReferencedId"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SabegheKari"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Senf"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SerializedData"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("ServerStatus"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Shahrestan"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Shoghl"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Subject"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Tahsilat"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Tel"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Tel2"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("Type"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("WebSite"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Zip"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Guid" });
+			b.HasIndex(new string[1] { "Type" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_ContactUs");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Desc", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime?>(b.Property<DateTime?>("DeliveryDate"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("DeliveryId"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryShortMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Description"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Destination"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("DestinationType"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("HostRefrenced"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("Section"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("ServerStatus"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Source"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("SourceType"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			b.HasKey(new string[1] { "Guid" });
+			b.HasIndex(new string[1] { "ServerStatus" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_Desc");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.FileInfo", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("CompressMode"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<long>(b.Property<long>("Crc"), "bigint");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime?>(b.Property<DateTime?>("DeliveryDate"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("DeliveryId"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryShortMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("EntityGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<byte[]>(b.Property<byte[]>("FileContent"), "varbinary(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<long>(b.Property<long>("FileLen"), "bigint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("FileName"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("HostRefrenced"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("Part"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("ServerStatus"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SubDirectory"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Url"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Guid" });
+			b.HasIndex(new string[1] { "Modified" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_FileInfo");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.FileInfoReTryDownload", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<long>(b.Property<long>("Crc"), "bigint");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("EntityGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<long>(b.Property<long>("FileLen"), "bigint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("FileName"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("NextTryCount"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("Part"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("ReTryCount"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SubDirectory"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Url"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Guid" });
+			b.HasIndex(new string[1] { "Modified" });
+			b.HasIndex(new string[1] { "ReTryCount" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_FileInfoReTryDownload");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Global.PushNotification", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Date"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("DisplayCount"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("ExpireDate"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Message"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("ModifiedDate"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("Source"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Title"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("Type"), "smallint");
+			b.HasKey(new string[1] { "Guid" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Global_PushNotifications");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.HyperLink", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Category"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Enable"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Icon"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("Id"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("Order"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("ParentGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("ParentId"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Style"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Target"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Title"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Url"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Guid" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_HyperLink");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.LocalSetting", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Key"), "nvarchar(450)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Value"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Key" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_LocalSetting");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Log", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("DateM"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("LogPart"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Message"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SerializedData"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("UserDescription"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Guid" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_Log");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.News", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Category"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("DateM"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("FullContent"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("KeyWords"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("MetaDescription"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("PicUrl"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("QuickText"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Title"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("Type"), "int");
+			b.HasKey(new string[1] { "Guid" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_News");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Taghvim", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("DateM"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Description"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Monasebat"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("STRasmi"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			b.HasKey(new string[2] { "Guid", "DateM" }).HasAnnotation("SqlServer:Clustered", (object)false);
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Global_Taghvim");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Tickets.Ticket", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("DateM"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime?>(b.Property<DateTime?>("DeliveryDate"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("DeliveryId"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryShortMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Desc"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DescSecondSide"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Destination"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("DestinationType"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("HostRefrenced"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("LastConversation"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("PartGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SecondSide"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SerializedData"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("ServerStatus"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Source"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("SourceType"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("TicketStatus"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Title"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Guid" });
+			b.HasIndex(new string[1] { "PartGuid" });
+			b.HasIndex(new string[1] { "ServerStatus" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_Ticket");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Tickets.TicketDet", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("DateM"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime?>(b.Property<DateTime?>("DeliveryDate"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("DeliveryId"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryShortMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Desc"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Destination"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("DestinationType"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("HostRefrenced"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("InsertDate"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("MasterGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime?>(b.Property<DateTime?>("NextDateM"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Seen"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SerializedData"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("ServerStatus"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Source"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SourceName"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("SourceType"), "smallint");
+			b.HasKey(new string[1] { "Guid" });
+			b.HasIndex(new string[1] { "MasterGuid" });
+			b.HasIndex(new string[1] { "ServerStatus" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_TicketDet");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Tickets.TicketPart", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime?>(b.Property<DateTime?>("DeliveryDate"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("DeliveryId"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("DeliveryShortMessage"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Desc"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Destination"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("DestinationType"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("HostRefrenced"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("Index"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Name"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("ParentGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SerializedData"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("ServerStatus"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Source"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("SourceType"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			b.HasKey(new string[1] { "Guid" });
+			b.HasIndex(new string[1] { "ServerStatus" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_TicketPart");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Uploader.BackupLog", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Id").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("BackupType"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("DPId"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("FileId"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("FileName"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("IsDelete"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("LastBackup"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("LastStateChange"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Message"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Path"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("RetryCount"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("Status"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<long>(b.Property<long>("TotalCrc"), "bigint");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("URL"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Id" });
+			b.HasIndex(new string[1] { "DPId" });
+			b.HasIndex(new string[1] { "FileId" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_BackupLog");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Uploader.BackupSchedule", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("BackupPath"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("BackupType"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("ConnectionString"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("CreateDate"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("Houre"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Title"), "nvarchar(450)");
+			b.HasKey(new string[1] { "Guid" });
+			RelationalIndexBuilderExtensions.HasFilter(b.HasIndex(new string[1] { "Title" }).IsUnique(true), "[Title] IS NOT NULL");
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_BackupSchedule");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Uploader.BackupSettings", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("Id").ValueGeneratedOnAdd(), "int").HasAnnotation("SqlServer:ValueGenerationStrategy", (object)(SqlServerValueGenerationStrategy)2);
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Password"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("RememberMe"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Startup"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Username"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Zip"), "bit");
+			b.HasKey(new string[1] { "Id" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_BackupSettings");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Uploader.BackupTime", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("DateTime"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("DayOfWeek"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("ParentId"), "uniqueidentifier");
+			b.HasKey(new string[1] { "Guid" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_BackupTime");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Uploader.UploadFile", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Id").ValueGeneratedOnAdd(), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<long>(b.Property<long>("Crc"), "bigint");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("EntityGuid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("FileManagementParts"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("InsertTime"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("MaxChunk"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("MinChunk"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Name"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("PartCount"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<int>(b.Property<int>("PartSent"), "int");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("RetryCount"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("SubDirectory"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("UrlPath"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Id" });
+			b.HasIndex(new string[1] { "Guid" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_UploadFile");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Uploader.UploadFilePart", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<long>(b.Property<long>("Order").ValueGeneratedOnAdd(), "bigint").HasAnnotation("SqlServer:ValueGenerationStrategy", (object)(SqlServerValueGenerationStrategy)2);
+			RelationalPropertyBuilderExtensions.HasColumnType<byte[]>(b.Property<byte[]>("Bytes"), "varbinary(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("FileId"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<Guid>(b.Property<Guid>("Guid"), "uniqueidentifier");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("IsSent"), "bit");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("Modified"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<DateTime>(b.Property<DateTime>("NextTry"), "datetime");
+			RelationalPropertyBuilderExtensions.HasColumnType<short>(b.Property<short>("RetryCount"), "smallint");
+			RelationalPropertyBuilderExtensions.HasColumnType<bool>(b.Property<bool>("Status"), "bit");
+			b.HasKey(new string[1] { "Order" });
+			b.HasIndex(new string[1] { "FileId" });
+			b.HasIndex(new string[1] { "Guid" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_UploadFilePart");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.UserInformation", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Username"), "nvarchar(450)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("Password"), "nvarchar(max)");
+			RelationalPropertyBuilderExtensions.HasColumnType<string>(b.Property<string>("UserData"), "nvarchar(max)");
+			b.HasKey(new string[1] { "Username" });
+			RelationalEntityTypeBuilderExtensions.ToTable(b, "Acc_UserInformation");
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Accounting.ReportGeneratorDet", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			b.HasOne("AccSqlServerPersistence.Entities.Accounting.ReportGenerator", "Master").WithMany("Details").HasForeignKey(new string[1] { "RepGuid" })
+				.OnDelete((DeleteBehavior)5)
+				.IsRequired(true);
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Tickets.Ticket", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			b.HasOne("AccSqlServerPersistence.Entities.Tickets.TicketPart", "Part").WithMany("Tickets").HasForeignKey(new string[1] { "PartGuid" })
+				.OnDelete((DeleteBehavior)5)
+				.IsRequired(true);
+		});
+		modelBuilder.Entity("AccSqlServerPersistence.Entities.Tickets.TicketDet", (Action<EntityTypeBuilder>)delegate(EntityTypeBuilder b)
+		{
+			b.HasOne("AccSqlServerPersistence.Entities.Tickets.Ticket", "Ticket").WithMany("TicketDets").HasForeignKey(new string[1] { "MasterGuid" })
+				.OnDelete((DeleteBehavior)5)
+				.IsRequired(true);
+		});
+	}
+}

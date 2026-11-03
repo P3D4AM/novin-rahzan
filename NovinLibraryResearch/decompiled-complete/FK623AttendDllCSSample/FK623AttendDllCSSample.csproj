@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>FK623AttendDllCSSample</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net48</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="DevComponents.DotNetBar2">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/DevComponents.DotNetBar2.dll</HintPath>
+    </Reference>
+    <Reference Include="AxInterop.AXIMAGELib" />
+    <Reference Include="PacketParserStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/PacketParserStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="ADODB" />
+    <Reference Include="System.Data">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="RegisterManagement" />
+    <Reference Include="TimeAttendanceDAL" />
+  </ItemGroup>
+</Project>

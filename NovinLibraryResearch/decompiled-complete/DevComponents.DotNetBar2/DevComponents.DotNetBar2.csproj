@@ -1,0 +1,423 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>DevComponents.DotNetBar2</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net20</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="DevComponents.DotNetBar.BalloonImages.AlertHot.png" />
+    <None Remove="DevComponents.DotNetBar.BalloonImages.AlertNormal.png" />
+    <None Remove="DevComponents.DotNetBar.BalloonImages.AlertPress.png" />
+    <None Remove="DevComponents.DotNetBar.BalloonImages.BalloonHot.png" />
+    <None Remove="DevComponents.DotNetBar.BalloonImages.BalloonNormal.png" />
+    <None Remove="DevComponents.DotNetBar.BalloonImages.BalloonPress.png" />
+    <None Remove="DevComponents.DotNetBar.Ribbon.RibbonControl.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.AddMoreItemsContainer.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.CollapseTitle.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DefaultNavBarImage.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintAllSides.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintBottom.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintLeft.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintRight.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintTab.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintTop.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.ExpandTitle.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.NavBarConfigure.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.NavBarShowLess.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.NavBarShowMore.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Note24.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Note64.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Pin.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.PinInactive.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.PinPushed.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.PinPushedInactive.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankOffice2010HotSilver.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankOffice2010NormalSilver.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankOffice2010PressedSilver.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankWin7HotBlue.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankWin7NormalBlue.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankWin7PressedBlue.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Category.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Sort.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.ErrorIcon.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.FreeText.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.CloseButton.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Rating.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressedVistaBlack.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonHotVistaBlack.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormalVistaBlack.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DateReset.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.ColorPickerButtonImage.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressedBlack.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressedSilver.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormalSilver.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonHotSilver.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonHot.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonHotBlack.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormal.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormalBlack.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressed.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.QatCustomizeItemCombo.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.GreenLight.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.ColorPickerCustomColors.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.WizardHeaderImage.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.ImagePlaceHolder16x16.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.ImagePlaceHolder.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.RibbonOverflow.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskBlueFlag.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskBlueStop.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskBulb.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskCheckMark.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskCheckMark2.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskDelete.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskExclamation.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskFlag.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskHand.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskHelp.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskInformation.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskInformation2.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskNoEntry.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskShield.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskShieldHelp.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskShieldOk.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskShieldStop.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskStop.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskStop2.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.TaskUsers.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintAllSides2010.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintBottom2010.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintLeft2010.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintRight2010.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintTab2010.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintTop2010.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Office2010BlackClientBackground.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Office2010BlueClientBackground.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Office2010SilverClientBackground.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.VS2010ClientBackground.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.WinClose.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.WinMax.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.WinMin.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.WinRestore.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Shadow3px.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Shadow3px-2.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintLeftRight2010.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.DockHintTopBottom2010.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Calculator.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.Delete.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.FirstRecord.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.LastRecord.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.NewRecord.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.NextRecord.png" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.PreviousRecord.png" />
+    <None Remove="DevComponents.DotNetBar.BalloonTip.bmp" />
+    <None Remove="DevComponents.DotNetBar.BarEditorImages.FileClose.bmp" />
+    <None Remove="DevComponents.DotNetBar.BarEditorImages.FileCloseSol.bmp" />
+    <None Remove="DevComponents.DotNetBar.BarEditorImages.FileNew.bmp" />
+    <None Remove="DevComponents.DotNetBar.BarEditorImages.FileOpen.bmp" />
+    <None Remove="DevComponents.DotNetBar.BarEditorImages.FileOpenSol.bmp" />
+    <None Remove="DevComponents.DotNetBar.Controls.ComboBoxEx.bmp" />
+    <None Remove="DevComponents.DotNetBar.ExpandableSplitter.bmp" />
+    <None Remove="DevComponents.DotNetBar.ExplorerBar.bmp" />
+    <None Remove="DevComponents.DotNetBar.NavigationBar.bmp" />
+    <None Remove="DevComponents.DotNetBar.NavigationPane.bmp" />
+    <None Remove="DevComponents.DotNetBar.PanelEx.bmp" />
+    <None Remove="DevComponents.DotNetBar.SideBar.bmp" />
+    <None Remove="DevComponents.DotNetBar.TabControl.bmp" />
+    <None Remove="DevComponents.DotNetBar.TabStrip.bmp" />
+    <None Remove="DevComponents.DotNetBar.Controls.DataGridViewX.bmp" />
+    <None Remove="DevComponents.DotNetBar.BubbleBar.bmp" />
+    <None Remove="DevComponents.DotNetBar.Ribbon.RibbonClientPanel.bmp" />
+    <None Remove="DevComponents.DotNetBar.Controls.AnalogClockControl.bmp" />
+    <None Remove="DevComponents.DotNetBar.Controls.ToolboxControl.bmp" />
+    <None Remove="DevComponents.DotNetBar.DRAGCOPY.CUR" />
+    <None Remove="DevComponents.DotNetBar.DRAGMOVE.CUR" />
+    <None Remove="DevComponents.DotNetBar.DRAGNONE.CUR" />
+    <None Remove="DevComponents.DotNetBar.ExpandablePanel.ico" />
+    <None Remove="DevComponents.DotNetBar.Ribbon.RibbonBar.ico" />
+    <None Remove="DevComponents.DotNetBar.Ribbon.RibbonControl.ico" />
+    <None Remove="DevComponents.DotNetBar.Bar.ico" />
+    <None Remove="DevComponents.DotNetBar.DotNetBarManager.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.CheckBoxX.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.ProgressBarX.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.ComboBoxEx.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.LabelX.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.ColorPickerButton.ico" />
+    <None Remove="DevComponents.DotNetBar.Command.ico" />
+    <None Remove="DevComponents.DotNetBar.AdvTree.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.ComboTree.ico" />
+    <None Remove="DevComponents.DotNetBar.AdvPropertyGrid.ico" />
+    <None Remove="DevComponents.DotNetBar.ButtonX.ButtonX.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.GroupPanel.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.Slider.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.ListViewEx.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.ReflectionImage.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.ReflectionLabel.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.MaskedTextBoxAdv.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.TextBoxDropDown.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.PageNavigator.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.RatingStar.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.TextBoxX.ico" />
+    <None Remove="DevComponents.DotNetBar.DateTimeInput.ico" />
+    <None Remove="DevComponents.DotNetBar.MonthCalendarAdv.ico" />
+    <None Remove="DevComponents.DotNetBar.DoubleInput.ico" />
+    <None Remove="DevComponents.DotNetBar.IntegerInput.ico" />
+    <None Remove="DevComponents.DotNetBar.ScrollBar.HScrollBarAdv.ico" />
+    <None Remove="DevComponents.DotNetBar.CrumbBar.CrumbBar.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.WarningBox.ico" />
+    <None Remove="DevComponents.DotNetBar.IpAddressInput.ico" />
+    <None Remove="DevComponents.DotNetBar.Ribbon.ItemPanel.ico" />
+    <None Remove="DevComponents.DotNetBar.Ribbon.SuperTooltip.ico" />
+    <None Remove="DevComponents.DotNetBar.StyleManager.ico" />
+    <None Remove="DevComponents.DotNetBar.Validator.Highlighter.ico" />
+    <None Remove="DevComponents.DotNetBar.Validator.SuperValidator.ico" />
+    <None Remove="DevComponents.DotNetBar.ScrollBar.VScrollBarAdv.ico" />
+    <None Remove="DevComponents.DotNetBar.Wizard.Wizard.ico" />
+    <None Remove="DevComponents.DotNetBar.SuperTabControl.ico" />
+    <None Remove="DevComponents.DotNetBar.SuperTabStrip.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.SwitchButton.ico" />
+    <None Remove="DevComponents.DotNetBar.MicroCharts.MicroChart.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.CircularProgress.ico" />
+    <None Remove="DevComponents.DotNetBar.ColorPickers.ColorCombControl.ico" />
+    <None Remove="DevComponents.DotNetBar.ColorPickers.CustomColorBlender.ico" />
+    <None Remove="DevComponents.DotNetBar.Metro.MetroShell.ico" />
+    <None Remove="DevComponents.DotNetBar.Metro.MetroStatusBar.ico" />
+    <None Remove="DevComponents.DotNetBar.Metro.MetroToolbar.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.SlidePanel.ico" />
+    <None Remove="DevComponents.DotNetBar.TimeSelector.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.PageSlider.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.StepIndicator.ico" />
+    <None Remove="DevComponents.DotNetBar.Metro.MetroTilePanel.ico" />
+    <None Remove="DevComponents.DotNetBar.Calculator.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.BindingNavigatorEx.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.RichTextBoxEx.ico" />
+    <None Remove="DevComponents.DotNetBar.RadialMenu.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.RangeSlider.ico" />
+    <None Remove="DevComponents.DotNetBar.ProgressSteps.ico" />
+    <None Remove="DevComponents.DotNetBar.ListBoxAdv.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.CollapsibleSplitContainer.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.SymbolBox.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.TokenEditor.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.Flyout.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.Line.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.SideNav.ico" />
+    <None Remove="DevComponents.DotNetBar.Controls.TabFormControl.ico" />
+    <None Remove="DevComponents.DotNetBar.Form1.dotNetBarManager1.xml" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.MaterialIcons-Regular.ttf" />
+    <None Remove="DevComponents.DotNetBar.SystemImages.FontAwesome.ttf" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BalloonImages.AlertHot.png" LogicalName="DevComponents.DotNetBar.BalloonImages.AlertHot.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BalloonImages.AlertNormal.png" LogicalName="DevComponents.DotNetBar.BalloonImages.AlertNormal.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BalloonImages.AlertPress.png" LogicalName="DevComponents.DotNetBar.BalloonImages.AlertPress.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BalloonImages.BalloonHot.png" LogicalName="DevComponents.DotNetBar.BalloonImages.BalloonHot.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BalloonImages.BalloonNormal.png" LogicalName="DevComponents.DotNetBar.BalloonImages.BalloonNormal.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BalloonImages.BalloonPress.png" LogicalName="DevComponents.DotNetBar.BalloonImages.BalloonPress.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Ribbon.RibbonControl.png" LogicalName="DevComponents.DotNetBar.Ribbon.RibbonControl.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.AddMoreItemsContainer.png" LogicalName="DevComponents.DotNetBar.SystemImages.AddMoreItemsContainer.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.CollapseTitle.png" LogicalName="DevComponents.DotNetBar.SystemImages.CollapseTitle.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DefaultNavBarImage.png" LogicalName="DevComponents.DotNetBar.SystemImages.DefaultNavBarImage.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintAllSides.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintAllSides.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintBottom.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintBottom.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintLeft.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintLeft.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintRight.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintRight.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintTab.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintTab.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintTop.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintTop.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.ExpandTitle.png" LogicalName="DevComponents.DotNetBar.SystemImages.ExpandTitle.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.NavBarConfigure.png" LogicalName="DevComponents.DotNetBar.SystemImages.NavBarConfigure.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.NavBarShowLess.png" LogicalName="DevComponents.DotNetBar.SystemImages.NavBarShowLess.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.NavBarShowMore.png" LogicalName="DevComponents.DotNetBar.SystemImages.NavBarShowMore.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Note24.png" LogicalName="DevComponents.DotNetBar.SystemImages.Note24.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Note64.png" LogicalName="DevComponents.DotNetBar.SystemImages.Note64.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Pin.png" LogicalName="DevComponents.DotNetBar.SystemImages.Pin.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.PinInactive.png" LogicalName="DevComponents.DotNetBar.SystemImages.PinInactive.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.PinPushed.png" LogicalName="DevComponents.DotNetBar.SystemImages.PinPushed.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.PinPushedInactive.png" LogicalName="DevComponents.DotNetBar.SystemImages.PinPushedInactive.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankOffice2010HotSilver.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankOffice2010HotSilver.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankOffice2010NormalSilver.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankOffice2010NormalSilver.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankOffice2010PressedSilver.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankOffice2010PressedSilver.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankWin7HotBlue.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankWin7HotBlue.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankWin7NormalBlue.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankWin7NormalBlue.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankWin7PressedBlue.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankWin7PressedBlue.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Category.png" LogicalName="DevComponents.DotNetBar.SystemImages.Category.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Sort.png" LogicalName="DevComponents.DotNetBar.SystemImages.Sort.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.ErrorIcon.png" LogicalName="DevComponents.DotNetBar.SystemImages.ErrorIcon.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.FreeText.png" LogicalName="DevComponents.DotNetBar.SystemImages.FreeText.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.CloseButton.png" LogicalName="DevComponents.DotNetBar.SystemImages.CloseButton.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Rating.png" LogicalName="DevComponents.DotNetBar.SystemImages.Rating.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressedVistaBlack.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressedVistaBlack.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonHotVistaBlack.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonHotVistaBlack.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormalVistaBlack.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormalVistaBlack.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DateReset.png" LogicalName="DevComponents.DotNetBar.SystemImages.DateReset.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.ColorPickerButtonImage.png" LogicalName="DevComponents.DotNetBar.SystemImages.ColorPickerButtonImage.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressedBlack.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressedBlack.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressedSilver.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressedSilver.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormalSilver.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormalSilver.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonHotSilver.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonHotSilver.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonHot.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonHot.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonHotBlack.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonHotBlack.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormal.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormal.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormalBlack.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonNormalBlack.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressed.png" LogicalName="DevComponents.DotNetBar.SystemImages.BlankStartButtonPressed.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.QatCustomizeItemCombo.png" LogicalName="DevComponents.DotNetBar.SystemImages.QatCustomizeItemCombo.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.GreenLight.png" LogicalName="DevComponents.DotNetBar.SystemImages.GreenLight.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.ColorPickerCustomColors.png" LogicalName="DevComponents.DotNetBar.SystemImages.ColorPickerCustomColors.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.WizardHeaderImage.png" LogicalName="DevComponents.DotNetBar.SystemImages.WizardHeaderImage.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.ImagePlaceHolder16x16.png" LogicalName="DevComponents.DotNetBar.SystemImages.ImagePlaceHolder16x16.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.ImagePlaceHolder.png" LogicalName="DevComponents.DotNetBar.SystemImages.ImagePlaceHolder.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.RibbonOverflow.png" LogicalName="DevComponents.DotNetBar.SystemImages.RibbonOverflow.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskBlueFlag.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskBlueFlag.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskBlueStop.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskBlueStop.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskBulb.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskBulb.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskCheckMark.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskCheckMark.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskCheckMark2.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskCheckMark2.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskDelete.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskDelete.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskExclamation.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskExclamation.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskFlag.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskFlag.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskHand.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskHand.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskHelp.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskHelp.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskInformation.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskInformation.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskInformation2.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskInformation2.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskNoEntry.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskNoEntry.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskShield.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskShield.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskShieldHelp.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskShieldHelp.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskShieldOk.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskShieldOk.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskShieldStop.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskShieldStop.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskStop.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskStop.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskStop2.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskStop2.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.TaskUsers.png" LogicalName="DevComponents.DotNetBar.SystemImages.TaskUsers.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintAllSides2010.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintAllSides2010.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintBottom2010.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintBottom2010.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintLeft2010.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintLeft2010.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintRight2010.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintRight2010.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintTab2010.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintTab2010.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintTop2010.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintTop2010.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Office2010BlackClientBackground.png" LogicalName="DevComponents.DotNetBar.SystemImages.Office2010BlackClientBackground.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Office2010BlueClientBackground.png" LogicalName="DevComponents.DotNetBar.SystemImages.Office2010BlueClientBackground.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Office2010SilverClientBackground.png" LogicalName="DevComponents.DotNetBar.SystemImages.Office2010SilverClientBackground.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.VS2010ClientBackground.png" LogicalName="DevComponents.DotNetBar.SystemImages.VS2010ClientBackground.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.WinClose.png" LogicalName="DevComponents.DotNetBar.SystemImages.WinClose.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.WinMax.png" LogicalName="DevComponents.DotNetBar.SystemImages.WinMax.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.WinMin.png" LogicalName="DevComponents.DotNetBar.SystemImages.WinMin.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.WinRestore.png" LogicalName="DevComponents.DotNetBar.SystemImages.WinRestore.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Shadow3px.png" LogicalName="DevComponents.DotNetBar.SystemImages.Shadow3px.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Shadow3px-2.png" LogicalName="DevComponents.DotNetBar.SystemImages.Shadow3px-2.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintLeftRight2010.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintLeftRight2010.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.DockHintTopBottom2010.png" LogicalName="DevComponents.DotNetBar.SystemImages.DockHintTopBottom2010.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Calculator.png" LogicalName="DevComponents.DotNetBar.SystemImages.Calculator.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.Delete.png" LogicalName="DevComponents.DotNetBar.SystemImages.Delete.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.FirstRecord.png" LogicalName="DevComponents.DotNetBar.SystemImages.FirstRecord.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.LastRecord.png" LogicalName="DevComponents.DotNetBar.SystemImages.LastRecord.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.NewRecord.png" LogicalName="DevComponents.DotNetBar.SystemImages.NewRecord.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.NextRecord.png" LogicalName="DevComponents.DotNetBar.SystemImages.NextRecord.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.PreviousRecord.png" LogicalName="DevComponents.DotNetBar.SystemImages.PreviousRecord.png" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BalloonTip.bmp" LogicalName="DevComponents.DotNetBar.BalloonTip.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BarEditorImages.FileClose.bmp" LogicalName="DevComponents.DotNetBar.BarEditorImages.FileClose.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BarEditorImages.FileCloseSol.bmp" LogicalName="DevComponents.DotNetBar.BarEditorImages.FileCloseSol.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BarEditorImages.FileNew.bmp" LogicalName="DevComponents.DotNetBar.BarEditorImages.FileNew.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BarEditorImages.FileOpen.bmp" LogicalName="DevComponents.DotNetBar.BarEditorImages.FileOpen.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BarEditorImages.FileOpenSol.bmp" LogicalName="DevComponents.DotNetBar.BarEditorImages.FileOpenSol.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.ComboBoxEx.bmp" LogicalName="DevComponents.DotNetBar.Controls.ComboBoxEx.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.ExpandableSplitter.bmp" LogicalName="DevComponents.DotNetBar.ExpandableSplitter.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.ExplorerBar.bmp" LogicalName="DevComponents.DotNetBar.ExplorerBar.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.NavigationBar.bmp" LogicalName="DevComponents.DotNetBar.NavigationBar.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.NavigationPane.bmp" LogicalName="DevComponents.DotNetBar.NavigationPane.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.PanelEx.bmp" LogicalName="DevComponents.DotNetBar.PanelEx.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SideBar.bmp" LogicalName="DevComponents.DotNetBar.SideBar.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.TabControl.bmp" LogicalName="DevComponents.DotNetBar.TabControl.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.TabStrip.bmp" LogicalName="DevComponents.DotNetBar.TabStrip.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.DataGridViewX.bmp" LogicalName="DevComponents.DotNetBar.Controls.DataGridViewX.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.BubbleBar.bmp" LogicalName="DevComponents.DotNetBar.BubbleBar.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Ribbon.RibbonClientPanel.bmp" LogicalName="DevComponents.DotNetBar.Ribbon.RibbonClientPanel.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.AnalogClockControl.bmp" LogicalName="DevComponents.DotNetBar.Controls.AnalogClockControl.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.ToolboxControl.bmp" LogicalName="DevComponents.DotNetBar.Controls.ToolboxControl.bmp" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.DRAGCOPY.CUR" LogicalName="DevComponents.DotNetBar.DRAGCOPY.CUR" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.DRAGMOVE.CUR" LogicalName="DevComponents.DotNetBar.DRAGMOVE.CUR" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.DRAGNONE.CUR" LogicalName="DevComponents.DotNetBar.DRAGNONE.CUR" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.ExpandablePanel.ico" LogicalName="DevComponents.DotNetBar.ExpandablePanel.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Ribbon.RibbonBar.ico" LogicalName="DevComponents.DotNetBar.Ribbon.RibbonBar.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Ribbon.RibbonControl.ico" LogicalName="DevComponents.DotNetBar.Ribbon.RibbonControl.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Bar.ico" LogicalName="DevComponents.DotNetBar.Bar.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.DotNetBarManager.ico" LogicalName="DevComponents.DotNetBar.DotNetBarManager.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.CheckBoxX.ico" LogicalName="DevComponents.DotNetBar.Controls.CheckBoxX.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.ProgressBarX.ico" LogicalName="DevComponents.DotNetBar.Controls.ProgressBarX.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.ComboBoxEx.ico" LogicalName="DevComponents.DotNetBar.Controls.ComboBoxEx.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.LabelX.ico" LogicalName="DevComponents.DotNetBar.Controls.LabelX.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.ColorPickerButton.ico" LogicalName="DevComponents.DotNetBar.Controls.ColorPickerButton.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Command.ico" LogicalName="DevComponents.DotNetBar.Command.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.AdvTree.ico" LogicalName="DevComponents.DotNetBar.AdvTree.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.ComboTree.ico" LogicalName="DevComponents.DotNetBar.Controls.ComboTree.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.AdvPropertyGrid.ico" LogicalName="DevComponents.DotNetBar.AdvPropertyGrid.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.ButtonX.ButtonX.ico" LogicalName="DevComponents.DotNetBar.ButtonX.ButtonX.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.GroupPanel.ico" LogicalName="DevComponents.DotNetBar.Controls.GroupPanel.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.Slider.ico" LogicalName="DevComponents.DotNetBar.Controls.Slider.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.ListViewEx.ico" LogicalName="DevComponents.DotNetBar.Controls.ListViewEx.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.ReflectionImage.ico" LogicalName="DevComponents.DotNetBar.Controls.ReflectionImage.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.ReflectionLabel.ico" LogicalName="DevComponents.DotNetBar.Controls.ReflectionLabel.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.MaskedTextBoxAdv.ico" LogicalName="DevComponents.DotNetBar.Controls.MaskedTextBoxAdv.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.TextBoxDropDown.ico" LogicalName="DevComponents.DotNetBar.Controls.TextBoxDropDown.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.PageNavigator.ico" LogicalName="DevComponents.DotNetBar.Controls.PageNavigator.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.RatingStar.ico" LogicalName="DevComponents.DotNetBar.Controls.RatingStar.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.TextBoxX.ico" LogicalName="DevComponents.DotNetBar.Controls.TextBoxX.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.DateTimeInput.ico" LogicalName="DevComponents.DotNetBar.DateTimeInput.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.MonthCalendarAdv.ico" LogicalName="DevComponents.DotNetBar.MonthCalendarAdv.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.DoubleInput.ico" LogicalName="DevComponents.DotNetBar.DoubleInput.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.IntegerInput.ico" LogicalName="DevComponents.DotNetBar.IntegerInput.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.ScrollBar.HScrollBarAdv.ico" LogicalName="DevComponents.DotNetBar.ScrollBar.HScrollBarAdv.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.CrumbBar.CrumbBar.ico" LogicalName="DevComponents.DotNetBar.CrumbBar.CrumbBar.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.WarningBox.ico" LogicalName="DevComponents.DotNetBar.Controls.WarningBox.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.IpAddressInput.ico" LogicalName="DevComponents.DotNetBar.IpAddressInput.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Ribbon.ItemPanel.ico" LogicalName="DevComponents.DotNetBar.Ribbon.ItemPanel.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Ribbon.SuperTooltip.ico" LogicalName="DevComponents.DotNetBar.Ribbon.SuperTooltip.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.StyleManager.ico" LogicalName="DevComponents.DotNetBar.StyleManager.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Validator.Highlighter.ico" LogicalName="DevComponents.DotNetBar.Validator.Highlighter.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Validator.SuperValidator.ico" LogicalName="DevComponents.DotNetBar.Validator.SuperValidator.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.ScrollBar.VScrollBarAdv.ico" LogicalName="DevComponents.DotNetBar.ScrollBar.VScrollBarAdv.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Wizard.Wizard.ico" LogicalName="DevComponents.DotNetBar.Wizard.Wizard.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SuperTabControl.ico" LogicalName="DevComponents.DotNetBar.SuperTabControl.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SuperTabStrip.ico" LogicalName="DevComponents.DotNetBar.SuperTabStrip.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.SwitchButton.ico" LogicalName="DevComponents.DotNetBar.Controls.SwitchButton.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.MicroCharts.MicroChart.ico" LogicalName="DevComponents.DotNetBar.MicroCharts.MicroChart.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.CircularProgress.ico" LogicalName="DevComponents.DotNetBar.Controls.CircularProgress.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.ColorPickers.ColorCombControl.ico" LogicalName="DevComponents.DotNetBar.ColorPickers.ColorCombControl.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.ColorPickers.CustomColorBlender.ico" LogicalName="DevComponents.DotNetBar.ColorPickers.CustomColorBlender.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Metro.MetroShell.ico" LogicalName="DevComponents.DotNetBar.Metro.MetroShell.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Metro.MetroStatusBar.ico" LogicalName="DevComponents.DotNetBar.Metro.MetroStatusBar.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Metro.MetroToolbar.ico" LogicalName="DevComponents.DotNetBar.Metro.MetroToolbar.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.SlidePanel.ico" LogicalName="DevComponents.DotNetBar.Controls.SlidePanel.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.TimeSelector.ico" LogicalName="DevComponents.DotNetBar.TimeSelector.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.PageSlider.ico" LogicalName="DevComponents.DotNetBar.Controls.PageSlider.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.StepIndicator.ico" LogicalName="DevComponents.DotNetBar.Controls.StepIndicator.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Metro.MetroTilePanel.ico" LogicalName="DevComponents.DotNetBar.Metro.MetroTilePanel.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Calculator.ico" LogicalName="DevComponents.DotNetBar.Calculator.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.BindingNavigatorEx.ico" LogicalName="DevComponents.DotNetBar.Controls.BindingNavigatorEx.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.RichTextBoxEx.ico" LogicalName="DevComponents.DotNetBar.Controls.RichTextBoxEx.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.RadialMenu.ico" LogicalName="DevComponents.DotNetBar.RadialMenu.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.RangeSlider.ico" LogicalName="DevComponents.DotNetBar.Controls.RangeSlider.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.ProgressSteps.ico" LogicalName="DevComponents.DotNetBar.ProgressSteps.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.ListBoxAdv.ico" LogicalName="DevComponents.DotNetBar.ListBoxAdv.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.CollapsibleSplitContainer.ico" LogicalName="DevComponents.DotNetBar.Controls.CollapsibleSplitContainer.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.SymbolBox.ico" LogicalName="DevComponents.DotNetBar.Controls.SymbolBox.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.TokenEditor.ico" LogicalName="DevComponents.DotNetBar.Controls.TokenEditor.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.Flyout.ico" LogicalName="DevComponents.DotNetBar.Controls.Flyout.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.Line.ico" LogicalName="DevComponents.DotNetBar.Controls.Line.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.SideNav.ico" LogicalName="DevComponents.DotNetBar.Controls.SideNav.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Controls.TabFormControl.ico" LogicalName="DevComponents.DotNetBar.Controls.TabFormControl.ico" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.Form1.dotNetBarManager1.xml" LogicalName="DevComponents.DotNetBar.Form1.dotNetBarManager1.xml" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.MaterialIcons-Regular.ttf" LogicalName="DevComponents.DotNetBar.SystemImages.MaterialIcons-Regular.ttf" />
+    <EmbeddedResource Include="DevComponents.DotNetBar.SystemImages.FontAwesome.ttf" LogicalName="DevComponents.DotNetBar.SystemImages.FontAwesome.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Xml">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

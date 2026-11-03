@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>BehComponents</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net20</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="BehComponents.DataGridViewX.bmp" />
+    <None Remove="BehComponents.MonthCalendarX.bmp" />
+    <None Remove="BehComponents.ButtonX.bmp" />
+    <None Remove="BehComponents.DateTimePickerX.bmp" />
+    <EmbeddedResource Include="BehComponents.DataGridViewX.bmp" LogicalName="BehComponents.DataGridViewX.bmp" />
+    <EmbeddedResource Include="BehComponents.MonthCalendarX.bmp" LogicalName="BehComponents.MonthCalendarX.bmp" />
+    <EmbeddedResource Include="BehComponents.ButtonX.bmp" LogicalName="BehComponents.ButtonX.bmp" />
+    <EmbeddedResource Include="BehComponents.DateTimePickerX.bmp" LogicalName="BehComponents.DateTimePickerX.bmp" />
+  </ItemGroup>
+  <ItemGroup />
+</Project>

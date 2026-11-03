@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>PacketParserStandard</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="System.Text.Json">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json" />
+    <Reference Include="Serilog" />
+    <Reference Include="Serilog.Sinks.File" />
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+      <HintPath>../../../../dotnet/shared/Microsoft.AspNetCore.App/8.0.33/Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options">
+      <HintPath>../../../../dotnet/shared/Microsoft.AspNetCore.App/8.0.33/Microsoft.Extensions.Options.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Annotations">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Management" />
+    <Reference Include="System.IO.Ports" />
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces" />
+    <Reference Include="System.Threading.Tasks.Dataflow">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Win32.Registry">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/Microsoft.Win32.Registry.dll</HintPath>
+    </Reference>
+    <Reference Include="Crc32.NET" />
+    <Reference Include="Brotli.Core" />
+    <Reference Include="System.Text.Encoding.CodePages">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Text.Encoding.CodePages.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

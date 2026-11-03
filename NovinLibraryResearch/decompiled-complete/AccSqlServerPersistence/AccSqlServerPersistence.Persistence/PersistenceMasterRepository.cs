@@ -1,0 +1,137 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AccSqlServerPersistence.Model;
+using EntityCache.Core;
+using Microsoft.EntityFrameworkCore;
+using PacketParser.BusinessLayer;
+using PacketParser.Entities;
+using PacketParser.Entities.Interfaces;
+
+namespace AccSqlServerPersistence.Persistence;
+
+public abstract class PersistenceMasterRepository<T, U> : PersistenceMasterRepositoryBase<T, U>, IPersistenceMasterRepository<T>, IDisposable where T : class, IHasContext, IHasJustGuid where U : class, IHasMasterGuid, IHasJustGuid, new()
+{
+	public PersistenceMasterRepository(ContextHolder dbContext)
+		: base(dbContext)
+	{
+		base.dbContext = dbContext;
+	}
+
+	public override async Task<ReturnedSaveFuncInfo> SaveAsync(IEnumerable<T> items, Guid masterGuid, short trycount, CancellationToken token, string tranName)
+	{
+		if (string.IsNullOrEmpty(tranName))
+		{
+			throw new ArgumentNullException("tranName");
+		}
+		using (new JaegerMonitor("SaveAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs"))
+		{
+			ReturnedSaveFuncInfo ret = new ReturnedSaveFuncInfo();
+			if (items?.Any((T p) => p.Guid == Guid.Empty) ?? false)
+			{
+				throw new ArgumentException("one or more items in list contains empty value for field Guid");
+			}
+			try
+			{
+				if (items != null)
+				{
+					if (items != null && items.Count() > 0)
+					{
+						List<U> des = await MapToDatabase.MapListAsync(base.ContextGuid, items, null, tranName, token);
+						BaseModelContext dbcontext = await dbContext.GetContextAsync(tranName, 60000, "SaveAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs", 30);
+						foreach (U item in des)
+						{
+							item.MasterGuid = masterGuid;
+							ReturnedSaveFuncInfo returnedSaveFuncInfo = ret;
+							returnedSaveFuncInfo.AddReturnedValue(await dbcontext.AddOrUpdateAsync(item, item.Guid), ReturnedState.None, "SaveAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs", 34);
+						}
+					}
+				}
+			}
+			catch (ThreadAbortException)
+			{
+				throw;
+			}
+			catch (Exception ex2)
+			{
+				WebErrorLog.Instance.StartLog(ex2, "", "SaveAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs", 41);
+				ret.AddReturnedValue(ex2, "", "SaveAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs", 42);
+			}
+			return ret;
+		}
+	}
+
+	public override async Task<ReturnedSaveFuncInfo> RemoveAsync(Guid masterGuid, short trycount, CancellationToken token, string tranName)
+	{
+		if (string.IsNullOrEmpty(tranName))
+		{
+			throw new ArgumentNullException("tranName");
+		}
+		using (new JaegerMonitor("RemoveAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs"))
+		{
+			ReturnedSaveFuncInfo ret = new ReturnedSaveFuncInfo();
+			try
+			{
+				BaseModelContext dbcontext = await dbContext.GetContextAsync(tranName, 60000, "RemoveAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs", 53);
+				List<U> list = await EntityFrameworkQueryableExtensions.ToListAsync<U>(((IQueryable<U>)((DbContext)dbcontext).Set<U>()).Where((U x) => x.MasterGuid == masterGuid), token);
+				if (list != null && list.Any())
+				{
+					((DbSet<_003F>)(object)((DbContext)dbcontext).Set<U>()).RemoveRange((IEnumerable<_003F>)list);
+				}
+			}
+			catch (ThreadAbortException)
+			{
+				throw;
+			}
+			catch (Exception ex2)
+			{
+				WebErrorLog.Instance.StartLog(ex2, "", "RemoveAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs", 60);
+				ret.AddReturnedValue(ex2, "", "RemoveAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs", 61);
+			}
+			return ret;
+		}
+	}
+
+	public override async Task<List<T>> GetAllAsync(Guid masterGuid, CancellationToken token, string tranName)
+	{
+		BaseModelContext c = await dbContext.GetContextAsync(tranName, 60000, "GetAllAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs", 67);
+		using (new JaegerMonitor("GetAllAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs"))
+		{
+			List<T> result;
+			try
+			{
+				int num;
+				_ = num - 1;
+				_ = 1;
+				try
+				{
+					List<U> source = await EntityFrameworkQueryableExtensions.ToListAsync<U>(((IQueryable<U>)((DbContext)c).Set<U>()).Where((U x) => x.MasterGuid == masterGuid), token);
+					result = await MapFromDatabase.MapListAsync(base.ContextGuid, source, null, tranName, token);
+				}
+				catch (ThreadAbortException)
+				{
+					throw;
+				}
+				catch (Exception ex2)
+				{
+					if (ex2.Message.Contains("Operation cancelled by user"))
+					{
+						throw new OperationCanceledException();
+					}
+					WebErrorLog.Instance.StartLog(ex2, "", "GetAllAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs", 78);
+					throw;
+				}
+			}
+			finally
+			{
+				if (string.IsNullOrEmpty(tranName))
+				{
+					await c.DisposeAsync("GetAllAsync", "D:\\Projects\\NPACC\\WebService_Team\\WebService\\SharedAccEntityFramworkPersistence\\Persistence\\PersistenceMasterRepository.cs");
+				}
+			}
+			return result;
+		}
+	}
+}

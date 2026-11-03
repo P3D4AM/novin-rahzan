@@ -1,0 +1,106 @@
+﻿IF Not EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Eftetahie') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+	exec('CREATE FUNCTION [dbo].[Eftetahie]() RETURNS Datetime AS BEGIN RETURN null end')
+go
+
+Alter FUNCTION [dbo].[Eftetahie] 
+(
+)
+RETURNS Datetime
+AS
+BEGIN
+  Declare @MinSanad Datetime
+
+  set @MinSanad=isnull((SELECT DateM FROM Acc_Sanad where SanadNO=1),getdate()) --(SanadNO=1)==Eftetahie
+
+  Return @MinSanad
+END
+GO
+-- ==========================================================================================
+begin transaction
+  IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SplitStrings]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+    DROP FUNCTION [dbo].[SplitStrings]
+  exec('Create FUNCTION [dbo].[SplitStrings]
+  (
+    @List NVARCHAR(MAX),
+    @Delimiter NVARCHAR(255)
+  )
+    RETURNS TABLE
+  AS
+    RETURN (SELECT [Index] = ROW_NUMBER() OVER (ORDER BY Number), Item 
+        FROM (SELECT Number, Item = SUBSTRING(@List, Number, 
+        CHARINDEX(@Delimiter, @List + @Delimiter, Number) - Number)
+        FROM (SELECT ROW_NUMBER() OVER (ORDER BY [object_id])
+        FROM sys.all_objects) AS n(Number)
+        WHERE Number <= CONVERT(INT, LEN(@List))
+        AND SUBSTRING(@Delimiter + @List, Number, LEN(@Delimiter)) = @Delimiter
+        ) AS y);')
+commit transaction
+GO
+-- ==========================================================================================
+IF (OBJECT_ID('FK_Acc_CashiersLog_Acc_Sanad_CashierGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_CashiersLog] DROP CONSTRAINT [FK_Acc_CashiersLog_Acc_Sanad_CashierGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_Customer_Acc_VisitorArea_AreaGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_Customer] DROP CONSTRAINT [FK_Acc_Customer_Acc_VisitorArea_AreaGuid]
+GO
+
+-- ==========================================================================================
+IF not EXISTS (SELECT * FROM sys.views WHERE object_id = OBJECT_ID(N'[dbo].[VSanadAuto]'))
+	exec('create VIEW [dbo].[VSanadAuto] as select * from Acc_Product')
+go
+
+ALTER VIEW [dbo].[VSanadAuto]
+AS
+	SELECT SANADNO
+		 , max(SANADST) as SanadST
+		 , max(AsGuid) AS AsGuid
+		 , max([ASType]) AS SANADTYPE
+		 , min([DateM]) as DateM
+		 , max([DESCRIPTION]) as Description
+		 , max([CashierGuid]) AS USERID
+		 , SUM(Debit) as Sum 
+		 , 0 as StatusId
+	FROM Acc_ViewSanadDetail
+	where sanadno not in (select SanadNO from Acc_Sanad)
+	group by SANADNO
+
+	union all
+
+	SELECT Acc_Sanad.SanadNo
+		 , Acc_Sanad.SanadST as SanadST
+		 , Acc_Sanad.guid AS AsGuid
+		 , Acc_Sanad.SanadType AS SANADTYPE
+		 , Acc_Sanad.DateM as DateM
+		 , Acc_Sanad.Description as Description
+		 , Acc_Sanad.UserGuid AS USERID
+		 , SUM(Debit) as Sum 
+		 , StatusId
+	FROM Acc_ViewSanadDetail
+	left outer join Acc_Sanad on Acc_Sanad.SanadNo=Acc_ViewSanadDetail.SanadNO
+	where Acc_ViewSanadDetail.sanadno in (select SanadNO from Acc_Sanad)
+	group by Acc_Sanad.SanadNo
+		   , Acc_Sanad.SanadST
+		   , Acc_Sanad.guid
+		   , Acc_Sanad.SanadType
+		   , Acc_Sanad.DateM
+		   , Acc_Sanad.Description
+		   , Acc_Sanad.UserGuid
+		   , Acc_Sanad.StatusId
+
+GO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

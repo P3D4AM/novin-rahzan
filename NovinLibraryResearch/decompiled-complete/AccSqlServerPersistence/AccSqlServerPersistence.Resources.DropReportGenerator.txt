@@ -1,0 +1,119 @@
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Acc_ReportGenerator_Acc_CustomerGroup_CusGroupGuid]') AND parent_object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]'))
+ALTER TABLE dbo.[Acc_ReportGenerator] DROP CONSTRAINT [FK_Acc_ReportGenerator_Acc_CustomerGroup_CusGroupGuid]
+go
+
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Acc_ReportGenerator_Acc_Depot_DepotGuid]') AND parent_object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]'))
+ALTER TABLE dbo.[Acc_ReportGenerator] DROP CONSTRAINT FK_Acc_ReportGenerator_Acc_Depot_DepotGuid
+go
+
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Acc_ReportGenerator_Acc_Tafsil_HGuid]') AND parent_object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]'))
+ALTER TABLE dbo.[Acc_ReportGenerator] DROP CONSTRAINT FK_Acc_ReportGenerator_Acc_Tafsil_HGuid
+go
+
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Acc_ReportGenerator_Acc_Product_PrdGuid]') AND parent_object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]'))
+ALTER TABLE dbo.[Acc_ReportGenerator] DROP CONSTRAINT FK_Acc_ReportGenerator_Acc_Product_PrdGuid
+go
+
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Acc_ReportGenerator_Acc_Cashier_UGuid]') AND parent_object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]'))
+ALTER TABLE dbo.[Acc_ReportGenerator] DROP CONSTRAINT FK_Acc_ReportGenerator_Acc_Cashier_UGuid
+go
+
+IF EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]') AND name = N'IX_Acc_ReportGenerator_CusGroupGuid')
+	DROP INDEX IX_Acc_ReportGenerator_CusGroupGuid ON [dbo].[Acc_ReportGenerator]
+go
+IF EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]') AND name = N'IX_Acc_ReportGenerator_HGuid')
+	DROP INDEX IX_Acc_ReportGenerator_HGuid ON [dbo].[Acc_ReportGenerator]
+go
+IF EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]') AND name = N'IX_Acc_ReportGenerator_PrdGuid')
+	DROP INDEX IX_Acc_ReportGenerator_PrdGuid ON [dbo].[Acc_ReportGenerator]
+go
+
+IF EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]') AND name = N'IX_Acc_ReportGenerator_UGuid')
+	DROP INDEX IX_Acc_ReportGenerator_UGuid ON [dbo].[Acc_ReportGenerator]
+go
+
+IF EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]') AND name = N'IX_Acc_ReportGenerator_UGuid')
+	DROP INDEX IX_Acc_ReportGenerator_UGuid ON [dbo].[Acc_ReportGenerator]
+go
+
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Acc_ReportGenerator_Acc_Cashier_CashierItemGuid]') AND parent_object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]'))
+ALTER TABLE dbo.[Acc_ReportGenerator] DROP CONSTRAINT FK_Acc_ReportGenerator_Acc_Cashier_CashierItemGuid
+go
+
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Acc_ReportGenerator_Acc_CustomerGroup_CustGroupGuid]') AND parent_object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]'))
+ALTER TABLE dbo.[Acc_ReportGenerator] DROP CONSTRAINT FK_Acc_ReportGenerator_Acc_CustomerGroup_CustGroupGuid
+go
+
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Acc_ReportGenerator_Acc_Depot_DepotGuid]') AND parent_object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]'))
+ALTER TABLE dbo.[Acc_ReportGenerator] DROP CONSTRAINT FK_Acc_ReportGenerator_Acc_Depot_DepotGuid
+go
+
+IF EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]') AND name = N'IX_Acc_ReportGenerator_CashierItemGuid')
+	DROP INDEX IX_Acc_ReportGenerator_CashierItemGuid ON [dbo].[Acc_ReportGenerator]
+go
+
+IF EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]') AND name = N'IX_Acc_ReportGenerator_CustGroupGuid')
+	DROP INDEX IX_Acc_ReportGenerator_CustGroupGuid ON [dbo].[Acc_ReportGenerator]
+go
+
+IF not COL_LENGTH('dbo.[Acc_ReportGenerator]','CashierItemGuid') IS NULL
+	begin
+		ALTER TABLE Acc_ReportGenerator drop column CashierItemGuid 
+	end
+go
+
+
+IF not COL_LENGTH('dbo.[Acc_ReportGenerator]','CusGroupGuid') IS NULL
+	begin
+		ALTER TABLE Acc_ReportGenerator drop column CusGroupGuid 
+	end
+go
+
+
+IF not COL_LENGTH('dbo.[Acc_ReportGenerator]','CustGroupGuid') IS NULL
+	begin
+		ALTER TABLE Acc_ReportGenerator drop column CustGroupGuid 
+	end
+go
+
+
+IF not COL_LENGTH('dbo.[Acc_ReportGenerator]','HGuid') IS NULL
+	begin
+		ALTER TABLE Acc_ReportGenerator drop column HGuid 
+	end
+go
+
+
+
+IF not COL_LENGTH('dbo.[Acc_ReportGenerator]','PrdGuid') IS NULL
+	begin
+		ALTER TABLE Acc_ReportGenerator drop column PrdGuid 
+	end
+go
+
+
+IF not COL_LENGTH('dbo.[Acc_ReportGenerator]','UGuid') IS NULL
+	begin
+		ALTER TABLE Acc_ReportGenerator drop column UGuid 
+	end
+go
+
+IF not COL_LENGTH('dbo.[Acc_ReportGenerator]','UGuid') IS NULL
+	begin
+		ALTER TABLE Acc_ReportGenerator drop column UGuid 
+	end
+go
+
+IF EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Acc_ReportGeneratorDet_Acc_ReportGenerator_RepGuid]') AND parent_object_id = OBJECT_ID(N'[dbo].[Acc_ReportGeneratorDet]'))
+ALTER TABLE dbo.[Acc_ReportGeneratorDet] DROP CONSTRAINT FK_Acc_ReportGeneratorDet_Acc_ReportGenerator_RepGuid
+go
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Acc_ReportGeneratorDet]') AND type in (N'U'))
+	DROP TABLE [dbo].Acc_ReportGeneratorDet
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Acc_ReportGenerator]') AND type in (N'U'))
+	DROP TABLE [dbo].[Acc_ReportGenerator]
+GO
+
+

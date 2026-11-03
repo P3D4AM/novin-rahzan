@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="cust_btn_close" xml:space="preserve"><value>閉じる</value></data>
+  <data name="cust_btn_reset" xml:space="preserve"><value>リセｯト(&amp;R)...</value></data>
+  <data name="barname_caption" xml:space="preserve"><value>ツールバーを新規作成</value></data>
+  <data name="barrename_caption" xml:space="preserve"><value>ツールバーを名前変更</value></data>
+  <data name="cust_mnu_addremove" xml:space="preserve"><value>ボタンを追加または除去(&amp;A)</value></data>
+  <data name="barname_cancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="cust_btn_resetusage" xml:space="preserve"><value>自分の使用データをリセｯト(&amp;R)</value></data>
+  <data name="sys_morebuttons" xml:space="preserve"><value>詳細ボタン</value></data>
+  <data name="cust_tab_commands" xml:space="preserve"><value>コマンド</value></data>
+  <data name="cust_pm_reset" xml:space="preserve"><value>リセｯト</value></data>
+  <data name="cust_chk_showsk" xml:space="preserve"><value>スクリーンチｯプにショートカｯト キーを表示(&amp;S)</value></data>
+  <data name="cust_chk_showst" xml:space="preserve"><value>ツールバーにスクリーンチｯプを表示(&amp;T)</value></data>
+  <data name="mdisysmenu_close" xml:space="preserve"><value>閉じる</value></data>
+  <data name="cust_pm_stytextonly" xml:space="preserve"><value>文字のみ (常用)</value></data>
+  <data name="cust_cbo_slide" xml:space="preserve"><value>スライド</value></data>
+  <data name="sys_custombar" xml:space="preserve"><value>カスタム バー</value></data>
+  <data name="cust_mnu_cust" xml:space="preserve"><value>カスタマイズ...</value></data>
+  <data name="mdisysmenu_minimize" xml:space="preserve"><value>最小化</value></data>
+  <data name="cust_chk_delay" xml:space="preserve"><value>短い遅延の後、全メニューを表示</value></data>
+  <data name="cust_tab_toolbars" xml:space="preserve"><value>ツールバー</value></data>
+  <data name="barname_name" xml:space="preserve"><value>ツールバー名(&amp;T):</value></data>
+  <data name="cust_lbl_menuan" xml:space="preserve"><value>メニュー アニメーション:</value></data>
+  <data name="cust_cbo_none" xml:space="preserve"><value>(なし)</value></data>
+  <data name="cust_cbo_fade" xml:space="preserve"><value>フェード</value></data>
+  <data name="mdisysmenu_maximize" xml:space="preserve"><value>最大化</value></data>
+  <data name="cust_btn_new" xml:space="preserve"><value>新規作成(&amp;N)...</value></data>
+  <data name="cust_chk_fullmenus" xml:space="preserve"><value>常に全メニューを表示</value></data>
+  <data name="cust_pm_name" xml:space="preserve"><value>名前:</value></data>
+  <data name="mdisystt_restore" xml:space="preserve"><value>復元</value></data>
+  <data name="cust_btn_keyboard" xml:space="preserve"><value>キーボード(&amp;K)...</value></data>
+  <data name="cust_lbl_pmt" xml:space="preserve"><value>個人メニューとツールバー</value></data>
+  <data name="cust_cbo_system" xml:space="preserve"><value>システム既定値</value></data>
+  <data name="cust_cbo_random" xml:space="preserve"><value>ランダム</value></data>
+  <data name="cust_cbo_unfold" xml:space="preserve"><value>展開</value></data>
+  <data name="cust_lbl_cmdsins" xml:space="preserve"><value>コマンドをバーに追加するには、カテゴリを選択後、このボｯクスからバーへコマンドをドラｯグしてください。</value></data>
+  <data name="cust_pm_begingroup" xml:space="preserve"><value>開始グループ</value></data>
+  <data name="barname_ok" xml:space="preserve"><value>OK</value></data>
+  <data name="cust_lbl_other" xml:space="preserve"><value>その他:</value></data>
+  <data name="mdisystt_minimize" xml:space="preserve"><value>最小化</value></data>
+  <data name="cust_caption" xml:space="preserve"><value>カスタマイズ</value></data>
+  <data name="cust_lbl_tlbs" xml:space="preserve"><value>ツールバー(&amp;A):</value></data>
+  <data name="cust_lbl_cats" xml:space="preserve"><value>カテゴリ(&amp;G):</value></data>
+  <data name="cust_lbl_cmds" xml:space="preserve"><value>コマンド(&amp;D):</value></data>
+  <data name="cust_tab_options" xml:space="preserve"><value>オプション</value></data>
+  <data name="cust_mnu_reset" xml:space="preserve"><value>バーをリセｯト</value></data>
+  <data name="cust_pm_styimagetext" xml:space="preserve"><value>イメージと文字 (常用)</value></data>
+  <data name="cust_mnu_tooltip" xml:space="preserve"><value>バー オプション</value></data>
+  <data name="mdisystt_close" xml:space="preserve"><value>閉じる</value></data>
+  <data name="cust_btn_delete" xml:space="preserve"><value>削除</value></data>
+  <data name="cust_pm_delete" xml:space="preserve"><value>削除</value></data>
+  <data name="cust_msg_delete" xml:space="preserve"><value>本当に &lt;barname&gt; ツールバーを削除しますか?</value></data>
+  <data name="mdisysmenu_size" xml:space="preserve"><value>サイズ</value></data>
+  <data name="mdisysmenu_move" xml:space="preserve"><value>移動</value></data>
+  <data name="mdisysmenu_next" xml:space="preserve"><value>次へ</value></data>
+  <data name="mdisysmenu_restore" xml:space="preserve"><value>復元</value></data>
+  <data name="cust_pm_stydef" xml:space="preserve"><value>既定値スタイル</value></data>
+  <data name="cust_btn_rename" xml:space="preserve"><value>名前変更(&amp;R)...</value></data>
+  <data name="barname_msginvalidname" xml:space="preserve"><value>ツールバー名は空白ではいけません。</value></data>
+  </root>

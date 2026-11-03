@@ -1,0 +1,2 @@
+[sp_Acc_FixProductStatus]
+go

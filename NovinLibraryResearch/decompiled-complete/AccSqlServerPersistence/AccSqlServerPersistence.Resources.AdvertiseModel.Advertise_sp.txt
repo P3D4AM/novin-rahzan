@@ -1,0 +1,627 @@
+﻿Create Or ALTER   PROCEDURE [dbo].[Pr_SimCard_Select_NextNumber]
+	@Type smallint,
+	@MaxDailyCountDivar smallint,
+	@MaxDailyCountSheypoor smallint,
+	@IP nvarchar(15),
+	@MaxMountlyCountDivar smallint,
+	@MaxMountlyCountSheypoor smallint,
+	@MaxAdvCountInIPInDayDivar int,
+	@MaxAdvCountInIPInDaySheypoor int
+AS
+BEGIN
+	declare @Desc nvarchar(max),@DateSh char(10)
+	set @desc='[Pr_SimCard_Select_NextNumber] @Type='+convert(nvarchar(max),@type)
+				+ ',@MaxDailyCountDivar='+convert(nvarchar(max),@MaxDailyCountDivar)
+				+ ',@MaxDailyCountSheypoor='+convert(nvarchar(max),@MaxDailyCountSheypoor)
+				+ ',@IP='+convert(nvarchar(max),@IP)
+				+ ',@MaxMountlyCountDivar='+convert(nvarchar(max),@MaxMountlyCountDivar)
+				+ ',@MaxMountlyCountSheypoor='+convert(nvarchar(max),@MaxMountlyCountSheypoor)
+				+ ',@MaxAdvCountInIPInDayDivar='+convert(nvarchar(max),@MaxAdvCountInIPInDayDivar)
+				+ ',@MaxAdvCountInIPInDaySheypoor='+convert(nvarchar(max),@MaxAdvCountInIPInDaySheypoor)
+	
+	declare @AdvCountInIPInDayDivar int,@AdvCountInIPInDaySheypoor int
+	declare @MonthStart nvarchar(10),@MonthEnd nvarchar(10)
+	declare @Number bigint
+	
+	select	@DateSh=dbo.Civil2Persian(getdate()),
+			@MonthEnd=dbo.Civil2Persian(GETDATE()),
+			@MonthStart=left(@MonthEnd,8)+'01'
+	
+	select @AdvCountInIPInDayDivar = COUNT(*) from Adv_AdvertiseLog where IP=@IP and DateSh=@DateSh and AdvType=0
+	select @AdvCountInIPInDaySheypoor = COUNT(*) from Adv_AdvertiseLog where IP=@IP and DateSh=@DateSh and AdvType=1
+
+	if ((@AdvCountInIPInDayDivar>@MaxAdvCountInIPInDayDivar and @Type=0) or
+		(@AdvCountInIPInDaySheypoor>@MaxAdvCountInIPInDaySheypoor and @Type=1))
+		return
+
+	select top 1 @Number=Adv_SimCard.Number
+	from	Adv_SimCard left outer join (
+										select	SimCardNumber ,
+												sum(case AdvType when  0 then 1 else 0 end) as DivarCount,
+												sum(case AdvType when  1 then 1 else 0 end) as SheyPorCount,
+												sum(case DateSh when  @DateSh then case AdvType when  0 then 1 else 0 end else 0 end) as DivarCountToday,
+												sum(case DateSh when  @DateSh then case AdvType when  1 then 1 else 0 end else 0 end) as SheyPorCountToday,
+												sum(case Ip when  @Ip then case AdvType when  0 then 1 else 0 end else 0 end) as DivarCountTodayIp,
+												sum(case Ip when  @Ip then case AdvType when  1 then 1 else 0 end else 0 end) as SheyPorCountTodayIp
+										from Adv_AdvertiseLog
+										where DateSh>=@MonthStart and DateSh<=@MonthEnd
+										group by SimCardNumber 
+									) as logSum on logSum.SimCardNumber=Adv_SimCard.Number
+							where	Adv_SimCard.Status=1 and
+							(
+								(@Type=0 and NextUseDivar<getdate() and isSendDivarAdv='true' and ISNULL(logSum .DivarCount,0) <@MaxMountlyCountDivar) or
+								(@Type=1 and NextUseSheypoor<getdate() and isSendSheypoorAdv='true' and Adv_SimCard.isSheypoorBlocked='false' and ISNULL(logSum .SheyPorCount,0)<@MaxMountlyCountSheypoor)
+							)
+	order by case  when @Type=0 then NextUseDivar else NextUseSheypoor end
+
+	print @number
+	select @Number
+
+	if (@Type=0)
+		update Adv_SimCard
+		set NextUseDivar=dateAdd(mi,60,getdate())
+		,Modified=GETDATE()
+		where Number=@Number
+	else if (@Type=1)
+		update Adv_SimCard
+		set NextUseSheypoor=dateAdd(mi,60,getdate())
+		,Modified=GETDATE()
+		where Number=@Number
+
+	set @Desc = @Desc + ' Returned:'+convert(nvarchar(max),isnull(@Number,'-1'))
+
+	insert into log
+	(Description)
+	values
+	(@Desc )
+END
+GO
+--===========================================================================================================`
+CREATE OR ALTER PROCEDURE [dbo].[Pr_SimCard_Select_OwnerName]
+	@Number bigint
+AS
+BEGIN
+	SET NOCOUNT ON;
+	SELECT top(1) adv_Owner.Name+' '+Adv_Owner.Family as family FROM [dbo].[Adv_SimCard]
+  join Adv_Owner on Adv_SimCard.OwnerGuid = Adv_Owner.Guid
+  where Number = @Number
+END
+GO
+
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE [dbo].[Pr_Owner_Select_VisitorGuidByOwnerGuid]
+	@OwnerGuid uniqueidentifier,
+	@VisitorGuid uniqueidentifier output
+AS
+BEGIN
+	SET NOCOUNT ON;
+	--declare @VisitorGuid uniqueidentifier
+	SELECT TOP (1) @VisitorGuid= VisitorGuid FROM dbo.Adv_Owner where Guid=@OwnerGuid  and Status=1
+END
+GO
+--===========================================================================================================
+
+--CREATE OR ALTER PROCEDURE [dbo].[Pr_SimCard_Select_NextNumber]
+--AS
+--BEGIN
+	--select top (1) number from adv_SimCard left outer join (
+		--								SELECT [SimCardNumber],count(*) as count
+			--							FROM [dbo].[adv_AdvertiseLog]
+				--						--اگر در 5 روز گذشته حداقل یک آگهی ثبت شده باشد از لیست شماره ها حذف می شود
+					--					where DateM > Convert(date,DATEADD(day,-5,getdate())) and ( UpdateDesc like N'%منتشر شده%' or UpdateDesc like N'%آگهی در نوبت انتشار است%' or UpdateDesc like N'%حذف شده%')
+						--				group by [SimCardNumber]
+							--			having (count(*)>=1) 
+							--			union
+							--			SELECT [SimCardNumber],count(*) as count
+							--			FROM [dbo].[adv_AdvertiseLog]
+							--			--اگر از روز اول ماه جاری تا این لحظه حداقل 5 آگهی ثبت شده باشد از لیست شماره ها حذف می شود
+							--			where DateM > DATEADD(day,-1*convert(int,SUBSTRING(dbo.Civil2Persian(GETDATE()),9,2)), getdate()) and ( UpdateDesc like N'%منتشر شده%' or UpdateDesc like N'%آگهی در نوبت انتشار است%' or UpdateDesc like N'%حذف شده%')
+							--			group by [SimCardNumber]
+							--			having (count(*)>=5) 
+							--		) as sents 
+	--on sents.[SimCardNumber]=adv_SimCard.Number
+	--where sents.SimCardNumber is null and adv_SimCard.Status= 1
+--END
+--GO
+
+--===========================================================================================================
+
+CREATE OR ALTER PROCEDURE [dbo].[Pr_SimCard_SelectAll_ForSendAdv]
+AS
+BEGIN
+	select  number from adv_SimCard left outer join (
+										SELECT [SimCardNumber],count(*) as count
+										FROM [dbo].[adv_AdvertiseLog]
+										--اگر در 5 روز گذشته حداقل یک آگهی ثبت شده باشد از لیست شماره ها حذف می شود
+										where DateM > Convert(date,DATEADD(day,-5,getdate())) and ( UpdateDesc like N'%منتشر شده%' or UpdateDesc like N'%آگهی در نوبت انتشار است%' or UpdateDesc like N'%حذف شده%')
+										group by [SimCardNumber]
+										having (count(*)>=1) 
+										union
+										SELECT [SimCardNumber],count(*) as count
+										FROM [dbo].[adv_AdvertiseLog]
+										--اگر از روز اول ماه جاری تا این لحظه حداقل 5 آگهی ثبت شده باشد از لیست شماره ها حذف می شود
+										where DateM > DATEADD(day,-1*convert(int,SUBSTRING(dbo.Civil2Persian(GETDATE()),9,2)), getdate()) and ( UpdateDesc like N'%منتشر شده%' or UpdateDesc like N'%آگهی در نوبت انتشار است%' or UpdateDesc like N'%حذف شده%')
+										group by [SimCardNumber]
+										having (count(*)>=5) 
+									) as sents 
+	on sents.[SimCardNumber]=adv_SimCard.Number
+	where sents.SimCardNumber is null and adv_SimCard.Status= 1
+END
+GO
+--===========================================================================================================
+
+CREATE OR ALTER PROCEDURE [dbo].[Pr_SimCard_Select_OwnerGuidByNumber]
+	@Number bigint,@OwnerGuid uniqueidentifier output
+AS
+BEGIN
+	SET NOCOUNT ON;
+	--declare  @OwnerGuid uniqueidentifier
+	SELECT TOP (1) @OwnerGuid=OwnerGuid FROM dbo.Adv_SimCard where Number=@Number and Status=1
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER     PROCEDURE [dbo].[Pr_Visitor_Select_MasterAndSlaveAdvReplacements]
+@Number bigint
+AS
+BEGIN
+	SET NOCOUNT ON;
+	Declare @AdvReplacement1 nvarchar(200)=''
+	Declare @AdvReplacement2 nvarchar(200)=''
+	Declare @Phone nvarchar(200)=''
+	Declare @IsAgent bit=0
+	Declare @MinMasterCount bigint=0
+	Declare @MaxSlaveCount bigint=1000
+	Declare @MasterGuid uniqueidentifier = '00000000-0000-0000-0000-000000000000'
+	Declare @SlaveGuid uniqueidentifier ='00000000-0000-0000-0000-000000000000'
+	Declare @OwnerGuid uniqueidentifier ='00000000-0000-0000-0000-000000000000'
+	Declare @VisitorGuid uniqueidentifier ='00000000-0000-0000-0000-000000000000'
+	
+--پیدا کردن مالک خط
+SELECT TOP (1) @OwnerGuid=OwnerGuid  FROM dbo.Adv_SimCard where Number=@Number and Status=1
+	if (@OwnerGuid is not null) --اگر شماره خط مالک داشت
+	begin
+			--پیدا کردن ویزیتور مالک خط
+			SELECT TOP (1) @VisitorGuid= VisitorGuid FROM dbo.Adv_Owner where Guid=@OwnerGuid and Status=1
+	--پیدا کردن ویزیتور اول
+			--اگر مالک ویزیتور دارد
+			if(@VisitorGuid is not null and @VisitorGuid <> '00000000-0000-0000-0000-000000000000')
+				begin
+					SELECT TOP (1) @AdvReplacement1=AdvReplacement,@Phone=Phone ,@IsAgent=IsAgent ,@MasterGuid=[Guid] FROM dbo.adv_Visitor where [Guid]=@VisitorGuid and [Status]=1
+						--اگر ویزیتور مالک پیدا شد
+						if(@MasterGuid is not null and @MasterGuid <> '00000000-0000-0000-0000-000000000000')
+							begin
+								update dbo.adv_Visitor set SlaveCount=SlaveCount+1 where [Guid] = @MasterGuid
+							end
+						--	--درصورتیکه ویزیتور مالک پیدا نشد
+						--else
+						--	begin
+						--		set @MasterGuid='00000000-0000-0000-0000-000000000000'
+						--		set @AdvReplacement1=''
+						--	end
+				end	
+			--مالک ویزیتور ندارد یا پیدا نشد یا وضعیتش غیر فعال است
+			if( @VisitorGuid is null or @VisitorGuid = '00000000-0000-0000-0000-000000000000'
+				or @MasterGuid is null or @MasterGuid = '00000000-0000-0000-0000-000000000000')
+				begin
+					--پس مالک از همکارانیست که ویزیتور ندارد لذا از بین همکاران کسی که کمترین آگهی برایش ارسال شده انتخاب می شود
+						set	@MinMasterCount = ( SELECT Min(MasterCount) FROM dbo.adv_Visitor where [Status]=1 and IsAgent=0 and [Guid] <> '00000000-0000-0000-0000-000000000000' and LEN(AdvReplacement)>5) 
+						--اگرهیچ ویزیتور فعالی پیدا نشد
+						if(@MinMasterCount is null)
+							begin
+								set @MasterGuid='00000000-0000-0000-0000-000000000000'
+								set @AdvReplacement1=''
+								set @Phone = ''
+							end
+						--اگر ویزیتور فعالی پیدا شد
+						else
+							begin
+								SELECT TOP (1) @AdvReplacement1=AdvReplacement,@Phone=Phone ,@IsAgent=IsAgent ,@MasterGuid=[Guid] FROM dbo.adv_Visitor where MasterCount=@MinMasterCount  and [Status]=1 and IsAgent=0 and [Guid] <> '00000000-0000-0000-0000-000000000000' and LEN(AdvReplacement)>5
+								update dbo.adv_Visitor set MasterCount=MasterCount+1 where [Guid] = @MasterGuid
+							end
+				end
+
+
+	--پیدا کردن ویزیتور دوم
+			--اگر نماینده باشد متن ویزیتور دوم ندارد
+			if(@IsAgent=1)
+				begin
+					set @SlaveGuid ='00000000-0000-0000-0000-000000000000'
+					set @AdvReplacement2=''
+				end
+				--مالک همکار شرکت است و ویزیتور دوم از بین همکارانیکه بیشترین طلب آگهی دارند انتخاب می شود
+			else
+				begin
+					set	@MaxSlaveCount = ( SELECT Max(SlaveCount) FROM dbo.adv_Visitor where [Guid] <> @MasterGuid And [Status]=1 and IsAgent=0 and [Guid] <> '00000000-0000-0000-0000-000000000000' and LEN(AdvReplacement)>5)
+					--اگرهیچ ویزیتور فعالی پیدا نشد
+					if(@MaxSlaveCount is null)
+						begin
+							set @SlaveGuid = '00000000-0000-0000-0000-000000000000'
+							set @AdvReplacement2=''
+						end
+					--ویزیتور دوم پیدا شد پس یکی از طلبش کم می شود
+					else
+						begin
+							SELECT TOP (1) @AdvReplacement2=AdvReplacement,@SlaveGuid=[Guid] FROM dbo.adv_Visitor where [Guid] <> @MasterGuid And SlaveCount=@MaxSlaveCount and [Status]=1 and IsAgent=0 and [Guid] <> '00000000-0000-0000-0000-000000000000' and LEN(AdvReplacement)>5
+							update dbo.adv_Visitor set SlaveCount=SlaveCount-1 where [Guid] = @SlaveGuid
+						end
+				end
+	end
+
+	--متن ویزیتور یک و دو برگردانده می شود
+	select 'AdvReplacement1'=@AdvReplacement1,'Phone'=@Phone,'AdvReplacement2'=@AdvReplacement2,'MasterGuid'=@MasterGuid,'SlaveGuid'=@SlaveGuid
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER FUNCTION [dbo].[Civil2Persian](@CivilDate datetime)
+RETURNS char(10) AS
+BEGIN
+	IF @CivilDate=null
+		BEGIN
+			RETURN ' '
+		END 
+	if @CivilDate>'3000/01/01' or @CivilDate<'1980/01/01'
+		return '          '
+	set @civildate=str(year(@civildate)) + '/' + str(month(@civildate)) + '/' + str(day(@civildate))
+	RETURN dbo.jdn_persian(CAST(@CivilDate  as bigint)+2415021)
+END
+GO
+--===========================================================================================================
+
+CREATE OR ALTER FUNCTION [dbo].[jdn_persian](@jdn bigint)
+	RETURNS char(10) AS
+	BEGIN
+	DECLARE @depoch bigint
+	DECLARE @cycle int
+	DECLARE @cyear bigint
+	DECLARE @ycycle int
+	DECLARE @aux1 int, @aux2 int
+	DECLARE @yday int
+	DECLARE @iYear bigint, @iMonth int, @iDay int
+	DECLARE @tmpMonth char(2),@tmpDay char(2)
+	SET @depoch = @jdn - dbo.persian_jdn(475, 1, 1)
+	SET @cycle = CAST((@depoch / 1029983) AS int)
+	SET @cyear = dbo.MMod(@depoch, 1029983)
+	IF @cyear = 1029982
+	SET @ycycle = 2820
+	ELSE
+	BEGIN
+	SET @aux1 = CAST((@cyear / 366) AS int)
+	SET @aux2 = dbo.MMod(@cyear, 366)
+	SET @ycycle = CAST(((((2134 * @aux1) + (2816 * @aux2) +
+	2815) / 1028522)) AS int) + @aux1 + 1
+	END
+	SET @iYear = @ycycle + (2820 * @cycle) + 474
+	IF @iYear <= 0
+	SET @iYear = @iYear - 1
+	SET @yday = (@jdn - dbo.persian_jdn(@iYear, 1, 1)) + 1
+	IF @yday <= 186
+	SET @iMonth = dbo.Ceil(CAST(@yday AS float)/ 31)
+	ELSE
+	SET @iMonth = dbo.Ceil(CAST((@yday - 6) AS float)/ 30)
+	SET @iDay = (@jdn - dbo.persian_jdn(@iYear, @iMonth, 1)) + 1
+	IF @iMonth < 10 
+ SET @tmpMonth= N'0'+ CAST( @iMonth as char(2))
+ELSE
+ SET @tmpMonth =CAST( @iMonth as char(2))
+IF @iDay < 10 
+ SET @tmpDay= N'0'+ CAST( @iDay as char(2))
+ELSE
+ SET @tmpDay =CAST( @iDay as char(2))
+RETURN CAST(@iYear AS char(4)) + N'/' + @tmpMonth   + N'/' + @tmpDay
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER FUNCTION [dbo].[persian_jdn](@iYear bigint, @iMonth int, @iDay int)
+RETURNS bigint AS  
+BEGIN 
+DECLARE @PERSIAN_EPOCH bigint
+SET @PERSIAN_EPOCH = 1948321 -- The JDN of 1 Farvardin 1
+DECLARE @epbase bigint
+DECLARE @epyear bigint
+DECLARE @mdays bigint
+DECLARE @temp bigint
+IF @iYear >= 0
+ SET @epbase = @iYear - 474
+ELSE
+ SET @epbase = @iYear - 473
+ 
+SET @epyear = 474 + dbo.MMod(@epbase, 2820)
+IF @iMonth <= 7
+	SET @mdays = (@iMonth - 1) * 31
+	ELSE
+	SET @mdays = (@iMonth - 1) * 30 + 6
+
+	SET @temp = @iDay + @mdays + CAST(((@epbase / 2820) * 1029983 +
+	(@PERSIAN_EPOCH - 1)) AS bigint)
+	RETURN @temp + CAST(((((@epyear * 682) - 110) / 2816) + (@epyear - 1) *
+	365) AS bigint)
+	END
+GO
+--===========================================================================================================
+
+CREATE OR ALTER FUNCTION [dbo].[MMod] (@numerator bigint, @denominator bigint)
+RETURNS bigint AS  
+BEGIN 
+ RETURN ((@numerator % @denominator) + @denominator) % 
+@denominator
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER FUNCTION [dbo].[Ceil](@number float)
+RETURNS bigint AS  
+BEGIN 
+RETURN CASE SIGN(@number) WHEN -1 THEN CEILING(@number) - 1 
+ELSE CEILING(@number) END
+END
+GO
+--===========================================================================================================
+
+CREATE OR ALTER PROCEDURE [dbo].[sp_City_UpdateAllCityFromSite]
+@Type smallint
+AS
+BEGIN
+if(@Type=0) --divar
+	begin
+		select top (1) number from adv_SimCard 
+		where Status= 1
+		order by NextUseDivar 
+	end
+else
+if(@Type=1) --sheypoor
+	begin
+		select top (1) number from adv_SimCard 
+		where Status= 1
+		order by NextUseSheypoor
+	end
+END
+GO
+
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_AdvertiseLog_RemoveLogByDate
+@date DATETIME
+AS
+BEGIN
+	Delete From [dbo].[Adv_AdvertiseLog] where [DateM]<@date
+END
+GO
+
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_VisitorCity_DeleteVisitorCities
+@VisitorGuid uniqueidentifier
+AS
+BEGIN
+	DELETE FROM dbo.Adv_VisitorCity WHERE VisitorGuid=@VisitorGuid
+END
+GO
+--===========================================================================================================
+
+CREATE OR ALTER PROCEDURE sp_VisitorAdv_DeleteVisitorAdvertise
+@VisitorGuid uniqueidentifier
+AS
+BEGIN
+	DELETE FROM dbo.Adv_VisitorAdv WHERE VisitorGuid=@VisitorGuid
+END
+GO
+--===========================================================================================================
+
+CREATE OR ALTER PROCEDURE sp_Simcard_UpdateAllSheypoorBlock
+@state bit
+AS
+BEGIN
+	UPDATE [dbo].[Adv_SimCard] SET [isSheypoorBlocked]=@state
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_DepartmentCategory_DeleteDepartmentCategory
+@depGuid uniqueidentifier
+AS
+BEGIN
+	DELETE FROM [dbo].[Adv_DepartmentCategory] WHERE [DepartmentGuid]=@depGuid
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_VisitorCity_GetAllByVisitorGuid 
+@VisitorGuid uniqueidentifier
+AS
+BEGIN
+	SELECT * FROM Adv_VisitorCity WHERE VisitorGuid=@VisitorGuid
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE [dbo].[sp_AdvertiseLog_GetAll]
+	@number bigint,
+	@d1 datetime,
+	@d2 datetime,
+	@status smallint,
+	@type smallint
+AS
+BEGIN
+	SELECT * 
+	FROM [dbo].[Adv_AdvertiseLog]
+	WHERE	DateM>=@d1 AND
+			DateM<=@d2 and 
+			AdvType=@type AND 
+			(isnull(@status,0)=0 or StatusCode=@status) AND
+			(isnull(@number,0)=0 or SimCardNumber=@number)
+	ORDER BY DateM DESC
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_AdvertiseLog_GetAllNotFull
+@date1 datetime,
+@date2 datetime
+AS
+BEGIN
+	Select * from Adv_AdvertiseLog left outer join Adv_SimCard
+	on Adv_AdvertiseLog.SimCardNumber=Adv_SimCard.Number
+	where 
+	(Adv_AdvertiseLog.DateM>=@date1) and 
+	(Adv_AdvertiseLog.DateM<=@date2) and 
+	(Adv_AdvertiseLog. AdvType=0) and 
+	(Adv_AdvertiseLog.StatusCode=2) and 
+	(Adv_SimCard.Status='true') and
+	(Adv_SimCard.isSendDivarAdv='true')
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_AdvertiseLog_GetAllEditNeed
+@date1 datetime,
+@date2 datetime
+AS
+BEGIN
+	Select * from Adv_AdvertiseLog
+	where (DateM>=@date1) and (DateM<=@date2) and (AdvType=0) and (StatusCode=3)
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_AdvertiseLog_GetAdvCountInMount
+@date1 datetime,
+@date2 datetime,
+@number bigint
+AS
+BEGIN
+	Select * from Adv_AdvertiseLog
+	where (DateM>=@date1) and (DateM<=@date2) and (AdvType=0) and (StatusCode<>2) and (SimCardNumber=@number)
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_AdvertiseLog_GetPublishAdvCountInMount
+@date1 datetime,
+@date2 datetime,
+@number bigint
+AS
+BEGIN
+	Select * from Adv_AdvertiseLog
+	where (DateM>=@date1) and (DateM<=@date2) and (AdvType=0) and (StatusCode=2) and (SimCardNumber=@number)
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_AdvertiseLog_AdvCountReport
+	@MonthStart char(10),
+	@MonthEnd char(10),
+	@DateSh char(10),
+	@Ip varchar(15)
+AS
+BEGIN
+	select	SimCardNumber ,
+			sum(case AdvType when  0 then 1 else 0 end) as DivarCount,
+			sum(case AdvType when  1 then 1 else 0 end) as SheyPorCount,
+			sum(case DateSh when  @DateSh then case AdvType when  0 then 1 else 0 end else 0 end) as DivarCountToday,
+			sum(case DateSh when  @DateSh then case AdvType when  1 then 1 else 0 end else 0 end) as SheyPorCountToday,
+			sum(case Ip when  @Ip then case AdvType when  0 then 1 else 0 end else 0 end) as DivarCountTodayIp,
+			sum(case Ip when  @Ip then case AdvType when  1 then 1 else 0 end else 0 end) as SheyPorCountTodayIp
+	from Adv_AdvertiseLog
+	where DateSh>=@MonthStart and DateSh<=@MonthEnd
+	group by SimCardNumber 
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_ChatNumbers_SelectAll
+AS
+BEGIN
+	Select * 
+	FROM [Advertise4].[dbo].[Adv_ChatNumbers]
+	Order by DateM desc	
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_ChatNumbers_SelectAllCategories
+AS
+BEGIN
+  select distinct [Category]
+  FROM [Advertise4].[dbo].[Adv_ChatNumbers]
+  where [Category] Is NOT NULL
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_ChatNumbers_SelectAllCities
+AS
+BEGIN
+  select distinct [City]
+  FROM [Advertise4].[dbo].[Adv_ChatNumbers]
+  where [City] Is NOT NULL
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_AdvertiseLog_SelectLastSend
+	@number bigint,
+	@type smallint
+AS
+BEGIN
+	select top(1) * from [dbo].[Adv_AdvertiseLog]
+			where SimCardNumber=@number and
+			AdvType=@type
+			order by DateM desc
+END
+GO
+--===========================================================================================================
+CREATE OR ALTER PROCEDURE sp_AdvertiseLog_GetAdvLogByNextUse
+@date1 datetime
+AS
+BEGIN
+	select Adv_AdvertiseLog.* from Adv_AdvertiseLog
+		left outer join Adv_SimCard
+		on Adv_AdvertiseLog.SimCardNumber=Adv_SimCard.Number
+		where Adv_SimCard.NextUseDivar<@date1 and
+		Adv_AdvertiseLog.AdvType=0 and
+		Adv_SimCard.Status='true' and
+		Adv_SimCard.isSendDivarAdv='true'
+END
+GO
+--===========================================================================================================
+Create or Alter PROCEDURE [dbo].[sp_SimCard_SelectAll]
+	@ownerGuid uniqueidentifier=null
+AS
+BEGIN
+    SELECT	Numbers.*
+			,case isnull(SheyPoorToken.Number,0) when 0 then 'false' else 'true' end as HasSheyPoorToken
+			,case isnull(DivarToken.Number,0) when 0 then 'false' else 'true' end as HasDivarToken
+			,case isnull(DivarChatToken.Number,0) when 0 then 'false' else 'true' end as HasDivarChatToken
+			, isnull((Adv_Owner.Name+' ' + Adv_Owner.Family),'') As OwnerName
+  FROM	(
+			Select * 
+			from Adv_SimCard
+		) as Numbers
+  left outer join 
+	(	
+		select distinct [Number]
+		from [Adv_Tokens]
+		where Type=1
+	) as SheyPoorToken on SheyPoorToken.Number=Numbers.Number
+	 left outer join 
+	(	
+		select distinct [Number]
+		from [Adv_Tokens]
+		where Type=0
+	) as DivarToken on DivarToken .Number=Numbers.Number
+	left outer join 
+	(	
+		select distinct [Number]
+		from [Adv_Tokens]
+		where Type=3
+	) as DivarChatToken on DivarChatToken .Number=Numbers.Number
+	inner join Adv_Owner on Numbers.OwnerGuid=Adv_Owner.Guid
+	where @ownerGuid is null or OwnerGuid=@ownerGuid
+END
+GO
+--===========================================================================================================
+Create or Alter PROCEDURE sp_AdvOwner_SelectAll
+	@st bit=null
+AS
+BEGIN
+	select Adv_Owner.*,Adv_Visitor.FullName As VisitorName
+	from Adv_Owner
+	left outer join Adv_Visitor on Adv_Owner.VisitorGuid=Adv_Visitor.Guid
+	where @st is null or Adv_Owner.Status=@st
+END
+GO
+--===========================================================================================================
+Create or Alter PROCEDURE sp_AdvOwner_SelectRow
+	@Guid uniqueidentifier
+AS
+BEGIN
+	select Adv_Owner.*,Adv_Visitor.FullName As VisitorName
+	from Adv_Owner
+	left outer join Adv_Visitor on Adv_Owner.VisitorGuid=Adv_Visitor.Guid
+	where Adv_Owner.Guid=@Guid
+END

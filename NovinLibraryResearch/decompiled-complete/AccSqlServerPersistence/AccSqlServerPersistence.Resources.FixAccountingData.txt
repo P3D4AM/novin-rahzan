@@ -1,0 +1,25 @@
+﻿update Acc_ProductGroup  Set ParentGuid=null,Modified=getdate()
+where ParentGuid ='00000000-0000-0000-0000-000000000000'
+go
+
+UPDATE Acc_ProductGroup
+SET Status = 'true'
+	,Modified=GETDATE() 
+FROM (
+		select ParentGuid as Guid
+		from Acc_ProductGroup
+		where Status='true'
+		group by ParentGuid
+
+		union 
+
+		select GroupGuid as Guid
+		from Acc_ProductGroupRelation
+		inner join Acc_Product on Acc_Product.Guid=Acc_ProductGroupRelation.ProductGuid
+		where Status='true'
+		group by GroupGuid
+	) AS X
+WHERE 
+    Acc_ProductGroup.Guid= X.Guid and Acc_ProductGroup.Status='false'
+go
+

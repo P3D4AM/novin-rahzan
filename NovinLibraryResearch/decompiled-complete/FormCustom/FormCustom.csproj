@@ -1,0 +1,69 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>FormCustom</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="PacketParserStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/PacketParserStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.SignalR.Client.Core" />
+    <Reference Include="Azure.Core" />
+    <Reference Include="DevComponents.DotNetBar2">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/DevComponents.DotNetBar2.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog" />
+    <Reference Include="EntityCacheStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/EntityCacheStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.ServiceProcess">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.ServiceProcess.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Win32.TaskScheduler" />
+    <Reference Include="System.Data">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="LK">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/LK.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions" />
+    <Reference Include="ClientHubStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/ClientHubStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="BehComponents">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/BehComponents.dll</HintPath>
+    </Reference>
+    <Reference Include="SmartAssembly.Attributes" />
+    <Reference Include="Softgroup.NetCalculator" />
+    <Reference Include="System.Xml.Linq">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="BackUpDLL">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/BackUpDLL.dll</HintPath>
+    </Reference>
+    <Reference Include="AccSqlServerPersistence">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/AccSqlServerPersistence.dll</HintPath>
+    </Reference>
+    <Reference Include="NPResourceManagement">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/NPResourceManagement.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/Microsoft.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="ActivationPacketParserStandard" />
+  </ItemGroup>
+</Project>

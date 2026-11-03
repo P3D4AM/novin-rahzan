@@ -1,0 +1,220 @@
+IF Not EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[sp_Acc_LocalSetting_SaveValue]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	exec('Create PROCEDURE [dbo].[sp_Acc_LocalSetting_SaveValue] AS BEGIN	print 111 	end')
+GO
+
+Alter PROCEDURE [dbo].[sp_Acc_LocalSetting_SaveValue]
+	@Key nvarchar(100),
+	@Val nvarchar(max)
+AS
+BEGIN
+	SET NOCOUNT ON;
+	begin tran
+		update Acc_LocalSetting 
+		--with (serializable) 
+		set [Value]=@Val
+		where [key] = @Key
+
+		if @@rowcount = 0
+		begin
+			insert into Acc_LocalSetting ([key],[value]) values (@key,@Val)
+		end
+	commit tran
+END
+Go
+
+-- ==========================================================================================
+IF Not EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[sp_Acc_LocalSetting_GetValue]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	exec('Create PROCEDURE [dbo].[sp_Acc_LocalSetting_GetValue] AS BEGIN	print 111 	end')
+GO
+
+Alter Procedure [dbo].[sp_Acc_LocalSetting_GetValue]
+	 @key nvarchar(128)
+As
+Begin
+	SELECT [Value]
+	FROM [Acc_LocalSetting]
+	WHERE [key]=@Key
+End
+Go
+-- ==========================================================================================
+IF Not EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[sp_Acc_LocalSetting_Save]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	exec('Create PROCEDURE [dbo].[sp_Acc_LocalSetting_Save] AS BEGIN	print 111 	end')
+GO
+Alter Procedure [dbo].[sp_Acc_LocalSetting_Save]
+	@key nvarchar(128),
+	@value nvarchar(max)
+As
+Begin
+	update Acc_LocalSetting
+	--with (serializable) 
+	set [Value]=@value
+	where [key] = @key
+
+	if @@rowcount = 0
+		insert into Acc_LocalSetting
+			([key],[Value]) 
+		values 
+			(@key,@Value)
+End
+Go
+
+
+--/////////////////////   PushNotification   \\\\\\\\\\\\\\\\\\\\\\\
+-- ==========================================================================================
+IF Not EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[sp_PushNotifications_Insert]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	exec('Create PROCEDURE [dbo].[sp_PushNotifications_Insert] AS BEGIN	print 111 	end')
+GO
+
+Alter Procedure [dbo].[sp_PushNotifications_Insert]
+ @Guid uniqueidentifier,
+ @Message nvarchar(4000),
+ @title nvarchar(100),
+ @Date date,
+ @ExpireDate   date,
+ @Source   smallint,
+ @DisplayCount   smallint,
+ @ModifiedDate datetime,
+ @Type smallint
+ 
+As
+Begin
+	delete from Global_PushNotifications  where [Guid]=@Guid
+
+	Insert Into Global_PushNotifications(
+			[Guid]
+			,[Message]
+			,[Title]
+			,[Date]
+			,[ExpireDate]
+			,[Source]
+			,[DisplayCount]
+			,[ModifiedDate]
+			,[Type])
+
+	Values (
+			@Guid
+			,@Message
+			,@title
+			,@Date
+			,@ExpireDate
+			,@Source
+			,@DisplayCount
+			,@ModifiedDate
+			,@Type)
+End
+Go
+-- ==========================================================================================
+IF Not EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[sp_PushNotifications_LastModifiedDate]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	exec('Create PROCEDURE [dbo].[sp_PushNotifications_LastModifiedDate] AS BEGIN	print 111 	end')
+GO
+
+Alter Procedure [dbo].[sp_PushNotifications_LastModifiedDate]
+As
+	Begin
+		select max(ModifiedDate) as LastModifiedDate from Global_PushNotifications
+	End
+Go
+-- ==========================================================================================
+IF Not EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[sp_PushNotifications_SelectAll]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	exec('Create PROCEDURE [dbo].[sp_PushNotifications_SelectAll] AS BEGIN	print 111 	end')
+GO
+
+Alter Procedure [dbo].[sp_PushNotifications_SelectAll]
+ @DateNow smalldatetime
+As
+	Begin
+		update Global_PushNotifications set DisplayCount=DisplayCount-1
+
+		Select * From Global_PushNotifications
+		   where 
+				DisplayCount>=0
+				and @dateNow between [Date] and [ExpireDate]
+	End
+GO
+-- ==========================================================================================
+IF Not EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[sp_Acc_CheckedSave_Delete]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	exec('Create PROCEDURE [dbo].[sp_Acc_CheckedSave_Delete] AS BEGIN	print 111 	end')
+GO
+ALTER Procedure [dbo].[sp_Acc_CheckedSave_Delete]
+	@ReportType smallint,
+	@entityGuid uniqueIdentifier,
+	@DetailGuid uniqueIdentifier
+As
+Begin
+	delete from Global_CheckedSave
+	where [ReportType]=@ReportType and [EntityGuid]=@entityGuid and [DetailGuid]=@DetailGuid
+End
+GO
+-- ==========================================================================================
+IF Not EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[sp_Acc_CheckedSave_Save]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	exec('Create PROCEDURE [dbo].[sp_Acc_CheckedSave_Save] AS BEGIN	print 111 	end')
+GO
+ALTER Procedure [dbo].[sp_Acc_CheckedSave_Save]
+	@ReportType smallint,
+	@EntityGuid uniqueidentifier,
+	@DetailGuid uniqueIdentifier,
+	@ISDebit bit,
+	@Guid uniqueidentifier,
+	@dateM datetime
+As
+Begin
+	declare @count int
+	set @count=(select COUNT(*) from Global_CheckedSave where [ReportType]=@ReportType and [EntityGuid]=@EntityGuid and [DetailGuid]=@DetailGuid and [ISDebit]=@ISDebit)
+	set @count=ISNULL(@count,0)
+	if (@count<=0)
+	begin
+		INSERT INTO [dbo].[Global_CheckedSave]
+           ([Guid]
+           ,[Modified]
+           ,[IsDebit]
+           ,[ReportType]
+           ,[DateM]
+           ,[EntityGuid]
+           ,[DetailGuid])
+     VALUES
+           (@Guid
+           ,GETDATE()
+           ,@ISDebit
+           ,@ReportType
+           ,@dateM
+           ,@EntityGuid
+           ,@DetailGuid)
+	end
+End
+Go
+
+-- ==========================================================================================
+IF Not EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[sp_Global_TicketDet_SelectAll]') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
+	exec('Create PROCEDURE [dbo].[sp_Global_TicketDet_SelectAll] AS BEGIN	print 111 	end')
+GO
+
+ALTER   PROCEDURE [dbo].[sp_Global_TicketDet_SelectAll]
+	@TafsilGuid uniqueidentifier=null,
+	@CashierGuid uniqueidentifier=null,
+	@MasterGuid uniqueidentifier=null
+AS
+BEGIN
+	select    Global_TicketDetail.*
+			, Global_Ticket.*
+			, case when Global_TicketDetail.SourceType=2 
+				   then ISNULL(Acc_Cashier.Name,'')
+				   else ISNULL(Acc_Tafsil.Name,'') end as SourceName
+			 , ISNULL(Global_TicketPart.Name,'') As PartName
+			 , ISNULL(Acc_SanadStatusReport.Name,'') As StatusName
+	from Global_TicketDetail
+	inner join Global_Ticket on Global_TicketDetail.MasterGuid=Global_Ticket.Guid
+	left join Global_TicketPart on Global_TicketPart.Guid=Global_TicketDetail.SourceGuid
+	left join Acc_SanadStatusReport on Acc_SanadStatusReport.Id=Global_Ticket.StatusId
+	left outer join Acc_Cashier on Acc_Cashier.Guid=Global_TicketDetail.SourceGuid and Global_TicketDetail.SourceType=2
+	left outer join Acc_Tafsil on Acc_Tafsil.Guid=Global_TicketDetail.SourceGuid and Global_TicketDetail.SourceType=1
+	where (@TafsilGuid is null or @TafsilGuid = Global_Ticket.SourceGuid) and
+	      (@CashierGuid is null or @CashierGuid = Global_Ticket.SourceGuid) and
+		  (@MasterGuid is null or @MasterGuid = Global_TicketDetail.MasterGuid)
+END
+Go
+
+
+
+
+
+

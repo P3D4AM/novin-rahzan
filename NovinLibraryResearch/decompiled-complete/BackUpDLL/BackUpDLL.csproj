@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>BackUpDLL</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="System.Data">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="PacketParserStandard">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/PacketParserStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.SqlClient" />
+    <Reference Include="SmartAssembly.Attributes" />
+    <Reference Include="AccSqlServerPersistence">
+      <HintPath>../../../../../home/z/my-project/upload/libs/extracted/All novin-dlls/AccSqlServerPersistence.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.SqlWmiManagement" />
+    <Reference Include="Microsoft.SqlServer.WmiEnum" />
+    <Reference Include="SharpCompress" />
+    <Reference Include="System.Core">
+      <HintPath>../../../../dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

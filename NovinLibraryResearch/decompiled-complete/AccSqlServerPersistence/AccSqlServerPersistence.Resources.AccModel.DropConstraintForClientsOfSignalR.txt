@@ -1,0 +1,108 @@
+﻿IF (OBJECT_ID('FK_Acc_GardeshTafsil_Acc_Kol_KolGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_GardeshTafsil] DROP CONSTRAINT [FK_Acc_GardeshTafsil_Acc_Kol_KolGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_GardeshTafsil_Acc_Product_PrdGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_GardeshTafsil] DROP CONSTRAINT [FK_Acc_GardeshTafsil_Acc_Product_PrdGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_GardeshTafsil_Acc_Depot_DepotGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_GardeshTafsil] DROP CONSTRAINT [FK_Acc_GardeshTafsil_Acc_Depot_DepotGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_GardeshTafsil_Acc_Tafsil_TafsilGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_GardeshTafsil] DROP CONSTRAINT [FK_Acc_GardeshTafsil_Acc_Tafsil_TafsilGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_GardeshTafsil_Acc_Moein_MoeinGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_GardeshTafsil] DROP CONSTRAINT [FK_Acc_GardeshTafsil_Acc_Moein_MoeinGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_Kol_Acc_HesabGroup_GroupGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_Kol] DROP CONSTRAINT [FK_Acc_Kol_Acc_HesabGroup_GroupGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_Moein_Acc_Kol_KolGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_Moein] DROP CONSTRAINT [FK_Acc_Moein_Acc_Kol_KolGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_Barcode_Acc_Product_PrdGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_Barcode] DROP CONSTRAINT [FK_Acc_Barcode_Acc_Product_PrdGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_AghsatShakhsi_Acc_Pardakht_PardakhtGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_AghsatShakhsi] DROP CONSTRAINT [FK_Acc_AghsatShakhsi_Acc_Pardakht_PardakhtGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_AghsatShakhsi_Acc_Tafsil_TafsilGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_AghsatShakhsi] DROP CONSTRAINT [FK_Acc_AghsatShakhsi_Acc_Tafsil_TafsilGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_AghsatShakhsi_Acc_Tafsil_MoeinGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_AghsatShakhsi] DROP CONSTRAINT [FK_Acc_AghsatShakhsi_Acc_Moein_TafsilGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_AghsatAshkhas_Acc_Reception_ReceptionGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_AghsatAshkhas] DROP CONSTRAINT [FK_Acc_AghsatAshkhas_Acc_Reception_ReceptionGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_AghsatAshkhas_Acc_Moein_MoeinGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_AghsatAshkhas] DROP CONSTRAINT [FK_Acc_AghsatAshkhas_Acc_Moein_MoeinGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_AghsatAshkhas_Acc_Tafsil_TafsilGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_AghsatAshkhas] DROP CONSTRAINT [FK_Acc_AghsatAshkhas_Acc_Tafsil_TafsilGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_AghsatAshkhas_Acc_AghsatM_Group_GuidGroup') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_AghsatAshkhas] DROP CONSTRAINT [FK_Acc_AghsatAshkhas_Acc_AghsatM_Group_GuidGroup]
+GO
+
+IF (OBJECT_ID('FK_Acc_Tafsil_Acc_TafsilGroup_TafsilGroupGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_Tafsil] DROP CONSTRAINT [FK_Acc_Tafsil_Acc_TafsilGroup_TafsilGroupGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_ChequeMOperation_Acc_ReceptionCheck_GuidCheque') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_ChequeMOperation] DROP CONSTRAINT [FK_Acc_ChequeMOperation_Acc_ReceptionCheck_GuidCheque]
+GO
+
+IF (OBJECT_ID('FK_Acc_ChequeShOperation_Acc_PardakhtCheckSh_ChequeGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_ChequeShOperation] DROP CONSTRAINT [FK_Acc_ChequeShOperation_Acc_PardakhtCheckSh_ChequeGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_ChequeMOperation_Acc_Moein_CreditMoeinGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_ChequeMOperation] DROP CONSTRAINT [FK_Acc_ChequeMOperation_Acc_Moein_CreditMoeinGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_ChequeMOperation_Acc_Moein_DebitMoeinGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_ChequeMOperation] DROP CONSTRAINT [FK_Acc_ChequeMOperation_Acc_Moein_DebitMoeinGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_ReceptionCheck_Acc_Reception_MasterGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_ReceptionCheck] DROP CONSTRAINT [FK_Acc_ReceptionCheck_Acc_Reception_MasterGuid]
+GO
+
+IF (OBJECT_ID('FK_Global_Area_Global_City_MasterGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Global_Area] DROP CONSTRAINT FK_Global_Area_Global_City_MasterGuid
+GO
+
+IF (OBJECT_ID('FK_Global_City_Global_State_MasterGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Global_City] DROP CONSTRAINT FK_Global_City_Global_State_MasterGuid
+GO
+
+IF (OBJECT_ID('FK_Acc_Cashier_Acc_Moein_FareMoeinGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_Cashier] DROP CONSTRAINT [FK_Acc_Cashier_Acc_Moein_FareMoeinGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_Cashier_Acc_Tafsil_FareTafsilGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_Cashier] DROP CONSTRAINT [FK_Acc_Cashier_Acc_Tafsil_FareTafsilGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_ProductAttributeRelation_Acc_ProductAttribute_AttributeGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_ProductAttributeRelation] DROP CONSTRAINT [FK_Acc_ProductAttributeRelation_Acc_ProductAttribute_AttributeGuid]
+GO
+
+IF (OBJECT_ID('FK_Acc_ProductAttributeRelation_Acc_ProductAttributeValue_AttributeValueGuid') IS NOT NULL)
+	ALTER TABLE [dbo].[Acc_ProductAttributeRelation] DROP CONSTRAINT [FK_Acc_ProductAttributeRelation_Acc_ProductAttributeValue_AttributeValueGuid]
+GO
+

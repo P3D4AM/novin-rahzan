@@ -1,0 +1,37 @@
+namespace Stimulsoft.Report.Components;
+
+public enum StiComponentPriority
+{
+	Component = 0,
+	CrossTab = 1500,
+	SubReportsV1 = 1500,
+	SubReportsV2 = 0,
+	Container = 0,
+	Panel = 0,
+	ReportTitleBandBefore = -400,
+	ReportTitleBandAfterV1 = -200,
+	ReportTitleBandAfterV2 = 200,
+	ReportSummaryBand = 500,
+	PageHeaderBandBefore = -200,
+	PageHeaderBandAfter = -400,
+	PageFooterBandBottom = -300,
+	PageFooterBandTop = 1000,
+	GroupHeaderBand = 300,
+	GroupFooterBand = 300,
+	HeaderBand = 300,
+	FooterBand = 300,
+	ColumnHeaderBand = 300,
+	ColumnFooterBand = 300,
+	DataBand = 300,
+	Table = 300,
+	ChildBand = 300,
+	EmptyBand = 300,
+	TableOfContents = 300,
+	OverlayBand = 700,
+	Primitive = 1500,
+	CrossGroupHeaderBand = 300,
+	CrossGroupFooterBand = 300,
+	CrossHeaderBand = 300,
+	CrossFooterBand = 300,
+	CrossDataBand = 300
+}

@@ -1,0 +1,36 @@
+namespace Stimulsoft.Report.BarCodes;
+
+public enum StiDataMatrixSize
+{
+	Automatic = -1,
+	s10x10,
+	s12x12,
+	s8x18,
+	s14x14,
+	s8x32,
+	s16x16,
+	s12x26,
+	s18x18,
+	s20x20,
+	s12x36,
+	s22x22,
+	s16x36,
+	s24x24,
+	s26x26,
+	s16x48,
+	s32x32,
+	s36x36,
+	s40x40,
+	s44x44,
+	s48x48,
+	s52x52,
+	s64x64,
+	s72x72,
+	s80x80,
+	s88x88,
+	s96x96,
+	s104x104,
+	s120x120,
+	s132x132,
+	s144x144
+}

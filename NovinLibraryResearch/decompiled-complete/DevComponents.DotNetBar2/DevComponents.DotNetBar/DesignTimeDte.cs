@@ -1,0 +1,329 @@
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+
+namespace DevComponents.DotNetBar;
+
+public class DesignTimeDte
+{
+	public static string GetProjectPath(IServiceProvider service)
+	{
+		object dTE = GetDTE(service);
+		if (dTE != null)
+		{
+			if (!(dTE.GetType().InvokeMember("ActiveSolutionProjects", BindingFlags.GetProperty, null, dTE, new object[0]) is Array array))
+			{
+				return "";
+			}
+			if (array.Length > 0)
+			{
+				object value = array.GetValue(0);
+				object obj = value.GetType().InvokeMember("Properties", BindingFlags.GetProperty, null, value, new object[0]);
+				if (obj != null)
+				{
+					object obj2 = obj.GetType().InvokeMember("Item", BindingFlags.InvokeMethod, null, obj, new object[1] { "FullPath" });
+					if (obj2 != null)
+					{
+						object obj3 = obj2.GetType().InvokeMember("Value", BindingFlags.GetProperty, null, obj2, new object[0]);
+						if (obj3 != null && obj3 is string)
+						{
+							return obj3.ToString();
+						}
+					}
+				}
+			}
+		}
+		return "";
+	}
+
+	public static string GetDefinitionPath(string definitionName, IServiceProvider service)
+	{
+		object dTE = GetDTE(service);
+		if (dTE == null)
+		{
+			return "";
+		}
+		object obj = dTE.GetType().InvokeMember("ActiveDocument", BindingFlags.GetProperty, null, dTE, new object[0]);
+		if (obj != null)
+		{
+			string text = (string)obj.GetType().InvokeMember("Path", BindingFlags.GetProperty, null, obj, new object[0]);
+			if (!text.EndsWith("\\"))
+			{
+				text += "\\";
+			}
+			if (File.Exists(text + definitionName))
+			{
+				return text;
+			}
+		}
+		object obj2 = dTE.GetType().InvokeMember("Documents", BindingFlags.GetProperty, null, dTE, new object[0]);
+		int num = (int)obj2.GetType().InvokeMember("Count", BindingFlags.GetProperty, null, obj2, new object[0]);
+		for (int i = 1; i <= num; i++)
+		{
+			object obj3 = obj2.GetType().InvokeMember("Item", BindingFlags.InvokeMethod, null, obj2, new object[1] { i });
+			string text2 = (string)obj3.GetType().InvokeMember("Path", BindingFlags.GetProperty, null, obj3, new object[0]);
+			if (!text2.EndsWith("\\"))
+			{
+				text2 += "\\";
+			}
+			if (File.Exists(text2 + definitionName))
+			{
+				return text2;
+			}
+		}
+		return GetProjectPath(service);
+	}
+
+	public static string GetActiveDocumentPath(IServiceProvider service)
+	{
+		object dTE = GetDTE(service);
+		if (dTE == null)
+		{
+			return "";
+		}
+		object obj = dTE.GetType().InvokeMember("ActiveDocument", BindingFlags.GetProperty, null, dTE, new object[0]);
+		if (obj != null)
+		{
+			string text = (string)obj.GetType().InvokeMember("Path", BindingFlags.GetProperty, null, obj, new object[0]);
+			if (!text.EndsWith("\\"))
+			{
+				text += "\\";
+			}
+			return text;
+		}
+		return GetProjectPath(service);
+	}
+
+	public static bool AddFileToProject(string filename, IServiceProvider service)
+	{
+		bool result = false;
+		object dTE = GetDTE(service);
+		if (dTE != null)
+		{
+			object obj = dTE.GetType().InvokeMember("ItemOperations", BindingFlags.GetProperty, null, dTE, new object[0]);
+			if (obj != null)
+			{
+				object obj2 = obj.GetType().InvokeMember("AddExistingItem", BindingFlags.InvokeMethod, null, obj, new object[1] { filename });
+				if (obj2 != null)
+				{
+					try
+					{
+						object obj3 = obj2.GetType().InvokeMember("Properties", BindingFlags.GetProperty, null, obj2, new object[0]);
+						if (obj3 != null)
+						{
+							object obj4 = obj3.GetType().InvokeMember("Item", BindingFlags.InvokeMethod, null, obj3, new object[1] { "BuildAction" });
+							if (obj4 != null)
+							{
+								obj4.GetType().InvokeMember("Value", BindingFlags.SetProperty, null, obj4, new object[1] { 3 });
+								result = true;
+							}
+						}
+					}
+					catch
+					{
+						result = true;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	public static bool ExistInProject(string filename, IServiceProvider service)
+	{
+		object dTE = GetDTE(service);
+		if (dTE == null)
+		{
+			return false;
+		}
+		if (!(dTE.GetType().InvokeMember("ActiveSolutionProjects", BindingFlags.GetProperty, null, dTE, new object[0]) is Array array))
+		{
+			return false;
+		}
+		foreach (object item in array)
+		{
+			object obj = item.GetType().InvokeMember("ProjectItems", BindingFlags.GetProperty, null, item, new object[0]);
+			int num = (int)obj.GetType().InvokeMember("Count", BindingFlags.GetProperty, null, obj, new object[0]);
+			for (int i = 1; i <= num; i++)
+			{
+				object ᡴ = obj.GetType().InvokeMember("Item", BindingFlags.InvokeMethod, null, obj, new object[1] { i });
+				if (_298E(ᡴ, filename))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static bool _298E(object ᡴ, string _298F)
+	{
+		try
+		{
+			string text = (string)ᡴ.GetType().InvokeMember("Name", BindingFlags.GetProperty, null, ᡴ, new object[0]);
+			if (text.ToLower() == _298F.ToLower())
+			{
+				return true;
+			}
+			short num = (short)ᡴ.GetType().InvokeMember("FileCount", BindingFlags.GetProperty, null, ᡴ, new object[0]);
+			for (short num2 = 0; num2 < num; num2++)
+			{
+				string text2 = (string)ᡴ.GetType().InvokeMember("get_FileNames", BindingFlags.GetProperty, null, ᡴ, new object[1] { num2 });
+				if (text2.ToLower().EndsWith(_298F.ToLower()))
+				{
+					return true;
+				}
+			}
+			object obj = ᡴ.GetType().InvokeMember("ProjectItems", BindingFlags.GetProperty, null, ᡴ, new object[0]);
+			int num3 = (int)obj.GetType().InvokeMember("Count", BindingFlags.GetProperty, null, obj, new object[0]);
+			for (int i = 1; i <= num3; i++)
+			{
+				object ᡴ2 = obj.GetType().InvokeMember("Item", BindingFlags.InvokeMethod, null, obj, new object[1] { i });
+				if (_298E(ᡴ2, _298F))
+				{
+					return true;
+				}
+			}
+		}
+		catch (Exception)
+		{
+		}
+		return false;
+	}
+
+	public static bool ExistInProject2(string filename, IServiceProvider service)
+	{
+		try
+		{
+			object dTE = GetDTE(service);
+			if (dTE == null)
+			{
+				return false;
+			}
+			if (!(dTE.GetType().InvokeMember("ActiveSolutionProjects", BindingFlags.GetProperty, null, dTE, new object[0]) is Array array))
+			{
+				return false;
+			}
+			object obj = null;
+			if (array.Length > 0)
+			{
+				obj = array.GetValue(0);
+			}
+			if (obj == null)
+			{
+				return false;
+			}
+			object obj2 = obj.GetType().InvokeMember("ProjectItems", BindingFlags.GetProperty, null, obj, new object[0]);
+			if (obj2 == null)
+			{
+				return false;
+			}
+			object obj3 = obj2.GetType().InvokeMember("Item", BindingFlags.InvokeMethod, null, obj2, new object[1] { filename });
+			if (obj3 == null)
+			{
+				return false;
+			}
+		}
+		catch (Exception)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	public static bool CheckOutFile(string filename, IServiceProvider service)
+	{
+		try
+		{
+			object dTE = GetDTE(service);
+			if (dTE == null)
+			{
+				return false;
+			}
+			object obj = dTE.GetType().InvokeMember("SourceControl", BindingFlags.GetProperty, null, dTE, new object[0]);
+			if (obj == null)
+			{
+				return false;
+			}
+			object obj2 = obj.GetType().InvokeMember("IsItemUnderSCC", BindingFlags.InvokeMethod, null, obj, new object[1] { filename });
+			if (obj2 != null && obj2 is bool && (bool)obj2)
+			{
+				obj2 = obj.GetType().InvokeMember("CheckOutItem", BindingFlags.InvokeMethod, null, obj, new object[1] { filename });
+				if (obj2 == null || !(obj2 is bool result))
+				{
+					return false;
+				}
+				return result;
+			}
+			return true;
+		}
+		catch (Exception)
+		{
+		}
+		return false;
+	}
+
+	public static object GetDTE(IServiceProvider service)
+	{
+		object obj = GetMSDEVFromGIT("VisualStudio.DTE", Process.GetCurrentProcess().Id.ToString());
+		if (obj == null)
+		{
+			obj = GetMSDEVFromGIT(".DTE", Process.GetCurrentProcess().Id.ToString());
+		}
+		if (obj == null && service != null)
+		{
+			Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+			Assembly[] array = assemblies;
+			foreach (Assembly assembly in array)
+			{
+				if (assembly.FullName.ToLower().StartsWith("envdte"))
+				{
+					Type type = assembly.GetType("EnvDTE._DTE", throwOnError: false, ignoreCase: true);
+					if ((object)type != null)
+					{
+						obj = service.GetService(type);
+						break;
+					}
+				}
+			}
+		}
+		return obj;
+	}
+
+	[DllImport("ole32.dll")]
+	public static extern int GetRunningObjectTable(int reserved, out IRunningObjectTable prot);
+
+	[DllImport("ole32.dll")]
+	public static extern int CreateBindCtx(int reserved, out IBindCtx ppbc);
+
+	[STAThread]
+	public static object GetMSDEVFromGIT(string strProgID, string processId)
+	{
+		try
+		{
+			GetRunningObjectTable(0, out var prot);
+			prot.EnumRunning(out IEnumMoniker ppenumMoniker);
+			ppenumMoniker.Reset();
+			IntPtr zero = IntPtr.Zero;
+			IMoniker[] array = new IMoniker[1];
+			while (ppenumMoniker.Next(1, array, zero) == 0)
+			{
+				CreateBindCtx(0, out var ppbc);
+				array[0].GetDisplayName(ppbc, null, out string ppszDisplayName);
+				if (ppszDisplayName.IndexOf(strProgID) > 0 && (ppszDisplayName.IndexOf(":" + processId) > 0 || processId == ""))
+				{
+					prot.GetObject(array[0], out object ppunkObject);
+					return ppunkObject;
+				}
+			}
+		}
+		catch
+		{
+			return null;
+		}
+		return null;
+	}
+}

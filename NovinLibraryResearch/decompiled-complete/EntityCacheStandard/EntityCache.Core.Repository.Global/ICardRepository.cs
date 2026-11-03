@@ -1,0 +1,8 @@
+using System;
+using EntityCache.Business.Global;
+
+namespace EntityCache.Core.Repository.Global;
+
+public interface ICardRepository : IRepository<CardBusiness>, INoGuidRepository<CardBusiness>, IDisposable
+{
+}
