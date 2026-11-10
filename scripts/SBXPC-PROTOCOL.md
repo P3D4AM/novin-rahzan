@@ -164,8 +164,15 @@ SBPCCOMM64.dll v3.0.6 (2015), functions SendCommandX_EXT / RecvAckX_EXT /
 SendDataX_EXT / RecvDataX_EXT:
 
 * every 12-byte EXT frame (command, ack) is XOR-encrypted with the repeating
-  4-byte key  **key = LE32(password + 0x25B84)**  — i.e. frame[j] ^= key[j % 4],
+  4-byte key  **key = LE32(password + salt)**  — i.e. frame[j] ^= key[j % 4],
   with the key phase restarting at byte 0 of EVERY frame;
+* **the salt is 0 by default** (v1.2.3 correction): the DLL's salt slot
+  (`ChangeCompanyMark_EXT` write target — 0x2BF10 in SBPCCOMM64.dll /
+  0x100252C0 in SBPCCOMM.dll) is zero-initialized BSS, and nothing in the
+  vendor stack ever calls `ChangeCompanyMark_EXT`. The v1.2.2 constant
+  0x25B84 was a misread of file padding beyond .data's raw size; it is kept
+  as a fallback key variant because some firmware generations may set a
+  custom company mark. The client tries salt ∈ {0, 0x25B84};
 * the "network password" is exactly the «رمز شبکه» in the device menu
   (ConnectTcpip's 4th argument; the vendor sample's UI default is 123456);
 * data is exchanged as **[payload][trailer 12B]** where the trailer is
@@ -176,8 +183,16 @@ SendDataX_EXT / RecvDataX_EXT:
 Reverse-engineering evidence (SBPCCOMM64.dll):
 * `StartTcpX(ip, port, password, …)` stores password at devObj+0x14;
 * `0x4630` (encrypted send/recv) computes `key = [dev+0x14] + dword[0x2BF10]`
-  with `dword[0x2BF10] = 0x00025B84`, then XORs the whole frame with key[j%4]
-  before the raw socket send (and XORs it back afterwards);
+  (the BSS salt slot — 0 unless `ChangeCompanyMark_EXT` was called), then XORs
+  the whole frame with key[j%4] before the raw socket send (and XORs it back
+  afterwards);
+* the vendor's TimeAttendance.exe is 32-bit and its OCX (SBXPCDLL.dll) imports
+  ONLY the classic functions from SBPCCOMM.dll — the encrypted `_EXT` family is
+  never used by the vendor's own app;
+* the newest NP face devices ("VisibleLight" — NP756P=9308, NP761P=9309 per the
+  vendor UI model codes) speak an **HTTP JSON API on port 14460**
+  (`/getDeviceKey`, `/getLogCount`, `/getLogInfo`, `/getDeviceTime`,
+  `/setPassword`, … with `{pass: N}` bodies) — see scripts/np-probe.js.
 * COM/USB links use key = 0x25B84 alone (no password); TCP/UDP/P2P add the password;
 * `0x1d00` builds the EXT command `55 AA | mid | cmd(4) | arg(2)=0 | cksum`
   (cksum = Σ[2..9] + 0xFF — note 0x55+0xAA = 0xFF, so this equals Σ[0..9]);

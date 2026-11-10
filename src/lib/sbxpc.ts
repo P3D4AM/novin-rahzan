@@ -12,8 +12,10 @@
  *  RESULT_DIRECT  cmd(16B, 55AA) → RESULT(14B, AA55) → DATA(A55A)      [no ACK]
  *  EXT            cmd(12B, 55AA) → ACK(12B, AA55) → DATA …            [SBPCCOMM *_EXT path]
  *  EXT_SECURE     cmd(12B, XOR-encrypted) → ACK(12B, enc) → DATA …     [NP756+ & newer]
- *                 key = LE32(password + 0x25B84), every frame byte[j] ^= key[j%4]
+ *                 key = LE32(password + salt), frame[j] ^= key[j%4]
  *                 ("رمز شبکه" in the device menu; auto-probed against common defaults)
+ *                 The DLL's salt slot is BSS → default salt = 0 (key = LE32(password));
+ *                 some SDK generations use 0x25B84 — the client tries both (v1.2.3).
  *
  * Every exchange can be dumped as raw hex in errors/details, so unrecognized
  * device flavours can be diagnosed from the logs without physical access.
@@ -29,10 +31,14 @@
  *   DEV → PC ACK (EXT, 12B):         AA 55 | mid(2) | dword(4) | cksum(2)
  *     cksum = (Σ bytes[2..9] + 0xFF) & 0xFFFF  [corrected in v1.2.2 from SBPCCOMM64 0x1db0]
  *   EXT_SECURE: the 12B command / 12B ack frames and the data blocks are
- *     XOR-encrypted with the 4-byte key LE32(password + 0x25B84); encryption
+ *     XOR-encrypted with the 4-byte key LE32(password + salt); encryption
  *     restarts at byte 0 of EVERY frame. Data blocks (SBPCCOMM _EXT):
  *     [payload][trailer: 5A A5 | mid(2) | Σpayload(4) | ?(2) | cksum(2)]
  *     with trailer cksum = (Σ trailer[2..9] + 0xFF) & 0xFFFF.
+ *     salt=0 is the DLL default (the slot is zero-initialized BSS; only
+ *     ChangeCompanyMark_EXT ever writes it — nobody in the vendor stack calls
+ *     that). 0x25B84 appeared in v1.2.2 due to a misread of file padding; it is
+ *     kept as a fallback key variant because some firmware generations use it.
  *   DEV → PC "NP legacy refusal" (10B): AA 55 | mid(2) | dword(4) | cksum_of_refused_cmd(2)
  *     — observed on real NP756+ units: frame received & checksummed correctly,
  *     but the classic protocol was refused (device only speaks encrypted EXT).
@@ -48,11 +54,16 @@ const COMPANY_MARK = 0x1979
 const BIG_CHUNK = 0x3fc // 1020 — max payload per data frame
 const DEFAULT_TIMEOUT = 8000
 
-/** SBPCCOMM64.dll @0x2BF10 — added to the device "network password" to build the EXT XOR key */
+/** SBPCCOMM64.dll — the crypto "company mark" (salt) added to the device "رمز شبکه".
+ *  The DLL's slot for it is zero-initialized BSS, so the DEFAULT is 0
+ *  (key = LE32(password)); 0x25B84 is kept as a fallback variant. */
 const EXT_CRYPTO_MAGIC = 0x25b84
 
+/** salt values tried for EXT_SECURE (in order) — see EXT_CRYPTO_MAGIC note */
+const EXT_SALTS: number[] = [0, EXT_CRYPTO_MAGIC]
+
 /** common device defaults for the «رمز شبکه» — tried in order when none is configured */
-const PASSWORD_CANDIDATES = [0, 123456, 1, 1234, 9999, 65535]
+const PASSWORD_CANDIDATES = [0, 123456, 12345, 1234, 123, 1, 9999, 65535]
 
 /** verify-mode lookup tables extracted from SBXPCDLL64 */
 const MODE_TABLE_OLD = [4, 1, 2, 3, 10, 11, 12, 13, 14, 20, 21, 15, 23, 24, 25, 26]
@@ -60,9 +71,9 @@ const MODE_TABLE_NEW = [23, 1, 2, 3, 10, 11, 12, 13, 14, 20, 21, 4, 5, 6, 7, 22]
 
 export type SbxDialect = 'CLASSIC' | 'RESULT_DIRECT' | 'EXT' | 'EXT_SECURE'
 
-/** XOR key for the EXT_SECURE dialect: LE32(password + 0x25B84) */
-export function extKeyFor(password: number): Buffer {
-  const k = (Math.trunc(password) + EXT_CRYPTO_MAGIC) >>> 0
+/** XOR key for the EXT_SECURE dialect: LE32(password + salt) */
+export function extKeyFor(password: number, salt = 0): Buffer {
+  const k = (Math.trunc(password) + salt) >>> 0
   return Buffer.from([k & 0xff, (k >>> 8) & 0xff, (k >>> 16) & 0xff, (k >>> 24) & 0xff])
 }
 
@@ -203,6 +214,8 @@ export interface ProbeInfo {
   note?: string
   /** EXT_SECURE: the «رمز شبکه» that the device accepted */
   password?: number
+  /** EXT_SECURE: the salt variant the device accepted (0 = DLL default) */
+  salt?: number
 }
 
 // (shared mutable client state lives on the class; nothing else here)
@@ -228,6 +241,8 @@ export class SbxpcClient {
 
   /** EXT_SECURE network password («رمز شبکه»); null = unknown/not set */
   password: number | null = null
+  /** EXT_SECURE salt variant (0 = DLL default; EXT_CRYPTO_MAGIC = legacy guess) */
+  private extSalt = EXT_SALTS[0]
   /** true when a password was explicitly configured (not auto-probed) */
   private readonly hadConfiguredPassword: boolean = false
   /** EXT_SECURE probe: bytes that followed the accepted ack (may hold the serial block) */
@@ -274,7 +289,7 @@ export class SbxpcClient {
   /* ---- EXT_SECURE (password-encrypted NP dialect) ------------------ */
 
   private key(): Buffer {
-    return extKeyFor(this.password ?? 0)
+    return extKeyFor(this.password ?? 0, this.extSalt)
   }
 
   /** encrypted EXT command — the whole 12B frame XOR key(password + 0x25B84) */
@@ -611,6 +626,7 @@ export class SbxpcClient {
     this.dialect = 'EXT_SECURE'
     info.dialect = 'EXT_SECURE'
     info.password = pw
+    info.salt = this.extSalt
     // the probe drain may already carry the serial block
     const serial = this.trySerialFromTailEnc(this.extProbeTail)
     if (serial) {
@@ -620,43 +636,47 @@ export class SbxpcClient {
     // swallow whatever the probe exchange left unread, then read the clock
     await this.readAvailable(500).catch(() => Buffer.alloc(0))
     info.deviceTime = await this.safeGetDeviceTime()
-    info.note = `گویش رمزشدهٔ NP — «رمز شبکه»=${pw}`
+    info.note = `گویش رمزشدهٔ NP — «رمز شبکه»=${pw}${this.extSalt ? ` · نمک=${this.extSalt}` : ''}`
     return info
   }
 
   /**
    * Try the password-encrypted EXT dialect against the configured password
-   * (or a list of common device defaults). Each attempt runs on a FRESH
-   * connection — the device-side parser state resets on disconnect.
-   * Returns the accepted password, or null.
+   * (or a list of common device defaults) × the known salt variants.
+   * Each attempt runs on a FRESH connection — the device-side parser state
+   * resets on disconnect. Returns the accepted password, or null.
    */
   private async tryExtSecure(): Promise<number | null> {
-    const candidates = this.password != null ? [this.password] : PASSWORD_CANDIDATES
-    for (const pw of candidates) {
-      this.password = pw
-      try {
-        await this.resetConnection(4000)
-      } catch {
-        // device unreachable — abort the whole search
-        if (candidates.length > 1) this.password = null
-        return null
+    const passwords = this.password != null ? [this.password] : PASSWORD_CANDIDATES
+    for (const salt of EXT_SALTS) {
+      for (const pw of passwords) {
+        this.password = pw
+        this.extSalt = salt
+        try {
+          await this.resetConnection(4000)
+        } catch {
+          // device unreachable — abort the whole search
+          if (passwords.length > 1 || EXT_SALTS.length > 1) { this.password = null; this.extSalt = EXT_SALTS[0] }
+          return null
+        }
+        const cmd = this.cmdFrameExtEnc(0x113)
+        try {
+          this.write(cmd)
+          this.record('out', cmd)
+        } catch { continue }
+        const r = await this.readAvailable(2200).catch(() => Buffer.alloc(0))
+        this.record('in', r)
+        if (r.length < 12) continue // silence → wrong key
+        const dec = xorCrypt(r.subarray(0, 12), extKeyFor(pw, salt))
+        const ack = parseExtAck(dec)
+        if (!ack) continue
+        if (ack.mid !== this.machineId && ack.mid !== 0xffff) this.machineId = ack.mid
+        this.extProbeTail = r.subarray(12)
+        return pw
       }
-      const cmd = this.cmdFrameExtEnc(0x113)
-      try {
-        this.write(cmd)
-        this.record('out', cmd)
-      } catch { continue }
-      const r = await this.readAvailable(2200).catch(() => Buffer.alloc(0))
-      this.record('in', r)
-      if (r.length < 12) continue // silence → wrong key
-      const dec = xorCrypt(r.subarray(0, 12), extKeyFor(pw))
-      const ack = parseExtAck(dec)
-      if (!ack) continue
-      if (ack.mid !== this.machineId && ack.mid !== 0xffff) this.machineId = ack.mid
-      this.extProbeTail = r.subarray(12)
-      return pw
     }
     this.password = null
+    this.extSalt = EXT_SALTS[0]
     return null
   }
 
@@ -681,7 +701,7 @@ export class SbxpcClient {
    */
   private trySerialFromTailEnc(tail: Buffer): string | null {
     if (tail.length === 0 || this.password == null) return null
-    const key = extKeyFor(this.password)
+    const key = extKeyFor(this.password, this.extSalt)
     let off = 0
     if (tail.length >= 14 && parseExeResult(tail.subarray(0, 14))) off = 14
     const t = tail.subarray(off)
@@ -1133,6 +1153,8 @@ export interface NpTestResult {
   detail?: string
   /** EXT_SECURE: the «رمز شبکه» the device accepted (also when auto-discovered) */
   password?: number
+  /** EXT_SECURE: the salt variant that worked (0 = DLL default) */
+  salt?: number
 }
 
 /** Test the connection to an NP device: connect, probe dialect, read serial + clock. */
@@ -1155,6 +1177,7 @@ export async function npTest(ip: string, port: number, machineId = 1, password?:
       note: probe.note,
       raw: raw.slice(0, 4000),
       password: probe.password,
+      salt: probe.salt,
     }
   } catch (err) {
     return {

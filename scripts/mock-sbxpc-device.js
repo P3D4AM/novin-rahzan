@@ -20,7 +20,8 @@
  *   extenc             NP756+ real behaviour: classic 16B frames are refused with the
  *                      10-byte ack  AA 55|mid|0x10|cksum-of-refused-cmd ; plaintext EXT
  *                      frames are silently dropped; only frames XOR-encrypted with
- *                      key = LE32(PASSWORD + 0x25B84) are honoured. Data blocks are
+ *                      key = LE32(PASSWORD + SALT) are honoured (SALT env, default 0 —
+ *                      the DLL default). Data blocks are
  *                      [payload][trailer: 5A A5|mid|Σpayload(4)|?(2)|cksum(2)], encrypted.
  *
  * Frames (LE):
@@ -41,7 +42,8 @@ const USERS = (process.env.USERS || '1001,1002,1003,1004').split(',').map(Number
 const NOW_OFFSET_MIN = Number(process.env.NOW_OFFSET_MIN || 0) // simulate device clock drift
 const DIALECT = (process.env.DIALECT || 'classic').toLowerCase() // classic | result | ext | extenc
 const PASSWORD = Number(process.env.PASSWORD || 0) // «رمز شبکه» for DIALECT=extenc
-const EXT_CRYPTO_MAGIC = 0x25b84
+const SALT = Number(process.env.SALT || 0) // crypto salt: 0 = DLL default; 0x25B84 = legacy variant
+const EXT_CRYPTO_MAGIC = SALT
 
 const EPOCH_2000 = Date.UTC(2000, 0, 1) / 1000
 
@@ -395,5 +397,5 @@ const server = net.createServer((sock) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`[mock-np] SBXPC device simulator listening on 0.0.0.0:${PORT}`)
-  console.log(`[mock-np] dialect=${DIALECT}${DIALECT === 'extenc' ? ` password=${PASSWORD}` : ''} serial=${SERIAL} logs=${LOGS.length} users=[${USERS.join(',')}] clock-offset=${NOW_OFFSET_MIN}min`)
+  console.log(`[mock-np] dialect=${DIALECT}${DIALECT === 'extenc' ? ` password=${PASSWORD} salt=${SALT}` : ''} serial=${SERIAL} logs=${LOGS.length} users=[${USERS.join(',')}] clock-offset=${NOW_OFFSET_MIN}min`)
 })
