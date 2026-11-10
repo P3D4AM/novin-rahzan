@@ -116,6 +116,7 @@ export interface DeviceT {
   protocol: string
   location?: string | null
   serialNumber?: string | null
+  password?: number | null
   enabled: boolean
   status: string
   lastSyncAt?: string | null

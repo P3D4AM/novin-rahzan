@@ -43,7 +43,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
   const [syncDays, setSyncDays] = useState<Record<string, string>>({})
   const { toast } = useToast()
 
-  const blank = { name: '', type: 'NOVIN_NP', ipAddress: '', port: 5005, protocol: 'TCP', location: '', enabled: true, syncIntervalMin: 0, serialNumber: '' }
+  const blank = { name: '', type: 'NOVIN_NP', ipAddress: '', port: 5005, protocol: 'TCP', location: '', enabled: true, syncIntervalMin: 0, serialNumber: '', password: '' }
   const [form, setForm] = useState({ ...blank })
 
   const loadLogs = async () => {
@@ -61,7 +61,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
   const openNew = () => { setEditing(null); setForm({ ...blank }); setOpen(true) }
   const openEdit = (d: DeviceT) => {
     setEditing(d)
-    setForm({ name: d.name, type: d.type, ipAddress: d.ipAddress ?? '', port: d.port, protocol: d.protocol, location: d.location ?? '', enabled: d.enabled, syncIntervalMin: d.syncIntervalMin ?? 0, serialNumber: d.serialNumber ?? '' })
+    setForm({ name: d.name, type: d.type, ipAddress: d.ipAddress ?? '', port: d.port, protocol: d.protocol, location: d.location ?? '', enabled: d.enabled, syncIntervalMin: d.syncIntervalMin ?? 0, serialNumber: d.serialNumber ?? '', password: d.password != null ? String(d.password) : '' })
     setOpen(true)
   }
 
@@ -198,6 +198,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                   </div>
                   {d.type === 'NOVIN_NP' && <div className="flex justify-between"><span>سریال دستگاه</span><span dir="ltr" className="font-mono text-xs">{d.serialNumber ?? '—'}</span></div>}
                   {d.type === 'NOVIN_NP' && <div className="flex justify-between"><span>آدرس دستگاه</span><span dir="ltr" className="font-mono text-xs">{d.ipAddress ? `${d.ipAddress}:${d.port}` : '— (برای تست/دانلود وارد کنید)'}</span></div>}
+                  {d.type === 'NOVIN_NP' && d.password != null && <div className="flex justify-between"><span>رمز شبکه</span><span dir="ltr" className="font-mono text-xs">{d.password}</span></div>}
                   {d.type !== 'NOVIN_NP' && <div className="flex justify-between"><span>پروتکل</span><span dir="ltr">ZKTeco · {d.protocol} · {faDigits(d.port)}</span></div>}
                   {d.type !== 'NOVIN_NP' && <div className="flex justify-between"><span>آدرس</span><span dir="ltr" className="font-mono text-xs">{d.ipAddress ?? '—'}</span></div>}
                   {d.serialNumber && d.type !== 'NOVIN_NP' && <div className="flex justify-between"><span>سریال</span><span dir="ltr" className="font-mono text-xs">{d.serialNumber}</span></div>}
@@ -277,6 +278,9 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                         {testResult.dialect ? (
                           <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">گویش پروتکل</span><span>{String(testResult.dialect)}</span></div>
                         ) : null}
+                        {testResult.password != null ? (
+                          <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">رمز شبکه</span><span dir="ltr" className="font-mono">{String(testResult.password)}</span></div>
+                        ) : null}
                         {testResult.serialMatch === false ? (
                           <div className="md:col-span-2 text-amber-600 text-xs leading-5 rounded-lg bg-amber-50 dark:bg-amber-950/30 p-2">این سریال با سریال ثبت‌شده در پرونده دستگاه یکی نیست — پیام‌های لحظه‌ای (پوش) با سریال پرونده مطابقت داده می‌شوند. پیشنهاد: سریال پرونده را اصلاح کنید.</div>
                         ) : null}
@@ -289,7 +293,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                       <div className="text-sm">{String(testResult.error ?? '')}</div>
                       {testResult.detail ? <div dir="ltr" className="text-xs font-mono text-muted-foreground">{String(testResult.detail)}</div> : null}
                       {testResult.raw ? <pre dir="ltr" className="text-[10px] font-mono text-muted-foreground bg-muted rounded-lg p-2 overflow-auto max-h-40 leading-4">{String(testResult.raw)}</pre> : null}
-                      <div className="text-xs text-muted-foreground leading-5 pt-1">راهنمایی: IP دستگاه را از منوی تنظیمات شبکه دستگاه بررسی کنید، مطمئن شوید سیستم و دستگاه در یک شبکه‌اند و پورتِ «ارتباط» دستگاه (مثلاً ۴۲۳۸ یا ۵۰۰۵) درست وارد شده است.</div>
+                      <div className="text-xs text-muted-foreground leading-5 pt-1">راهنمایی: IP دستگاه را از منوی تنظیمات شبکه دستگاه بررسی کنید، مطمئن شوید سیستم و دستگاه در یک شبکه‌اند و پورتِ «ارتباط» دستگاه (مثلاً ۴۲۳۸ یا ۵۰۰۵) درست وارد شده است. اگر دستگاه رمز شبکه دارد، آن را در پرونده دستگاه (فیلد «رمز شبکه») وارد کنید — مدل‌های جدید NP فقط فرمان‌های رمزشده می‌پذیرند.</div>
                     </div>
                   )}
                 </div>
@@ -386,8 +390,13 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                   </div>
                   <div className="space-y-1.5">
                     <Label>پورت</Label>
-                    <Input type="number" dir="ltr" value={form.port} onChange={(e) => setForm({ ...form, port: Number(e.target.value) })} />
+                    <Input type="number" dir="ltr" value={form.port} onChange={(e) => setForm({ ...form, port: Number(e.target.value) })} placeholder="4238" />
                   </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>رمز شبکه (اختیاری)</Label>
+                  <Input type="number" dir="ltr" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="خالی = رمزهای رایج خودکار امتحان می‌شود" />
+                  <div className="text-xs text-muted-foreground leading-5">مدل‌های جدید NP (مثل NP756+) فرمان‌ها را فقط <b>رمزشده</b> می‌پذیرند؛ کلید رمز از همین «رمز شبکه» ساخته می‌شود (منوی دستگاه ← تنظیمات ← ارتباط ← رمز شبکه). اگر خالی بگذارید، نرم‌افزار هنگام «تست اتصال» رمزهای رایج (۰، ۱۲۳۴۵۶ و…) را خودکار امتحان می‌کند و رمز درست را به یاد می‌سپارد.</div>
                 </div>
                 <div className="text-xs rounded-lg bg-muted/60 p-3 leading-6 text-muted-foreground">
                   دریافت ترددها به دو روش کار می‌کند: <b>لحظه‌ای (پوش)</b> — دستگاه خودش به سرور وصل می‌شود؛ کافی است در منوی دستگاه ← تنظیمات ← ارتباط، آدرس سرور را IP همین سیستم و پورت را 5005 بگذارید. و <b>دانلود مستقیم</b> — با وارد کردن IP دستگاه بالا، ترددهای ذخیره‌شده در حافظه دستگاه دریافت می‌شود (همان روش نرم‌افزار اصلی).

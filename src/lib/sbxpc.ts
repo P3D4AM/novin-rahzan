@@ -5,12 +5,15 @@
  * Reverse-engineered from the vendor's own NovinHozor software
  * (SBXPCDLL64.dll + SBPCCOMM64.dll). See scripts/SBXPC-PROTOCOL.md.
  *
- * Real-world devices come in (at least) three wire "dialects", so this client
+ * Real-world devices come in (at least) four wire "dialects", so this client
  * PROBES the device on connect and adapts automatically:
  *
  *  CLASSIC        cmd(16B, 55AA) → ACK(8B, 5AA5) → RESULT(14B, AA55) → DATA(A55A)
  *  RESULT_DIRECT  cmd(16B, 55AA) → RESULT(14B, AA55) → DATA(A55A)      [no ACK]
  *  EXT            cmd(12B, 55AA) → ACK(12B, AA55) → DATA …            [SBPCCOMM *_EXT path]
+ *  EXT_SECURE     cmd(12B, XOR-encrypted) → ACK(12B, enc) → DATA …     [NP756+ & newer]
+ *                 key = LE32(password + 0x25B84), every frame byte[j] ^= key[j%4]
+ *                 ("رمز شبکه" in the device menu; auto-probed against common defaults)
  *
  * Every exchange can be dumped as raw hex in errors/details, so unrecognized
  * device flavours can be diagnosed from the logs without physical access.
@@ -24,7 +27,15 @@
  *   DEV → PC ACK (classic, 8B):      5A A5 | mid(2) | result(2)==1 | cksum(2)
  *     cksum = (mid_lo + mid_hi + r0 + r1 + 0xFF) & 0xFFFF
  *   DEV → PC ACK (EXT, 12B):         AA 55 | mid(2) | dword(4) | cksum(2)
- *     cksum = (Σ bytes[0..9]) & 0xFFFF
+ *     cksum = (Σ bytes[2..9] + 0xFF) & 0xFFFF  [corrected in v1.2.2 from SBPCCOMM64 0x1db0]
+ *   EXT_SECURE: the 12B command / 12B ack frames and the data blocks are
+ *     XOR-encrypted with the 4-byte key LE32(password + 0x25B84); encryption
+ *     restarts at byte 0 of EVERY frame. Data blocks (SBPCCOMM _EXT):
+ *     [payload][trailer: 5A A5 | mid(2) | Σpayload(4) | ?(2) | cksum(2)]
+ *     with trailer cksum = (Σ trailer[2..9] + 0xFF) & 0xFFFF.
+ *   DEV → PC "NP legacy refusal" (10B): AA 55 | mid(2) | dword(4) | cksum_of_refused_cmd(2)
+ *     — observed on real NP756+ units: frame received & checksummed correctly,
+ *     but the classic protocol was refused (device only speaks encrypted EXT).
  *   DEV → PC RESULT (14B):           AA 55 | mid(2) | ?(2) | status(2) | retCode(4) | cksum(2)
  *     cksum = (Σ bytes[0..11]) & 0xFFFF
  *   DATA both ways:                  A5 5A | mid(2) | payload | cksum(2)
@@ -37,11 +48,30 @@ const COMPANY_MARK = 0x1979
 const BIG_CHUNK = 0x3fc // 1020 — max payload per data frame
 const DEFAULT_TIMEOUT = 8000
 
+/** SBPCCOMM64.dll @0x2BF10 — added to the device "network password" to build the EXT XOR key */
+const EXT_CRYPTO_MAGIC = 0x25b84
+
+/** common device defaults for the «رمز شبکه» — tried in order when none is configured */
+const PASSWORD_CANDIDATES = [0, 123456, 1, 1234, 9999, 65535]
+
 /** verify-mode lookup tables extracted from SBXPCDLL64 */
 const MODE_TABLE_OLD = [4, 1, 2, 3, 10, 11, 12, 13, 14, 20, 21, 15, 23, 24, 25, 26]
 const MODE_TABLE_NEW = [23, 1, 2, 3, 10, 11, 12, 13, 14, 20, 21, 4, 5, 6, 7, 22]
 
-export type SbxDialect = 'CLASSIC' | 'RESULT_DIRECT' | 'EXT'
+export type SbxDialect = 'CLASSIC' | 'RESULT_DIRECT' | 'EXT' | 'EXT_SECURE'
+
+/** XOR key for the EXT_SECURE dialect: LE32(password + 0x25B84) */
+export function extKeyFor(password: number): Buffer {
+  const k = (Math.trunc(password) + EXT_CRYPTO_MAGIC) >>> 0
+  return Buffer.from([k & 0xff, (k >>> 8) & 0xff, (k >>> 16) & 0xff, (k >>> 24) & 0xff])
+}
+
+/** XOR a whole buffer with the repeating 4-byte key (returns a copy) */
+export function xorCrypt(frame: Buffer, key: Buffer): Buffer {
+  const out = Buffer.from(frame)
+  for (let i = 0; i < out.length; i++) out[i] ^= key[i % 4]
+  return out
+}
 
 export interface NpLog {
   /** device user id (enroll number) */
@@ -121,8 +151,35 @@ export interface ExtAck { dword: number; mid: number }
 export function parseExtAck(f: Buffer): ExtAck | null {
   if (f.length < 12 || f[0] !== 0xaa || f[1] !== 0x55) return null
   const mid = f.readUInt16LE(2)
-  if (f.readUInt16LE(10) !== sum16(f, 0, 10)) return null
+  // checksum covers bytes 2..9 (+0xFF) — SBPCCOMM64.dll 0x1db0 ack builder
+  if (f.readUInt16LE(10) !== ((sum16(f, 2, 10) + 0xff) & 0xffff)) return null
   return { dword: f.readUInt32LE(4) >>> 0, mid }
+}
+
+/**
+ * 10-byte "NP legacy refusal" ack — AA 55 | mid(2) | dword(4) | cksum_of_the_refused_command(2).
+ * Real NP756+ units answer a (correctly checksummed) classic 16B frame with this:
+ * "frame received, but I only speak the password-encrypted EXT dialect".
+ * Distinguished from a plain 12-byte EXT ack by length + own-checksum validity.
+ */
+export interface NpErrAck { mid: number; dword: number; cmdCksum: number }
+export function parseNpErrAck(f: Buffer): NpErrAck | null {
+  if (f.length < 10 || f[0] !== 0xaa || f[1] !== 0x55) return null
+  if (f.length >= 12 && parseExtAck(f.subarray(0, 12)) !== null) return null
+  return { mid: f.readUInt16LE(2), dword: f.readUInt32LE(4) >>> 0, cmdCksum: f.readUInt16LE(8) }
+}
+
+/**
+ * EXT_SECURE data block: [payload][trailer 12B: 5A A5 | mid(2) | Σpayload(4) | ?(2) | cksum(2)].
+ * Returns the payload when both trailer checksums validate. `f` must be DECRYPTED.
+ */
+export function parseExtTrailer(f: Buffer, payloadLen: number): Buffer | null {
+  if (f.length < payloadLen + 12) return null
+  const tr = f.subarray(payloadLen, payloadLen + 12)
+  if (tr[0] !== 0x5a || tr[1] !== 0xa5) return null
+  if (tr.readUInt16LE(10) !== ((sum16(tr, 2, 10) + 0xff) & 0xffff)) return null
+  if (tr.readUInt32LE(4) !== sum16(f, 0, payloadLen)) return null
+  return f.subarray(0, payloadLen)
 }
 
 /** A5 5A data frame of a KNOWN payload length */
@@ -144,7 +201,11 @@ export interface ProbeInfo {
   /** raw bytes of every exchange, for diagnostics */
   exchanges: Array<{ dir: 'out' | 'in'; hex: string }>
   note?: string
+  /** EXT_SECURE: the «رمز شبکه» that the device accepted */
+  password?: number
 }
+
+// (shared mutable client state lives on the class; nothing else here)
 
 export class SbxpcClient {
   private socket: net.Socket | null = null
@@ -158,7 +219,19 @@ export class SbxpcClient {
     private readonly ip: string,
     private readonly port: number,
     private machineId = 1,
-  ) {}
+    /** «رمز شبکه» of the device — required by (and auto-probed for) the EXT_SECURE dialect */
+    password?: number | null,
+  ) {
+    this.password = password ?? null
+    this.hadConfiguredPassword = password != null
+  }
+
+  /** EXT_SECURE network password («رمز شبکه»); null = unknown/not set */
+  password: number | null = null
+  /** true when a password was explicitly configured (not auto-probed) */
+  private readonly hadConfiguredPassword: boolean = false
+  /** EXT_SECURE probe: bytes that followed the accepted ack (may hold the serial block) */
+  private extProbeTail: Buffer = Buffer.alloc(0)
 
   /* ---------------------------------------------------------------- */
   /* low-level framing                                                 */
@@ -196,6 +269,33 @@ export class SbxpcClient {
     f.writeUInt16LE(arg & 0xffff, 8)
     f.writeUInt16LE((sum16(f, 2, 10) + 0xff) & 0xffff, 10)
     return f
+  }
+
+  /* ---- EXT_SECURE (password-encrypted NP dialect) ------------------ */
+
+  private key(): Buffer {
+    return extKeyFor(this.password ?? 0)
+  }
+
+  /** encrypted EXT command — the whole 12B frame XOR key(password + 0x25B84) */
+  private cmdFrameExtEnc(cmd: number, arg = 0): Buffer {
+    return xorCrypt(this.cmdFrameExt(cmd, arg), this.key())
+  }
+
+  /** encrypted EXT ack (PC → device) */
+  private ackFrameExtEnc(cmd: number, arg = 0): Buffer {
+    return xorCrypt(this.ackFrameExt(cmd, arg), this.key())
+  }
+
+  /** encrypted data block: payload + 12B trailer, both XOR-encrypted */
+  private dataBlockExtEnc(payload: Buffer): Buffer {
+    const tr = Buffer.alloc(12)
+    tr.writeUInt16LE(0xa55a, 0) // bytes: 5A A5
+    tr.writeUInt16LE(this.machineId, 2)
+    tr.writeUInt32LE(sum16(payload, 0, payload.length), 4)
+    // tr[8..9] stay 0 (the vendor SDK leaves them uninitialized)
+    tr.writeUInt16LE((sum16(tr, 2, 10) + 0xff) & 0xffff, 10)
+    return Buffer.concat([xorCrypt(payload, this.key()), xorCrypt(tr, this.key())])
   }
 
   private dataFrame(payload: Buffer): Buffer {
@@ -378,6 +478,9 @@ export class SbxpcClient {
     const r1 = await this.readAvailable(6000)
     this.record('in', r1)
     if (r1.length === 0) {
+      // a newer NP unit may ignore plaintext frames entirely — try encrypted EXT once
+      const silent = await this.tryExtSecure()
+      if (silent != null) return this.finishExtSecure(silent, info)
       throw new SbxpcError(
         'دستگاه هیچ پاسخی نداد — IP/پورت را بررسی کنید و مطمئن شوید پورتِ «ارتباط» دستگاه (نه پورت سرور) وارد شده است',
         'probe: no bytes',
@@ -395,6 +498,9 @@ export class SbxpcClient {
       info.deviceTime = await this.safeGetDeviceTime()
       return info
     }
+
+    /** NP756+ refusal of the classic protocol → device speaks encrypted EXT */
+    let sawNpErr: NpErrAck | null = null
 
     if (r1[0] === 0xaa && r1[1] === 0x55) {
       /* ---- attempt 2a: RESULT_DIRECT (result 14B + 38B data) ---- */
@@ -417,8 +523,25 @@ export class SbxpcClient {
         }
       }
 
-      /* ---- attempt 2b: EXT dialect (12-byte frames) — reconnect for a clean
-         device-side parser state (our classic frame may have half-consumed) ---- */
+      sawNpErr = parseNpErrAck(r1)
+    }
+
+    /* ---- attempt 2b (NEW): password-encrypted EXT dialect ----
+       NP756+ & newer units refuse the classic protocol (10-byte refusal ack)
+       and silently drop plaintext EXT frames — they ONLY accept frames
+       XOR-encrypted with key(«رمز شبکه» + 0x25B84). */
+    if (sawNpErr) {
+      const found = await this.tryExtSecure()
+      if (found != null) return this.finishExtSecure(found, info)
+      info.note = this.hadConfiguredPassword
+        ? 'دستگاه NP با رمزنگاری شبکه شناسایی شد ولی «رمز شبکه» ثبت‌شده پذیرفته نشد — رمز را از منوی دستگاه (تنظیمات ← ارتباط ← رمز شبکه) بررسی کنید'
+        : 'دستگاه NP با رمزنگاری شبکه شناسایی شد ولی هیچ‌یک از رمزهای رایج پذیرفته نشد — «رمز شبکه» دستگاه را از منوی دستگاه (تنظیمات ← ارتباط) پیدا و در پرونده دستگاه وارد کنید'
+      return info
+    }
+
+    /* ---- attempt 3: plain EXT (12-byte frames) — reconnect for a clean
+       device-side parser state (our classic frame may have half-consumed) ---- */
+    if (!sawNpErr) {
       try { await this.resetConnection() } catch { /* keep old socket if reconnect fails */ }
       const extCmd = this.cmdFrameExt(0x113)
       this.write(extCmd)
@@ -453,26 +576,88 @@ export class SbxpcClient {
       }
     }
 
-    /* ---- attempt 3: try GetDeviceTime (0x10e) classic — harmless ---- */
-    try { await this.resetConnection() } catch { /* ignore */ }
-    const tcmd = this.cmdHeader(0x10e, 0, 4)
-    this.write(tcmd)
-    this.record('out', tcmd)
-    const r3 = await this.readAvailable(6000)
-    this.record('in', r3)
-    const res3 = r3.length >= 14 ? parseExeResult(r3.subarray(0, 14)) : null
-    if (res3) {
-      this.dialect = 'RESULT_DIRECT'
-      info.dialect = 'RESULT_DIRECT'
-      const data = r3.length >= 14 + 10 ? parseDataFrame(r3.subarray(14), 4) : null
-      if (data) info.deviceTime = npTimestamp(data.readUInt32LE(0))
-      info.note = 'دستگاه پاسخ می‌دهد ولی فرمان «خواندن سریال» را برنگرداند'
-      return info
+    /* ---- attempt 4: final fallback — encrypted EXT with common passwords ---- */
+    {
+      const found = await this.tryExtSecure()
+      if (found != null) return this.finishExtSecure(found, info)
+    }
+
+    /* ---- attempt 5: try GetDeviceTime (0x10e) classic — harmless ---- */
+    {
+      try { await this.resetConnection() } catch { /* ignore */ }
+      const tcmd = this.cmdHeader(0x10e, 0, 4)
+      this.write(tcmd)
+      this.record('out', tcmd)
+      const r3 = await this.readAvailable(6000)
+      this.record('in', r3)
+      const res3 = r3.length >= 14 ? parseExeResult(r3.subarray(0, 14)) : null
+      if (res3) {
+        this.dialect = 'RESULT_DIRECT'
+        info.dialect = 'RESULT_DIRECT'
+        const data = r3.length >= 14 + 10 ? parseDataFrame(r3.subarray(14), 4) : null
+        if (data) info.deviceTime = npTimestamp(data.readUInt32LE(0))
+        info.note = 'دستگاه پاسخ می‌دهد ولی فرمان «خواندن سریال» را برنگرداند'
+        return info
+      }
     }
 
     /* ---- nothing recognized — but the device IS alive ---- */
     info.note = 'دستگاه پاسخ داد ولی فریم‌های آن با هیچ‌یک از گویش‌های شناخته‌شدهٔ پروتکل مطابقت نداشت'
     return info
+  }
+
+  /** finalize an EXT_SECURE probe success */
+  private async finishExtSecure(pw: number, info: ProbeInfo): Promise<ProbeInfo> {
+    this.dialect = 'EXT_SECURE'
+    info.dialect = 'EXT_SECURE'
+    info.password = pw
+    // the probe drain may already carry the serial block
+    const serial = this.trySerialFromTailEnc(this.extProbeTail)
+    if (serial) {
+      info.serialNumber = serial
+      try { this.write(this.ackFrameExtEnc(0x113)) } catch { /* ignore */ }
+    }
+    // swallow whatever the probe exchange left unread, then read the clock
+    await this.readAvailable(500).catch(() => Buffer.alloc(0))
+    info.deviceTime = await this.safeGetDeviceTime()
+    info.note = `گویش رمزشدهٔ NP — «رمز شبکه»=${pw}`
+    return info
+  }
+
+  /**
+   * Try the password-encrypted EXT dialect against the configured password
+   * (or a list of common device defaults). Each attempt runs on a FRESH
+   * connection — the device-side parser state resets on disconnect.
+   * Returns the accepted password, or null.
+   */
+  private async tryExtSecure(): Promise<number | null> {
+    const candidates = this.password != null ? [this.password] : PASSWORD_CANDIDATES
+    for (const pw of candidates) {
+      this.password = pw
+      try {
+        await this.resetConnection(4000)
+      } catch {
+        // device unreachable — abort the whole search
+        if (candidates.length > 1) this.password = null
+        return null
+      }
+      const cmd = this.cmdFrameExtEnc(0x113)
+      try {
+        this.write(cmd)
+        this.record('out', cmd)
+      } catch { continue }
+      const r = await this.readAvailable(2200).catch(() => Buffer.alloc(0))
+      this.record('in', r)
+      if (r.length < 12) continue // silence → wrong key
+      const dec = xorCrypt(r.subarray(0, 12), extKeyFor(pw))
+      const ack = parseExtAck(dec)
+      if (!ack) continue
+      if (ack.mid !== this.machineId && ack.mid !== 0xffff) this.machineId = ack.mid
+      this.extProbeTail = r.subarray(12)
+      return pw
+    }
+    this.password = null
+    return null
   }
 
   /** try to read a 32-byte serial out of [result(14B)] + [data frame(38B)] */
@@ -488,6 +673,38 @@ export class SbxpcClient {
     return s || null
   }
 
+  /**
+   * EXT_SECURE serial tail — the device answers the encrypted ACK followed by
+   * the serial data as an encrypted block. Frame formats seen across firmware
+   * generations are all accepted: classic A5 5A data frame (plain or encrypted)
+   * and the SBPCCOMM _EXT [payload][trailer] block (encrypted).
+   */
+  private trySerialFromTailEnc(tail: Buffer): string | null {
+    if (tail.length === 0 || this.password == null) return null
+    const key = extKeyFor(this.password)
+    let off = 0
+    if (tail.length >= 14 && parseExeResult(tail.subarray(0, 14))) off = 14
+    const t = tail.subarray(off)
+    const clean = (b: Buffer | null) => (b ? b.toString('ascii').replace(/[\0\r\n\t ]+$/g, '').trim() || null : null)
+    // variant 1: encrypted classic A5 5A data frame (38B)
+    if (t.length >= 38) {
+      const p = parseDataFrame(xorCrypt(t.subarray(0, 38), key), 32)
+      const s = clean(p)
+      if (s) return s
+    }
+    // variant 2: plaintext classic A5 5A data frame
+    if (t.length >= 38) {
+      const s = clean(parseDataFrame(t.subarray(0, 38), 32))
+      if (s) return s
+    }
+    // variant 3: encrypted [payload(32)][trailer(12)] block
+    if (t.length >= 44) {
+      const s = clean(parseExtTrailer(xorCrypt(t.subarray(0, 44), key), 32))
+      if (s) return s
+    }
+    return null
+  }
+
   private async safeGetDeviceTime(): Promise<Date | null> {
     try { return await this.getDeviceTime() } catch { return null }
   }
@@ -498,7 +715,10 @@ export class SbxpcClient {
 
   /** send a command in the active dialect and drain the immediate response */
   private async sendCmd(cmd: number, arg1: number, arg2: number, timeoutMs = DEFAULT_TIMEOUT): Promise<Buffer> {
-    if (this.dialect === 'EXT') {
+    if (this.dialect === 'EXT_SECURE') {
+      const f = this.cmdFrameExtEnc(cmd, arg1)
+      this.write(f)
+    } else if (this.dialect === 'EXT') {
       const f = this.cmdFrameExt(cmd)
       this.write(f)
     } else {
@@ -537,6 +757,18 @@ export class SbxpcClient {
     if (!this.dialect) await this.probeDialect()
     if (this.probeInfo?.serialNumber) return this.probeInfo.serialNumber
 
+    if (this.dialect === 'EXT_SECURE') {
+      const drain = await this.sendCmd(0x113, 0, 0)
+      if (drain.length < 12) throw new SbxpcError('دستگاه فرمان سریال را نپذیرفت', `recv=${hex(drain)}`)
+      const ack = parseExtAck(xorCrypt(drain.subarray(0, 12), this.key()))
+      if (!ack) throw new SbxpcError('دستگاه فرمان سریال را نپذیرفت (ACK رمزشده نامعتبر)', `recv=${hex(drain)}`)
+      const serial = this.trySerialFromTailEnc(drain.subarray(12))
+      if (!serial) throw new SbxpcError('دستگاه شماره سریال را برنگرداند', `recv=${hex(drain)}`)
+      try { this.write(this.ackFrameExtEnc(0x113)) } catch { /* ignore */ }
+      if (this.probeInfo) this.probeInfo.serialNumber = serial
+      return serial
+    }
+
     if (this.dialect === 'EXT') {
       const drain = await this.sendCmd(0x113, 0, 0)
       const ack = drain.length >= 12 ? parseExtAck(drain.subarray(0, 12)) : null
@@ -572,6 +804,28 @@ export class SbxpcClient {
     try {
       if (!this.dialect) await this.probeDialect()
 
+      if (this.dialect === 'EXT_SECURE') {
+        const drain = await this.sendCmd(0x10e, 0, 4)
+        if (drain.length < 12) return null
+        const ack = parseExtAck(xorCrypt(drain.subarray(0, 12), this.key()))
+        if (!ack) return null
+        const tail = drain.subarray(12)
+        const key = this.key()
+        let data: Buffer | null = null
+        // classic A5 5A frame (encrypted or plain)
+        if (tail.length >= 10) {
+          data = parseDataFrame(xorCrypt(tail.subarray(0, 10), key), 4)
+            ?? parseDataFrame(tail.subarray(0, 10), 4)
+        }
+        // SBPCCOMM _EXT [payload(4)][trailer(12)] block
+        if (!data && tail.length >= 16) {
+          data = parseExtTrailer(xorCrypt(tail.subarray(0, 16), key), 4)
+        }
+        if (!data) return null
+        try { this.write(this.ackFrameExtEnc(0x10e)) } catch { /* ignore */ }
+        return npTimestamp(data.readUInt32LE(0))
+      }
+
       if (this.dialect === 'EXT') {
         const drain = await this.sendCmd(0x10e, 0, 4)
         const ack = drain.length >= 12 ? parseExtAck(drain.subarray(0, 12)) : null
@@ -599,6 +853,13 @@ export class SbxpcClient {
 
   /** cmd 0x10b/0x10c — lock/unlock the device keypad during operations */
   async enableDevice(enabled: boolean): Promise<void> {
+    if (this.dialect === 'EXT_SECURE') {
+      // best-effort; not all EXT devices support it
+      const cmd = enabled ? 0x10c : 0x10b
+      this.write(this.cmdFrameExtEnc(cmd))
+      await this.readAvailable(3000).catch(() => Buffer.alloc(0))
+      return
+    }
     if (this.dialect === 'EXT') {
       // best-effort; not all EXT devices support it
       const cmd = enabled ? 0x10c : 0x10b
@@ -617,6 +878,10 @@ export class SbxpcClient {
    */
   async readAllLogs(timeoutMs = 45000): Promise<NpLog[]> {
     if (!this.dialect) await this.probeDialect()
+
+    if (this.dialect === 'EXT_SECURE') {
+      return this.readAllLogsExtSecure(timeoutMs)
+    }
 
     if (this.dialect === 'EXT') {
       return this.readAllLogsExt(timeoutMs)
@@ -720,6 +985,119 @@ export class SbxpcClient {
     return logs
   }
 
+  /**
+   * EXT_SECURE log read — 12-byte encrypted frames; the bulk payload arrives
+   * as encrypted blocks (payload + 12B trailer, per SBPCCOMM64 _EXT). If the
+   * device streams some other shape, the raw hex accompanies the error so the
+   * next iteration can adapt precisely.
+   */
+  private async readAllLogsExtSecure(timeoutMs: number): Promise<NpLog[]> {
+    // phase 1 — count
+    this.write(this.cmdFrameExtEnc(0x107))
+    const d1 = await this.readN(12, DEFAULT_TIMEOUT)
+    const ack1 = parseExtAck(xorCrypt(d1, this.key()))
+    if (!ack1) {
+      throw new SbxpcError(
+        'دستگاه در حالت رمزشده شمارش ترددها را برنگرداند — لطفاً متن خطا را برای پشتیبانی بفرستید',
+        `recv=${hex(d1)}`,
+      )
+    }
+    if (ack1.mid !== this.machineId && ack1.mid !== 0xffff) this.machineId = ack1.mid
+    const count = ack1.dword
+    if (count === 0) return []
+    if (count > 300_000) throw new SbxpcError(`تعداد ترددهای دستگاه غیرمنطقی است (${count})`)
+
+    // phase 2 — request data
+    this.write(this.cmdFrameExtEnc(0x107, 1))
+    const d2 = await this.readN(12, DEFAULT_TIMEOUT)
+    const ack2 = parseExtAck(xorCrypt(d2, this.key()))
+    if (!ack2) throw new SbxpcError('دستگاه ارسال ترددها را شروع نکرد', `recv=${hex(d2)}`)
+    const n = ack2.dword || count
+
+    // bulk data: encrypted blocks — [payload][trailer 12] per ≤1020-byte chunk
+    const raw = await this.recvBigDataExtSecure(n * 8, timeoutMs)
+    try { this.write(this.ackFrameExtEnc(0x107, n)) } catch { /* ignore */ }
+
+    const logs: NpLog[] = []
+    for (let off = 0; off + 8 <= raw.length; off += 8) {
+      const sec = raw.readUInt32LE(off)
+      const userId = raw.readUInt16LE(off + 4)
+      const modeB = raw[off + 6]
+      const extra = raw[off + 7]
+      const verifyMode = ((extra << 12) | ((modeB & 0xf0) << 4) | MODE_TABLE_NEW[modeB & 0xf]) & 0xffff
+      logs.push({
+        userId,
+        ts: npTimestamp(sec).getTime(),
+        verifyMode,
+        raw: raw.subarray(off, off + 8).toString('hex'),
+      })
+    }
+    return logs
+  }
+
+  /**
+   * Receive bulk data in the EXT_SECURE dialect. Every frame is separately
+   * XOR-encrypted (key phase restarts at each frame), so the whole stream is
+   * drained first and then parsed offline. Accepted shapes, in order:
+   *   a) one single [payload(total)][trailer 12B] block  (SBPCCOMM 0x2320 flow)
+   *   b) chunked [payload(≤1020)][trailer 12B] blocks
+   *   c) chunked classic big-data frames 5A A5 | mid | payload(≤1020) | cksum
+   */
+  private async recvBigDataExtSecure(totalLen: number, timeoutMs: number): Promise<Buffer> {
+    const key = this.key()
+    const overhead = Math.ceil(totalLen / BIG_CHUNK) * 12 + 24
+    const raw = await this.readAvailable(Math.min(timeoutMs, 30_000), 900, totalLen + overhead)
+    if (raw.length === 0) throw new SbxpcError('دستگاه داده‌ای ارسال نکرد (رمزشده)')
+
+    // (a) single block: [payload(totalLen)][trailer]
+    if (raw.length >= totalLen + 12) {
+      const p = parseExtTrailer(xorCrypt(raw.subarray(0, totalLen + 12), key), totalLen)
+      if (p) return p
+    }
+
+    // (b) chunked trailer blocks
+    {
+      const out: Buffer[] = []
+      let off = 0
+      let got = 0
+      let ok = true
+      while (got < totalLen) {
+        const want = Math.min(BIG_CHUNK, totalLen - got)
+        if (off + want + 12 > raw.length) { ok = false; break }
+        const p = parseExtTrailer(xorCrypt(raw.subarray(off, off + want + 12), key), want)
+        if (!p) { ok = false; break }
+        out.push(p)
+        got += want
+        off += want + 12
+      }
+      if (ok && got === totalLen) return Buffer.concat(out)
+    }
+
+    // (c) chunked encrypted classic big-data frames
+    {
+      const out: Buffer[] = []
+      let off = 0
+      let got = 0
+      let ok = true
+      while (got < totalLen) {
+        const want = Math.min(BIG_CHUNK, totalLen - got)
+        if (off + 6 + want + 2 > raw.length) { ok = false; break }
+        const dec = xorCrypt(raw.subarray(off, off + 6 + want + 2), key)
+        if (dec[0] !== 0x5a || dec[1] !== 0xa5
+          || dec.readUInt16LE(4 + want) !== sum16(dec, 0, 4 + want)) { ok = false; break }
+        out.push(dec.subarray(4, 4 + want))
+        got += want
+        off += 6 + want + 2
+      }
+      if (ok && got === totalLen) return Buffer.concat(out)
+    }
+
+    throw new SbxpcError(
+      'فرمت دادهٔ حجیم رمزشده قابل تشخیص نیست — لطفاً متن خطا را برای پشتیبانی بفرستید',
+      `first=${hex(raw.subarray(0, Math.min(32, raw.length)))} len=${raw.length}`,
+    )
+  }
+
   /** Receive bulk data (chunked 5A A5 frames). */
   private async recvBigData(totalLen: number, timeoutMs = DEFAULT_TIMEOUT): Promise<Buffer> {
     const out = Buffer.alloc(totalLen)
@@ -753,11 +1131,13 @@ export interface NpTestResult {
   raw?: string
   error?: string
   detail?: string
+  /** EXT_SECURE: the «رمز شبکه» the device accepted (also when auto-discovered) */
+  password?: number
 }
 
 /** Test the connection to an NP device: connect, probe dialect, read serial + clock. */
-export async function npTest(ip: string, port: number, machineId = 1): Promise<NpTestResult> {
-  const client = new SbxpcClient(ip, port, machineId)
+export async function npTest(ip: string, port: number, machineId = 1, password?: number | null): Promise<NpTestResult> {
+  const client = new SbxpcClient(ip, port, machineId, password ?? null)
   try {
     await client.connect(6000)
     const probe = await client.probeDialect()
@@ -774,6 +1154,7 @@ export async function npTest(ip: string, port: number, machineId = 1): Promise<N
       dialect: probe.dialect,
       note: probe.note,
       raw: raw.slice(0, 4000),
+      password: probe.password,
     }
   } catch (err) {
     return {

@@ -38,6 +38,7 @@ type DeviceRow = {
   ipAddress: string | null
   port: number
   serialNumber: string | null
+  password: number | null
   enabled: boolean
   lastLogAt: Date | null
 }
@@ -72,7 +73,7 @@ export async function importNpDeviceLogs(deviceId: string, opts: NpSyncOptions =
 }
 
 async function importNpInner(device: DeviceRow, opts: NpSyncOptions): Promise<NpSyncResult> {
-  const client = new SbxpcClient(device.ipAddress!.trim(), device.port || 5005)
+  const client = new SbxpcClient(device.ipAddress!.trim(), device.port || 5005, 1, device.password ?? null)
   let deviceSerial: string | undefined
   let deviceTime: string | null | undefined
   let serialMismatch = false

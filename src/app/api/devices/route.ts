@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
         name: b.name, type, ipAddress: b.ipAddress || null, port: Number(b.port || 5005),
         protocol: b.protocol || 'TCP', location: b.location || null, enabled: b.enabled ?? true,
         serialNumber: b.serialNumber?.trim() || null,
+        password: b.password === '' || b.password == null ? null : Number(b.password),
       },
     })
     return NextResponse.json({ device })
@@ -56,6 +57,7 @@ export async function PUT(req: NextRequest) {
         name: b.name, type, ipAddress: b.ipAddress || null, port: Number(b.port || 5005), protocol: b.protocol,
         location: b.location || null, enabled: b.enabled, syncIntervalMin: Number(b.syncIntervalMin || 0),
         serialNumber: b.serialNumber?.trim() || null,
+        password: b.password === '' || b.password == null ? null : Number(b.password),
       },
     })
     return NextResponse.json({ device })
@@ -98,7 +100,7 @@ export async function PATCH(req: NextRequest) {
             'برای تست اتصال، آدرس IP دستگاه را در پرونده دستگاه وارد کنید (مثل 192.168.1.201). ' +
             'دستگاه‌های NP روی پورت 5005 هم به نرم‌افزار وصل می‌شوند (پوش لحظه‌ای) و هم از همان پورت پاسخ فرمان‌های دانلود را می‌دهند.')
         }
-        const t = await npTest(device.ipAddress.trim(), device.port || 5005)
+        const t = await npTest(device.ipAddress.trim(), device.port || 5005, 1, device.password ?? null)
         const serialMatch = t.ok && t.serialNumber && device.serialNumber
           ? t.serialNumber.trim().toLowerCase() === device.serialNumber.trim().toLowerCase()
           : null
@@ -106,12 +108,15 @@ export async function PATCH(req: NextRequest) {
           CLASSIC: 'پروتکل کلاسیک (۱۶بایتی)',
           RESULT_DIRECT: 'پروتکل کلاسیک بدون ACK',
           EXT: 'پروتکل ۱۲بایتی (EXT)',
+          EXT_SECURE: 'پروتکل رمزشدهٔ NP (با «رمز شبکه»)',
         }
         await db.device.update({
           where: { id: device.id },
           data: {
             status: t.ok ? 'ONLINE' : 'OFFLINE',
             ...(t.ok && t.serialNumber && !device.serialNumber ? { serialNumber: t.serialNumber } : {}),
+            // remember a newly discovered «رمز شبکه» so syncs reuse it
+            ...(t.ok && t.password != null && device.password == null ? { password: t.password } : {}),
           },
         })
         await db.deviceLog.create({
@@ -119,8 +124,8 @@ export async function PATCH(req: NextRequest) {
             deviceId: device.id,
             level: t.ok ? 'SUCCESS' : 'ERROR',
             message: t.ok
-              ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber || '—'}${t.dialect ? ` · ${dialectFa[t.dialect] ?? t.dialect}` : ''}${t.deviceTime ? ` · ساعت دستگاه: ${new Date(t.deviceTime).toLocaleString('fa-IR')}` : ''}${t.note ? ` · ${t.note}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
-              : `خطای اتصال مستقیم: ${t.error}${t.detail ? ` [${t.detail}]` : ''}${t.raw ? ` · فریم‌های خام:\n${t.raw}` : ''}`,
+              ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber || '—'}${t.dialect ? ` · ${dialectFa[t.dialect] ?? t.dialect}` : ''}${t.password != null ? ` · رمز شبکه: ${t.password}` : ''}${t.deviceTime ? ` · ساعت دستگاه: ${new Date(t.deviceTime).toLocaleString('fa-IR')}` : ''}${t.note ? ` · ${t.note}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
+              : `خطای اتصال مستقیم: ${t.error}${t.detail ? ` [${t.detail}]` : ''}${t.note ? ` · ${t.note}` : ''}${t.raw ? ` · فریم‌های خام:\n${t.raw}` : ''}`,
           },
         })
         return NextResponse.json({ result: { ...t, serialMatch } })

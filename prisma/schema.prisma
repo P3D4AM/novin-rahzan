@@ -244,6 +244,7 @@ model Device {
   protocol      String       @default("TCP") // TCP | UDP
   location      String?
   serialNumber  String?
+  password      Int? // «رمز شبکه» — NP devices with the encrypted protocol (EXT_SECURE)
   enabled       Boolean      @default(true)
   status        String       @default("UNKNOWN") // ONLINE | OFFLINE | UNKNOWN
   lastSyncAt    DateTime?

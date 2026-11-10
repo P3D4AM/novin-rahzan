@@ -149,22 +149,51 @@ AA 55 | machineId(2) | cmd(4) | arg(2)=0 | cksum(2)
 cksum = (Σ bytes[2..9] + 0xFF) & 0xFFFF
 ```
 
-### Observed on a real NP756+ (port 4238)
+### Observed on a real NP756+ (port 4238) — the EXT_SECURE dialect (v1.2.2)
 Sending the classic 16-byte GetSerialNumber command made the device answer:
 
 ```
-aa 55 01 00 10 00 00 00 …   (12-byte EXT ack, dword = 0x10)
+aa 55 01 00 10 00 00 00 a6 01     (10 bytes!)
 ```
 
-i.e. the device parsed our 16-byte classic frame as a 12-byte EXT frame
-(cmd = 0x01131979 → garbage) and rejected it with error code 16.
-After re-sending GetSerialNumber as a proper 12-byte EXT command, the device
-replies with a valid EXT ack and the 32-byte serial in an A5 5A data frame.
+The last two bytes are the CHECKSUM OF OUR OWN (correctly received) frame —
+the device received the classic frame intact and deliberately REFUSED it.
+A plaintext 12-byte EXT command got NO answer at all. This is the fingerprint
+of the password-encrypted EXT dialect ("رمز شبکه") implemented by
+SBPCCOMM64.dll v3.0.6 (2015), functions SendCommandX_EXT / RecvAckX_EXT /
+SendDataX_EXT / RecvDataX_EXT:
 
-### Client strategy (src/lib/sbxpc.ts)
+* every 12-byte EXT frame (command, ack) is XOR-encrypted with the repeating
+  4-byte key  **key = LE32(password + 0x25B84)**  — i.e. frame[j] ^= key[j % 4],
+  with the key phase restarting at byte 0 of EVERY frame;
+* the "network password" is exactly the «رمز شبکه» in the device menu
+  (ConnectTcpip's 4th argument; the vendor sample's UI default is 123456);
+* data is exchanged as **[payload][trailer 12B]** where the trailer is
+  `5A A5 | machineId(2) | Σpayload(4) | ?(2) | cksum(2)`, cksum = Σ trailer[2..9] + 0xFF,
+  and payload + trailer are each encrypted separately (key phase restarts per part);
+* an encrypted ACK carries dword=1 for OK.
+
+Reverse-engineering evidence (SBPCCOMM64.dll):
+* `StartTcpX(ip, port, password, …)` stores password at devObj+0x14;
+* `0x4630` (encrypted send/recv) computes `key = [dev+0x14] + dword[0x2BF10]`
+  with `dword[0x2BF10] = 0x00025B84`, then XORs the whole frame with key[j%4]
+  before the raw socket send (and XORs it back afterwards);
+* COM/USB links use key = 0x25B84 alone (no password); TCP/UDP/P2P add the password;
+* `0x1d00` builds the EXT command `55 AA | mid | cmd(4) | arg(2)=0 | cksum`
+  (cksum = Σ[2..9] + 0xFF — note 0x55+0xAA = 0xFF, so this equals Σ[0..9]);
+* `0x1db0` builds the PC→DEV EXT ack the same way (header AA 55, also sums to 0xFF);
+* `0x21f0/0x2320` implement the [payload][trailer] data exchange.
+
+### Client strategy (src/lib/sbxpc.ts, v1.2.2)
 The client PROBES on connect:
 1. send classic 0x113 → drain → `5A A5 …` ⇒ CLASSIC dialect
 2. `AA 55 …` + valid 14-byte result + data ⇒ RESULT_DIRECT dialect (no ACK)
-3. `AA 55 …` + valid 12-byte EXT ack ⇒ reconnect (clean device parser state)
-   and send EXT 0x113 ⇒ EXT dialect
-4. nothing recognized ⇒ report connection-alive + raw hex for diagnosis
+3. `AA 55 …` + **10-byte refusal ack** (dword 0x10 + checksum echo) ⇒ EXT_SECURE:
+   reconnect per candidate password («رمز شبکه» from the device profile, else
+   common defaults 0, 123456, 1, 1234, 9999, 65535) and send the encrypted
+   EXT 0x113 until a valid encrypted ack (dword=1) comes back
+4. valid 12-byte plaintext EXT ack ⇒ reconnect and send EXT 0x113 ⇒ EXT dialect
+5. fallback: encrypted EXT probing, then classic 0x10e, then report alive + raw hex
+
+Discovered passwords are persisted on the device record (Device.password) and
+reused by later syncs.
