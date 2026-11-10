@@ -119,3 +119,52 @@ RecDataX(4 bytes) → packed datetime (vendor decodes via its date decoder)
 SendCommandX(0x108/0x109, arg1=index, arg2=0) → ACK
 RecExeResultX() → status, value
 ```
+
+---
+
+## Dialects discovered in the wild (v1.2.1)
+
+Real NP756+ units do not all speak the classic dialect above. The SBPCCOMM64.dll
+actually contains a SECOND frame family — the `_EXT` exports
+(SendCommandX_EXT / RecvAckX_EXT / SendAckX_EXT / RecvDataX_EXT / SendDataX_EXT) —
+and some devices answer classic 16-byte commands with a 12-byte EXT-style error ack.
+
+### EXT command (PC → DEV, 12 bytes)
+```
+55 AA | machineId(2) | cmd(4 LE) | arg(2)=0 | cksum(2)
+cksum = (machineId_lo + machineId_hi + cmd[4 bytes] + arg[2 bytes] + 0xFF) & 0xFFFF
+      = (Σ bytes[2..9] + 0xFF) & 0xFFFF
+```
+
+### EXT ack (DEV → PC, 12 bytes)
+```
+AA 55 | machineId(2) | dword(4) | cksum(2)
+cksum = (Σ bytes[0..9]) & 0xFFFF
+dword = result code — 1 = OK; 0x10 (16) = "command not accepted/garbled"
+```
+
+### EXT ack (PC → DEV — acknowledge device data, 12 bytes)
+```
+AA 55 | machineId(2) | cmd(4) | arg(2)=0 | cksum(2)
+cksum = (Σ bytes[2..9] + 0xFF) & 0xFFFF
+```
+
+### Observed on a real NP756+ (port 4238)
+Sending the classic 16-byte GetSerialNumber command made the device answer:
+
+```
+aa 55 01 00 10 00 00 00 …   (12-byte EXT ack, dword = 0x10)
+```
+
+i.e. the device parsed our 16-byte classic frame as a 12-byte EXT frame
+(cmd = 0x01131979 → garbage) and rejected it with error code 16.
+After re-sending GetSerialNumber as a proper 12-byte EXT command, the device
+replies with a valid EXT ack and the 32-byte serial in an A5 5A data frame.
+
+### Client strategy (src/lib/sbxpc.ts)
+The client PROBES on connect:
+1. send classic 0x113 → drain → `5A A5 …` ⇒ CLASSIC dialect
+2. `AA 55 …` + valid 14-byte result + data ⇒ RESULT_DIRECT dialect (no ACK)
+3. `AA 55 …` + valid 12-byte EXT ack ⇒ reconnect (clean device parser state)
+   and send EXT 0x113 ⇒ EXT dialect
+4. nothing recognized ⇒ report connection-alive + raw hex for diagnosis

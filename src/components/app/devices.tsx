@@ -274,17 +274,22 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                         {testResult.deviceTime ? (
                           <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">ساعت دستگاه</span><span>{faTime(String(testResult.deviceTime))}</span></div>
                         ) : null}
+                        {testResult.dialect ? (
+                          <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">گویش پروتکل</span><span>{String(testResult.dialect)}</span></div>
+                        ) : null}
                         {testResult.serialMatch === false ? (
                           <div className="md:col-span-2 text-amber-600 text-xs leading-5 rounded-lg bg-amber-50 dark:bg-amber-950/30 p-2">این سریال با سریال ثبت‌شده در پرونده دستگاه یکی نیست — پیام‌های لحظه‌ای (پوش) با سریال پرونده مطابقت داده می‌شوند. پیشنهاد: سریال پرونده را اصلاح کنید.</div>
                         ) : null}
                       </div>
+                      {testResult.note ? <div className="text-xs text-muted-foreground leading-5 rounded-lg bg-muted/40 p-2">{String(testResult.note)}</div> : null}
                     </>
                   ) : (
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 font-semibold text-red-600"><WifiOff className="h-4 w-4" /> ارتباط برقرار نشد</div>
                       <div className="text-sm">{String(testResult.error ?? '')}</div>
                       {testResult.detail ? <div dir="ltr" className="text-xs font-mono text-muted-foreground">{String(testResult.detail)}</div> : null}
-                      <div className="text-xs text-muted-foreground leading-5 pt-1">راهنمایی: IP دستگاه را از منوی تنظیمات شبکه دستگاه بررسی کنید، مطمئن شوید سیستم و دستگاه در یک شبکه‌اند و پورت 5005 روی دستگاه باز است.</div>
+                      {testResult.raw ? <pre dir="ltr" className="text-[10px] font-mono text-muted-foreground bg-muted rounded-lg p-2 overflow-auto max-h-40 leading-4">{String(testResult.raw)}</pre> : null}
+                      <div className="text-xs text-muted-foreground leading-5 pt-1">راهنمایی: IP دستگاه را از منوی تنظیمات شبکه دستگاه بررسی کنید، مطمئن شوید سیستم و دستگاه در یک شبکه‌اند و پورتِ «ارتباط» دستگاه (مثلاً ۴۲۳۸ یا ۵۰۰۵) درست وارد شده است.</div>
                     </div>
                   )}
                 </div>

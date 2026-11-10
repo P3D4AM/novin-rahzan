@@ -102,6 +102,11 @@ export async function PATCH(req: NextRequest) {
         const serialMatch = t.ok && t.serialNumber && device.serialNumber
           ? t.serialNumber.trim().toLowerCase() === device.serialNumber.trim().toLowerCase()
           : null
+        const dialectFa: Record<string, string> = {
+          CLASSIC: 'پروتکل کلاسیک (۱۶بایتی)',
+          RESULT_DIRECT: 'پروتکل کلاسیک بدون ACK',
+          EXT: 'پروتکل ۱۲بایتی (EXT)',
+        }
         await db.device.update({
           where: { id: device.id },
           data: {
@@ -114,8 +119,8 @@ export async function PATCH(req: NextRequest) {
             deviceId: device.id,
             level: t.ok ? 'SUCCESS' : 'ERROR',
             message: t.ok
-              ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber}${t.deviceTime ? ` · ساعت دستگاه: ${new Date(t.deviceTime).toLocaleString('fa-IR')}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
-              : `خطای اتصال مستقیم: ${t.error}${t.detail ? ` [${t.detail}]` : ''}`,
+              ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber || '—'}${t.dialect ? ` · ${dialectFa[t.dialect] ?? t.dialect}` : ''}${t.deviceTime ? ` · ساعت دستگاه: ${new Date(t.deviceTime).toLocaleString('fa-IR')}` : ''}${t.note ? ` · ${t.note}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
+              : `خطای اتصال مستقیم: ${t.error}${t.detail ? ` [${t.detail}]` : ''}${t.raw ? ` · فریم‌های خام:\n${t.raw}` : ''}`,
           },
         })
         return NextResponse.json({ result: { ...t, serialMatch } })
