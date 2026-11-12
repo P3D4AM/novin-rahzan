@@ -297,3 +297,49 @@ after the classic refusal ack:
 LE32(pw), LE32(pw+0x25B84), ASCII, salt-only × full/partial coverage) and UDP,
 prints every raw exchange plus a verdict table. This is the tool to run against
 an unrecognized device; the hex output pins down the exact dialect.
+
+---
+
+## v1.2.5 — THE LOGIN HANDSHAKE (cmd 0x52): the real "how the vendor talks to NP756+"
+
+The piece that was missing since v1.2.2: **StartTcpX performs a LOGIN right after
+the TCP connect.** Disassembly chain (SBPCCOMM64.dll):
+
+* StartTcpX (0x9740) homed args: [rbp+0x5f]=ip, [rbp+0x67]=port,
+  [rbp+0x6f]=password(r8d→devObj+0x14), **[rbp+0x77]=arg4 (r9d) = login flag**,
+  [rbp+0x7f]=arg5. The SBXPCDLL64 OCX calls it with **r9d=1** (flag on).
+* After the socket connects it calls **devObj->vtable[2]** with the password
+  (vtable at RVA 0x248D0 → entry 2 = RVA 0x23f0). `test flag: 0 → EXT login
+  branch (encrypted EXT 0x52 + password data block); ≠0 → CLASSIC login branch`.
+  The vendor passes flag=1 → **classic branch**.
+* Classic login (branch A):
+  `SendCommandX(cmd=0x52, arg1=0, arg2=PASSWORD)` — the normal classic 16-byte
+  builder (0x10f0 → TCP sender 0x3c40 — **PLAINTEXT, no crypto**):
+  ```
+  55 AA | mid | 79 19 | 52 00 | PASSWORD(4B LE) | 00 00 | cksum(Σ[0..13])
+  ```
+* The expected reply is read by 0x1380 = the classic RESULT receiver
+  (14B `AA 55|mid|?|status|ret|cksum`, cksum=Σ[0..11]): **status (word @+6) ≠ 0
+  = login OK; status=0 = wrong password** (→ the OCX's ConnectTcpip returns
+  3 "Password Mismatched!").
+* Branch B (flag=0, unused by the vendor): `SendCommandX_EXT(0x52)` → ack(1) →
+  `SendDataX_EXT(password 4B)` → ack(1) — encrypted on TCP via 0x4630.
+
+**THIS is the semantics of the observed 10-byte refusal ack** (dword 0x10):
+the device received a correctly checksummed frame but **nobody logged in yet**.
+Every NP756+ behaviour seen in the wild is now explained:
+
+| what we sent | device's answer | why |
+|---|---|---|
+| classic 0x113 (no login) | `AA 55|mid|0x10|cksum-echo` | login first! |
+| plaintext/encrypted EXT | silence | not the expected protocol |
+| encrypted classic | silence | garbage |
+| **classic 0x52 + password, then classic commands** | RESULT status=1, then normal CLASSIC replies | **the vendor path** |
+
+Client strategy (src/lib/sbxpc.ts v1.2.5): after the 10-byte refusal the client
+runs `tryClassicLogin()` (configured «رمز شبکه» or common defaults, fresh
+connection per candidate), and on success retries the classic 0x113 on the SAME
+logged-in connection → CLASSIC/RESULT_DIRECT dialect → serial + clock + full
+ReadAllGLogData sync. The login session lives on the socket — resetConnection
+re-logins automatically (ensureLogin). np-probe.js runs the same battery
+(L1…L5) against the real device.

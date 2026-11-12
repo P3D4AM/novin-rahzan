@@ -6,6 +6,7 @@
  *
  * Usage:
  *   node scripts/mock-sbxpc-device.js                          # classic dialect, 0.0.0.0:5005
+ *   DIALECT=classiclogin node scripts/mock-sbxpc-device.js  # classic + 0x52 password LOGIN (real NP756+ behaviour!)
  *   DIALECT=ext         node scripts/mock-sbxpc-device.js      # 12-byte EXT dialect (plaintext)
  *   DIALECT=extenc      node scripts/mock-sbxpc-device.js      # password-encrypted EXT (real NP756+ behaviour)
  *   DIALECT=classicenc  node scripts/mock-sbxpc-device.js      # password-encrypted CLASSIC 16B frames
@@ -20,6 +21,12 @@
  *   result             cmd(16B) → RESULT(14B AA55) → DATA(A55A)            [no ACK]
  *   ext                cmd(12B 55AA|mid|cmd4|arg2|cksum) → ACK(12B AA55|mid|dword4|cksum) → DATA(A55A)
  *                      PC→DEV ACK frames (AA 55 …) are accepted and ignored.
+ *   classiclogin      EXACTLY what the real NP756+ does (v1.2.5 discovery): the vendor's
+ *                      StartTcpX sends a classic LOGIN first — cmd 0x52 with the «رمز شبکه»
+ *                      as arg2, plaintext — and the device replies with a 14B RESULT
+ *                      (status≠0 = OK, status=0 = wrong password). Until you log in, EVERY
+ *                      other classic command is refused with the 10-byte ack
+ *                      AA 55|mid|0x10|cksum-echo and EXT/encrypted frames get silence.
  *   extenc             NP756+ real behaviour: classic 16B frames are refused with the
  *                      10-byte ack  AA 55|mid|0x10|cksum-of-refused-cmd ; plaintext EXT
  *                      frames are silently dropped; only frames XOR-encrypted with
@@ -52,7 +59,7 @@ const SERIAL = process.env.SERIAL || '7561202505176'
 const LOG_COUNT = Number(process.env.LOGS || 500)
 const USERS = (process.env.USERS || '1001,1002,1003,1004').split(',').map(Number)
 const NOW_OFFSET_MIN = Number(process.env.NOW_OFFSET_MIN || 0) // simulate device clock drift
-const DIALECT = (process.env.DIALECT || 'classic').toLowerCase() // classic | result | ext | extenc | classicenc | http
+const DIALECT = (process.env.DIALECT || 'classic').toLowerCase() // classic | classiclogin | result | ext | extenc | classicenc | http
 const PASSWORD = Number(process.env.PASSWORD || 0) // «رمز شبکه» for extenc/classicenc/http
 const SALT = Number(process.env.SALT || 0) // crypto salt: 0 = DLL default; 0x25B84 = legacy variant
 const EXT_CRYPTO_MAGIC = SALT
@@ -178,6 +185,9 @@ const server = net.createServer((sock) => {
     sock.write = (b) => _rawWrite(xor(Buffer.from(b), key))
   }
 
+  // classiclogin: per-connection login state (the session lives on the socket)
+  let loggedIn = DIALECT !== 'classiclogin'
+
   /** classic command dispatcher — f is a DECRYPTED 16B command frame */
   function dispatchClassic(f) {
     const mid = f.readUInt16LE(2)
@@ -185,7 +195,7 @@ const server = net.createServer((sock) => {
     const arg2 = f.readUInt32LE(8)
     const arg1 = f.readUInt16LE(12)
     console.log(`[mock-np] CMD ${cmd.toString(16)} arg1=${arg1} arg2=${arg2} mid=${mid}`)
-    if (DIALECT === 'classic' || DIALECT === 'classicenc') sock.write(ack(mid))
+    if (DIALECT === 'classic' || DIALECT === 'classicenc' || DIALECT === 'classiclogin') sock.write(ack(mid))
 
     switch (cmd) {
       case 0x113: { // GetSerialNumber
@@ -441,7 +451,7 @@ const server = net.createServer((sock) => {
       return
     }
 
-    // classic / result dialects: 16-byte command frames
+    // classic / result / classiclogin dialects: 16-byte command frames
     while (buf.length >= 16) {
       const f = buf.subarray(0, 16)
       buf = buf.subarray(16)
@@ -449,6 +459,29 @@ const server = net.createServer((sock) => {
       const mid = f.readUInt16LE(2)
       const mark = f.readUInt16LE(4)
       if (mark !== 0x1979) { console.log(`[mock-np] bad company mark ${mark.toString(16)}`); continue }
+
+      // ---- classiclogin: the LOGIN command (0x52, password in arg2) — the vendor's
+      //      StartTcpX handshake; exactly what the real NP756+ expects ----
+      if (DIALECT === 'classiclogin' && f.readUInt16LE(6) === 0x52) {
+        const pw = f.readUInt32LE(8)
+        if (pw === PASSWORD) {
+          loggedIn = true
+          console.log(`[mock-np] LOGIN 0x52 password=${pw} → RESULT status=1 (OK)`)
+          sock.write(result(mid, 1, 1))
+        } else {
+          console.log(`[mock-np] LOGIN 0x52 password=${pw} (wrong, want ${PASSWORD}) → RESULT status=0`)
+          sock.write(result(mid, 0, 0))
+        }
+        continue
+      }
+
+      // not logged in yet → the real device's 10-byte refusal ack (code 0x10)
+      if (!loggedIn) {
+        console.log(`[mock-np] CMD ${f.readUInt16LE(6).toString(16)} refused — not logged in → 10-byte ack 0x10`)
+        sock.write(npRefusalAck(mid, f.readUInt16LE(14)))
+        continue
+      }
+
       dispatchClassic(f)
       deliverPending()
     }
@@ -459,7 +492,7 @@ const server = net.createServer((sock) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`[mock-np] SBXPC device simulator listening on 0.0.0.0:${PORT}`)
-  console.log(`[mock-np] dialect=${DIALECT}${['extenc', 'classicenc', 'http'].includes(DIALECT) ? ` password=${PASSWORD} salt=${SALT}` : ''} serial=${SERIAL} logs=${LOGS.length} users=[${USERS.join(',')}] clock-offset=${NOW_OFFSET_MIN}min`)
+  console.log(`[mock-np] dialect=${DIALECT}${['extenc', 'classicenc', 'http', 'classiclogin'].includes(DIALECT) ? ` password=${PASSWORD} salt=${SALT}` : ''} serial=${SERIAL} logs=${LOGS.length} users=[${USERS.join(',')}] clock-offset=${NOW_OFFSET_MIN}min`)
 })
 
 /* ------------------------------------------------------------------ */

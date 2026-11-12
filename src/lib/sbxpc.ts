@@ -330,6 +330,10 @@ export class SbxpcClient {
   private readonly hadConfiguredPassword: boolean = false
   /** EXT_SECURE probe: bytes that followed the accepted ack (may hold the serial block) */
   private extProbeTail: Buffer = Buffer.alloc(0)
+  /** v1.2.5: the device demands the classic 0x52 login before any command */
+  private needsLogin = false
+  /** v1.2.5: this connection is logged in (login state lives per TCP session) */
+  private loggedIn = false
 
   /* ---------------------------------------------------------------- */
   /* low-level framing                                                 */
@@ -541,8 +545,12 @@ export class SbxpcClient {
   /** fresh TCP connection — device-side parser state resets on disconnect */
   async resetConnection(timeoutMs = 6000): Promise<void> {
     this.disconnect()
+    this.loggedIn = false // v1.2.5: the login session lives on the socket
     await new Promise((r) => setTimeout(r, 250))
     await this.connect(timeoutMs)
+    if (this.needsLogin && this.password != null) {
+      await this.ensureLogin()
+    }
   }
 
   isConnected(): boolean {
@@ -597,7 +605,9 @@ export class SbxpcClient {
       return info
     }
 
-    /** NP756+ refusal of the classic protocol → device speaks encrypted EXT */
+    /** NP756+ refusal of the classic protocol → the device demands a LOGIN first
+     *  (v1.2.5 discovery: the vendor's StartTcpX sends classic cmd 0x52 with the
+     *  «رمز شبکه» in arg2 before anything else — see SBXPC-PROTOCOL.md) */
     let sawNpErr: NpErrAck | null = null
 
     if (r1[0] === 0xaa && r1[1] === 0x55) {
@@ -624,13 +634,35 @@ export class SbxpcClient {
       sawNpErr = parseNpErrAck(r1)
     }
 
-    /* ---- attempt 2b (NEW): password-encrypted EXT dialect ----
-       NP756+ & newer units refuse the classic protocol (10-byte refusal ack)
-       and silently drop plaintext EXT frames — they ONLY accept frames
-       XOR-encrypted with key(«رمز شبکه» + salt). */
+    /* ---- attempt 2b (v1.2.5): the LOGIN handshake — classic cmd 0x52 with the
+       «رمز شبکه» in arg2, plaintext, exactly like the vendor's StartTcpX.
+       Until you log in, the device refuses every command with the 10-byte
+       code-0x10 ack and drops everything else. */
     if (sawNpErr) {
-      const found = await this.tryExtSecure()
-      if (found != null) return this.finishExtSecure(found, info)
+      const found = await this.tryClassicLogin()
+      if (found != null) {
+        // logged in — the classic protocol should answer now (same connection!)
+        const classicCmd2 = this.cmdHeader(0x113, 0, 0)
+        try {
+          this.write(classicCmd2)
+          this.record('out', classicCmd2)
+        } catch { /* fall through to the other probes */ }
+        const r2 = await this.readAvailable(6000).catch(() => Buffer.alloc(0))
+        this.record('in', r2)
+        const done = this.finishClassicProbe(r2, info)
+        if (done) {
+          info.password = found
+          info.deviceTime = await this.safeGetDeviceTime()
+          info.note = `ورود با «رمز شبکه» انجام شد (فرمان 0x52) — رمز: ${found}`
+          return info
+        }
+      }
+
+      /* ---- attempt 2c (v1.2.2-): password-encrypted EXT dialect ----
+         some NP generations refuse classic frames and only accept frames
+         XOR-encrypted with key(«رمز شبکه» + salt). */
+      const foundExt = await this.tryExtSecure()
+      if (foundExt != null) return this.finishExtSecure(foundExt, info)
 
       /* ---- v1.2.4: the "VisibleLight" HTTP JSON API (NP756P/NP761P generation) —
          the vendor's own stack talks to these face devices over HTTP :14460,
@@ -718,6 +750,100 @@ export class SbxpcClient {
     if (http2) return http2
     info.note = 'دستگاه پاسخ داد ولی فریم‌های آن با هیچ‌یک از گویش‌های شناخته‌شدهٔ پروتکل مطابقت نداشت'
     return info
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* v1.2.5 — the classic LOGIN handshake (cmd 0x52, «رمز شبکه» in arg2)  */
+  /* Reverse-engineered from SBPCCOMM64.dll vtable[2]: StartTcpX calls    */
+  /* devObj->login(password) right after the TCP connect — classic frame, */
+  /* PLAINTEXT, password in arg2 → 14B RESULT reply (status≠0 = OK).       */
+  /* ---------------------------------------------------------------- */
+
+  /**
+   * Send the login frame and parse the RESULT. Returns true when logged in.
+   * The reply may be [optional 8B ACK][14B RESULT] — status (word @+6) ≠ 0 means OK.
+   * The 10-byte code-0x10 refusal (exactly 10 bytes) means the login was rejected.
+   */
+  private async classicLogin(pw: number, timeoutMs = 5000): Promise<boolean> {
+    const f = this.cmdHeader(0x52, 0, pw)
+    try {
+      this.write(f)
+      this.record('out', f)
+    } catch { return false }
+    const r = await this.readAvailable(timeoutMs).catch(() => Buffer.alloc(0))
+    this.record('in', r)
+    if (r.length === 0) return false // silence → wrong/absent login
+    // parse [optional 8B classic ACK] + 14B RESULT first (AA 55 frames can be both!)
+    let off = 0
+    if (r[0] === 0x5a && r[1] === 0xa5 && r.length >= 8 + 14) off = 8 // skip classic ACK
+    const res = r.length >= off + 14 ? parseExeResult(r.subarray(off, off + 14)) : null
+    if (res) return res.status !== 0
+    // an exact 10-byte frame is the NP refusal — login rejected
+    if (r.length === 10 && parseNpErrAck(r)) return false
+    return false
+  }
+
+  /**
+   * Try the login against the configured password (or common defaults),
+   * each on a FRESH connection. On success the connection stays logged in.
+   * Returns the accepted password, or null.
+   */
+  private async tryClassicLogin(): Promise<number | null> {
+    const configuredPw = this.password
+    const passwords = this.password != null ? [this.password] : PASSWORD_CANDIDATES
+    for (const pw of passwords) {
+      this.password = pw
+      try {
+        await this.resetConnection(4000)
+      } catch {
+        this.password = configuredPw
+        return null // device unreachable
+      }
+      if (await this.classicLogin(pw)) {
+        this.needsLogin = true
+        this.loggedIn = true
+        return pw
+      }
+    }
+    this.password = configuredPw
+    return null
+  }
+
+  /** re-login after a reconnect if this device demands it (v1.2.5) */
+  private async ensureLogin(): Promise<void> {
+    if (!this.needsLogin || this.loggedIn || this.password == null) return
+    if (await this.classicLogin(this.password, 4000)) this.loggedIn = true
+  }
+
+  /**
+   * Recognize a classic 0x113 probe reply (used by the post-login retry):
+   * CLASSIC (5A A5 ack + serial) or RESULT_DIRECT (AA 55 result + serial).
+   * Fills `info` and returns true when recognized.
+   */
+  private finishClassicProbe(r: Buffer, info: ProbeInfo): boolean {
+    if (r.length === 0) return false
+    const ack = parseClassicAck(r.subarray(0, 8))
+    if (ack) {
+      this.dialect = 'CLASSIC'
+      info.dialect = 'CLASSIC'
+      if (ack.mid !== this.machineId && ack.mid !== 0xffff) this.machineId = ack.mid
+      const serial = this.trySerialFromTail(r.subarray(8))
+      if (serial) info.serialNumber = serial
+      return true
+    }
+    if (r[0] === 0xaa && r[1] === 0x55) {
+      const res = r.length >= 14 ? parseExeResult(r.subarray(0, 14)) : null
+      if (res) {
+        const serial = this.trySerialFromTail(r.subarray(14))
+        if (serial) {
+          this.dialect = 'RESULT_DIRECT'
+          info.dialect = 'RESULT_DIRECT'
+          info.serialNumber = serial
+          return true
+        }
+      }
+    }
+    return false
   }
 
   /** finalize an EXT_SECURE probe success */
