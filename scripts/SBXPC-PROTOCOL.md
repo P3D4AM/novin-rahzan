@@ -343,3 +343,94 @@ logged-in connection → CLASSIC/RESULT_DIRECT dialect → serial + clock + full
 ReadAllGLogData sync. The login session lives on the socket — resetConnection
 re-logins automatically (ensureLogin). np-probe.js runs the same battery
 (L1…L5) against the real device.
+
+---
+
+## v1.2.6 — THE REAL 756PLUS CHANNEL: device-initiated REAL-TIME PUSH
+
+### What the latest np-probe run proved (password read from the device itself)
+
+Password 4891489 (taken from the device menu), plus 0 and 999999 — every classic
+16B frame (login 0x52, serial 0x113, time 0x10E) received the IDENTICAL 10-byte
+refusal ack (dword 0x10 + cksum echo). All 16 encrypted variants stayed silent,
+HTTP :14460 refused. **The 0x10 refusal is password-INDEPENDENT → the v1.2.5
+"login first" hypothesis is disproven; the binary port on 4238 is a closed stub.**
+Pull-based sync cannot work against this device.
+
+### Where the punches actually come from
+
+`logRealTimeDevice1.txt` (shipped inside the user's own NovinHozor installation)
+holds ~800 REAL punch records from serial 7561202505176 (deviceType "756PLUS",
+deviceIp 192.168.1.115:60420): **the DEVICE initiates a TCP connection to the
+server and pushes each punch as it happens.** That is the channel HozorPlus
+must implement.
+
+### The vendor's real-time stack (RE of PacketParserStandard.dll / TimeAttendanceUI.dll / Server.Core.dll / RealSvrOcxTcp.ocx)
+
+`OpenPortsForDevicesAsync` (FRMMain.cs) groups the DB's device rows by
+`TypeDeviceManufacture` + `TransferMode` + `UseRealTime` + `PortRealtime`:
+
+| TypeDeviceManufacture | family | transport |
+|---|---|---|
+| 2 | **Ebio** | XML-over-TCP push, port = PortRealtime (default **5005**) |
+| 3 | **Hysoon** | JSON inside RTLOG frames via native RealSvrOcxTcp.ocx — **756PLUS lives here** ("756PLUS" special-case sits in the DoorOpen handler) |
+| 5 | DynamicHysoon | HTTP (HttpServerDynamicHysoon) |
+| 6 | VisibleLight | HTTP API :14460 + `/LogCallBack/` HTTP push (TransferMode=2, `http://{CallBackIp}:{PortRealtime}/LogCallBack/`) |
+
+#### Ebio family (XML push)
+* listener: `EbioServer`/`EbioServerInstanceHolder` → `TcpListener(IPAddress.Any, port)`
+  (default 5005 — the literal error string "Message of port 5005";
+  `WebAttendanceDeviceInfo.DetectDevicePort`: S200/S260→5005, Hyson→7005, else 5005);
+* framing: none — every `ReadAsync` chunk (1024-byte buffer) decoded as **Windows-1256**
+  is one message (`EbioTcpClientConnection_Received`);
+* device→server XML, root children: `TerminalType, TerminalID, DeviceSerialNo, TransID, Event`
+  — Event=TimeLog adds `Year, Month, Day, Hour, Minute, Second, UserID(i64), DoorID,
+  AttendStat, VerifMode, JobCode, APStat, LogImage(base64 photo)`; also
+  KeepAlive / AdminLog / Alarm events;
+* server→device reply (ASCII):
+  `<?xml version="1.0"?><Message><Request>UploadedLog</Request><TransID>N</TransID></Message>`
+  (KeptAlive on ping) — `SendReplyAsync(replyType, transId)`;
+* 60 s idle timeout → the device pings.
+
+#### Hysoon family (JSON/RTLOG push — the 756PLUS family)
+* the desktop app hosts the native `RealSvrOcxTcp.ocx` (WSAEventSelect/WSAAccept/
+  WSARecv/WSASend; "FanHostPort" property; port per device = PortRealtime);
+  events: `OnReceiveGLogData/…Extend/…TextAndImage/…Text/…TextOnDoorOpen`
+  (astrLogText = JSON, astrClientIP, anClientPort);
+* device→server JSON punch (from the vendor's own embedded sample + handlers):
+  `{"log_id":"12884901891","user_id":"2009","fk_device_id":"1","io_mode":"1",
+   "io_time":"20240118153723","serial_number":"…","verify_mode":"fp|password|face",
+   "device_port":5005,"is_support_string_id":"0"}` — io_time = YYYYMMDDHHMMSS;
+* server→device reply: `{"log_id":N,"result":"OK"}` (+ `"mode":"nothing"` in V3);
+* **wire envelope (disassembled RealSvrOcxTcp.ocx, parser @ RVA 0x3730 and reply
+  builders @ 0x1b80/0x1c00):** `"RTLOG001"|"RTLOG002"|"RTLOG003"` (8-byte magic) +
+  **LE32 payload length** + payload (JSON text, NUL-terminated; the length counts the
+  NUL). The receive parser scans for the magic anywhere in the buffer, reads the
+  length, waits until `magic+4+len` bytes are available, extracts the payload and
+  advances. V2/V3 reply builders write a 16-byte header before the text — exact
+  layout to be confirmed from a live capture;
+* the vendor's .NET `HysoonTcpClientConnection` (their web service) parses a
+  BINARY 37-byte sub-variant (header `33 99 10 01 …`, fixed offsets, device name
+  "290", `FillAttendStatusAndVerifyMode` maps byte[17]: 0x41/0x42/0x43 →
+  Enter FP/PassWord/RFID, +0x80 → Exit) — a different sub-family, noted for
+  completeness.
+
+### v1.2.6 tooling
+* `scripts/np-sniff.js`
+  * `--listen [port]` (default 5005): a capture server speaking BOTH push dialects —
+    parses RTLOG frames and auto-replies `{"log_id":N,"result":"OK"}` (REPLY_STYLE
+    v1|v3|raw), detects Ebio XML and replies UploadedLog/KeptAlive, logs every
+    chunk hex+text to `sniff-*.log`. Point the device's «server address» menu at it
+    to record the real protocol;
+  * `node np-sniff.js <deviceIP> <devicePort> [listenPort]`: transparent proxy that
+    logs vendor-app↔device traffic (pull channel, XOR preview with PW);
+* `scripts/np-portscan.js` — port scanner (5005/7005/14460/4238/4370/… + `--full`)
+  with banner grab and next-step hints;
+* `DIALECT=rtlog-push` in the mock — the 756PLUS push simulator (connects out,
+  sends RTLOG001 JSON punches, validates the ACKs) — exercised by
+  `scripts/test-np-v126.mjs` (22 checks green; v1.2.5 suite still ALL PASS).
+
+### HozorPlus roadmap
+v1.3.0: built-in real-time push receiver (listen on 5005, accept device
+connections, insert punches live) — the correct architecture for this device
+family; the 4238 pull path stays for older SBXPC devices.

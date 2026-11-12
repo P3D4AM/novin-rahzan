@@ -12,6 +12,11 @@
  *   DIALECT=classicenc  node scripts/mock-sbxpc-device.js      # password-encrypted CLASSIC 16B frames
  *   DIALECT=http        node scripts/mock-sbxpc-device.js      # VisibleLight HTTP API (:14460) + binary stub
  *   DIALECT=result      node scripts/mock-sbxpc-device.js      # classic frames, no ACK
+ *   DIALECT=rtlog-push  SERVER=127.0.0.1 TARGET_PORT=5005 node scripts/mock-sbxpc-device.js
+ *                      # 756PLUS real-time PUSH simulator (v1.2.6): the DEVICE connects out
+ *                      # to the "server" and sends RTLOG001-framed JSON punches, expecting
+ *                      # {"log_id":N,"result":"OK"} replies — pair with:
+ *                      #   node scripts/np-sniff.js --listen 5005
  *   PORT=4238 SERIAL=7561202505176 LOGS=500 USERS="1001,1002" node scripts/mock-sbxpc-device.js
  *   DIALECT=extenc PASSWORD=123456 node scripts/mock-sbxpc-device.js
  *   DIALECT=http PASSWORD=12345 node scripts/mock-sbxpc-device.js
@@ -59,7 +64,7 @@ const SERIAL = process.env.SERIAL || '7561202505176'
 const LOG_COUNT = Number(process.env.LOGS || 500)
 const USERS = (process.env.USERS || '1001,1002,1003,1004').split(',').map(Number)
 const NOW_OFFSET_MIN = Number(process.env.NOW_OFFSET_MIN || 0) // simulate device clock drift
-const DIALECT = (process.env.DIALECT || 'classic').toLowerCase() // classic | classiclogin | result | ext | extenc | classicenc | http
+const DIALECT = (process.env.DIALECT || 'classic').toLowerCase() // classic | classiclogin | result | ext | extenc | classicenc | http | rtlog-push
 const PASSWORD = Number(process.env.PASSWORD || 0) // «رمز شبکه» for extenc/classicenc/http
 const SALT = Number(process.env.SALT || 0) // crypto salt: 0 = DLL default; 0x25B84 = legacy variant
 const EXT_CRYPTO_MAGIC = SALT
@@ -490,7 +495,7 @@ const server = net.createServer((sock) => {
   sock.on('close', () => console.log('[mock-np] client disconnected'))
 })
 
-server.listen(PORT, '0.0.0.0', () => {
+if (DIALECT !== 'rtlog-push') server.listen(PORT, '0.0.0.0', () => {
   console.log(`[mock-np] SBXPC device simulator listening on 0.0.0.0:${PORT}`)
   console.log(`[mock-np] dialect=${DIALECT}${['extenc', 'classicenc', 'http', 'classiclogin'].includes(DIALECT) ? ` password=${PASSWORD} salt=${SALT}` : ''} serial=${SERIAL} logs=${LOGS.length} users=[${USERS.join(',')}] clock-offset=${NOW_OFFSET_MIN}min`)
 })
@@ -538,4 +543,80 @@ if (DIALECT === 'http') {
   httpServer.listen(HTTP_PORT, '0.0.0.0', () => {
     console.log(`[mock-np] VisibleLight HTTP API listening on 0.0.0.0:${HTTP_PORT} (password=${PASSWORD})`)
   })
+}
+
+/* ------------------------------------------------------------------ */
+/* rtlog-push — شبیه‌ساز پوش بی‌درنگ دستگاه 756PLUS (کشف v1.2.6)      */
+/* دستگاهِ واقعی خودش به سرور TCP وصل می‌شود و رکوردهای JSON را در      */
+/* پوشت RTLOG001 (magic 8B + طول LE32 4B + payload) می‌فرستد و منتظر     */
+/* پاسخ {"log_id":N,"result":"OK"} می‌ماند — همان چیزی که np-sniff.js   */
+/* با حالت --listen ضبط و پاسخ می‌دهد.                                  */
+/* ------------------------------------------------------------------ */
+if (DIALECT === 'rtlog-push') {
+  const SERVER = process.env.SERVER || '127.0.0.1'
+  const TARGET_PORT = Number(process.env.TARGET_PORT || PORT)
+  const PUSH_COUNT = Number(process.env.PUSH_COUNT || 3)
+  const PUSH_INTERVAL = Number(process.env.PUSH_INTERVAL || 350)
+
+  const pad = (n) => String(n).padStart(2, '0')
+  function punchJson(i) {
+    const t = new Date(Date.now() - i * 3600e3)
+    const ioTime = `${t.getFullYear()}${pad(t.getMonth() + 1)}${pad(t.getDate())}${pad(t.getHours())}${pad(t.getMinutes())}${pad(t.getSeconds())}`
+    return JSON.stringify({
+      log_id: String(1000 + i),
+      user_id: USERS[i % USERS.length],
+      fk_device_id: '1',
+      io_mode: '1',
+      io_time: ioTime,
+      serial_number: SERIAL,
+      verify_mode: 'fp',
+      device_port: TARGET_PORT,
+      is_support_string_id: '0',
+    })
+  }
+  function rtlogFrame(json) {
+    const body = Buffer.from(json, 'ascii')
+    const f = Buffer.alloc(8 + 4 + body.length + 1)
+    f.write('RTLOG001', 0, 'ascii')
+    f.writeUInt32LE(body.length + 1, 8)
+    body.copy(f, 12)
+    return f
+  }
+
+  let acks = 0
+  let rbuf = Buffer.alloc(0)
+  const sock = net.connect(TARGET_PORT, SERVER, async () => {
+    console.log(`[mock-np] rtlog-push: وصل شد به ${SERVER}:${TARGET_PORT} — ارسال ${PUSH_COUNT} تردد`)
+    for (let i = 0; i < PUSH_COUNT; i++) {
+      const j = punchJson(i)
+      sock.write(rtlogFrame(j))
+      console.log(`[mock-np] » RTLOG001 ${j}`)
+      await new Promise((r) => setTimeout(r, PUSH_INTERVAL))
+    }
+    setTimeout(() => {
+      console.log(`[mock-np] rtlog-push پایان — ACK های معتبر: ${acks}/${PUSH_COUNT}`)
+      process.exit(0)
+    }, 700)
+  })
+  sock.on('data', (c) => {
+    rbuf = Buffer.concat([rbuf, c])
+    // پاسخ‌های پوشت‌دار RTLOG
+    while (rbuf.length >= 12 && ['RTLOG001', 'RTLOG002', 'RTLOG003'].includes(rbuf.toString('latin1', 0, 8))) {
+      const len = rbuf.readUInt32LE(8)
+      if (rbuf.length < 12 + len) break
+      const payload = rbuf.subarray(12, 12 + len).toString('utf8').replace(/\0.*$/s, '')
+      console.log(`[mock-np] « پاسخ: ${payload}`)
+      if (/"result"\s*:\s*"OK"/.test(payload)) acks++
+      rbuf = rbuf.subarray(12 + len)
+    }
+    // پاسخ‌های خام JSON بدون پوشت
+    if (rbuf.length && !['RTLOG001', 'RTLOG002', 'RTLOG003'].includes(rbuf.toString('latin1', 0, 8))) {
+      const raw = rbuf.toString('latin1')
+      console.log(`[mock-np] « پاسخ خام: ${raw}`)
+      if (/"result"\s*:\s*"OK"/.test(raw)) acks++
+      rbuf = Buffer.alloc(0)
+    }
+  })
+  sock.on('error', (e) => { console.error('[mock-np] خطای اتصال push:', e.message); process.exit(1) })
+  process.on('exit', () => { if (process.env.STRICT_ACK && acks < PUSH_COUNT) process.exitCode = 2 })
 }
