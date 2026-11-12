@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="PlusMinus" mimetype="application/x-microsoft.net.object.binary.base64"><value>AAEAAAD/////AQAAAAAAAAAMAgAAAFFTeXN0ZW0uRHJhd2luZywgVmVyc2lvbj0yLjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWIwM2Y1ZjdmMTFkNTBhM2EFAQAAABNTeXN0ZW0uRHJhd2luZy5JY29uAgAAAAhJY29uRGF0YQhJY29uU2l6ZQcEAhNTeXN0ZW0uRHJhd2luZy5TaXplAgAAAAIAAAAJAwAAAAX8////E1N5c3RlbS5EcmF3aW5nLlNpemUCAAAABXdpZHRoBmhlaWdodAAACAgCAAAAAAAAAAAAAAAPAwAAAH4FAAACAAABAAEAEBAAAAEACABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAQAEAAAAAAAAAAAAAAAAAAAAAAADrxbMA6sKvAOq9pwDpt58A6LGXAOesjgDnp4cA7e/xALG/1wBebK0ApabLAOrFswD308EA9cu2APLApwDwuJwA2Zt9AOzu8AC3ydIAgZ/rAB8fhQDYzMMA9vf4APb29gD07uwA8OTeAJmKfwDq7e8A/wD/AH2wuwCM4O4A1cnBAPX29wD08O8A8efiAO3d1ACYin8A6ezuALbI0QBJmrIAAUFUAKy9xADRxb0A9PPzAPLp5wDv4NkA7NfMAJiJfgDo6+0AtcjRAKu8xADMwbkAl4l+AObq7ACppKAAqrzDAOXp6wDYajMAjImGAFdUUQDGz9MA5OjqANBlLwDgkGYA23hFAN6BUAAAAAAAsLO0ANe8rwDRpY8Ax2AsANZpMQDOcEAA1qiQAM2jjgC1VygA4eboAK9UJwDf5OYA5cGvAOW9qgDkuKMA47ObAOKtkgDiqIoA4aODAN3i5ADkwK4A8c68AO/HsQDsu6IA6rOXANOXeADa4OIA0ca+AO/y8gDw8vMA8PDxAO3p5gDq3tkAkoV6ANje4ADOw7sA7vHyAO/x8gDt6+oA6uHdAOfXzwCRhHkA1tzfAMq/twDu8PEA7e3tAOvj4QDo2tMA5dHHAJGDeQDT2t0AxLqzAI+DeAD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQhxCQkJCQkJCQkJCQkJCQkJCHEJCQkJCHBwcHBxCQkJCQkIcQkJCQkJCQkJCQkJCQkJCQhxCQkJCQkJCQkJCQkJCQkJCHEJCQkJCQkJCQkJCQkJCQkIcQkJCQkJCQkJCQkJCQkJCQhxCQkJCQkJCQkJCQhxCQkJCHEJCQkJCQkJCQkIcQkJCQkIcQkJCQkJCQhwcHBwcQkJCQhxCQkJCQkJCQhxCQkJCQkJCHEJCQkJCQkIcQkJCQkJCQkIcQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQv//AAD//wAA3/8AAO+DAAD3/wAA+/8AAP3/AAD+/wAA/38AAPe/AAD33wAAwe8AAPf3AAD3+wAA//8AAP//AAAL</value></data></root>

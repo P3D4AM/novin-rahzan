@@ -1,0 +1,22 @@
+using System;
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
+using System.Security;
+
+[assembly: AssemblyTitle("Stimulsoft.Dashboard.Export.dll")]
+[assembly: AssemblyDescription("Dashboards exporting functionality")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("Stimulsoft")]
+[assembly: AssemblyProduct("Stimulsoft Dashboards")]
+[assembly: AssemblyCopyright("Copyright (C) 2003-2021 Stimulsoft")]
+[assembly: AssemblyTrademark("Stimulsoft")]
+[assembly: AllowPartiallyTrustedCallers]
+[assembly: CLSCompliant(true)]
+[assembly: AssemblyDelaySign(false)]
+[assembly: SecurityRules(SecurityRuleSet.Level1)]
+[assembly: InternalsVisibleTo("Stimulsoft.Dashboard, PublicKey=00240000048000009400000006020000002400005253413100040000010001003bad30e3275cab0470144f7f98457555375744d5e3c5cd451fe72f4b2459d629b0c409f0d6d4af1ec4a01065a73ff0debd63d7392c703d42a8d2c5dcaed1236f1d384ab74d722c159258b58a07060ff74c3c02329f4e8244ff39ee7c113814c1b1965b8c2ccfeb505e31ed16f314937be078c0b81b7f11d815f45316e02e9cd7")]
+[assembly: InternalsVisibleTo("Stimulsoft.Dashboard.Design, PublicKey=00240000048000009400000006020000002400005253413100040000010001003bad30e3275cab0470144f7f98457555375744d5e3c5cd451fe72f4b2459d629b0c409f0d6d4af1ec4a01065a73ff0debd63d7392c703d42a8d2c5dcaed1236f1d384ab74d722c159258b58a07060ff74c3c02329f4e8244ff39ee7c113814c1b1965b8c2ccfeb505e31ed16f314937be078c0b81b7f11d815f45316e02e9cd7")]
+[assembly: InternalsVisibleTo("Stimulsoft.Dashboard.Viewer, PublicKey=00240000048000009400000006020000002400005253413100040000010001003bad30e3275cab0470144f7f98457555375744d5e3c5cd451fe72f4b2459d629b0c409f0d6d4af1ec4a01065a73ff0debd63d7392c703d42a8d2c5dcaed1236f1d384ab74d722c159258b58a07060ff74c3c02329f4e8244ff39ee7c113814c1b1965b8c2ccfeb505e31ed16f314937be078c0b81b7f11d815f45316e02e9cd7")]
+[assembly: AssemblyVersion("2022.1.1.0")]

@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="ilButtons.ImageStream" mimetype="application/x-microsoft.net.object.binary.base64"><value>AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAAAyCAAAAk1TRnQBSQFMAgEBBAEAAbQBAAG0AQABEAEAARABAAT/ARkBEAj/AUIBTQE2BwABNgMAASgDAAFAAwABIAMAAQEBAAEYBgABGP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/ADYAATkBjQG2ASABiAHAASABgAGwASABiAGwNgADOwM9dQABLAGVAcIBQAHAAfABUAHAAeABUAHIAfABSgHCAeABQAGgAcABIAGAAbAJAAY7HgADOwM8dQABIAG4AfABUwG7AeEBYAHQAfABYAHYAfABYAHYAfABYAHYAfABUAHQAfABOwGzAdEBIAF4AbAGAAk7GAADPAM7eAABIAGwAeABOQGiAdMBUAHIAfABYAHYAfABEAGwAWABAAFwAgABiAEgAVAB0AHwATsBpAHRASABgAGwAwAJOwM8EgADOwM9fgABEAGAAbABUAHIAfABYAHYAfABIAHYAXABAAGQATABAAFgAQABYAHYAfABWQHCAeABEAGAAbAGAANPAzwDOwM9DAAGOxsAAdABeAFQAcABcAFAAbABaAFAAbABYAFAAaABWAEwJwABoAFYATAnAAEgAZgBwAEwAagB0AFAAcAB8AFgAdgB8AFgAdgB8AFAAdgBkAEAAbgBUAEAAagCYAHYAfABWQHKAe8BIAGIAcAMAAk7AwAJOx4AAdABeAFQAfABcAEwAfABcAEwAfABcAEwAaABWAEwJAAB0AFwAUAB0AFYASABkAFIASAhAAFKAbsB4AGtAeQB7QGkAegB7wGQAegB8AGQAegB8AGQAeAB8AGAAeAB8AFwAeAB8AFwAeAB8AFwAdgB8AFoAdkB7wEsAY4Bwg8AAzoGRQNJAzkYAAHgAYgBUAHQAYABUAHQAXgBUAHQAXgBUAH/AYABQAHwAXABMAHwAXABMAGgAVgBMAGgAVABMAGQAVABMAGQAUgBIBgAAdABeAFAAf8BmAFgAfABeAEwAdABWAEgAZABSAEgGwABUAHIAfABoQHiAe4BsAHwAf8BsAHwAf8BoAHoAfABkAHoAfABkAHoAfABsAFYASABsAEQAQABsAEoAQABcAHgAfABaAHZAe8BIAGIAbASAANBA0IDTx4AAeABiAFgAf8BwAGgAf8BmAFwAf8BiAFQAf8BgAFAAfABcAEwAfABaAEgAfABaAEgAdABaAEwGAAB4AGGAVgB/wG4AZAB/wGoAXAB/wGYAWAB8AF4ATAB0AFYASABkAFIASAYAAFQAcgB8AGhAeIB7gGwAfAB/wEwAVgB8AIAAYABAAEgAeABkAHoAfABsAGQAWABsAE4AQABYAIAAXcB4AHvAXEBxQHhASwBhgGzDwADOwNOA0oDUANZHgAB4AGIAWAB/wHAAaAB/wGwAYAB/wGgAXAB8AGIAVAB8AFwATAB0AFgATAYAAHgAYgBYAH/AcABoAH/AcABoAH/AbgBkAH/AagBcAH/AZgBYAHgAYgBUAHQAXABQAGQAUgBIAwAAX0BygHnAYYB1wHwAYsB6AH7ATABwAHgAZAB2AHgAaAB6AH/AZAB2AHwAQABIAHgAgABYAGwAfAB/wGwAbgBkAGwAZABYAGwAagBkAGGAdEB7wE7AZ0B0Q8AA1cDUANNBgADVwNdHgAB4AGIAWAB/wHAAaAB/wGwAZAB/wGgAWAB0AFoATAYAAHgAZgBcAHgAZgBcAHgAZgBcAHgAZABYAH/AcABoAH/AbgBkAH/AagBcAHQAVgBIAHQAWABIAHgAWgBMAHgAWgBMAkAAZkB4gH4ATABuAHgAYAB6AH/AWAByAHgAZAB8AH/ATABuAHgAaAB6AH/AQABIAHgAXABsAH/AbAB8AH/AaAC8AGgAvABpAHoAe8BWQGzAeAPAANiA1ADXQwAA2IDYB4AAeABiAFQAf8BwAGgAeABcAFAJAAB8AGoAYAB/wHAAaAB/wHAAaAB/wG4AZAB4AFwATASAAGYAekB+wGQAfAB/wHAAfgB/wGwAegB8AHAAfgB/wGQAfAB/wGgAfAB/wGwAfAB/wGwAfAB/wGwAfAB/wGgAvABpAHoAe8BfwHTAe8BUAHIAfAMAANgA2EDYhIAA2EDYB4AAeABiAFQJwAB8AGwAZAB4AGgAXAB4AGQAWAB4AGAAVAB4AFwAUASAAEgAagB4AFQAcAB4AGwAegC8AL/AbAB6AHwAVABwAHgATABuAHgAbAB8AH/AbAB8AH/AbAB8AH/AZsB6AHvAXAB2AHwAWgB0QHvDAADYQNgA2EbAANhZgABmAHpAfsBkAHwAf8BwAH4Af8BsAHoAfABwAH4Af8BkAHwAf8BoAHwAf8BcAHYAfABcAHYAfABcAHYAfABaAHRAe8PAAlghwABmQHiAfgBMAG4AeABkAHwAf8BYAHAAeABkAHwAf8BMAG4AeABkAHIAdAbAAZhigABcgHHAeYBhgHXAfABlwHoAfsBIAGwAeABiwHoAfoBlgHfAe0BhQHKAeSrAAFCAU0BPgcAAT4DAAEoAwABQAMAASADAAEBAQABAQYAAQEWAAP/gQAB/wEPAf8B/AT/Af4BAwGfAfkE/wH8AQEBjwHzBP8B/AEAAYcB5wT/Af4BAAHDAc8B+AE/Af4B/wH4AQAB8QEfAfgBPwH8AX8B8AEAAfgBPwHAAQcB+AE/AeABAAH8AX8B4AEPAfABHwHgAQAB+AE/AfABHwHgAQ8BAAEBAfEBnwH4AT8BwAEHAQABAwHjAc8B/AF/AfgBPwEAAQMBxwHnAf4B/wH4AT8BAAEHAY8B+wT/AQACHwX/AQEB/wE/Bf8BAQf/FgAL</value></data></root>

@@ -1,0 +1,259 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="xeconfig1" xml:space="preserve"><value>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;xs:schema targetNamespace="http://schemas.microsoft.com/sqlserver/2008/07/extendedeventsconfig"
+		elementFormDefault="qualified" xmlns="http://schemas.microsoft.com/sqlserver/2008/07/extendedeventsconfig"
+		xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0"&gt;
+	&lt;xs:annotation&gt;
+		&lt;xs:documentation xml:lang="en"&gt;
+			(c) Copyright 2009, Microsoft Corporation The following schema for Microsoft SQL Server is presented in XML format and is for informational purposes only. Microsoft Corporation ("Microsoft") may have trademarks, copyrights, or other intellectual property rights covering subject matter in the schema. Microsoft does not make any representation or warranty regarding the schema or any product or item developed based on the schema. The schema is provided to you on an AS IS basis. Microsoft disclaims all express, implied and statutory warranties, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, and freedom from infringement. Without limiting the generality of the foregoing, Microsoft does not make any warranty of any kind that any item developed based on the schema, or any portion of the schema, will not infringe any copyright, patent, trade secret, or other intellectual property right of any person or entity in any country. It is your responsibility to seek licenses for such intellectual property rights where appropriate. MICROSOFT SHALL NOT BE LIABLE FOR ANY DAMAGES OF ANY KIND ARISING OUT OF OR IN CONNECTION WITH THE USE OF THE SCHEMA, INCLUDING WITHOUT LIMITATION, ANY DIRECT, INDIRECT, INCIDENTAL, CONSEQUENTIAL (INCLUDING ANY LOST PROFITS), PUNITIVE OR SPECIAL DAMAGES, WHETHER OR NOT MICROSOFT HAS BEEN ADVISED OF SUCH DAMAGES.
+		&lt;/xs:documentation&gt;
+	&lt;/xs:annotation&gt;
+	&lt;xs:simpleType name="nonNegativeInt"&gt;
+		&lt;xs:restriction base="xs:int"&gt;
+			&lt;xs:minInclusive value="0"/&gt;
+		&lt;/xs:restriction&gt;
+	&lt;/xs:simpleType&gt;
+	&lt;xs:simpleType name="retentionModes"&gt;
+		&lt;xs:annotation&gt;
+			&lt;xs:documentation xml:lang="en"&gt;
+				retention modes supported
+			&lt;/xs:documentation&gt;
+		&lt;/xs:annotation&gt;
+		&lt;xs:restriction base="xs:string"&gt;
+			&lt;xs:enumeration value="allowSingleEventLoss"&gt;
+				&lt;xs:annotation&gt;
+					&lt;xs:documentation xml:lang="en"&gt;
+						An event can be lost from the session. A single event is only dropped when all the event buffers are full.
+						Losing a single event when event buffers are full allows for acceptable SQL Server performance characteristics,
+						while minimizing the loss of data in the processed event stream.
+					&lt;/xs:documentation&gt;
+				&lt;/xs:annotation&gt;
+			&lt;/xs:enumeration&gt;
+			&lt;xs:enumeration value="allowMultipleEventLoss"&gt;
+				&lt;xs:annotation&gt;
+					&lt;xs:documentation xml:lang="en"&gt;
+						Full event buffers containing multiple events can be lost from the session.
+						The number of events lost is dependent upon the memory size allocated to the session, the partitioning of the memory,
+						and the size of the events in the buffer. This option minimizes performance impact on the server when event buffers are quickly filled,
+						but large numbers of events can be lost from the session.
+					&lt;/xs:documentation&gt;
+				&lt;/xs:annotation&gt;
+			&lt;/xs:enumeration&gt;
+			&lt;xs:enumeration value="noEventLoss"&gt;
+				&lt;xs:annotation&gt;
+					&lt;xs:documentation xml:lang="en"&gt;
+						No event loss is allowed. This option ensures that all events raised will be retained.
+						Using this option forces all tasks that fire events to wait until space is available in an event buffer.
+						This cause detectable performance issues while the event session is active.
+					&lt;/xs:documentation&gt;
+				&lt;/xs:annotation&gt;
+			&lt;/xs:enumeration&gt;
+		&lt;/xs:restriction&gt;
+	&lt;/xs:simpleType&gt;
+	&lt;xs:simpleType name="partitionModes"&gt;
+		&lt;xs:restriction base="xs:string"&gt;
+			&lt;xs:enumeration value="none"&gt;
+				&lt;xs:annotation&gt;
+					&lt;xs:documentation xml:lang="en"&gt;
+						A single set of buffers are created within the process
+					&lt;/xs:documentation&gt;
+				&lt;/xs:annotation&gt;
+			&lt;/xs:enumeration&gt;
+			&lt;xs:enumeration value="perNode"&gt;
+				&lt;xs:annotation&gt;
+					&lt;xs:documentation xml:lang="en"&gt;
+						A set of buffers are created for each NUMA node.
+					&lt;/xs:documentation&gt;
+				&lt;/xs:annotation&gt;
+			&lt;/xs:enumeration&gt;
+			&lt;xs:enumeration value="perCpu"&gt;
+				&lt;xs:annotation&gt;
+					&lt;xs:documentation xml:lang="en"&gt;
+						A set of buffers are created for each CPU.
+					&lt;/xs:documentation&gt;
+				&lt;/xs:annotation&gt;
+			&lt;/xs:enumeration&gt;
+		&lt;/xs:restriction&gt;
+	&lt;/xs:simpleType&gt;
+	&lt;xs:attributeGroup name="objectNames"&gt;
+		&lt;xs:attribute name="module" type="xs:string" use="optional"&gt;
+		&lt;/xs:attribute&gt;
+		&lt;xs:attribute name="package" type="xs:string" use="required"&gt;
+		&lt;/xs:attribute&gt;
+		&lt;xs:attribute name="name" type="xs:string" use="required"&gt;
+		&lt;/xs:attribute&gt;
+	&lt;/xs:attributeGroup&gt;
+	&lt;xs:element name="parameter"&gt;
+		&lt;xs:complexType&gt;
+			&lt;xs:attribute name="name" type="xs:string" use="required" /&gt;
+			&lt;xs:attribute name="value" use="required" /&gt;
+		&lt;/xs:complexType&gt;
+	&lt;/xs:element&gt;
+	&lt;xs:complexType name="pred_leaf"&gt;
+		&lt;xs:sequence&gt;
+			&lt;xs:element name="comparator"&gt;
+				&lt;xs:complexType&gt;
+					&lt;xs:attributeGroup ref="objectNames"/&gt;
+				&lt;/xs:complexType&gt;
+			&lt;/xs:element&gt;
+			&lt;xs:choice&gt;
+			&lt;xs:element name="event"&gt;
+				&lt;xs:complexType&gt;
+				&lt;xs:attributeGroup ref="objectNames"/&gt;
+					&lt;xs:attribute name="field" type="xs:string"/&gt;
+				&lt;/xs:complexType&gt;
+			&lt;/xs:element&gt;
+				&lt;xs:element name="global"&gt;
+					&lt;xs:complexType&gt;
+						&lt;xs:attributeGroup ref="objectNames"/&gt;
+					&lt;/xs:complexType&gt;
+				&lt;/xs:element&gt;
+			&lt;/xs:choice&gt;
+			&lt;xs:element name="value"&gt;&lt;/xs:element&gt;
+		&lt;/xs:sequence&gt;
+	&lt;/xs:complexType&gt;
+	&lt;xs:complexType name="unary_expr"&gt;
+		&lt;xs:choice&gt;
+			&lt;xs:element name="not" type="unary_expr"&gt;&lt;/xs:element&gt;
+			&lt;xs:element name="and" type="boolean_expr"&gt;&lt;/xs:element&gt;
+			&lt;xs:element name="or" type="boolean_expr"&gt;&lt;/xs:element&gt;
+			&lt;xs:element name="leaf" type="pred_leaf"&gt;&lt;/xs:element&gt;
+		&lt;/xs:choice&gt;
+	&lt;/xs:complexType&gt;
+	&lt;xs:complexType name="boolean_expr"&gt;
+		&lt;xs:sequence&gt;
+			&lt;xs:choice&gt;
+				&lt;xs:element name="and" type="boolean_expr"&gt;&lt;/xs:element&gt;
+				&lt;xs:element name="or" type="boolean_expr"&gt;&lt;/xs:element&gt;
+				&lt;xs:element name="not" type="unary_expr"&gt;&lt;/xs:element&gt;
+				&lt;xs:element name="leaf" type="pred_leaf"&gt;&lt;/xs:element&gt;
+			&lt;/xs:choice&gt;
+			&lt;xs:choice maxOccurs="1" minOccurs="1"&gt;
+				&lt;xs:element name="and" type="boolean_expr"&gt;&lt;/xs:element&gt;
+				&lt;xs:element name="or" type="boolean_expr"&gt;&lt;/xs:element&gt;
+				&lt;xs:element name="not" type="unary_expr"&gt;&lt;/xs:element&gt;
+				&lt;xs:element name="leaf" type="pred_leaf"&gt;&lt;/xs:element&gt;
+			&lt;/xs:choice&gt;
+		&lt;/xs:sequence&gt;
+	&lt;/xs:complexType&gt;
+	&lt;xs:element name="event_sessions"&gt;
+		&lt;xs:complexType&gt;
+			&lt;xs:sequence&gt;
+				&lt;xs:element name="event_session" maxOccurs="unbounded" minOccurs="1"&gt;
+					&lt;xs:complexType&gt;
+						&lt;xs:sequence&gt;
+              &lt;xs:element name="templateCategory" minOccurs="0" maxOccurs="1" type="xs:string" /&gt;
+              &lt;xs:element name="templateName" minOccurs="0" maxOccurs="1" type="xs:string" /&gt;
+							&lt;xs:element name="templateDescription" minOccurs="0" maxOccurs="1" type="xs:string" /&gt;
+							&lt;xs:element name="event" minOccurs="0" maxOccurs="unbounded"&gt;
+								&lt;xs:complexType&gt;
+									&lt;xs:sequence&gt;
+										&lt;xs:element name="action" minOccurs="0" maxOccurs="unbounded"&gt;
+											&lt;xs:complexType&gt;
+												&lt;xs:attributeGroup ref="objectNames"&gt;
+												&lt;/xs:attributeGroup&gt;
+											&lt;/xs:complexType&gt;
+										&lt;/xs:element&gt;
+										&lt;xs:element ref="parameter" maxOccurs="unbounded" minOccurs="0" /&gt;
+										&lt;xs:element name="predicate" minOccurs="0" maxOccurs="1" type="unary_expr" /&gt;
+									&lt;/xs:sequence&gt;
+									&lt;xs:attributeGroup ref="objectNames"&gt;
+									&lt;/xs:attributeGroup&gt;
+								&lt;/xs:complexType&gt;
+							&lt;/xs:element&gt;
+							&lt;xs:element name="target" minOccurs="0" maxOccurs="unbounded"&gt;
+								&lt;xs:complexType&gt;
+									&lt;xs:sequence&gt;
+										&lt;xs:element ref="parameter" maxOccurs="unbounded" minOccurs="0" /&gt;
+									&lt;/xs:sequence&gt;
+									&lt;xs:attributeGroup ref="objectNames"&gt;
+									&lt;/xs:attributeGroup&gt;
+								&lt;/xs:complexType&gt;
+							&lt;/xs:element&gt;
+						&lt;/xs:sequence&gt;
+						&lt;xs:attribute name="name" type="xs:string" use="required"&gt;
+						&lt;/xs:attribute&gt;
+						&lt;xs:attribute name="maxMemory" type="nonNegativeInt" use="optional" default="4"&gt;
+							&lt;xs:annotation&gt;
+								&lt;xs:documentation xml:lang="en"&gt;
+									Specifies the maximum amount of memory in MB to allocate to the session for event buffering.
+									The default is 4 MB.
+								&lt;/xs:documentation&gt;
+							&lt;/xs:annotation&gt;
+						&lt;/xs:attribute&gt;
+						&lt;xs:attribute name="eventRetentionMode" type="retentionModes" use="optional" default="allowSingleEventLoss"&gt;
+							&lt;xs:annotation&gt;
+								&lt;xs:documentation xml:lang="en"&gt;
+									Specifies the event retention mode to use for handling event loss.
+									Default is allowSingleEventLoss.
+								&lt;/xs:documentation&gt;
+							&lt;/xs:annotation&gt;
+						&lt;/xs:attribute&gt;
+						&lt;xs:attribute name="dispatchLatency" type="xs:unsignedInt" use="optional" default="30"&gt;
+							&lt;xs:annotation&gt;
+								&lt;xs:documentation xml:lang="en"&gt;
+									Specifies the amount of time that events will be buffered in memory before being dispatched to event session targets.
+									Default value is 30 seconds.
+								&lt;/xs:documentation&gt;
+							&lt;/xs:annotation&gt;
+						&lt;/xs:attribute&gt;
+						&lt;xs:attribute name="maxEventSize" type="xs:unsignedInt" use="optional" default="0"&gt;
+							&lt;xs:annotation&gt;
+								&lt;xs:documentation xml:lang="en"&gt;
+									Specifies the maximum allowable size for events in MB.
+									maxEventSize should only be set to allow single events larger than maxMemory; setting it to less than maxMemory will cause the value to be ignored.
+									When maxEventSize is set, two buffers of size are created in addition to maxMemory.
+									This means that the total memory used for event buffering is maxMemory + 2 * maxEventSize.
+								&lt;/xs:documentation&gt;
+							&lt;/xs:annotation&gt;
+						&lt;/xs:attribute&gt;
+						&lt;xs:attribute name="memoryPartitionMode" type="partitionModes" use="optional" default="none"&gt;
+							&lt;xs:annotation&gt;
+								&lt;xs:documentation xml:lang="en"&gt;
+									Specifies the location where event buffers are created.
+									Default is none.
+								&lt;/xs:documentation&gt;
+							&lt;/xs:annotation&gt;
+						&lt;/xs:attribute&gt;
+						&lt;xs:attribute name="trackCausality" type="xs:boolean" use="optional" default="false"&gt;
+							&lt;xs:annotation&gt;
+								&lt;xs:documentation xml:lang="en"&gt;
+									Specifies whether or not causality is tracked. If enabled, causality allows related events on different threads to be correlated together.
+								&lt;/xs:documentation&gt;
+							&lt;/xs:annotation&gt;
+						&lt;/xs:attribute&gt;
+					&lt;/xs:complexType&gt;
+				&lt;/xs:element&gt;
+			&lt;/xs:sequence&gt;
+		&lt;/xs:complexType&gt;
+	&lt;/xs:element&gt;
+&lt;/xs:schema&gt;</value></data>
+  </root>

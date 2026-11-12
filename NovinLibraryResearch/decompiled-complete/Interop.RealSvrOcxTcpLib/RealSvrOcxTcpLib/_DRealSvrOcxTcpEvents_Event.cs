@@ -1,0 +1,19 @@
+using System.Runtime.InteropServices;
+
+namespace RealSvrOcxTcpLib;
+
+[ComEventInterface(typeof(_DRealSvrOcxTcpEvents_0000), typeof(_DRealSvrOcxTcpEvents_EventProvider_0000))]
+[TypeLibType(16)]
+[ComVisible(false)]
+public interface _DRealSvrOcxTcpEvents_Event
+{
+	event _DRealSvrOcxTcpEvents_OnReceiveGLogDataEventHandler OnReceiveGLogData;
+
+	event _DRealSvrOcxTcpEvents_OnReceiveGLogDataExtendEventHandler OnReceiveGLogDataExtend;
+
+	event _DRealSvrOcxTcpEvents_OnReceiveGLogTextAndImageEventHandler OnReceiveGLogTextAndImage;
+
+	event _DRealSvrOcxTcpEvents_OnReceiveGLogTextEventHandler OnReceiveGLogText;
+
+	event _DRealSvrOcxTcpEvents_OnReceiveGLogTextOnDoorOpenEventHandler OnReceiveGLogTextOnDoorOpen;
+}

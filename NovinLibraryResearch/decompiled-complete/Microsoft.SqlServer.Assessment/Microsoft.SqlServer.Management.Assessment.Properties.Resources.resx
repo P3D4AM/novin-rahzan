@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="ErrorProbeInitialize" xml:space="preserve"><value>Probe implementation cannot be instantiated. Implementing type: {0}.</value></data>
+  <data name="ErrorJsonSerializationNotSupported" xml:space="preserve"><value>JSON serialization for {0} not supported.</value></data>
+  <data name="ErrorKeyNotFound" xml:space="preserve"><value>Key not found: {0}</value></data>
+  <data name="ErrorValueStartsWithWhiteSpace" xml:space="preserve"><value>Value starts with white space.</value></data>
+  <data name="ErrorValueCannotBeNullOrWhitespace" xml:space="preserve"><value>Value cannot be null or whitespace.</value></data>
+  <data name="Unsupported_PowerShell_parameter_type" xml:space="preserve"><value>unsupported type {0}</value></data>
+  <data name="ErrorEvalOverflow" xml:space="preserve"><value>Value does not fit type {0}.</value></data>
+  <data name="ErrorConditionEvaluationFailed" xml:space="preserve"><value>Condition evaluation failed.</value></data>
+  <data name="ErrorEvalWrongProbeParameter" xml:space="preserve"><value>Probe {0} does not support parameter {1}</value></data>
+  <data name="StringTarget" xml:space="preserve"><value>Target</value></data>
+  <data name="ErrorFailedObtainProbeData" xml:space="preserve"><value>Check {0}: Probe {1} failed to obtain data: {2}</value></data>
+  <data name="ErrorUnrecognizedChecksItemType" xml:space="preserve"><value>Checks item type {0} is not supported.</value></data>
+  <data name="ErrorJsonUnexpectedToken" xml:space="preserve"><value>Unexpected token "{0}" in {1}.</value></data>
+  <data name="ErrorJsonOperatorInstantiation" xml:space="preserve"><value>Operator "{0}" instantiation error.</value></data>
+  <data name="ErrorEvalTypeMismatch" xml:space="preserve"><value>Value '{0}' of type {1} cannot be converted to type {2}.</value></data>
+  <data name="ErrorEvalArity" xml:space="preserve"><value>{0} parameters required, but {1} present.</value></data>
+  <data name="ErrorEvalOther" xml:space="preserve"><value>Evaluation error.</value></data>
+  <data name="WarningCheckSkipped1" xml:space="preserve"><value>'{1}' check has been skipped because it needs {0}</value></data>
+  <data name="WarningCheckSkipped3" xml:space="preserve"><value>Checks '{1}', '{2}', and '{3}' have been skipped because they need {0}</value></data>
+  <data name="WarningCheckSkipped2" xml:space="preserve"><value>Checks '{1}' and '{2}' have been skipped because they need {0}</value></data>
+  <data name="ErrorIndexOutOfRange" xml:space="preserve"><value>Index out of range.</value></data>
+  <data name="UnsupportedTargetCheckMessage" xml:space="preserve"><value>No check found for this target.</value></data>
+  <data name="UnsupportedTargetCheckDescription" xml:space="preserve"><value>This check signals when no other check exists for given target and parameters.</value></data>
+  <data name="ErrorJsonSingularLeftRangeInclusive" xml:space="preserve"><value>Singular range does not include its left bound.</value></data>
+  <data name="ErrorVersionFieldIsRequired" xml:space="preserve"><value>Version field is required for every ruleset.</value></data>
+  <data name="ErrorConverterCannotWriteValue" xml:space="preserve"><value>Converter cannot write specified value to JSON. {0} is required.</value></data>
+  <data name="ErrorAccessTarget" xml:space="preserve"><value>Cannot access {0} {1}.</value></data>
+  <data name="ErrorInvalidCheckId" xml:space="preserve"><value>Valid check ID required.</value></data>
+  <data name="ErrorValueIsAnEmptyString" xml:space="preserve"><value>Value is an empty string.</value></data>
+  <data name="ErrorStringOrObjectExpected" xml:space="preserve"><value>String or object expected for aggregate func, but got {0}.</value></data>
+  <data name="ErrorLoadingAssembly" xml:space="preserve"><value>Error loading assembly {0}: {1}.</value></data>
+  <data name="ErrorCheckHasNoImplementation" xml:space="preserve"><value>Check {0} has no implementation.</value></data>
+  <data name="ErrorStringArrayOrObjectExpected" xml:space="preserve"><value>String, array, or object expected. Got {0}.</value></data>
+  <data name="ErrorConverterCannotReadJSONValue" xml:space="preserve"><value>Converter cannot read JSON with the specified existing value. {0} is required.</value></data>
+  <data name="ErrorCheckModificationSelectorResuired" xml:space="preserve"><value>An id or a list of tags or ids is required for every check list item.</value></data>
+  <data name="ErrorEvalMissingData" xml:space="preserve"><value>Missing data item "{0}".</value></data>
+  <data name="ErrorJsonUnsupportedOperation" xml:space="preserve"><value>Unsupported operation "{0}".</value></data>
+  <data name="ErrorJsonUnexpectedEndOfDocument" xml:space="preserve"><value>Unecpected end of JSON document.</value></data>
+  <data name="ErrorJsonLocationWithLinePosition" xml:space="preserve"><value>{0} Line: {1}. Position: {2}.</value></data>
+  <data name="ErrorTargetFilerInDefinition" xml:space="preserve"><value>Target filter was not expected in check definition.</value></data>
+  <data name="ErrorJsonSingularRangeInclusive" xml:space="preserve"><value>SIngular range must include both left and right boundaries. Use single value without any parenthesis for singular ranges: "{0}" instead of "{1}".</value></data>
+  <data name="ErrorEvalStringFormat" xml:space="preserve"><value>String '{0}' cannot be converted to type {1}.</value></data>
+  <data name="ErrorProbeRequirements" xml:space="preserve"><value>Probe requirements were not met.</value></data>
+  <data name="ErrorImplementationWasNotFound" xml:space="preserve"><value>Implementation was not found for given target {0}</value></data>
+  <data name="ErrorValueIsAWhiteSpaceString" xml:space="preserve"><value>Value is a null, empty, or white space string.</value></data>
+  <data name="ErrorJsonSingularRightRangeInclusive" xml:space="preserve"><value>Singular range does not include its right bound.</value></data>
+  <data name="ErrorMissingJsonProperty" xml:space="preserve"><value>Missing JSON property {0}.</value></data>
+  <data name="ErrorNameFieldIsRequired" xml:space="preserve"><value>Name field is required for every ruleset.</value></data>
+  <data name="ErrorRecursionDetected" xml:space="preserve"><value>Infinite recursion detected.</value></data>
+  <data name="StringCheckId" xml:space="preserve"><value>Check ID</value></data>
+  <data name="NotEnoughPermissionsToRunAssessmentMessage" xml:space="preserve"><value>Minimal permissions to run SQL assessment are VIEW SERVER STATE and VIEW DATABASE STATE.</value></data>
+  <data name="ErrorJsonWrongValue" xml:space="preserve"><value>Wrong value "{0}" for {1}.</value></data>
+  <data name="ErrorJsonWrongToken" xml:space="preserve"><value>Encountered {0}, {1} was expected.</value></data>
+  <data name="ErrorValueEndsWithWhiteSpace" xml:space="preserve"><value>Value ends with white space.</value></data>
+  <data name="ErrorCheckTargetChange" xml:space="preserve"><value>Check target replacement is not allowed.</value></data>
+  <data name="WarningCheckSkipped3Plus" xml:space="preserve"><value>Checks '{1}', '{2}', '{3}', and {4} more have been skipped because they need {0}</value></data>
+  <data name="GroupingColumnNameCannotBeNull" xml:space="preserve"><value>Grouping column name cannot be null.</value></data>
+  <data name="UnsupportedTargetCheckDisplayName" xml:space="preserve"><value>No checks for the target</value></data>
+  <data name="ErrorMultuallyExclusiveJsonProperties" xml:space="preserve"><value>Only one of ({0}) may be specified.</value></data>
+  <data name="ErrorJsonReader" xml:space="preserve"><value>JSON reading error.</value></data>
+  <data name="ErrorEmtyString" xml:space="preserve"><value>Empty string is not allowed.</value></data>
+  <data name="ErrorJsonMissingProperty" xml:space="preserve"><value>Property "{0}" was not found.</value></data>
+  </root>

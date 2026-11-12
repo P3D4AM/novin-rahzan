@@ -1,0 +1,9 @@
+namespace Microsoft.Data.SqlClient;
+
+internal enum EnclaveIdentityFlags
+{
+	ENCLAVE_FLAG_NONE = 0,
+	ENCLAVE_FLAG_FULL_DEBUG_ENABLED = 1,
+	ENCLAVE_FLAG_DYNAMIC_DEBUG_ENABLED = 2,
+	ENCLAVE_FLAG_DYNAMIC_DEBUG_ACTIVE = 4
+}

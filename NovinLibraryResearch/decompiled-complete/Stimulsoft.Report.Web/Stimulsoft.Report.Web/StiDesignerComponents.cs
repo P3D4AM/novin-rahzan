@@ -1,0 +1,37 @@
+namespace Stimulsoft.Report.Web;
+
+public enum StiDesignerComponents
+{
+	StiText,
+	StiTextInCells,
+	StiRichText,
+	StiImage,
+	StiBarCode,
+	StiPanel,
+	StiClone,
+	StiCheckBox,
+	StiSubReport,
+	StiZipCode,
+	StiTable,
+	StiCrossTab,
+	StiCrossGroupHeaderBand,
+	StiCrossGroupFooterBand,
+	StiCrossHeaderBand,
+	StiCrossFooterBand,
+	StiCrossDataBand,
+	StiReportTitleBand,
+	StiReportSummaryBand,
+	StiPageHeaderBand,
+	StiPageFooterBand,
+	StiGroupHeaderBand,
+	StiGroupFooterBand,
+	StiHeaderBand,
+	StiFooterBand,
+	StiColumnHeaderBand,
+	StiColumnFooterBand,
+	StiDataBand,
+	StiHierarchicalBand,
+	StiChildBand,
+	StiEmptyBand,
+	StiOverlayBand
+}

@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="NoTargetSetEnabled" xml:space="preserve"><value>At least one Target Set needs to be enabled for the Object Set '{0}'.</value></data>
+  <data name="MissingProperty" xml:space="preserve"><value>Property '{0}' does not exist.</value></data>
+  <data name="ExpressionNodeNotConfigurable" xml:space="preserve"><value>Cannot configure the target. The result is not deterministic because of operator [{0}].</value></data>
+  <data name="UnexpectedElement" xml:space="preserve"><value>Element name '{0}' is unexpected. Expected the name '{1}'.</value></data>
+  <data name="ValidationFailed" xml:space="preserve"><value>Validation failed for {0} '{1}'.</value></data>
+  <data name="UnexpectedName" xml:space="preserve"><value>Unexpected xml-node type '{0}', name '{1}'. Expected type '(2)', name '{1}'.</value></data>
+  <data name="UnexpectedType" xml:space="preserve"><value>Unexpected xml-node type '{0}', name '{1}'. Expected type '(2)'.</value></data>
+  <data name="ExpressionNodeNotConfigurableOperators" xml:space="preserve"><value>Cannot configure property [{0}] to conform to expression [{1}] because the result is not deterministic.</value></data>
+  <data name="UnsupportedConstantType" xml:space="preserve"><value>{0} does not support type '{1}'.</value></data>
+  <data name="FunctionNotASmoObject" xml:space="preserve"><value>Function {0} attempted with bad target type {1}.</value></data>
+  <data name="AdapterAlreadyExists" xml:space="preserve"><value>Adapter for this interface and object pair already exists ({0}, {1}).</value></data>
+  <data name="InvalidInOperator" xml:space="preserve"><value>Operator '{0}' must have a value as its left operand and its right operand must be an Array. </value></data>
+  <data name="NotSupported" xml:space="preserve"><value>{0} '{1}' does not support {2} '{3}'. </value></data>
+  <data name="AssemblyAlreadyRegistered" xml:space="preserve"><value>Assembly {0} is already registered.</value></data>
+  <data name="BadExpressionTree" xml:space="preserve"><value>ExpressionTree is not formed correctly. ({0}) </value></data>
+  <data name="MissingTypeFacetAssociation" xml:space="preserve"><value>There is no association between type '{0}' and facet '{1}'.</value></data>
+  <data name="AdapterHasTooManyArguments" xml:space="preserve"><value>Adapter {0} has a constructor that has more than one argument</value></data>
+  <data name="UnsupportedObjectType" xml:space="preserve"><value>Object type {0} is not supported by {1}.</value></data>
+  <data name="FunctionWrongArgumentsNumber" xml:space="preserve"><value>Function {0} received {1} arguments. The expected number of arguments is {2}.</value></data>
+  <data name="UnsupportedTargetSetForFacet" xml:space="preserve"><value>The Object Set '{1}' has an unsupported Target Set '{0}' specified for Facet '{2}'.</value></data>
+  <data name="OperatorNotApplicable" xml:space="preserve"><value>Operator {0} is not a supported comparison operator for type {1}.</value></data>
+  <data name="ConversionNotSupported" xml:space="preserve"><value>{0} '{1}' is not supported by Target Set. </value></data>
+  <data name="FunctionWrongReturnType" xml:space="preserve"><value>Function {0} specified a return value of type {1}. The expected type is {2}.</value></data>
+  <data name="ObjectDoesntExist" xml:space="preserve"><value>{0} '{1}' does not exist. </value></data>
+  <data name="NullFacet" xml:space="preserve"><value>Cannot find Facet associated with {0}.</value></data>
+  <data name="ObjectAlreadyExists" xml:space="preserve"><value>{0} '{1}' already exists. </value></data>
+  <data name="ExpressionNodeNotConfigurableGeneric" xml:space="preserve"><value>Expression cannot be configured.</value></data>
+  <data name="FunctionWrongArgumentType" xml:space="preserve"><value>Function {0} received an argument of type {1}. The expected type is {2}.</value></data>
+  <data name="NonConfigurableReadOnlyProperty" xml:space="preserve"><value>Cannot change property [{0}] because it is read-only.</value></data>
+  <data name="ExpressionTypeMistmatch" xml:space="preserve"><value>Type {0} cannot be compared to {1}.</value></data>
+  <data name="InvalidOperand" xml:space="preserve"><value>Type '{0}' cannot be {1}.</value></data>
+  <data name="NonRetrievableProperty" xml:space="preserve"><value>Property value '{0}' is not available.</value></data>
+  <data name="TargetSetCountMismatch" xml:space="preserve"><value>The Object Set '{0}' has an invalid number of Target Sets was specified for Facet '{1}'.</value></data>
+  <data name="FailedOperation" xml:space="preserve"><value>{0} failed for {1} '{2}'.</value></data>
+  <data name="CannotMoveToElement" xml:space="preserve"><value>Cannot find the next element.</value></data>
+  <data name="StringPropertyTooLong" xml:space="preserve"><value>String property '{0}' accepts a maximum of {1} characters. {2} characters were provided.</value></data>
+  <data name="ConfigValueMismatch" xml:space="preserve"><value>Value of property {0} is not in a committed state. Configuration value = {1}, Run value = {2}. Before policies can evaluate this property, you must restart the service.</value></data>
+  <data name="CannotConvertToType" xml:space="preserve"><value>String '{0}' cannot be converted to type '{1}'.</value></data>
+  </root>

@@ -1,0 +1,31 @@
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public sealed class RelationalQueryableMethodTranslatingExpressionVisitorDependencies
+{
+	public IRelationalSqlTranslatingExpressionVisitorFactory RelationalSqlTranslatingExpressionVisitorFactory { get; }
+
+	public ISqlExpressionFactory SqlExpressionFactory { get; }
+
+	[EntityFrameworkInternal]
+	public RelationalQueryableMethodTranslatingExpressionVisitorDependencies([JetBrains.Annotations.NotNull] IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory, [JetBrains.Annotations.NotNull] ISqlExpressionFactory sqlExpressionFactory)
+	{
+		Microsoft.EntityFrameworkCore.Utilities.Check.NotNull(relationalSqlTranslatingExpressionVisitorFactory, "relationalSqlTranslatingExpressionVisitorFactory");
+		Microsoft.EntityFrameworkCore.Utilities.Check.NotNull(sqlExpressionFactory, "sqlExpressionFactory");
+		RelationalSqlTranslatingExpressionVisitorFactory = relationalSqlTranslatingExpressionVisitorFactory;
+		SqlExpressionFactory = sqlExpressionFactory;
+	}
+
+	public RelationalQueryableMethodTranslatingExpressionVisitorDependencies With([JetBrains.Annotations.NotNull] IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory)
+	{
+		return new RelationalQueryableMethodTranslatingExpressionVisitorDependencies(relationalSqlTranslatingExpressionVisitorFactory, SqlExpressionFactory);
+	}
+
+	public RelationalQueryableMethodTranslatingExpressionVisitorDependencies With([JetBrains.Annotations.NotNull] ISqlExpressionFactory sqlExpressionFactory)
+	{
+		return new RelationalQueryableMethodTranslatingExpressionVisitorDependencies(RelationalSqlTranslatingExpressionVisitorFactory, sqlExpressionFactory);
+	}
+}

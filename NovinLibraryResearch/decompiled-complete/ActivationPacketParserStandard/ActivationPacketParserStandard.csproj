@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>ActivationPacketParserStandard</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="PacketParserStandard">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/PacketParserStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SqlClient">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/System.Data.SqlClient.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Serilog.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityCacheStandard">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/EntityCacheStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSmsStandard">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/WebSmsStandard.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

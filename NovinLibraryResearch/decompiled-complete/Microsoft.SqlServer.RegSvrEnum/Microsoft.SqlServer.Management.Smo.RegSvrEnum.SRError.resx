@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="ConnectionInfoTypeIncorrect" xml:space="preserve"><value>ConnectionInfo is an incorrect type. Expecting RegSvrConnectionInfo.</value></data>
+  <data name="CryptProtectDataWin32Error" xml:space="preserve"><value>CryptProtectData: Win32 error:{0}</value></data>
+  <data name="UniqueRegisteredNamePattern" xml:space="preserve"><value>Copy #{0} of {1}</value></data>
+  <data name="CryptUnprotectDataWin32Error" xml:space="preserve"><value>CryptUnprotectData: Win32 error:{0}</value></data>
+  <data name="ServerTypeNotSpecified" xml:space="preserve"><value>@ServerType must be specified.</value></data>
+  <data name="ErrCannotMoveToSelf" xml:space="preserve"><value>Cannot move node into itself.</value></data>
+  <data name="AccessDenied" xml:space="preserve"><value>Access denied for file: {0}</value></data>
+  <data name="ArraySizeError" xml:space="preserve"><value>Not enough space in the destination array.</value></data>
+  <data name="ArrayDimensionInvalid" xml:space="preserve"><value>Must be only 1 dimension.</value></data>
+  <data name="SqlServerTypeNotFound" xml:space="preserve"><value>SqlServer Type '{0}' not found.</value></data>
+  <data name="DirectoryNotFound" xml:space="preserve"><value>Could not create path/directory: {0}</value></data>
+  <data name="ErrUnableToExport" xml:space="preserve"><value>Unable to export into {0}.</value></data>
+  <data name="RegSvrDatafileInvalid" xml:space="preserve"><value>Registered Servers application datafile '{0}' has an incorrect format or is corrupted.</value></data>
+  <data name="InvalidParentResultType" xml:space="preserve"><value>Internal Enumerator Error: Invalid parent ResultType.</value></data>
+  <data name="PathFilterInvalid" xml:space="preserve"><value>Node '{0}' in the @Path filter is invalid.</value></data>
+  <data name="NotSaveRegisteredServers" xml:space="preserve"><value>Could not save Registered Server information.</value></data>
+  <data name="ErrCannotHaveSiblingsWithSameName" xml:space="preserve"><value>Cannot have sibling nodes with the same friendly name.</value></data>
+  <data name="PathNotSupported" xml:space="preserve"><value>The path {0} is not supported.</value></data>
+  <data name="ServerTypeMustBeGuid" xml:space="preserve"><value>@ServerType must be a GUID value.</value></data>
+  <data name="RecursiveMove" xml:space="preserve"><value>Cannot move node into one of its children.</value></data>
+  <data name="ServerTypeFilterInvalid" xml:space="preserve"><value>Invalid @ServerType filter value.</value></data>
+  </root>

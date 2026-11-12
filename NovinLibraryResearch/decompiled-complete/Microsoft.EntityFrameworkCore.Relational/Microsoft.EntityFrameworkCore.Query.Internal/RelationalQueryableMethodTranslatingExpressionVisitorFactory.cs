@@ -1,0 +1,21 @@
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace Microsoft.EntityFrameworkCore.Query.Internal;
+
+public class RelationalQueryableMethodTranslatingExpressionVisitorFactory : IQueryableMethodTranslatingExpressionVisitorFactory
+{
+	private readonly QueryableMethodTranslatingExpressionVisitorDependencies _dependencies;
+
+	private readonly RelationalQueryableMethodTranslatingExpressionVisitorDependencies _relationalDependencies;
+
+	public RelationalQueryableMethodTranslatingExpressionVisitorFactory(QueryableMethodTranslatingExpressionVisitorDependencies dependencies, RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies)
+	{
+		_dependencies = dependencies;
+		_relationalDependencies = relationalDependencies;
+	}
+
+	public virtual QueryableMethodTranslatingExpressionVisitor Create(IModel model)
+	{
+		return new RelationalQueryableMethodTranslatingExpressionVisitor(_dependencies, _relationalDependencies, model);
+	}
+}

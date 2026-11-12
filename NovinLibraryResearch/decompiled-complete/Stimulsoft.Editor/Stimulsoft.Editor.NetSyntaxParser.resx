@@ -1,0 +1,1313 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="NETImages.ImageStream" mimetype="application/x-microsoft.net.object.binary.base64"><value>AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAACYOAAAAk1TRnQBSQFMAgEBLgEAATEBAAEEAQABEAEAARABAAT/AQkBEAj/AUIBTQE2AQQGAAE2AQQCAAEoAwABQAMAAdADAAEBAQABCAYAATQYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHAAQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMAAWYDAAGZAwABzAIAATMDAAIzAgABMwFmAgABMwGZAgABMwHMAgABMwH/AgABZgMAAWYBMwIAAmYCAAFmAZkCAAFmAcwCAAFmAf8CAAGZAwABmQEzAgABmQFmAgACmQIAAZkBzAIAAZkB/wIAAcwDAAHMATMCAAHMAWYCAAHMAZkCAALMAgABzAH/AgAB/wFmAgAB/wGZAgAB/wHMAQABMwH/AgAB/wEAATMBAAEzAQABZgEAATMBAAGZAQABMwEAAcwBAAEzAQAB/wEAAf8BMwIAAzMBAAIzAWYBAAIzAZkBAAIzAcwBAAIzAf8BAAEzAWYCAAEzAWYBMwEAATMCZgEAATMBZgGZAQABMwFmAcwBAAEzAWYB/wEAATMBmQIAATMBmQEzAQABMwGZAWYBAAEzApkBAAEzAZkBzAEAATMBmQH/AQABMwHMAgABMwHMATMBAAEzAcwBZgEAATMBzAGZAQABMwLMAQABMwHMAf8BAAEzAf8BMwEAATMB/wFmAQABMwH/AZkBAAEzAf8BzAEAATMC/wEAAWYDAAFmAQABMwEAAWYBAAFmAQABZgEAAZkBAAFmAQABzAEAAWYBAAH/AQABZgEzAgABZgIzAQABZgEzAWYBAAFmATMBmQEAAWYBMwHMAQABZgEzAf8BAAJmAgACZgEzAQADZgEAAmYBmQEAAmYBzAEAAWYBmQIAAWYBmQEzAQABZgGZAWYBAAFmApkBAAFmAZkBzAEAAWYBmQH/AQABZgHMAgABZgHMATMBAAFmAcwBmQEAAWYCzAEAAWYBzAH/AQABZgH/AgABZgH/ATMBAAFmAf8BmQEAAWYB/wHMAQABzAEAAf8BAAH/AQABzAEAApkCAAGZATMBmQEAAZkBAAGZAQABmQEAAcwBAAGZAwABmQIzAQABmQEAAWYBAAGZATMBzAEAAZkBAAH/AQABmQFmAgABmQFmATMBAAGZATMBZgEAAZkBZgGZAQABmQFmAcwBAAGZATMB/wEAApkBMwEAApkBZgEAA5kBAAKZAcwBAAKZAf8BAAGZAcwCAAGZAcwBMwEAAWYBzAFmAQABmQHMAZkBAAGZAswBAAGZAcwB/wEAAZkB/wIAAZkB/wEzAQABmQHMAWYBAAGZAf8BmQEAAZkB/wHMAQABmQL/AQABzAMAAZkBAAEzAQABzAEAAWYBAAHMAQABmQEAAcwBAAHMAQABmQEzAgABzAIzAQABzAEzAWYBAAHMATMBmQEAAcwBMwHMAQABzAEzAf8BAAHMAWYCAAHMAWYBMwEAAZkCZgEAAcwBZgGZAQABzAFmAcwBAAGZAWYB/wEAAcwBmQIAAcwBmQEzAQABzAGZAWYBAAHMApkBAAHMAZkBzAEAAcwBmQH/AQACzAIAAswBMwEAAswBZgEAAswBmQEAA8wBAALMAf8BAAHMAf8CAAHMAf8BMwEAAZkB/wFmAQABzAH/AZkBAAHMAf8BzAEAAcwC/wEAAcwBAAEzAQAB/wEAAWYBAAH/AQABmQEAAcwBMwIAAf8CMwEAAf8BMwFmAQAB/wEzAZkBAAH/ATMBzAEAAf8BMwH/AQAB/wFmAgAB/wFmATMBAAHMAmYBAAH/AWYBmQEAAf8BZgHMAQABzAFmAf8BAAH/AZkCAAH/AZkBMwEAAf8BmQFmAQAB/wKZAQAB/wGZAcwBAAH/AZkB/wEAAf8BzAIAAf8BzAEzAQAB/wHMAWYBAAH/AcwBmQEAAf8CzAEAAf8BzAH/AQAC/wEzAQABzAH/AWYBAAL/AZkBAAL/AcwBAAJmAf8BAAFmAf8BZgEAAWYC/wEAAf8CZgEAAf8BZgH/AQAC/wFmAQABIQEAAaUBAANfAQADdwEAA4YBAAOWAQADywEAA7IBAAPXAQAD3QEAA+MBAAPqAQAD8QEAA/gBAAHwAfsB/wEAAaQCoAEAA4ADAAH/AgAB/wMAAv8BAAH/AwAB/wEAAf8BAAL/AgAD//8A/wD/AP8AlQAB+AHrAW0B6gETARUBEQEPBw4xAAHsAZoBegFYBVIBUQFLASoCSwEPIgABkQOuAWwBAAGRA64BbAHqAwAB7AGgApoEegFZAVMCUgExAUsBETEAAewBGgGgApoDegJZAVMCUgEqAUMxAAHtAcMCoAKaA3oCWQFTAVIBMQEUJAACkQOuAWwB6gJsAmYCAAHtAcMCoAKaBHoCWQFSATEBEjEAARwDwwGgApoEegFZAVIBMQHqIgAHOQgAARwDwwKgApoEegFZAVIB6yIAATkFAAE5AQABkQOuAWwB6gEAARwFwwKgApoEegHrIgAHOQgAChwE7QH4MQABHAEaAsMBoAGaARw6AAUc0AABphQAAfQBvCgAAa0BswGmDAAB9ALxAgAB9AEHAWwBZhMAAesEEwISBRMIAAGtAdsB1QGzAaYKAAH3Aa4BZgGuAQcB9AHvAWYBuwFmEwABvAf/AfQCGQETBwABtALcAdsB1QGzAaYIAAJmAe8BvAGSAWwBZgFsAbwBuwFmEwABvAH/ArUB/wW1ARkBEwgAAbQC3AHbAdUBswGmAQABggUAAbUB8AH0Av8B8QK8AfABBwFmDwABZwMAAbwF/wL0AxkBEwkAAbQC3AHbAa0BAAGCAbABggQAAbUB/wPVAc4CrQHxAQcBZg4AAY0BjAFnAgABvAH/ArUB/wW1ARkBEwcAAioBAAG0AdwBrQEAAYIB2AG2AbABggMAAe8G/wHzAfIBvAFmDQABjQGwAWcBggFnAQABvAf/AvQBGQETBgABKgJZASoBAAG0AQABsAPYAbYBsAGCAgABtQH/A9UBzgKtAfMBvAFmBQABoAEaAZkB7wMAAY0CsAFnAoIBZwG8Bv8B7wFKAfEB9AETBQABKgF6A1kBKgEAAbAD3gLYAbADAAG7B/8B9AHwAWYLAAGNA7ABtgKCAWcBvAH/AfMBbgHyAf8BvAFKAVIBDgHqAZICAAHvAUkBKgGaAnoDWQEqAQABsAPeAbAEAAG7Af8D1QHOAv8C8QFmBAABoAEaAZkBBwHvAfcBAAGCArAD2AGNAWcBtAEJARwBmQFKAe0BSgF5ARIBWQEQAQ4BIgESAW0BTwExAaABmgJ6A1kBKgEAAbAB3gGwBQABuwb/AfcDZgsAAY0BsATYAbYBggG0AgkBHAGaAUoBeQHqAeUBFAFYAVIBMQEqARIBTwEAATEBoAGaAnoDWQEqAQABsAYAAbsG/wG1AbwBZgHvBgABoAGZAe8B9wEAArYE2AG2AQADtAEJARwBegFzAeUBFAJ6AlkBMgFzAU8CAAExAaABmgJ6AVkBMQkAAQkG/wG1AWYB7w0AAbYB3gLYAbYHAAFuAeUBcwHlA3oCWQFzAVADAAExAaABmgF6ATEKAAUJAbsBBwG7AfAPAAO2CQABbQPlAnoBeQFuAXMBmAQAATEBoAExJAABtgsAARwC7QLsAW4BAAKYBQABMfEAAXMqAAJzAW4CSwJKDQABmQGaAVERAAGmFgABWAGaAnoCeQJYAUoNAAGaARYBSw8AAbQCphUAAVgCmgKRAa4CeQFKDQABmQF6ARYBSw0AArQDphQAAXkDmgN6AXkBSg4AAZkBegEWAUsLAAO0BKYTAAF5AaABmgKRAa4CegFLAW4CSwJKBwACcwFKAXMBegEWAUQKAAK0AdsBCQGtA6YMAAGRAq4DAAF5AqADmgJ6AUsBegJ5AlgBSgYAAXkCegKaAZQBFgFECQABtAHcAQkB3AEJAYsCpgIAAfEB9wHtAfAFAALvAbwBBwGuAwACeQNYAlIBeQKRAa4CeQFKBwABeQHDAXoBFgFRCwABugTcAQkBhgGmAgACvAHvAe0BtQGRAa4BbAK1AfEBAAHxAQcBrgcAAXkDmgN6AXkBSgcAAXkBGgJ6ARYBSwsAAboE3AEJAa0CAAHwAQABvAL3AZEBrgFsAQcB9wMAAbwBrgcAAXkBoAGaApEBrgJ6AUsIAAF5AcMBegF1ARYB6gsAAboD3AG6AwAB8wHwAbwB8QQAAQcBkQHxAQAB8QG1AZEHAAF5AqADmgJ6AUsIAAF5ARoBegGaAXUBFgESCwABtAHcAboNAAG8AZEB9wK1CQACeQNYAlIKAASZAXkBcwGZCwABug8AAQcBvAHvRQABSwIAAaY7AAF5AXoBSwEJAbMBphQAAaYVAAHsAZEFrgFsAeoDbAFmAwABeQF6AVkBUQHbAbMBphIAAa0BtAGmEwABtQH0AfMB8QHwA7wBBwG2AYICtQH3AWYCAAF5AXoBUQEZAdsB1QGzAaYOAAKRAbQB3AHbAbQBphIAAbUC9AHzAfEB8AK8AbYBsAKCAfcBtQFmAQABdAFZAXoBWQFRAbwB2wHVAbMBpgEAAYILAAGRAgABtAHcAdsBtAGmEQABuwH/ARoBmQEHAe8B9wG2ArADggG1AWwBeQGaAXoCeQFZAVEB3AHbAa0BAAGCAbABggoAAZEDAAG0AdwBrQUAAq4BbQFsAeoCbAJmBAABBwL/AfQB8wHyAfEDsAOCAbUBbAF5AqABSwF5AVkBUQEJAa0BAAGCAdgBtgGwAYIJAAGRBAABtAUAAe0B8gHxAfACvAIHAe8BtQFmAwABBwEaAZkBBwHvAfcB8QKwAtgCggG1AWwBGwF5AZoCegFRAQABtAEAAbAD2AG2AbABggQAASoDAAGRAwABggYAAfcB8wHyAfEB8AK8AgcB7wFsAwABBwP/AvQB8gGwBNgBggHvAeoBAAFSAXkCdAEaASoBAAGwA94C2AGwBAABKgFZASoCAAGRAgABqgGwAYIFAAH3AfQB8wHyAW0BbAFmAbwCBwFsAwABBwH/ARoBmQHvAfcB8wGwAd4C2AGwAbwBBwFsASoBoAPDAXoBWQEqAQABsAPeAbAEAAEqA1kBKgORAbAC2AGwAYIEAAG1Af8B9AHzAfIB8QHwArwBBwFsAwABvAX/AfQB8wGwAdgBsAK8AQcBbAExAaABmgJ6A1kBKgEAAbAB3gGwBAABMQGaAnoCWQEqAwABsALYAbABggMAAbUC/wH0AW0BbAFmAfACvAGuAwABvAX/AvQB8gGwAd0DvAFtAQABMQGgAZoCegNZASoBAAGwBgABMQGaAnoCWQEqAwABsAHYAbAEAAG1A/8B9AHzAfIB8QHwAbwBrgQAArwEBwHvBbUB9wMAATEBoAGaAnoBWQExCgABMQGaAnoCWQEqAwABsAUAAQcE/wH0AfMB8gHxAfABrgcAAQcB9wMAAbUBrgcAATEBoAGaAXoBMQwAATEBmgJ6ATELAAEHAbUB7wG1AvcB7QKRCAABvAH3AwABtQGuCAABMQGgATEOAAExAZoBMR4AAu8B9wGRAewKAAExEAABMSAAAgcB7wkAAUsPAAFLDwABSxcAAUsGAAF5AXoBSw0AAXkBegFLDQABeQF6AUsVAAF5AXoBSwUAAXkBegFZAVEMAAF5AXoBWQFRDAABeQF6AVkBUQoAAesEEwISAxMBeQF6AVkBUQQAAXkBegFRDQABeQF6AVENAAF5AXoBUQsAAbwH/wH0AbwBeQF6AVEEAAF0AVkBegFZAVEEAAGmBgABdAFZAXoBWQFRCwABdAFZAXoBWQFRCgABvAH/ArUB/wO1Ae8BdAFZAXoBWQFRAgABeQGaAXoCeQFZAVECAAG0AqYEAAF5AZoBegJ5AVkBUQkAAXkBmgF6AnkBWQFRBQABZwMAAbwF/wL0AXkBmgF6AnkBWQFRAQABeQKgAUsBeQFZAVEBAAK0A6YDAAF5AqABSwF5AVkBUQkAAXkCoAFLAXkBWQFRBAABjQGMAWcCAAG8Af8CtQH/A7UBeQEaAaABSwF5AVkBUQIAAXkBGgJ6AVEBAAO0BKYDAAF5ARoCegFRCwABeQEaAnoBUQEaAwABjQGwAWcBggFnAQABvAf/ARoBeQEaAnoBUQQAAXkCdAIAArQB2wEJAa0DpgMAAXkCdAYAAZECrgQAAXkCdAGZAwABjQKwAWcCggFnAbwG/wHvAUoBvAF5AnQKAAG0AdwBCQHcAQkBiwKmAgAB8QH3Ae0B8AUAAu8BvAEHAa4JAAGNA7ABtgKCAWcBvAH/AfMBbgHyAf8BvAFKAVIBDgHqAZICAAHvAUkHAAG6BNwBCQGGAaYCAAK8Ae8B7QG1AZEBrgFsArUB8QEAAfEBBwGuAQABoAEaAZkBBwHvAfcBAAGCArAD2AGNAWcBtAEJARwBmQFKAe0BSgF5ARIBWQEQAQ4BIgESAW0BTwgAAboE3AEJAa0CAAHwAQABvAL3AZEBrgFsAQcB9wMAAbwBrggAAY0BsATYAbYBggG0AgkBHAGaAUoBeQHqAeUBFAFYAVIBMQEqARIBTwkAAboD3AG6AwAB8wHwAbwB8QQAAQcBkQHxAQAB8QG1AZEDAAGgAZkB7wH3AQACtgTYAbYBAAO0AQkBHAF6AXMB5QEUAnoCWQEyAXMBTwoAAbQB3AG6DQABvAGRAfcCtQoAAbYB3gLYAbYHAAFuAeUBcwHlA3oCWQFzAVALAAG6DwABBwG8Ae8MAAO2CQABbQPlAnoBeQFuAXMBmCsAAbYLAAEcAu0C7AFuAQACmAMAAUsPAAFLFwABSwcAAUsOAAF5AXoBSwwAAfABeQF6AUsB6wOuAWwB6gNsAWYLAAF5AXoBSwUAAXkBegFLDQABeQF6AVkBUQsAAbUBeQF6AVkBUQO8AQcBtgGCArUB9wFmCgABeQF6AVkBUQQAAXkBegFZAVEMAAF5AXoBUQwAAfcBeQF6AVEBvAHwArwBtgGwAoIB9wG1AWYKAAF5AXoBUQUAAXkBegFRAgABcwkAAXQBWQF6AVkBUQsAAXQBWQF6AVkBUQEcAfcBtgKwA4IBtQFsAgACcwFuAksBcwEaAVIBWQF6AVkBUQMAAXQBWQF6AVkBUQEcAZoBUQcAAXkBmgF6AnkBWQFRAWwB6gJsAmYDAAF5AZkBegJ5AVkBUQHxA7ADggG1AWwBAAFYAZoCegJ5ARsBdAGZAXoCeQFZAVEBAAF5AZoBegJ5AVkBUQGaARYBSwYAAXkCoAFLAXkBWQFRArwCBwHvAbUBZgIAAXkBGgGgAUsBeQFZAVEB8QKwAtgCggG1AWwBAAFYApoCkQGuAcMBdAGaAaABSwF5AVkBUQEAAXkCoAFLAXkBWQFRAZkBegEWAUsGAAF5ARoCegFRAZkB8AK8AgcB7wFsAwABeQEaAnoBUQGZAfIBsATYAYIB7wHqAQABeQOaAnoCGgF0ARoCegFRARoCAAF5ARoCegFRARoBAAGZAXoBFgFLBgABeQJ0AZkB8gFtAWwBZgG8AgcBbAMAAQcBeQJ0AZkB9wHzAbAB3gLYAbABvAEHAWwBAAF5AaABmgKRAa4BegIaAnQBUgGZARwDAAF5AnQBGgJzAUoBcwF6ARYBRAYAAbUB/wH0AfMB8gHxAfACvAEHAWwDAAG8Bf8B9AHzAbAB2AGwArwBBwFsAQABeQKgA5oCegFzAxoBegFYAUoGAAF5AnoCmgGUARYBRAUAAbUC/wH0AW0BbAFmAfACvAGuAwABvAX/AvQB8gGwAd0DvAFtAgACeQNYAlIBeQKRAa4CeQFKBwABeQHDAXoBFgFRBwABtQP/AfQB8wHyAfEB8AG8Aa4EAAK8BAcB7wW1AfcIAAF5A5oDegF5AUoHAAF5ARoCegEWAUsGAAEHBP8B9AHzAfIB8QHwAa4HAAEHAfcDAAG1Aa4LAAF5AaABmgKRAa4CegFLCAABeQHDAXoBdQEWAeoGAAEHAbUB7wG1AvcB7QKRCAABvAH3AwABtQGuCwABeQKgA5oCegFLCAABeQEaAXoBmgF1ARYBEhcAAu8B9wGRAewNAAJ5A1gCUgoABJkBeQFzAZkXAAIHAe8nAAGRBK4BbBIAAZEErgFsAgABkQSuAWwMAAFLDAABtQHwA7wCBwFsEAABtQHwA7wCBwFsAbUB8AO8AgcBbAoAAXkBegFLBwABpgMAAQcB8gG8ARMCvAEHAa4IAAHrBBMCEgHsAQcB8gG8ARMCvAEHAa4BBwHyAbwBEwK8AQcBrgG7CQABeQF6AVkBUQUAAa0BtAGmAgABvAHyAxMB8AG8Aa4IAAG8B/8BvAHyAxMB8AG8Aa4BvAHyAxMB8AG8Aa4BGQGmCAABeQF6AVEDAAKRAbQB3AHbAbQBpgEAAfAE8gHwAbwBrggAAbwB/wK1Af8CtQHxAfAE8gHwAbwBrgHwBPIB8AG8Aa4BGQGzAaYBAAGCBAABdAFZAXoBWQFRAgABkQIAAbQB3AHbAbQBpgEAAfAB9wLwAq4FAAFnAwABvAX/AvQB8wG8AfcC8AKuAgABvAH3AvACrgEZAdsBrQEAAYIBsAGCAgABeQGaAXoCeQFZAVEBAAGRAwABtAHcAa0CAAHwAbUCAAG8AZEEAAGNAYwBZwIAAbwB/wK1Af8DtQHzAbwBtQHwAQABBwGRAgABvAG1AioBBwGRARkBrQEAAYIB2AG2AbABggEAAXkCoAFLAXkBWQFRAQABkQQAAbQDAAHwAfIBBwG1AfABkQMAAY0BsAFnAYIBZwEAAbwH/wH0AfAB8gEHAbUBvAGRAgAB8AHyAQcBtQG8AZEBCQEAAbAD2AG2AbABggEAAXkBGgJ6AVECAAGRAwABggUAAfABvAIHAwABjQKwAWcCggFnAbwG/wHvAUoB8wHwAbwCBwMAASoB8AG8AgcCAAGwA94C2AGwAwABeQJ0ASoCAAGRAgABqgGwAYIKAAGNA7ABtgKCAWcBvAH/AfMBbgHyAf8BvAFKAVIBDgHqAZICAAHvAUkBKgGaAaABwwKaAVkBKgEAAbAD3gGwBAABKgNZASoDkQGwAtgBsAGCAgABoAEaAZkBBwHvAfcBAAGCArAD2AGNAWcBtAEJARwBmQFKAe0BSgF5ARIBWQEQAQ4BIgESAW0BTwExAaABmgJ6A1kBKgEAAbAB3gGwBAABMQGaAnoCWQEqAwABsALYAbABgggAAY0BsATYAbYBggG0AgkBHAGaAUoBeQHqAeUBFAFYAVIBMQEqARIBTwEAATEBoAGaAnoDWQEqAQABsAYAATEBmgJ6AlkBKgMAAbAB2AGwBAABoAGZAe8B9wEAArYE2AG2AQADtAEJARwBegFzAeUBFAJ6AlkBMgFzAU8CAAExAaABmgJ6AVkBMQoAATEBmgJ6AlkBKgMAAbALAAG2Ad4C2AG2BwABbgHlAXMB5QN6AlkBcwFQAwABMQGgAZoBegExDAABMQGaAnoBMREAA7YJAAFtA+UCegF5AW4BcwGYBAABMQGgATEOAAExAZoBMRMAAbYLAAEcAu0C7AFuAQACmAUAATEQAAExEQABkQSuAWwDAAGRBK4BbAoAAZEErgFsCgABkQSuAWwQAAG1AfADvAIHAWwBAAG1AfADvAIHAWwIAAG1AfADvAIHAWwIAAG1AfADvAIHAWwPAAEHAfIBvAETArwBBwGuAQABBwHyAbwBEwK8AQcBrggAAQcB8gG8ARMCvAEHAa4IAAEHAfIBvAETArwBBwGuDwABvAHyAxMB8AG8Aa4BAAG8AfIDEwHwAbwBrggAAbwB8gMTAfABvAGuCAABvAHyAxMB8AG8Aa4KAAJzAW4BSwEcAfAE8gHwAbwBrgEAAfAE8gHwAbwBrgFRBwAB8ATyAfABvAGuAgABpgUAAfAE8gHwAbwBrgkAAVgBmgJ6AnkBmQG8AfcC8AKuAwABvAH3AvACrgGZARYBSwcAAbwB9wLwAq4CAAG0AqYFAAG8AfcC8AKuCgABWAKaApEBrgEaAbwBtQIAAQcBkQMAAbwBtQIAAQcBkQGZAXoBFgFLBgABvAG1AgABBwGRAQACtAOmBAABvAG1AgABBwGRCgABeQOaAnoBGgHwAfIBBwG1AbwBkQMAAfAB8gEHAbUBvAGRAQABmQF6ARYBSwUAAfAB8gEHAbUBvAGRA7QEpgMAAfAB8gEHAbUBvAGRCgABeQGgAZoCkQGuAXoBGgHwAbwCBwHvAXMDAAHwAbwCBwJzAUoBcwF6ARYBRAUAAfABvAIHAQACtAHbAQkBrQOmAwAB8AG8AgcFAAGRAq4DAAF5AqADmgJ6ARwDGgJYAUoGAAF5AnoCmgGUARYBRAkAAbQB3AEJAdwBCQGLAqYCAAHxAfcB7QHwBQAC7wG8AQcBrgMAAnkDWAJSAXkCkQGuAnkBSgcAAXkBwwF6ARYBUQsAAboE3AEJAYYBpgIAArwB7wHtAbUBkQGuAWwCtQHxAQAB8QEHAa4HAAF5A5oDegF5AUoHAAF5ARoCegEWAUsLAAG6BNwBCQGtAgAB8AEAAbwC9wGRAa4BbAEHAfcDAAG8Aa4HAAF5AaABmgKRAa4CegFLCAABeQHDAXoBdQEWAeoLAAG6A9wBugMAAfMB8AG8AfEEAAEHAZEB8QEAAfEBtQGRBwABeQKgA5oCegFLCAABeQEaAXoBmgF1ARYBEgsAAbQB3AG6DQABvAGRAfcCtQkAAnkDWAJSCgAEmQF5AXMBmQsAAboPAAEHAbwB70IAARwCSwFKAUQBFQFDARAJAAGRBK4BbAoAAZEErgFsCgABkQSuAWwJAAF0AVIBegKgAXoBUgERCAABtQHwA7wCBwFsBAABpgMAAbUB8AO8AgcBbAgAAbUB8AO8AgcBbAGuAWwB6gNsAWYB9wEcAaABWANSAXoBQwGmBwABBwHyAbwBEwK8AQcBrgMAAa0BtAGmAgABBwHyAbwBEwK8AQcBrggAAQcB8gG8ARMCvAEHAa4BvAEHAbYBggK1AfcBZgF0AaABUgJ6AVIBegEVAbMBpgYAAbwB8gMTAfABvAGuApEBtAHcAdsBtAGmAQABvAHyAxMB8AG8Aa4IAAG8AfMDEwHwAbwBrgG8AbYBsAKCAfcBtQFmARwBUgF6AqABegFSAUQB1QGzAaYBAAGCAwAB8ATyAfABvAGuAZECAAG0AdwB2wG0AaYB8ATyAfABvAGuCAAB8ATzAfABvAGuAbYCsAOCAbUBbAIcAXQBHAF0ARwBdAFzAdsBrQEAAYIBsAGCAwABvAH3AvACrgEAAZEDAAG0AdwBrQIAAbwB9wLwAq4BbQHqAmwCZgQAAbwB9wG8AQcCrgG8A7ADggG1AWwDAAIqAQABtAHcAa0BAAGCAdgBtgGwAYICAAG8AbUCAAEHAZEBAAGRBAABtAMAAbwBtQHtAfIBvAGRArwCBwHvAbUBZgMAAbwBtQIbAbwBkQHwArAC2AKCAbUBbAIAASoCWQEqAQABtAEAAbAD2AG2AbABggEAAfAB8gEHAbUBvAGRAQABkQMAAYIEAAHwAfIBBwG1AfABkQHwArwCBwHvAWwDAAHwAfIBBwG1AQcBkQHyAbAE2AGCAe8B6gEAASoBegNZASoBAAGwA94C2AGwAwAB8AG8AgcCAAGRAgABqgGwAYIEAAHwAbwCBwHwAW0BbAFmAbwCBwFsAwAB8gHwAbwCBwHwAfMBsAHeAtgBsAG8AQcBbAEqAZoCegNZASoBAAGwA94BsAQAASoDWQEqA5EBsALYAbABggQAAbUB/wH0AfMB8gHxAfACvAEHAWwDAAG8Bf8B9AHzAbAB2AGwArwBBwFsATEBoAGaAnoDWQEqAQABsAHeAbAEAAExAZoCegJZASoDAAGwAtgBsAGCAwABtQL/AfQBbQFsAWYB8AK8Aa4DAAG8Bf8C9AHyAbAB3QO8AW0BAAExAaABmgJ6A1kBKgEAAbAGAAExAZoCegJZASoDAAGwAdgBsAQAAbUD/wH0AfMB8gHxAfABvAGuBAACvAQHAe8FtQH3AwABMQGgAZoCegFZATEKAAExAZoCegJZASoDAAGwBQABBwT/AfQB8wHyAfEB8AGuBwABBwH3AwABtQGuBwABMQGgAZoBegExDAABMQGaAnoBMQsAAQcBtQHvAbUC9wHtApEIAAG8AfcDAAG1Aa4IAAExAaABMQ4AATEBmgExHgAC7wH3AZEB7AoAATEQAAExIAACBwHvBgABHAJLAUoBRAEVAUMBEBgAARwCSwFKAUQBFQFDARAPAAEcAksBSgFEARUBQwEQAQABdAFSAXoCoAF6AVIBERgAAXQBUgF6AqABegFSAREPAAF0AVIBegKgAXoBUgERAQABHAGgAVgDUgF6AUMIAAEcAksBSgFEARUBQwEQCAABHAGgAVgDUgF6AUMIAAHrBBMCEgEcAaABWANSAXoBQwEAAXQBoAFSAnoBUgF6AUQIAAF0AVIBegKgAXoBUgERCAABdAGgAVICegFSAXoBRAgAAbwG/wF0AaABUgJ6AVIBegEVAQABHAFSAXoCoAF6AVIBRAIAAaYFAAEcAaABWANSAXoBQwgAARwBUgF6AqABegFSAUQIAAG8Af8CtQH/ArUBHAFSAXoCoAF6AVIBRAEAAhwBdAEcAXQBHAF0AXMBAAG0AqYEAAF0AaABUgJ6AVIBegEVCAACHAF0ARwBdAEcAXQBcwQAAWcDAAG8Bf8B9AIcAXQBHAF0ARwBdAFzCQACtAOmAwABHAFSAXoCoAF6AVIBRBMAAY0BjAFnAgABvAH/ArUB/wW1ARkBEwsAA7QEpgIAAhwBdAEcAXQBHAF0AXMSAAGNAbABZwGCAWcBAAG8B/8C9AEZARMLAAK0AdsBCQGtA6YMAAGRAq4EAAGgARoBmQHvAfcCAAGNArABZwKCAWcBvAb/Ae8BSgHxAfQBEwsAAbQB3AEJAdwBCQGLAqYCAAHxAfcB7QHwBQAC7wG8AQcBrgkAAY0DsAG2AoIBZwG8Af8B8wFuAfIB/wG8AUoBUgEOAeoBkgIAAe8BSQcAAboE3AEJAYYBpgIAArwB7wHtAbUBkQGuAWwCtQHxAQAB8QEHAa4BAAGgARoBmQEHAe8B9wEAAYICsAPYAY0BZwG0AQkBHAGZAUoB7QFKAXkBEgFZARABDgEiARIBbQFPCAABugTcAQkBrQIAAfABAAG8AvcBkQGuAWwBBwH3AwABvAGuCAABjQGwBNgBtgGCAbQCCQEcAZoBSgF5AeoB5QEUAVgBUgExASoBEgFPCQABugPcAboDAAHzAfABvAHxBAABBwGRAfEBAAHxAbUBkQMAAaABmQHvAfcBAAK2BNgBtgEAA7QBCQEcAXoBcwHlARQCegJZATIBcwFPCgABtAHcAboNAAG8AZEB9wK1CgABtgHeAtgBtgcAAW4B5QFzAeUDegJZAXMBUAsAAboPAAEHAbwB7wwAA7YJAAFtA+UCegF5AW4BcwGYKwABtgsAARwC7QLsAW4BAAKYARwCSwFKAUQBFQFDARAIAAEcAksBSgFEARUBQwEQDwABHAJLAUoBRAEVAUMBEAEAARwCSwFKAUQBFQFDARAIAAF0AVIBegKgAXoBUgERCAABdAFSAXoCoAF6AVIBEQGuAWwB6gNsAWYIAAF0AVIBegKgAXoBUgERAQABdAFSAXoCoAF6AVIBEQgAARwBoAFYA1IBegFDCAABHAGgAVgDUgF6AUMBvAEHAbYBggK1AfcBZgcAARwBoAFYA1IBegFDAQABHAGgAVgDUgF6AUMIAAF0AaABUgJ6AVIBegFECAABdAGgAVICegFSAXoBFQG8AbYBsAKCAfcBtQFmBwABdAGgAVICegFSAXoBRAEAAXQBoAFSAnoBUgF6ARUIAAEcAVIBegKgAXoBUgFECAABHAFSAXoCoAF6AVIBRAG2ArADggG1AWwCAAJzAW4CSwEcAVIBegKgAXoBUgFEAQABHAFSAXoCoAF6AVIBRAFRBwACHAF0ARwBdAEcAXQBcwHqAmwCZgMAAhwBdAEcAXQBHAF0AXMDsAOCAbUBbAEAAVgBmgJ6AnkCHAF0ARwBdAEcAXQBcwEAAhwBdAEcAXQBHAF0AXMBFgFLCQAB7QHyAfEB8AK8AgcB7wG1AWYDAAEHARoBmQEHAe8B9wHxArAC2AKCAbUBbAEAAVgCmgKRAa4CeQFKDQABmQF6ARYBSwgAAfcB8wHyAfEB8AK8AgcB7wFsAwABBwP/AvQB8gGwBNgBggHvAeoBAAF5A5oDegF5AUoOAAGZAXoBFgFLBwAB9wH0AfMB8gFtAWwBZgG8AgcBbAMAAQcB/wEaAZkB7wH3AfMBsAHeAtgBsAG8AQcBbAEAAXkBoAGaApEBrgJ6AUsBbgJLAkoHAAJzAUoBcwF6ARYBRAYAAbUB/wH0AfMB8gHxAfACvAEHAWwDAAG8Bf8B9AHzAbAB2AGwArwBBwFsAQABeQKgA5oCegFLAXoCeQJYAUoGAAF5AnoCmgGUARYBRAUAAbUC/wH0AW0BbAFmAfACvAGuAwABvAX/AvQB8gGwAd0DvAFtAgACeQNYAlIBeQKRAa4CeQFKBwABeQHDAXoBFgFRBwABtQP/AfQB8wHyAfEB8AG8Aa4EAAK8BAcB7wW1AfcIAAF5A5oDegF5AUoHAAF5ARoCegEWAUsGAAEHBP8B9AHzAfIB8QHwAa4HAAEHAfcDAAG1Aa4LAAF5AaABmgKRAa4CegFLCAABeQHDAXoBdQEWAeoGAAEHAbUB7wG1AvcB7QKRCAABvAH3AwABtQGuCwABeQKgA5oCegFLCAABeQEaAXoBmgF1ARYBEhcAAu8B9wGRAewNAAJ5A1gCUgoABJkBeQFzAZkXAAIHAe+XAAEcAksBSgFEARUBQwEQAwABphMAAbUDkQSuAW0BbAHqFgABdAFSAXoCoAF6AVIBEQIAAa0BtAGmAgAQkgEHAf8E9ALzAhkBbAkAAewBQwMAAUMB7AYAARwBoAFYA1IBegFDAZEBtAHcAdsBtAGmAQABkg4AAZIBBwH/A64B9AOuARkBrggAAewBDgUAAQ4B7AUAAXQBoAFSAnoBUgF6ARUCAAG0AdwB2wG0AaYBkg4AAZIBBwH/AQcBkwG8AfQBvAEcAbwB8wGuCAABEwEOBQABDgETBQABHAFSAXoCoAF6AVIBRAMAAbQB3AGtAQABkgEAApIDAAKSAwACkgEAAZIBvAH/AWgBkwFoAfQBEgGXARIBGQGuCAABEwEOBQABDgETBQACHAF0ARwBdAEcAXQBcwQAAbQCAAGSAQACkgMAApIDAAKSAQABkgG8Af8BvAFuAfcB/wH3AewBBwH0Aa4IAAEOBwABDggAASoDAAGRAwABggMAAZIOAAGSAfAF/wT0AZECSwJKAwABDgFtBwABbQEOBgABKgFZASoCAAGRAgABqgGwAYICAAGSDgABkgLwArwCBwS1AfcCeQJYAUoDAAFDBwABQwYAASoDWQEqA5EBsALYAbABggEAAZIOAAGSBwABWAKaApEBrgJ5AUoDAAETAUMFAAFDARMFAAExAZoCegJZASoDAAGwAtgBsAGCAZIOAAGSBwABeQOaA3oBeQFKAwABEwFDBQABQwETBgABMQGaAnoCWQEqAwABsAHYAbABABCSBwABeQGgAZoCkQGuAnoBSwMAAewBQwUAAUMB7AcAATEBmgJ6AlkBKgMAAbAZAAF5AqADmgJ6AUsEAAHsAUMDAAFDAewJAAExAZoCegExHwACeQNYAlIWAAExAZoBMT4AATEJAAFCAU0BPgcAAT4DAAEoAwABQAMAAdADAAEBAQABAQUAAYABBhYAA/+BAAT/BAAE/wQAAv8BAAEBBAAC/wEAAQEEAAGCAQcBAAEBBAAC/wEAAQEEAAL/AQABAQQAAeABAwEAAQEEAAL/AQABAQQAAYAB/wEAAQEEAAGAAYEBAAEBBAABgAH/AQABAQQAAv8BAQH/BAAC/wGDAf8EAAT/BAAE/wQABP8B/QL/AecE/wH4Af8B8QGHAv8BAAEPAfABfwHgAQcC/wEAAQ8B4AE/AcABBwL/AQABDwHwARcBwAEHAf8B9wEAAQ8B+AEjAcABBwH/AeMBAAEPAeQBQQHAAQcB/wHBAQABDwHCAYABwAEHAcMBgAEAAQ8BgQEBAcABBwH/AgABDAEAAYMBwAEHAYEEAAFHAcABBwH/AwABgAEvAcABBwHhAQECAAHAAX8BwAEPAf8BgwH4AQAB4AH/AcABHwH/AccB/AEAAfEE/wHvAf4BBAH7Hf8B/gX/AcABfwH8AX8B/wHfAv8BgAE/Af4BPwH/AY8C/wGAAT8B/gEfAf8BBwL/AYABPwH/AQ8B/gEDAv8BgAEBAfwBBwH+AQEB/wHjAYABAAH8AQMB/gEBAYcBwQHAAQAB/gEPAf4BAQGAAQgB/gEAAf4BBwH/AQEBoAEcAf4BAAH/AQMB/wGDAYcBiAH+AQAB/wEBAf8BxwH/AcEB/wEBAf8BgAH/Ae8B/wHjCP8B7Qf/AcAC/wH3Av8BwAEBAcABfwH/AeMC/wGAAQABwAE/Af8BAQL/AYABAAGAARcB/wFgAv8BgAIAASMB/wFxAfABBwGAAgABQQH/AXsB4AEDAYABAAECAYAB9wF3AeABAwGAAQABgQEBAeMBYwHgAQMBgAIAAYMBwAEBAeABAwGAAgABRwGAAuABAwGAAQABgAEvAcABcQHgAQMBwAEBAcABfwHgATsB4AEDAfkBzwHgAf8B8AF/AfABBwH5Ac8B8QH/AfgD/wH8AR8B+wH/Af0D/wH+AT8B7wH/Ae8B/wHvAv8B7wHHAf8BxwH/AccC/wHHAcMB/wHDAf8BwwH/AQABAwHHAf8BxwH/AccB/wEAAQcBgwHfAYMB/wGDAf8BAAEDAQEBjwEBAf8BAQH3AQACAQEHAQEB/wEBAeMBAAEBAYIBAwGDAf8BgQHBAQABAwHGAQEBxwHjAcMBgAEAAQcB/gEBAYcBwQH/AgABDAH+AQEBgAEIAYEDAAH/AQEBoAEcAf8DAAH/AYMBhwGIAeEBAQIAAf8BxwH/AcEB/wGDAfgBAAH/Ae8B/wHjAf8BxwH8AQAF/wHvAf4BBAHvAf8B7wL/Au8B/wHHAf8BgAEBAf8CxwH/AcMB/wGAAQAB/wLDAf8BxwH/AYABAAH/AccBxgH/AYMB/wGAAQABwAEDAYABfwEAAQcCAAGAAQEBAAE/AQABAwIAAYABAQEAAR8BgAEDAYABAAGAAQEBgQEPAcABAwGAAQABgAEBAcABBwHgAQMBgAEAAYABAAH8AQMB4AEDAYABAAHAAQAB/gEPAeABAwHAAQEB/gEAAf4BBwHgAQMB+QHPAf4BAAH/AQMB8AEHAfkBzwH+AQAB/wEBAv8B/AEfAf8BAQH/AYAC/wH+AT8E/wGBAv8CgQH/Ae8B/wEAAv8CAAH/AccB9wEAAf8DAAF/AcMB4wEAAf8DAAE/AccBAQEAAf8DAAEXAYMBYAGBAfcBAAEBAYABIwEBAXEBmQHjAQABCQGAAUEBAQF7AYEBwQEAAQECgAGDAXcBwwGAAQABAwGDAQEBwwFjAf8CAAEMAQABgwHAAQEBgQQAAUcBgAHgAf8DAAGAAS8BwAFxAeEBAQIAAcABfwHgATsB/wGDAfgBAAHgAf8B8AF/Af8BxwH8AQAB8QH/AfgC/wHvAf4BBAH7Af8B/QL/AQMBgQH/AYEB/wGBAf8B/gEBAQAB/wEAAf8BAAH/Af4BAQEAAf8BAAH/AQAB/wH+AQEBAAH/AQAB/wEAAf8BwAEBAQABfwEAAd8BAAH/AYABAwGAAT8BgQGPAYEB/wGAATMBmAEfAZkBBwGZAf8BgAEDAYEBDwGAAQMBgQH/AYABAQHAAQcBwgEBAcMB4wGAAQAB/AEDAf4BAQGHAcEBwAEAAf4BDwH+AQEBgAEIAf4BAAH+AQcB/wEBAaABHAH+AQAB/wEDAf8BgwGHAYgB/gEAAf8BAQH/AccB/wHBAf8BAQH/AYAB/wHvAf8B4wj/AQAB/wGBAf8BgQH/AYEB/wEAAf8BAAH3AQAB/wMAAX8BAAHjAQAB/wMAAT8BAAEBAQAB/wMAARcBAAFgAQAB/wMAASMBgQFxAYABBwGAAQAB5AFBAZkBewGAAQMBgAEAAcIBgAGBAXcBgAEDAYABAAGBAQEBwwFjAcABAwGAAgABgwHAAQEB4AEDAYACAAFHAYAC4AEDAYABAAGAAS8BwAFxAeABAwHAAQEBwAF/AeABOwHgAQMB+QHPAeAB/wHwAX8B8AEHAfkBzwHxAf8B+AP/AfwBHwH7Af8B/QP/Af4BPwEAA/8BAAH/Af4BAQEAA/8BAAH/Af4BAQEAAf8BAAH/AQAB/wEAAQEBAAH/AQAB/wEAAf8BAAEBAQAB3wEAAf8BAAH/AQABAQEAAY8BAAH/AQAB9wEAAQEB/wEHAQAC/wHjAQABDwH+AQMBAAL/AcEBAAEPAf4BAQH/AeMBwQGAAQABDwH+AQEBhwHBAf8CAAEMAf4BAQGAAQgBgQMAAf8BAQGgARwB/wMAAf8BgwGHAYgB4QEBAgAB/wHHAf8BwQH/AYMB+AEAAf8B7wH/AeMB/wHHAfwBAAX/Ae8B/gEEAQAB/wEAAf8B/gEBAQAB/wEAAf8BAAEBAf4BAQEAAf8BAAH/AgAB/gEBAQAB/wEAAf8CAAH+AQEBAAH/AQAB/wIAAcABAQEAAX8BAAEHAgABgAEBAQABPwHgAQMBgAEAAYABPwH+AR8B4AEDAYABAAGAAT8B/wEPAeABAwGAAQABgAEBAfwBBwHgAQMBgAEAAYABAAH8AQMB4AEDAYABAAHAAQAB/gEPAeABAwHAAQEB/gEAAf4BBwHgAQMB+QHPAf4BAAH/AQMB8AEHAfkBzwH+AQAB/wEBAv8B/AEfAf8BAQH/AYAC/wH+AT8S/wGAAXcC/wEAAR8C/wGAAWMDAAEfAfMBnwGAAQEBfwH+AQABHwHnAc8BgAFgAX8B/gEAAR8B5wHPAYABcQFOAXIBAAEfAecBzwGAAXsBTgFyAQABHwLvAfcBdwF/Af4BAAEBAc8B5wHjAWMBfwH+AgAC7wHAAQEBfwL+AQAB5wHPAYAB4AF/Av4BAAHnAc8BwAFxAgAB/gEAAecBzwHgATsC/wH+AQAB8wGfAfABfwP/AQEC/wH4B/8B/QH/FgAL</value></data><data name="CodeSnippets.c#" xml:space="preserve"><value>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;CodeSnippetCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+&lt;CodeSnippets&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;~&lt;/Title&gt;
+			&lt;Shortcut&gt;~&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for destructor&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;classname&lt;/ID&gt;
+							&lt;ToolTip&gt;Class name&lt;/ToolTip&gt;
+							&lt;Default&gt;ClassName&lt;/Default&gt;
+							&lt;Function&gt;ClassName()&lt;/Function&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;~$classname$()
+	{
+		$end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;attribute&lt;/Title&gt;
+			&lt;Shortcut&gt;attribute&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for attribute using recommended pattern&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;name&lt;/ID&gt;
+							&lt;ToolTip&gt;The name of your attribute&lt;/ToolTip&gt;
+							&lt;Default&gt;My&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;target&lt;/ID&gt;
+							&lt;Default&gt;All&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;inherited&lt;/ID&gt;
+							&lt;Default&gt;false&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;allowmultiple&lt;/ID&gt;
+							&lt;Default&gt;true&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemAttribute&lt;/ID&gt;
+							&lt;Default&gt;Attribute&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Attribute)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemAttributeUsage&lt;/ID&gt;
+							&lt;Default&gt;AttributeUsage&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.AttributeUsage)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemAttributeTargets&lt;/ID&gt;
+							&lt;Default&gt;AttributeTargets&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.AttributeTargets)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;Exception&lt;/ID&gt;
+							&lt;Default&gt;Exception&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Exception)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt; [$SystemAttributeUsage$($SystemAttributeTargets$.$target$, Inherited = $inherited$, AllowMultiple = $allowmultiple$)]
+sealed class $name$Attribute : $SystemAttribute$
+{
+    // See the attribute guidelines at 
+    //  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconusingattributeclasses.asp
+    readonly string _positionalString;
+    int _namedInt;
+    
+   // This is a positional argument.
+   public $name$Attribute (string positionalString) 
+   { 
+        this._positionalString = positionalString;
+        
+       // TODO: Implement code here.
+       $end$throw new $Exception$("The method or operation is not implemented.");       
+   }
+   public string PositionalString 
+   { 
+      get 
+      {
+         return this._positionalString; 
+      }
+   }
+   // This is a named argument.
+   public int NamedInt
+   { 
+      get 
+      {
+         return this._namedInt;
+      }
+      set 
+      {
+         this._namedInt = value;
+      }
+   } 
+}
+&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;checked&lt;/Title&gt;
+			&lt;Shortcut&gt;checked&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for checked block&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;checked
+	{
+		$selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;class&lt;/Title&gt;
+			&lt;Shortcut&gt;class&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for class&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;name&lt;/ID&gt;
+							&lt;ToolTip&gt;Class name&lt;/ToolTip&gt;
+							&lt;Default&gt;MyClass&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;class $name$
+	{
+		$selected$$end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;ctor&lt;/Title&gt;
+			&lt;Shortcut&gt;ctor&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for constructor&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;classname&lt;/ID&gt;
+							&lt;ToolTip&gt;Class name&lt;/ToolTip&gt;
+							&lt;Function&gt;ClassName()&lt;/Function&gt;
+							&lt;Default&gt;ClassNamePlaceholder&lt;/Default&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;public $classname$ ()
+	{
+		$end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;cw&lt;/Title&gt;
+			&lt;Shortcut&gt;cw&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for Console.WriteLine&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemConsole&lt;/ID&gt;
+							&lt;Default&gt;Console&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Console)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;$SystemConsole$.WriteLine($end$);
+			&lt;/Code&gt;
+			&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;do&lt;/Title&gt;
+			&lt;Shortcut&gt;do&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for do...while loop&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;expression&lt;/ID&gt;
+							&lt;ToolTip&gt;Expression to evaluate&lt;/ToolTip&gt;
+							&lt;Default&gt;true&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;do
+	{
+	        $selected$ $end$
+	} while ($expression$);
+			&lt;/Code&gt;
+			&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;else&lt;/Title&gt;
+			&lt;Shortcut&gt;else&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for else statement&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;else
+	{
+	        $selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;enum&lt;/Title&gt;
+			&lt;Shortcut&gt;enum&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for enum&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;name&lt;/ID&gt;
+							&lt;ToolTip&gt;Enum name&lt;/ToolTip&gt;
+							&lt;Default&gt;MyEnum&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;enum $name$
+	{
+	        $selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;equals&lt;/Title&gt;
+			&lt;Shortcut&gt;equals&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for implementing Equals() according to guidelines&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemDiagnosticsDebug&lt;/ID&gt;
+							&lt;Default&gt;System.Diagnostics.Debug&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Diagnostics.Debug)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;Exception&lt;/ID&gt;
+							&lt;Default&gt;Exception&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Exception)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;ClassName&lt;/ID&gt;
+							&lt;Function&gt;ClassName()&lt;/Function&gt;
+							&lt;Default&gt;ClassName&lt;/Default&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;
+    // override object.Equals
+    public override bool Equals (object obj)
+    {
+
+        //       
+        // See the full list of guidelines at
+        //   http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconequals.asp    
+        // and also the guidance for operator== at
+        //   http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconimplementingequalsoperator.asp
+        //
+
+        if (obj == null || GetType() != obj.GetType()) 
+        {
+            return false;
+        }
+        
+        // TODO: write your implementation of Equals() here.
+        throw new $Exception$("The method or operation is not implemented.");
+        return base.Equals (obj);
+	$end$ 
+    }
+    
+    // override object.GetHashCode
+    public override int GetHashCode()
+    {
+        // TODO: write your implementation of GetHashCode() here.
+        throw new $Exception$("The method or operation is not implemented.");
+        return base.GetHashCode();
+    }
+
+			&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;exception&lt;/Title&gt;
+			&lt;Shortcut&gt;exception&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for exception&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;newException&lt;/ID&gt;
+							&lt;ToolTip&gt;Name of your exception&lt;/ToolTip&gt;
+							&lt;Default&gt;My&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;baseException&lt;/ID&gt;
+							&lt;ToolTip&gt;Base type&lt;/ToolTip&gt;
+							&lt;Default&gt;Exception&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Exception)&lt;/Function&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemException&lt;/ID&gt;
+							&lt;Default&gt;Exception&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Exception)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemSerializable&lt;/ID&gt;
+							&lt;Default&gt;System.Serializable&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Serializable)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemRuntimeSerializationSerializationInfo&lt;/ID&gt;
+							&lt;Default&gt;System.Runtime.Serialization.SerializationInfo&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Runtime.Serialization.SerializationInfo)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemRuntimeSerializationStreamingContext&lt;/ID&gt;
+							&lt;Default&gt;System.Runtime.Serialization.StreamingContext&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Runtime.Serialization.StreamingContext)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt; [$SystemSerializable$]
+public class $newException$Exception : $baseException$
+{
+ //
+ // For guidelines regarding the creation of new exception types, see
+ //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconerrorraisinghandlingguidelines.asp
+ // and
+ //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
+ //
+
+  public $newException$Exception() { }
+  public $newException$Exception( string message ) : base( message ) { }
+  public $newException$Exception( string message, $SystemException$ inner ) : base( message, inner ) { }
+  protected $newException$Exception( 
+	$SystemRuntimeSerializationSerializationInfo$ info, 
+	$SystemRuntimeSerializationStreamingContext$ context ) : base( info, context ) { }
+}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;for&lt;/Title&gt;
+			&lt;Shortcut&gt;for&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for 'for' loop&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;index&lt;/ID&gt;
+							&lt;Default&gt;i&lt;/Default&gt;
+							&lt;ToolTip&gt;Index&lt;/ToolTip&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;max&lt;/ID&gt;
+							&lt;Default&gt;length&lt;/Default&gt;
+							&lt;ToolTip&gt;Max length&lt;/ToolTip&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;for (int $index$ = 0; $index$ &amp;lt; $max$; $index$++)
+			{
+			$selected$ $end$
+			}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;foreach&lt;/Title&gt;
+			&lt;Shortcut&gt;foreach&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for foreach statement&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;type&lt;/ID&gt;
+							&lt;ToolTip&gt;Type of object in the collection to iterate through&lt;/ToolTip&gt;
+							&lt;Default&gt;object&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;indentifier&lt;/ID&gt;
+							&lt;ToolTip&gt;Identifier that represents the element in the collection&lt;/ToolTip&gt;
+							&lt;Default&gt;var&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;collection&lt;/ID&gt;
+							&lt;ToolTip&gt;Name of collection or array to iterate through&lt;/ToolTip&gt;
+							&lt;Default&gt;collection_to_loop&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;foreach ($type$ $indentifier$ in $collection$)
+	{
+		$selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;forr&lt;/Title&gt;
+			&lt;Shortcut&gt;forr&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for reverse 'for' loop&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;index&lt;/ID&gt;
+							&lt;Default&gt;i&lt;/Default&gt;
+							&lt;ToolTip&gt;Index&lt;/ToolTip&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;max&lt;/ID&gt;
+							&lt;Default&gt;length&lt;/Default&gt;
+							&lt;ToolTip&gt;Max length&lt;/ToolTip&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;for (int $index$ = $max$ - 1; $index$ &gt;= 0 ; $index$--)
+			{
+			$selected$ $end$
+			}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;if&lt;/Title&gt;
+			&lt;Shortcut&gt;if&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for if statement&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;expression&lt;/ID&gt;
+							&lt;ToolTip&gt;Expression to evaluate&lt;/ToolTip&gt;
+							&lt;Default&gt;true&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;if ($expression$)
+	{
+		$selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;indexer&lt;/Title&gt;
+			&lt;Shortcut&gt;indexer&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for indexer&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;access&lt;/ID&gt;
+							&lt;ToolTip&gt;Access modifier&lt;/ToolTip&gt;
+							&lt;Default&gt;public&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;type&lt;/ID&gt;
+							&lt;ToolTip&gt;Type to return from indexer&lt;/ToolTip&gt;
+							&lt;Default&gt;object&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;indextype&lt;/ID&gt;
+							&lt;ToolTip&gt;Type used to specify index&lt;/ToolTip&gt;
+							&lt;Default&gt;int&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;
+	$access$ $type$ this[$indextype$ index]
+	{
+		get {$end$ /* return the specified index here */ }
+		set { /* set the specified index to value here */ }
+	}
+	
+			&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;interface&lt;/Title&gt;
+			&lt;Shortcut&gt;interface&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for interface&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;name&lt;/ID&gt;
+							&lt;ToolTip&gt;Interface name&lt;/ToolTip&gt;
+							&lt;Default&gt;Interface&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;interface I$name$
+	{
+		$selected$$end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;invoke&lt;/Title&gt;
+			&lt;Shortcut&gt;invoke&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for safely invoking an event&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;event&lt;/ID&gt;
+							&lt;Default&gt;MyEvent&lt;/Default&gt;
+							&lt;ToolTip&gt;Event method to invoke&lt;/ToolTip&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;DelegateType&lt;/ID&gt;
+							&lt;Default&gt;EventHandler&lt;/Default&gt;
+							&lt;ToolTip&gt;Delegate type&lt;/ToolTip&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;
+$DelegateType$ temp = $event$;
+if (temp != null)
+{
+temp($end$);
+}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;iterator&lt;/Title&gt;
+			&lt;Shortcut&gt;iterator&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for a simple iterator&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;type&lt;/ID&gt;
+							&lt;Default&gt;ElementType&lt;/Default&gt;
+							&lt;ToolTip&gt;Type to return from the iterator&lt;/ToolTip&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemCollectionsGenericIEnumeratorG&lt;/ID&gt;
+							&lt;Default&gt;System.Collections.Generic.IEnumerator&lt;/Default&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;Exception&lt;/ID&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Exception)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;public $SystemCollectionsGenericIEnumeratorG$&amp;lt;$type$&amp;gt; GetEnumerator()
+{
+    $end$throw new $Exception$("The method or operation is not implemented.");
+    yield return default($type$);
+}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;iterindex&lt;/Title&gt;
+			&lt;Shortcut&gt;iterindex&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for 'named' iterator/indexer pair using a nested class&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;type&lt;/ID&gt;
+							&lt;Default&gt;ElementType&lt;/Default&gt;
+							&lt;ToolTip&gt;Type to return from iterator/indexer&lt;/ToolTip&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;name&lt;/ID&gt;
+							&lt;Default&gt;MyView&lt;/Default&gt;
+							&lt;ToolTip&gt;Name of the iterator/indexer pair&lt;/ToolTip&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;outer&lt;/ID&gt;
+							&lt;Default&gt;ClassName&lt;/Default&gt;
+							&lt;Function&gt;ClassName()&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemCollectionsGenericIEnumeratorG&lt;/ID&gt;
+							&lt;Default&gt;System.Collections.Generic.IEnumerator&lt;/Default&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;Exception&lt;/ID&gt;
+							&lt;Default&gt;Exception&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Exception)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;public $name$Iterator $name$
+        {
+            get
+            {
+                return new $name$Iterator(this);
+            }
+        }
+
+        public class $name$Iterator
+        {
+            readonly $outer$ outer;
+
+            internal $name$Iterator($outer$ outer)
+            {
+                this.outer = outer;
+            }
+
+            // TODO: provide an appropriate implementation here
+            public int Length { get { return 1; } }
+
+            public $type$ this[int index]
+            {
+                get
+                {
+                    //
+                    // TODO: implement indexer here
+                    //
+                    // you have full access to $outer$ privates.
+                    //
+                    $end$throw new $Exception$("The method or operation is not implemented.");
+                    return default($type$);
+                }
+            }
+
+            public $SystemCollectionsGenericIEnumeratorG$&amp;lt;$type$&amp;gt; GetEnumerator()
+            {
+                for (int i = 0; i &amp;lt; this.Length; i++)
+                {				 
+                    yield return this[i];
+                }
+            }
+        }&lt;/Code&gt;
+        &lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;lock&lt;/Title&gt;
+			&lt;Shortcut&gt;lock&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for lock statement&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;expression&lt;/ID&gt;
+							&lt;ToolTip&gt;Expression to evaluate&lt;/ToolTip&gt;
+							&lt;Default&gt;this&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;lock ($expression$)
+	{
+		$selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;mbox&lt;/Title&gt;
+			&lt;Shortcut&gt;mbox&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for MessageBox.Show&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;string&lt;/ID&gt;
+							&lt;ToolTip&gt;String to display&lt;/ToolTip&gt;
+							&lt;Default&gt;"Test"&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;SystemWindowsFormsMessageBox&lt;/ID&gt;
+							&lt;Default&gt;MessageBox&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Windows.Forms.MessageBox)&lt;/Function&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;$SystemWindowsFormsMessageBox$.Show($string$);$end$
+			&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;namespace&lt;/Title&gt;
+			&lt;Shortcut&gt;namespace&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for namespace&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;name&lt;/ID&gt;
+							&lt;ToolTip&gt;Namespace name&lt;/ToolTip&gt;
+							&lt;Default&gt;MyNamespace&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;namespace $name$
+	{
+		$selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;#if&lt;/Title&gt;
+			&lt;Shortcut&gt;#if&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for #if&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;expression&lt;/ID&gt;
+							&lt;ToolTip&gt;Preprocessor expression to evaluate&lt;/ToolTip&gt;
+							&lt;Default&gt;true&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;#if $expression$
+		$selected$ $end$ 
+	#endif
+			&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;#region&lt;/Title&gt;
+			&lt;Shortcut&gt;#region&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for #region&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;name&lt;/ID&gt;
+							&lt;ToolTip&gt;Region name&lt;/ToolTip&gt;
+							&lt;Default&gt;MyRegion&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;#region $name$
+		$selected$ $end$
+	#endregion
+			&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;prop&lt;/Title&gt;
+			&lt;Shortcut&gt;prop&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for property and backing field&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;type&lt;/ID&gt;
+							&lt;ToolTip&gt;Property type&lt;/ToolTip&gt;
+							&lt;Default&gt;int&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;property&lt;/ID&gt;
+							&lt;ToolTip&gt;Property name&lt;/ToolTip&gt;
+							&lt;Default&gt;MyProperty&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;field&lt;/ID&gt;
+							&lt;ToolTip&gt;The variable backing this property&lt;/ToolTip&gt;
+							&lt;Default&gt;myVar&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;private $type$ $field$;
+
+	public $type$ $property$
+	{
+		get { return $field$;}
+		set { $field$ = value;}
+	}
+	$end$
+			&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;propg&lt;/Title&gt;
+			&lt;Shortcut&gt;propg&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for property with only 'get' accessor and backing field&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;type&lt;/ID&gt;
+							&lt;ToolTip&gt;Property type&lt;/ToolTip&gt;
+							&lt;Default&gt;int&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;property&lt;/ID&gt;
+							&lt;ToolTip&gt;Property name&lt;/ToolTip&gt;
+							&lt;Default&gt;MyProperty&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;field&lt;/ID&gt;
+							&lt;ToolTip&gt;The variable backing this property&lt;/ToolTip&gt;
+							&lt;Default&gt;myVar&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;private $type$ $field$;
+	public $type$ $property$
+	{
+	  get { return $field$;}
+	}
+	$end$
+			&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;sim&lt;/Title&gt;
+			&lt;Shortcut&gt;sim&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for int Main()&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;
+				static int Main(string[] args)
+{
+	$end$
+	return 0;
+}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;struct&lt;/Title&gt;
+			&lt;Shortcut&gt;struct&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for struct&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;name&lt;/ID&gt;
+							&lt;ToolTip&gt;Struct name&lt;/ToolTip&gt;
+							&lt;Default&gt;MyStruct&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;struct $name$
+	{
+		$selected$$end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;svm&lt;/Title&gt;
+			&lt;Shortcut&gt;svm&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for 'void Main' method&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;
+				static void Main(string[] args)
+{
+	$end$
+}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;switch&lt;/Title&gt;
+			&lt;Shortcut&gt;switch&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for switch statement&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;expression&lt;/ID&gt;
+							&lt;ToolTip&gt;Expression to switch on&lt;/ToolTip&gt;
+							&lt;Default&gt;switch_on&lt;/Default&gt;
+						&lt;/Literal&gt;
+						&lt;Literal Editable="false"&gt;
+							&lt;ID&gt;cases&lt;/ID&gt;
+							&lt;Function&gt;GenerateSwitchCases($expression$)&lt;/Function&gt;
+							&lt;Default&gt;default:&lt;/Default&gt;
+							&lt;Editable&gt;false&lt;/Editable&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;switch ($expression$)
+	{
+		$cases$
+	}$end$
+			&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;try&lt;/Title&gt;
+			&lt;Shortcut&gt;try&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for try catch&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;expression&lt;/ID&gt;
+							&lt;ToolTip&gt;Exception type&lt;/ToolTip&gt;
+							&lt;Default&gt;Exception&lt;/Default&gt;
+							&lt;Function&gt;SimpleTypeName(global::System.Exception)&lt;/Function&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;try 
+	{	        
+		$selected$
+	}
+	catch ($expression$)
+	{
+		$end$
+		throw;
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;tryf&lt;/Title&gt;
+			&lt;Shortcut&gt;tryf&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for try finally&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;expression&lt;/ID&gt;
+							&lt;ToolTip&gt;Exception type&lt;/ToolTip&gt;
+							&lt;Default&gt;System.Exception&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;try 
+	    {	        
+		    $selected$
+	    }
+	    finally
+	    {
+		    $end$
+	    }&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;unchecked&lt;/Title&gt;
+			&lt;Shortcut&gt;unchecked&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for unchecked block&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;unchecked
+	{
+		$selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;unsafe&lt;/Title&gt;
+			&lt;Shortcut&gt;unsafe&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for unsafe statement&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;unsafe
+	{
+		$selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;using&lt;/Title&gt;
+			&lt;Shortcut&gt;using&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for using statement&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;resource&lt;/ID&gt;
+							&lt;ToolTip&gt;Resource to use&lt;/ToolTip&gt;
+							&lt;Default&gt;resource&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;using($resource$)
+	{
+		$selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;	
+	&lt;/Snippet&gt;
+	&lt;Snippet&gt;
+		&lt;Header&gt;
+			&lt;Title&gt;while&lt;/Title&gt;
+			&lt;Shortcut&gt;while&lt;/Shortcut&gt;
+			&lt;Description&gt;Code snippet for while loop&lt;/Description&gt;
+			&lt;Author&gt;Microsoft Corporation&lt;/Author&gt;
+			&lt;SnippetTypes&gt;
+				&lt;SnippetType&gt;Expansion&lt;/SnippetType&gt;
+				&lt;SnippetType&gt;SurroundsWith&lt;/SnippetType&gt;
+			&lt;/SnippetTypes&gt;
+		&lt;/Header&gt;
+			&lt;Declarations&gt;
+				&lt;Declaration&gt;
+					&lt;Literals&gt;
+						&lt;Literal&gt;
+							&lt;ID&gt;expression&lt;/ID&gt;
+							&lt;ToolTip&gt;Expression to evaluate&lt;/ToolTip&gt;
+							&lt;Default&gt;true&lt;/Default&gt;
+						&lt;/Literal&gt;
+					&lt;/Literals&gt;
+				&lt;/Declaration&gt;
+			&lt;/Declarations&gt;
+			&lt;Code Delimiter="$" Kind="" Language=""&gt;while ($expression$)
+	{
+	        $selected$ $end$
+	}&lt;/Code&gt;
+		&lt;ImageIndex&gt;43&lt;/ImageIndex&gt;
+	&lt;/Snippet&gt;
+&lt;/CodeSnippets&gt;
+&lt;/CodeSnippetCollection&gt;
+</value></data>
+  </root>

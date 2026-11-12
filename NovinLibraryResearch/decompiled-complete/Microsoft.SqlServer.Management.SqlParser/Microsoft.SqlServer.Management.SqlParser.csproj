@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Microsoft.SqlServer.Management.SqlParser</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.105.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.110.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.120.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.130.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.140.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.150.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.160.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.Azure.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.states.105.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.states.110.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.states.120.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.states.130.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.states.140.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.states.150.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.states.160.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.states.Azure.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.rules.105.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.rules.110.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.rules.120.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.rules.130.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.rules.140.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.rules.150.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.rules.160.bin" />
+    <None Remove="Microsoft.SqlServer.Management.SqlParser.parser.rules.Azure.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.105.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.105.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.110.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.110.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.120.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.120.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.130.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.130.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.140.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.140.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.150.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.150.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.160.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.160.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.Azure.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.nonterminals.Azure.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.states.105.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.states.105.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.states.110.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.states.110.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.states.120.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.states.120.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.states.130.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.states.130.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.states.140.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.states.140.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.states.150.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.states.150.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.states.160.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.states.160.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.states.Azure.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.states.Azure.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.rules.105.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.rules.105.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.rules.110.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.rules.110.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.rules.120.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.rules.120.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.rules.130.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.rules.130.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.rules.140.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.rules.140.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.rules.150.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.rules.150.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.rules.160.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.rules.160.bin" />
+    <EmbeddedResource Include="Microsoft.SqlServer.Management.SqlParser.parser.rules.Azure.bin" LogicalName="Microsoft.SqlServer.Management.SqlParser.parser.rules.Azure.bin" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Xml">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="laLeaveState_SyntaxBuilderDlg" xml:space="preserve"><value>Leave State:</value></data>
+  <data name="tvLexer_General_SyntaxBuilderDlg" xml:space="preserve"><value>General</value></data>
+  <data name="gbStateProperties_SyntaxBuilderDlg" xml:space="preserve"><value>State Properties</value></data>
+  <data name="laStyleName_SyntaxBuilderDlg" xml:space="preserve"><value>Name:</value></data>
+  <data name="tvLexer_SyntaxSchemeEditor_SyntaxBuilderDlg" xml:space="preserve"><value>Syntax Scheme Editor</value></data>
+  <data name="ResWordText" xml:space="preserve"><value>ResWord</value></data>
+  <data name="laResWordSetName_SyntaxBuilderDlg" xml:space="preserve"><value>Name:</value></data>
+  <data name="laAuthor_SyntaxBuilderDlg" xml:space="preserve"><value>Author:</value></data>
+  <data name="laBlockReswords_SyntaxBuilderDlg" xml:space="preserve"><value>Reswords</value></data>
+  <data name="laStyleDesc_SyntaxBuilderDlg" xml:space="preserve"><value>Description:</value></data>
+  <data name="laStyleBkColor_SyntaxBuilderDlg" xml:space="preserve"><value>Back Color:</value></data>
+  <data name="DeleteText" xml:space="preserve"><value>Delete</value></data>
+  <data name="chbStrikeOut_SyntaxBuilderDlg" xml:space="preserve"><value>StrikeOut</value></data>
+  <data name="IncompleteResWordStyle" xml:space="preserve"><value>State {0}, Syntax block {1}, ResWordSet {2} : ReswordStyle is empty </value></data>
+  <data name="ResWordSetText" xml:space="preserve"><value>ResWord Set</value></data>
+  <data name="tpStates_SyntaxBuilderDlg" xml:space="preserve"><value>States</value></data>
+  <data name="QueryInvalidScheme" xml:space="preserve"><value>Scheme is incomplete. Save changes?</value></data>
+  <data name="InvalidScheme" xml:space="preserve"><value>Scheme is incomplete</value></data>
+  <data name="btSave_SyntaxBuilderDlg" xml:space="preserve"><value>Save</value></data>
+  <data name="CancelText" xml:space="preserve"><value>Exit without changes?</value></data>
+  <data name="chbCaseSensitive_SyntaxBuilderDlg" xml:space="preserve"><value>Case Sensitive</value></data>
+  <data name="gbStyleProperties_SyntaxBuilderDlg" xml:space="preserve"><value>Style Properties</value></data>
+  <data name="tvLexer_States_SyntaxBuilderDlg" xml:space="preserve"><value>States</value></data>
+  <data name="laBlockDesc_SyntaxBuilderDlg" xml:space="preserve"><value>Description</value></data>
+  <data name="laBlockName_SyntaxBuilderDlg" xml:space="preserve"><value>Name:</value></data>
+  <data name="chbBold_SyntaxBuilderDlg" xml:space="preserve"><value>Bold</value></data>
+  <data name="StyleText" xml:space="preserve"><value>Style</value></data>
+  <data name="StateText" xml:space="preserve"><value>State</value></data>
+  <data name="btLoadScheme_SyntaxBuilderDlg" xml:space="preserve"><value>Load</value></data>
+  <data name="NewExprText" xml:space="preserve"><value>NewExpression</value></data>
+  <data name="BlockText" xml:space="preserve"><value>Syntax Block</value></data>
+  <data name="laBlockExpr_SyntaxBuilderDlg" xml:space="preserve"><value>Expressions:</value></data>
+  <data name="AddText" xml:space="preserve"><value>Add</value></data>
+  <data name="laCopyright_SyntaxBuilderDlg" xml:space="preserve"><value>Copyright:</value></data>
+  <data name="SyntaxFormCaption" xml:space="preserve"><value>Syntax Scheme Builder</value></data>
+  <data name="CancelCaption" xml:space="preserve"><value>Confirmation</value></data>
+  <data name="DlgSyntaxBuilder" xml:space="preserve"><value>Syntax Scheme Builder</value></data>
+  <data name="laResWordStyle_SyntaxBuilderDlg" xml:space="preserve"><value>ResWord Style:</value></data>
+  <data name="NewReswordText" xml:space="preserve"><value>NewResword</value></data>
+  <data name="btOk_SyntaxBuilderDlg" xml:space="preserve"><value>&amp;OK</value></data>
+  <data name="btClear_SyntaxBuilderDlg" xml:space="preserve"><value>Clear</value></data>
+  <data name="gbSyntaxBlockProperties_SyntaxBuilderDlg" xml:space="preserve"><value>Block Properties</value></data>
+  <data name="chbItalic_SyntaxBuilderDlg" xml:space="preserve"><value>Italic</value></data>
+  <data name="gbReswordsProperties_SyntaxBuilderDlg" xml:space="preserve"><value>Resword Set Properties</value></data>
+  <data name="tpStyles_SyntaxBuilderDlg" xml:space="preserve"><value>Styles</value></data>
+  <data name="tpGeneral_SyntaxBuilderDlg" xml:space="preserve"><value>General</value></data>
+  <data name="EditText" xml:space="preserve"><value>Edit</value></data>
+  <data name="btCancel_SyntaxBuilderDlg" xml:space="preserve"><value>Cancel</value></data>
+  <data name="chbPlainText_SyntaxBuilderDlg" xml:space="preserve"><value>Plain Text</value></data>
+  <data name="laSchemeName_SyntaxBuilderDlg" xml:space="preserve"><value>Scheme Name:</value></data>
+  <data name="laStateName_SyntaxBuilderDlg" xml:space="preserve"><value>Name:</value></data>
+  <data name="chbUnderline_SyntaxBuilderDlg" xml:space="preserve"><value>Underline</value></data>
+  <data name="laDescription_SyntaxBuilderDlg" xml:space="preserve"><value>Description</value></data>
+  <data name="laStyleForeColor_SyntaxBuilderDlg" xml:space="preserve"><value>Fore Color:</value></data>
+  <data name="laStateDesc_SyntaxBuilderDlg" xml:space="preserve"><value>Description:</value></data>
+  <data name="laSample_SyntaxBuilderDlg" xml:space="preserve"><value>AaBbYyZz</value></data>
+  <data name="tvLexer_Styles_SyntaxBuilderDlg" xml:space="preserve"><value>Styles</value></data>
+  <data name="laStyle_SyntaxBuilderDlg" xml:space="preserve"><value>Style:</value></data>
+  <data name="gbFontStyles_SyntaxBuilderDlg" xml:space="preserve"><value>Font Styles</value></data>
+  <data name="IncompleteLeaveStyle" xml:space="preserve"><value>State {0}, Syntax block {1} : Style is empty </value></data>
+  <data name="IncompleteLeaveState" xml:space="preserve"><value>State {0}, Syntax block {1} : LeaveState is empty </value></data>
+  </root>

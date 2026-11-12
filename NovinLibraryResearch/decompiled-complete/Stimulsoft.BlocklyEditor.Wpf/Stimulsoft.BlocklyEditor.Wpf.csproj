@@ -1,0 +1,323 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.BlocklyEditor.Wpf</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWPF>True</UseWPF>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="images/message/warning.png" />
+    <None Remove="themes/skins/carmineverydarkgray.baml" />
+    <None Remove="themes/skins/violetwhite.baml" />
+    <None Remove="themes/skins/carminedarkgray.baml" />
+    <None Remove="themes/skins/greenverydarkgray.baml" />
+    <None Remove="themes/skins/carminelightgray.baml" />
+    <None Remove="themes/skins/greendarkgray.baml" />
+    <None Remove="themes/skins/violetverydarkgray.baml" />
+    <None Remove="themes/skins/violetdarkgray.baml" />
+    <None Remove="themes/skins/carminewhite.baml" />
+    <None Remove="themes/v2/stichildfooter.baml" />
+    <None Remove="images/information.png" />
+    <None Remove="stiinstallwebview2messagewindow.baml" />
+    <None Remove="images/message/warning_x2.png" />
+    <None Remove="stiblocklyeditorcontrol.baml" />
+    <None Remove="themes/skins/tealdarkgray.baml" />
+    <None Remove="themes/skins/greenlightgray.baml" />
+    <None Remove="themes/skins/tealwhite.baml" />
+    <None Remove="themes/skins/purplelightgray.baml" />
+    <None Remove="themes/v2/sticolorlistboxitem.baml" />
+    <None Remove="stiblocklyeditorwindow.baml" />
+    <None Remove="themes/v2/sticolorlistbox.baml" />
+    <None Remove="images/save.png" />
+    <None Remove="themes/skins/orangedarkgray.baml" />
+    <None Remove="themes/skins/bluelightgray.baml" />
+    <None Remove="images/save_x2.png" />
+    <None Remove="themes/skins/bluedarkgray.baml" />
+    <None Remove="themes/v2/stihorizontaldotseparator.baml" />
+    <None Remove="themes/skins/orangelightgray.baml" />
+    <None Remove="images/cloudwindow/dotseparator.png" />
+    <None Remove="themes/skins/orangeverydarkgray.baml" />
+    <None Remove="themes/skins/tealverydarkgray.baml" />
+    <None Remove="themes/skins/greenwhite.baml" />
+    <None Remove="themes/skins/purpleverydarkgray.baml" />
+    <None Remove="images/open_x2.png" />
+    <None Remove="themes/v2/stibutton.baml" />
+    <None Remove="themes/skins/purplewhite.baml" />
+    <None Remove="themes/skins/orangewhite.baml" />
+    <None Remove="themes/skins/teallightgray.baml" />
+    <None Remove="themes/skins/purpledarkgray.baml" />
+    <None Remove="themes/skins/bluewhite.baml" />
+    <None Remove="images/open.png" />
+    <None Remove="quickstart/stiblocklyquickstartwindow.baml" />
+    <None Remove="themes/skins/violetlightgray.baml" />
+    <None Remove="images/information_x2.png" />
+    <None Remove="themes/skins/blueverydarkgray.baml" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.BlockyHTML.html" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.BlockyToolbox.xml" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.BlockyToolboxCurrentValue.xml" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.BlockyWorkspace.xml" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.js.blockly_compressed.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.js.blocks_compressed.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.js.javascript_compressed.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ab.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ar.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.az.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ba.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.bcc.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.be-tarask.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.be.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.bg.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.bn.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.br.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ca.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.cs.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.da.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.de.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.diq.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.dty.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ee.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.el.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.en-gb.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.en.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.eo.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.es.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.et.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.eu.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.fa.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.fi.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.fr.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.gl.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.gor.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ha.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.he.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.hi.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.hrx.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.hu.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.hy.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ia.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.id.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ig.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.is.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.it.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ja.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.kab.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.kn.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ko.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.lb.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.lki.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.lo.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.lrc.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.lt.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.lv.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.mk.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.mnw.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ms.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.nb.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.nl.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.oc.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.pl.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.pms.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.pt-br.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.pt.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ro.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ru.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.sc.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.sd.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.shn.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.sk.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.skr-arab.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.sl.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.sq.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.sr-latn.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.sr.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.sv.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ta.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.tcy.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.te.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.th.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.tl.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.tlh.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.tr.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ug-arab.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.uk.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.ur.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.vi.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.xmf.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.yo.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.zh-hans.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.msg.zh-hant.js" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.samples.Brush.blockly" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.samples.OpenLink.blockly" />
+    <None Remove="Stimulsoft.BlocklyEditor.Wpf.src.samples.ShowMessage.blockly" />
+    <EmbeddedResource Include="images/message/warning.png" LogicalName="images/message/warning.png" />
+    <EmbeddedResource Include="themes/skins/carmineverydarkgray.baml" LogicalName="themes/skins/carmineverydarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/violetwhite.baml" LogicalName="themes/skins/violetwhite.baml" />
+    <EmbeddedResource Include="themes/skins/carminedarkgray.baml" LogicalName="themes/skins/carminedarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/greenverydarkgray.baml" LogicalName="themes/skins/greenverydarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/carminelightgray.baml" LogicalName="themes/skins/carminelightgray.baml" />
+    <EmbeddedResource Include="themes/skins/greendarkgray.baml" LogicalName="themes/skins/greendarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/violetverydarkgray.baml" LogicalName="themes/skins/violetverydarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/violetdarkgray.baml" LogicalName="themes/skins/violetdarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/carminewhite.baml" LogicalName="themes/skins/carminewhite.baml" />
+    <EmbeddedResource Include="themes/v2/stichildfooter.baml" LogicalName="themes/v2/stichildfooter.baml" />
+    <EmbeddedResource Include="images/information.png" LogicalName="images/information.png" />
+    <EmbeddedResource Include="stiinstallwebview2messagewindow.baml" LogicalName="stiinstallwebview2messagewindow.baml" />
+    <EmbeddedResource Include="images/message/warning_x2.png" LogicalName="images/message/warning_x2.png" />
+    <EmbeddedResource Include="stiblocklyeditorcontrol.baml" LogicalName="stiblocklyeditorcontrol.baml" />
+    <EmbeddedResource Include="themes/skins/tealdarkgray.baml" LogicalName="themes/skins/tealdarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/greenlightgray.baml" LogicalName="themes/skins/greenlightgray.baml" />
+    <EmbeddedResource Include="themes/skins/tealwhite.baml" LogicalName="themes/skins/tealwhite.baml" />
+    <EmbeddedResource Include="themes/skins/purplelightgray.baml" LogicalName="themes/skins/purplelightgray.baml" />
+    <EmbeddedResource Include="themes/v2/sticolorlistboxitem.baml" LogicalName="themes/v2/sticolorlistboxitem.baml" />
+    <EmbeddedResource Include="stiblocklyeditorwindow.baml" LogicalName="stiblocklyeditorwindow.baml" />
+    <EmbeddedResource Include="themes/v2/sticolorlistbox.baml" LogicalName="themes/v2/sticolorlistbox.baml" />
+    <EmbeddedResource Include="images/save.png" LogicalName="images/save.png" />
+    <EmbeddedResource Include="themes/skins/orangedarkgray.baml" LogicalName="themes/skins/orangedarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/bluelightgray.baml" LogicalName="themes/skins/bluelightgray.baml" />
+    <EmbeddedResource Include="images/save_x2.png" LogicalName="images/save_x2.png" />
+    <EmbeddedResource Include="themes/skins/bluedarkgray.baml" LogicalName="themes/skins/bluedarkgray.baml" />
+    <EmbeddedResource Include="themes/v2/stihorizontaldotseparator.baml" LogicalName="themes/v2/stihorizontaldotseparator.baml" />
+    <EmbeddedResource Include="themes/skins/orangelightgray.baml" LogicalName="themes/skins/orangelightgray.baml" />
+    <EmbeddedResource Include="images/cloudwindow/dotseparator.png" LogicalName="images/cloudwindow/dotseparator.png" />
+    <EmbeddedResource Include="themes/skins/orangeverydarkgray.baml" LogicalName="themes/skins/orangeverydarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/tealverydarkgray.baml" LogicalName="themes/skins/tealverydarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/greenwhite.baml" LogicalName="themes/skins/greenwhite.baml" />
+    <EmbeddedResource Include="themes/skins/purpleverydarkgray.baml" LogicalName="themes/skins/purpleverydarkgray.baml" />
+    <EmbeddedResource Include="images/open_x2.png" LogicalName="images/open_x2.png" />
+    <EmbeddedResource Include="themes/v2/stibutton.baml" LogicalName="themes/v2/stibutton.baml" />
+    <EmbeddedResource Include="themes/skins/purplewhite.baml" LogicalName="themes/skins/purplewhite.baml" />
+    <EmbeddedResource Include="themes/skins/orangewhite.baml" LogicalName="themes/skins/orangewhite.baml" />
+    <EmbeddedResource Include="themes/skins/teallightgray.baml" LogicalName="themes/skins/teallightgray.baml" />
+    <EmbeddedResource Include="themes/skins/purpledarkgray.baml" LogicalName="themes/skins/purpledarkgray.baml" />
+    <EmbeddedResource Include="themes/skins/bluewhite.baml" LogicalName="themes/skins/bluewhite.baml" />
+    <EmbeddedResource Include="images/open.png" LogicalName="images/open.png" />
+    <EmbeddedResource Include="quickstart/stiblocklyquickstartwindow.baml" LogicalName="quickstart/stiblocklyquickstartwindow.baml" />
+    <EmbeddedResource Include="themes/skins/violetlightgray.baml" LogicalName="themes/skins/violetlightgray.baml" />
+    <EmbeddedResource Include="images/information_x2.png" LogicalName="images/information_x2.png" />
+    <EmbeddedResource Include="themes/skins/blueverydarkgray.baml" LogicalName="themes/skins/blueverydarkgray.baml" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.BlockyHTML.html" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.BlockyHTML.html" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.BlockyToolbox.xml" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.BlockyToolbox.xml" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.BlockyToolboxCurrentValue.xml" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.BlockyToolboxCurrentValue.xml" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.BlockyWorkspace.xml" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.BlockyWorkspace.xml" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.js.blockly_compressed.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.js.blockly_compressed.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.js.blocks_compressed.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.js.blocks_compressed.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.js.javascript_compressed.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.js.javascript_compressed.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ab.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ab.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ar.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ar.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.az.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.az.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ba.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ba.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.bcc.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.bcc.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.be-tarask.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.be-tarask.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.be.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.be.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.bg.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.bg.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.bn.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.bn.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.br.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.br.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ca.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ca.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.cs.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.cs.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.da.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.da.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.de.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.de.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.diq.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.diq.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.dty.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.dty.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ee.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ee.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.el.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.el.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.en-gb.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.en-gb.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.en.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.en.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.eo.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.eo.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.es.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.es.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.et.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.et.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.eu.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.eu.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.fa.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.fa.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.fi.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.fi.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.fr.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.fr.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.gl.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.gl.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.gor.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.gor.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ha.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ha.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.he.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.he.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.hi.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.hi.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.hrx.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.hrx.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.hu.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.hu.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.hy.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.hy.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ia.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ia.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.id.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.id.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ig.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ig.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.is.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.is.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.it.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.it.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ja.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ja.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.kab.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.kab.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.kn.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.kn.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ko.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ko.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.lb.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.lb.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.lki.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.lki.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.lo.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.lo.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.lrc.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.lrc.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.lt.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.lt.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.lv.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.lv.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.mk.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.mk.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.mnw.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.mnw.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ms.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ms.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.nb.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.nb.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.nl.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.nl.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.oc.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.oc.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.pl.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.pl.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.pms.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.pms.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.pt-br.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.pt-br.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.pt.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.pt.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ro.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ro.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ru.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ru.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.sc.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.sc.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.sd.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.sd.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.shn.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.shn.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.sk.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.sk.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.skr-arab.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.skr-arab.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.sl.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.sl.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.sq.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.sq.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.sr-latn.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.sr-latn.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.sr.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.sr.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.sv.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.sv.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ta.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ta.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.tcy.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.tcy.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.te.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.te.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.th.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.th.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.tl.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.tl.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.tlh.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.tlh.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.tr.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.tr.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ug-arab.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ug-arab.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.uk.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.uk.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.ur.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.ur.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.vi.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.vi.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.xmf.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.xmf.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.yo.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.yo.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.zh-hans.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.zh-hans.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.msg.zh-hant.js" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.msg.zh-hant.js" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.samples.Brush.blockly" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.samples.Brush.blockly" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.samples.OpenLink.blockly" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.samples.OpenLink.blockly" />
+    <EmbeddedResource Include="Stimulsoft.BlocklyEditor.Wpf.src.samples.ShowMessage.blockly" LogicalName="Stimulsoft.BlocklyEditor.Wpf.src.samples.ShowMessage.blockly" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="Stimulsoft.Report">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Report.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.WebView2.Wpf" />
+    <Reference Include="Microsoft.Web.WebView2.Core" />
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/WindowsBase.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Blockly">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Blockly.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

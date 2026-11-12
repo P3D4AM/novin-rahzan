@@ -1,0 +1,3 @@
+namespace AxSMDOCX2;
+
+public delegate void __MahakScaleOCX3_ReceiveSalePacketEventHandler(object sender, __MahakScaleOCX3_ReceiveSalePacketEvent e);

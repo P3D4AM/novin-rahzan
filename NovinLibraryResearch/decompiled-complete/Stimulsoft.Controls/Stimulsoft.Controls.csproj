@@ -1,0 +1,174 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.Controls</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Stimulsoft.Controls.Bmp.AutoHideOff.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.AutoHideOn.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.Close.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.Collapse.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.ComboDown.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.ComboLeft.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.ComboRight.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.ComboUp.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.Down.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.DropDownArrow.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.DropDownArrow_x1_5.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.DropDownArrow_x2.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.Expand.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.SpinDown.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.SpinUp.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.Up.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiButton.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiButtonEdit.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiCheckBox.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiColorBox.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiColorButton.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiComboBox.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiDockingManager.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiFontBox.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiGroupBox.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiGroupLine.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiListBox.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiMenuProvider.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiNumericUpDown.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiOutlookBar.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiPanel.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiRadioButton.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiRichTextBox.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiScrollableControl.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiTabControl.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiTextBox.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiToolBar.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiToolButton.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiTreeView.bmp" />
+    <None Remove="Stimulsoft.Controls.Toolbox.StiTreeViewBox.bmp" />
+    <None Remove="Stimulsoft.Controls.Bmp.ComboDown.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.DropDown.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.DropDown_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.DropDown_x2.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Csv.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Csv_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Csv_x2.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Excel.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Excel_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Excel_x2.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Image.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Image_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Image_x2.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Pdf.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Pdf_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Pdf_x2.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Report.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.ReportSnapshot.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.ReportSnapshot_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.ReportSnapshot_x2.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Report_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Report_x2.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Rtf.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Rtf_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Rtf_x2.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Txt.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Txt_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Txt_x2.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Word.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Word_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Bmp.Resources.Word_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.AutoHideOff.bmp" LogicalName="Stimulsoft.Controls.Bmp.AutoHideOff.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.AutoHideOn.bmp" LogicalName="Stimulsoft.Controls.Bmp.AutoHideOn.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Close.bmp" LogicalName="Stimulsoft.Controls.Bmp.Close.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Collapse.bmp" LogicalName="Stimulsoft.Controls.Bmp.Collapse.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.ComboDown.bmp" LogicalName="Stimulsoft.Controls.Bmp.ComboDown.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.ComboLeft.bmp" LogicalName="Stimulsoft.Controls.Bmp.ComboLeft.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.ComboRight.bmp" LogicalName="Stimulsoft.Controls.Bmp.ComboRight.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.ComboUp.bmp" LogicalName="Stimulsoft.Controls.Bmp.ComboUp.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Down.bmp" LogicalName="Stimulsoft.Controls.Bmp.Down.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.DropDownArrow.bmp" LogicalName="Stimulsoft.Controls.Bmp.DropDownArrow.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.DropDownArrow_x1_5.bmp" LogicalName="Stimulsoft.Controls.Bmp.DropDownArrow_x1_5.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.DropDownArrow_x2.bmp" LogicalName="Stimulsoft.Controls.Bmp.DropDownArrow_x2.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Expand.bmp" LogicalName="Stimulsoft.Controls.Bmp.Expand.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.SpinDown.bmp" LogicalName="Stimulsoft.Controls.Bmp.SpinDown.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.SpinUp.bmp" LogicalName="Stimulsoft.Controls.Bmp.SpinUp.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Up.bmp" LogicalName="Stimulsoft.Controls.Bmp.Up.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiButton.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiButton.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiButtonEdit.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiButtonEdit.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiCheckBox.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiCheckBox.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiColorBox.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiColorBox.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiColorButton.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiColorButton.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiComboBox.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiComboBox.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiDockingManager.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiDockingManager.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiFontBox.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiFontBox.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiGroupBox.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiGroupBox.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiGroupLine.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiGroupLine.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiListBox.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiListBox.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiMenuProvider.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiMenuProvider.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiNumericUpDown.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiNumericUpDown.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiOutlookBar.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiOutlookBar.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiPanel.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiPanel.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiRadioButton.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiRadioButton.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiRichTextBox.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiRichTextBox.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiScrollableControl.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiScrollableControl.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiTabControl.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiTabControl.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiTextBox.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiTextBox.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiToolBar.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiToolBar.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiToolButton.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiToolButton.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiTreeView.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiTreeView.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Toolbox.StiTreeViewBox.bmp" LogicalName="Stimulsoft.Controls.Toolbox.StiTreeViewBox.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.ComboDown.png" LogicalName="Stimulsoft.Controls.Bmp.ComboDown.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.DropDown.png" LogicalName="Stimulsoft.Controls.Bmp.DropDown.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.DropDown_x1_5.png" LogicalName="Stimulsoft.Controls.Bmp.DropDown_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.DropDown_x2.png" LogicalName="Stimulsoft.Controls.Bmp.DropDown_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Csv.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Csv.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Csv_x1_5.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Csv_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Csv_x2.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Csv_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Excel.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Excel.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Excel_x1_5.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Excel_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Excel_x2.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Excel_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Image.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Image.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Image_x1_5.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Image_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Image_x2.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Image_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Pdf.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Pdf.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Pdf_x1_5.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Pdf_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Pdf_x2.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Pdf_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Report.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Report.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.ReportSnapshot.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.ReportSnapshot.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.ReportSnapshot_x1_5.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.ReportSnapshot_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.ReportSnapshot_x2.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.ReportSnapshot_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Report_x1_5.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Report_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Report_x2.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Report_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Rtf.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Rtf.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Rtf_x1_5.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Rtf_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Rtf_x2.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Rtf_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Txt.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Txt.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Txt_x1_5.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Txt_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Txt_x2.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Txt_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Word.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Word.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Word_x1_5.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Word_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Bmp.Resources.Word_x2.png" LogicalName="Stimulsoft.Controls.Bmp.Resources.Word_x2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Design" />
+    <Reference Include="System.Xml">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

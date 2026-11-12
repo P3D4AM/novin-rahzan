@@ -1,0 +1,20 @@
+namespace Riss.Devices;
+
+public enum ReturnValue
+{
+	SUCCESS = 0,
+	IMAGE_ERR = -1,
+	FPDATA_ERR = -2,
+	ID_ERR = -3,
+	OVER_ERR = -4,
+	BUFFER_ERR = -6,
+	SENSOR_ERR = -7,
+	NTH_ERR = -8,
+	MERGE_ERR = -9,
+	NOT_FINGER = -11,
+	DEV_ERR = -100,
+	SBSFE_ERR_CANNOT_OPEN_DB = -101,
+	SBSFE_ERR_DOUBLED = -102,
+	SBSFE_ERR_IDENTIFY = -103,
+	SBSFE_ERR_VERIFY = -104
+}

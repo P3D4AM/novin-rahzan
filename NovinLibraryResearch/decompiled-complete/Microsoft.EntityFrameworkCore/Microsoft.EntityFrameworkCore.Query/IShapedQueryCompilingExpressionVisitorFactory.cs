@@ -1,0 +1,6 @@
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public interface IShapedQueryCompilingExpressionVisitorFactory
+{
+	ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext);
+}

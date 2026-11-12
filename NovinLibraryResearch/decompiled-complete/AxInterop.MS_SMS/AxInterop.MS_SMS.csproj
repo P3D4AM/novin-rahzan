@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>AxInterop.MS_SMS</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net40</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="Interop.MS_SMS">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Interop.MS_SMS.dll</HintPath>
+    </Reference>
+    <Reference Include="stdole">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/stdole.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" ?>
+<EnumObject type="CollectionSetExecutionHistory" impl_type="CollectorObject" min_major='10'>
+	<settings>
+		<parent_link>
+			<link parent="Id" local="CollectionSetId" />
+		</parent_link>
+		<property_link table='msdb.dbo.syscollector_execution_log' alias='l'/>
+		<property_link fields='#CollectionSetId#' left_join='msdb.dbo.syscollector_collection_sets' alias='c'>l.collection_set_id = c.collection_set_id</property_link>
+		<property_link fields='#CollectionItemId#' left_join='msdb.dbo.syscollector_collection_items' alias='i'>l.collection_item_id = i.collection_item_id</property_link>
+	</settings>
+	<properties>
+		<include file='inc_urnByParentLogId.xml' />
+		<property name='LogId' type='bigint' access='Read'>l.log_id</property>
+		<property name='ParentLogId' type='bigint' access='Read'>l.parent_log_id</property>
+		<property name='Name' type='nvarchar' size='4000' access='Read'>
+			CASE
+			WHEN l.package_id IS NULL THEN c.name
+			WHEN l.package_id = N'84CEC861-D619-433D-86FB-0BB851AF454A' THEN N'Master'
+			ELSE l.package_name
+			END
+		</property>
+		<property name='Status' type='smallint' access='Read'>l.status</property>
+		<property name='RuntimeExecutionMode' type='smallint' access='Read'>l.runtime_execution_mode</property>
+		<property name='StartTime' type='datetime' access='Read'>l.start_time</property>
+		<property name='LastIterationTime' type='datetime' access='Read'>l.last_iteration_time</property>
+		<property name='FinishTime' type='datetime' access='Read'>l.finish_time</property>
+		<property name='Duration' type='int' access='Read'>
+			CASE
+			WHEN l.finish_time IS NOT NULL THEN DATEDIFF(s, l.start_time, l.finish_time)
+			WHEN l.last_iteration_time IS NOT NULL THEN DATEDIFF(s, l.start_time, l.last_iteration_time)
+			ELSE 0
+			END
+		</property>
+		<property name='FailureMessage' type='nvarchar' size='2048' access='Read'>l.failure_message</property>
+		<property name='Operator' type='nvarchar' size='128' access='Read'>l.operator</property>
+		<property name='PackageExecutionId' type='uniqueidentifier' access='Read'>l.package_execution_id</property>
+		<property name='CollectionSetId' type='int' access='Read'>l.collection_set_id</property>
+		<property name='CollectionSetName' type='nvarchar' access='Read'>c.name</property>
+		<property name='CollectionItemId' type='int' access='Read'>i.collection_item_id</property>
+		<property name='CollectionItemName' type='nvarchar' access='Read'>i.name</property>
+		<property name='PackageId' type='uniqueidentifier' access='Read'>l.package_id</property>
+	</properties>
+</EnumObject>

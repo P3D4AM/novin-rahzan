@@ -1,0 +1,71 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.Dashboard.Export</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Stimulsoft.Dashboard.Export.Images.CheckBoxFalse.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.CheckBoxTrue.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiCardsElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiChartElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiComboBoxElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiGaugeElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiImageElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiIndicatorElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiListBoxElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiOnlineMapElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiPivotTableElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiProgressElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiRegionMapElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTableElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTextElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTreeViewBoxElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTreeViewElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.CheckBoxFalse.png" LogicalName="Stimulsoft.Dashboard.Export.Images.CheckBoxFalse.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.CheckBoxTrue.png" LogicalName="Stimulsoft.Dashboard.Export.Images.CheckBoxTrue.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiCardsElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiCardsElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiChartElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiChartElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiComboBoxElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiComboBoxElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiGaugeElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiGaugeElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiImageElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiImageElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiIndicatorElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiIndicatorElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiListBoxElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiListBoxElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiOnlineMapElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiOnlineMapElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiPivotTableElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiPivotTableElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiProgressElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiProgressElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiRegionMapElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiRegionMapElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTableElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTableElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTextElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTextElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTreeViewBoxElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTreeViewBoxElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTreeViewElement.png" LogicalName="Stimulsoft.Dashboard.Export.Images.HintLabels.StiTreeViewElement.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Report.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Dashboard">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Dashboard.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Data">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Dashboard.Drawing">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Dashboard.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

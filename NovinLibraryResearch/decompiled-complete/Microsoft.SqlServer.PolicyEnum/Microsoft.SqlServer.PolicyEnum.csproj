@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Microsoft.SqlServer.PolicyEnum</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Condition.xml" />
+    <None Remove="ConnectionEvaluationHistory.xml" />
+    <None Remove="EvaluationDetail.xml" />
+    <None Remove="EvaluationHistory.xml" />
+    <None Remove="inc_urn.xml" />
+    <None Remove="inc_urnByID.xml" />
+    <None Remove="ObjectSet.xml" />
+    <None Remove="Policy.xml" />
+    <None Remove="PolicyCategory.xml" />
+    <None Remove="PolicyCategorySubscription.xml" />
+    <None Remove="PolicyStore.xml" />
+    <None Remove="TargetSet.xml" />
+    <None Remove="TargetSetLevel.xml" />
+    <EmbeddedResource Include="Condition.xml" LogicalName="Condition.xml" />
+    <EmbeddedResource Include="ConnectionEvaluationHistory.xml" LogicalName="ConnectionEvaluationHistory.xml" />
+    <EmbeddedResource Include="EvaluationDetail.xml" LogicalName="EvaluationDetail.xml" />
+    <EmbeddedResource Include="EvaluationHistory.xml" LogicalName="EvaluationHistory.xml" />
+    <EmbeddedResource Include="inc_urn.xml" LogicalName="inc_urn.xml" />
+    <EmbeddedResource Include="inc_urnByID.xml" LogicalName="inc_urnByID.xml" />
+    <EmbeddedResource Include="ObjectSet.xml" LogicalName="ObjectSet.xml" />
+    <EmbeddedResource Include="Policy.xml" LogicalName="Policy.xml" />
+    <EmbeddedResource Include="PolicyCategory.xml" LogicalName="PolicyCategory.xml" />
+    <EmbeddedResource Include="PolicyCategorySubscription.xml" LogicalName="PolicyCategorySubscription.xml" />
+    <EmbeddedResource Include="PolicyStore.xml" LogicalName="PolicyStore.xml" />
+    <EmbeddedResource Include="TargetSet.xml" LogicalName="TargetSet.xml" />
+    <EmbeddedResource Include="TargetSetLevel.xml" LogicalName="TargetSetLevel.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.SqlServer.Management.Sdk.Sfc">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Microsoft.SqlServer.Management.Sdk.Sfc.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.ConnectionInfo">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Microsoft.SqlServer.ConnectionInfo.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

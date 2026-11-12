@@ -1,0 +1,9 @@
+namespace Stimulsoft.Controls.DesktopIntegration;
+
+internal enum THBMASK
+{
+	THB_BITMAP = 1,
+	THB_ICON = 2,
+	THB_TOOLTIP = 4,
+	THB_FLAGS = 8
+}

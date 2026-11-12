@@ -1,0 +1,119 @@
+using System;
+
+namespace Azure.Core;
+
+public readonly struct RequestMethod : IEquatable<RequestMethod>
+{
+	public string Method { get; }
+
+	public static RequestMethod Get { get; } = new RequestMethod("GET");
+
+
+	public static RequestMethod Post { get; } = new RequestMethod("POST");
+
+
+	public static RequestMethod Put { get; } = new RequestMethod("PUT");
+
+
+	public static RequestMethod Patch { get; } = new RequestMethod("PATCH");
+
+
+	public static RequestMethod Delete { get; } = new RequestMethod("DELETE");
+
+
+	public static RequestMethod Head { get; } = new RequestMethod("HEAD");
+
+
+	public static RequestMethod Options { get; } = new RequestMethod("OPTIONS");
+
+
+	public static RequestMethod Trace { get; } = new RequestMethod("TRACE");
+
+
+	public RequestMethod(string method)
+	{
+		Argument.AssertNotNull(method, "method");
+		Method = method.ToUpperInvariant();
+	}
+
+	public static RequestMethod Parse(string method)
+	{
+		Argument.AssertNotNull(method, "method");
+		if (method.Length == 3)
+		{
+			if (string.Equals(method, "GET", StringComparison.OrdinalIgnoreCase))
+			{
+				return Get;
+			}
+			if (string.Equals(method, "PUT", StringComparison.OrdinalIgnoreCase))
+			{
+				return Put;
+			}
+		}
+		else if (method.Length == 4)
+		{
+			if (string.Equals(method, "POST", StringComparison.OrdinalIgnoreCase))
+			{
+				return Post;
+			}
+			if (string.Equals(method, "HEAD", StringComparison.OrdinalIgnoreCase))
+			{
+				return Head;
+			}
+		}
+		else
+		{
+			if (string.Equals(method, "PATCH", StringComparison.OrdinalIgnoreCase))
+			{
+				return Patch;
+			}
+			if (string.Equals(method, "DELETE", StringComparison.OrdinalIgnoreCase))
+			{
+				return Delete;
+			}
+			if (string.Equals(method, "OPTIONS", StringComparison.OrdinalIgnoreCase))
+			{
+				return Options;
+			}
+			if (string.Equals(method, "TRACE", StringComparison.OrdinalIgnoreCase))
+			{
+				return Trace;
+			}
+		}
+		return new RequestMethod(method);
+	}
+
+	public bool Equals(RequestMethod other)
+	{
+		return string.Equals(Method, other.Method, StringComparison.Ordinal);
+	}
+
+	public override bool Equals(object? obj)
+	{
+		if (obj is RequestMethod other)
+		{
+			return Equals(other);
+		}
+		return false;
+	}
+
+	public override int GetHashCode()
+	{
+		return Method?.GetHashCode() ?? 0;
+	}
+
+	public static bool operator ==(RequestMethod left, RequestMethod right)
+	{
+		return left.Equals(right);
+	}
+
+	public static bool operator !=(RequestMethod left, RequestMethod right)
+	{
+		return !left.Equals(right);
+	}
+
+	public override string ToString()
+	{
+		return Method ?? "<null>";
+	}
+}

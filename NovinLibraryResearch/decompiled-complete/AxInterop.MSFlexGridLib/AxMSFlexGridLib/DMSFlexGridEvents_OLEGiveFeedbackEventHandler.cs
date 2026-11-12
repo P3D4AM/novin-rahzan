@@ -1,0 +1,3 @@
+namespace AxMSFlexGridLib;
+
+public delegate void DMSFlexGridEvents_OLEGiveFeedbackEventHandler(object sender, DMSFlexGridEvents_OLEGiveFeedbackEvent e);

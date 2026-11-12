@@ -1,0 +1,38 @@
+namespace Riss.Devices;
+
+public enum DeviceProperty
+{
+	FirmwareVersion,
+	FirmwareUpgrade,
+	Bell,
+	DoorControl,
+	AccessControlSettings,
+	WelcomeTitle,
+	StandbyTitle,
+	InitSettings,
+	Status,
+	PowerOff,
+	DeviceTime,
+	ScreenBrightness,
+	ManagementRecords,
+	AttRecords,
+	Enrolls,
+	Message,
+	Enable,
+	AttRecordsCount,
+	ManagementRecordsCount,
+	DataFile,
+	PhotoList,
+	PowerOnOffTime,
+	MacAddress,
+	UserNameData,
+	Attendance,
+	Model,
+	SysParam,
+	UploadSound,
+	SerialNo,
+	PassSegment,
+	PassGroup,
+	PassZone,
+	MultOpenGroup
+}

@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+
+namespace Azure.Core;
+
+public abstract class Request : IDisposable
+{
+	public virtual RequestUriBuilder Uri { get; set; } = new RequestUriBuilder();
+
+
+	public virtual RequestMethod Method { get; set; }
+
+	public virtual RequestContent? Content { get; set; }
+
+	public abstract string ClientRequestId { get; set; }
+
+	public RequestHeaders Headers => new RequestHeaders(this);
+
+	protected internal abstract void AddHeader(string name, string value);
+
+	protected internal abstract bool TryGetHeader(string name, [NotNullWhen(true)] out string? value);
+
+	protected internal abstract bool TryGetHeaderValues(string name, [NotNullWhen(true)] out IEnumerable<string>? values);
+
+	protected internal abstract bool ContainsHeader(string name);
+
+	protected internal virtual void SetHeader(string name, string value)
+	{
+		RemoveHeader(name);
+		AddHeader(name, value);
+	}
+
+	protected internal abstract bool RemoveHeader(string name);
+
+	protected internal abstract IEnumerable<HttpHeader> EnumerateHeaders();
+
+	public abstract void Dispose();
+}

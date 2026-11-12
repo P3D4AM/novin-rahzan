@@ -1,0 +1,183 @@
+using System;
+using System.Data.SqlTypes;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Xml;
+using Microsoft.Data.SqlClient;
+
+namespace Microsoft.Data.SqlTypes;
+
+internal static class SqlTypeWorkarounds
+{
+	private struct SqlMoneyLookalike
+	{
+		internal bool _fNotNull;
+
+		internal long _value;
+	}
+
+	[StructLayout(LayoutKind.Explicit)]
+	private struct SqlMoneyCaster
+	{
+		[FieldOffset(0)]
+		internal SqlMoney Real;
+
+		[FieldOffset(0)]
+		internal SqlMoneyLookalike Fake;
+	}
+
+	private struct SqlDecimalLookalike
+	{
+		internal byte _bStatus;
+
+		internal byte _bLen;
+
+		internal byte _bPrec;
+
+		internal byte _bScale;
+
+		internal uint _data1;
+
+		internal uint _data2;
+
+		internal uint _data3;
+
+		internal uint _data4;
+	}
+
+	[StructLayout(LayoutKind.Explicit)]
+	private struct SqlDecimalCaster
+	{
+		[FieldOffset(0)]
+		internal SqlDecimal Real;
+
+		[FieldOffset(0)]
+		internal SqlDecimalLookalike Fake;
+	}
+
+	private struct SqlBinaryLookalike
+	{
+		internal byte[] _value;
+	}
+
+	[StructLayout(LayoutKind.Explicit)]
+	private struct SqlBinaryCaster
+	{
+		[FieldOffset(0)]
+		internal SqlBinary Real;
+
+		[FieldOffset(0)]
+		internal SqlBinaryLookalike Fake;
+	}
+
+	private struct SqlGuidLookalike
+	{
+		internal byte[] _value;
+	}
+
+	[StructLayout(LayoutKind.Explicit)]
+	private struct SqlGuidCaster
+	{
+		[FieldOffset(0)]
+		internal SqlGuid Real;
+
+		[FieldOffset(0)]
+		internal SqlGuidLookalike Fake;
+	}
+
+	private static readonly XmlReaderSettings s_defaultXmlReaderSettings = new XmlReaderSettings
+	{
+		ConformanceLevel = ConformanceLevel.Fragment
+	};
+
+	private static readonly XmlReaderSettings s_defaultXmlReaderSettingsCloseInput = new XmlReaderSettings
+	{
+		ConformanceLevel = ConformanceLevel.Fragment,
+		CloseInput = true
+	};
+
+	private static readonly XmlReaderSettings s_defaultXmlReaderSettingsAsyncCloseInput = new XmlReaderSettings
+	{
+		Async = true,
+		ConformanceLevel = ConformanceLevel.Fragment,
+		CloseInput = true
+	};
+
+	internal const SqlCompareOptions SqlStringValidSqlCompareOptionMask = SqlCompareOptions.IgnoreCase | SqlCompareOptions.IgnoreNonSpace | SqlCompareOptions.IgnoreKanaType | SqlCompareOptions.IgnoreWidth | SqlCompareOptions.BinarySort | SqlCompareOptions.BinarySort2;
+
+	internal static XmlReader SqlXmlCreateSqlXmlReader(Stream stream, bool closeInput = false, bool async = false)
+	{
+		XmlReaderSettings settings = ((!closeInput) ? s_defaultXmlReaderSettings : (async ? s_defaultXmlReaderSettingsAsyncCloseInput : s_defaultXmlReaderSettingsCloseInput));
+		return XmlReader.Create(stream, settings);
+	}
+
+	internal static XmlReader SqlXmlCreateSqlXmlReader(TextReader textReader, bool closeInput = false, bool async = false)
+	{
+		XmlReaderSettings settings = ((!closeInput) ? s_defaultXmlReaderSettings : (async ? s_defaultXmlReaderSettingsAsyncCloseInput : s_defaultXmlReaderSettingsCloseInput));
+		return XmlReader.Create(textReader, settings);
+	}
+
+	internal static DateTime SqlDateTimeToDateTime(int daypart, int timepart)
+	{
+		if ((uint)((long)daypart + 53690L) > 3012153 || (uint)timepart > 25919999u)
+		{
+			ThrowOverflowException();
+		}
+		long num = daypart * 864000000000L;
+		double num2 = (double)timepart / 0.3;
+		num2 += 0.5;
+		long num3 = (long)num2 * 10000;
+		long ticks = 599266080000000000L + num + num3;
+		return new DateTime(ticks);
+	}
+
+	[MethodImpl(MethodImplOptions.NoInlining)]
+	private static Exception ThrowOverflowException()
+	{
+		throw SQL.DateTimeOverflow();
+	}
+
+	internal static SqlMoney SqlMoneyCtor(long value, int ignored)
+	{
+		SqlMoneyCaster sqlMoneyCaster = default(SqlMoneyCaster);
+		sqlMoneyCaster.Fake._fNotNull = true;
+		sqlMoneyCaster.Fake._value = value;
+		return sqlMoneyCaster.Real;
+	}
+
+	internal static long SqlMoneyToSqlInternalRepresentation(SqlMoney money)
+	{
+		SqlMoneyCaster sqlMoneyCaster = default(SqlMoneyCaster);
+		sqlMoneyCaster.Real = money;
+		if (money.IsNull)
+		{
+			throw new SqlNullValueException();
+		}
+		return sqlMoneyCaster.Fake._value;
+	}
+
+	internal static void SqlDecimalExtractData(SqlDecimal d, out uint data1, out uint data2, out uint data3, out uint data4)
+	{
+		SqlDecimalCaster sqlDecimalCaster = default(SqlDecimalCaster);
+		sqlDecimalCaster.Real = d;
+		data1 = sqlDecimalCaster.Fake._data1;
+		data2 = sqlDecimalCaster.Fake._data2;
+		data3 = sqlDecimalCaster.Fake._data3;
+		data4 = sqlDecimalCaster.Fake._data4;
+	}
+
+	internal static SqlBinary SqlBinaryCtor(byte[] value, bool ignored)
+	{
+		SqlBinaryCaster sqlBinaryCaster = default(SqlBinaryCaster);
+		sqlBinaryCaster.Fake._value = value;
+		return sqlBinaryCaster.Real;
+	}
+
+	internal static SqlGuid SqlGuidCtor(byte[] value, bool ignored)
+	{
+		SqlGuidCaster sqlGuidCaster = default(SqlGuidCaster);
+		sqlGuidCaster.Fake._value = value;
+		return sqlGuidCaster.Real;
+	}
+}

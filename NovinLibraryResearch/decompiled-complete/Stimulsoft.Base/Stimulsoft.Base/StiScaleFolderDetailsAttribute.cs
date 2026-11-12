@@ -1,0 +1,20 @@
+using System;
+
+namespace Stimulsoft.Base;
+
+public sealed class StiScaleFolderDetailsAttribute : Attribute
+{
+	public int Size { get; }
+
+	public bool SkipCategory { get; }
+
+	public StiScaleFolderDetailsAttribute(int size)
+	{
+		Size = size;
+	}
+
+	public StiScaleFolderDetailsAttribute(bool skipCategory)
+	{
+		SkipCategory = skipCategory;
+	}
+}

@@ -1,0 +1,360 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.Controls.Win</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Stimulsoft.Controls.Win.ColorPickers.ColorCombControl.ico" />
+    <None Remove="Stimulsoft.Controls.Win.ColorPickers.CustomColorBlender.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Metro.MetroShell.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Metro.MetroStatusBar.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Metro.MetroTilePanel.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Metro.MetroToolbar.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Ribbon.ItemPanel.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Ribbon.RibbonBar.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Ribbon.RibbonControl.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Ribbon.SuperTooltip.ico" />
+    <None Remove="Stimulsoft.Controls.Win.ScrollBar.HScrollBarAdv.ico" />
+    <None Remove="Stimulsoft.Controls.Win.ScrollBar.VScrollBarAdv.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Validator.Highlighter.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Validator.SuperValidator.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Wizard.Wizard.ico" />
+    <None Remove="Stimulsoft.Controls.Win.AdvPropertyGrid.ico" />
+    <None Remove="Stimulsoft.Controls.Win.AdvTree.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Bar.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Calculator.ico" />
+    <None Remove="Stimulsoft.Controls.Win.Command.ico" />
+    <None Remove="Stimulsoft.Controls.Win.DateTimeInput.ico" />
+    <None Remove="Stimulsoft.Controls.Win.DotNetBarManager.ico" />
+    <None Remove="Stimulsoft.Controls.Win.DoubleInput.ico" />
+    <None Remove="Stimulsoft.Controls.Win.ExpandablePanel.ico" />
+    <None Remove="Stimulsoft.Controls.Win.IntegerInput.ico" />
+    <None Remove="Stimulsoft.Controls.Win.IpAddressInput.ico" />
+    <None Remove="Stimulsoft.Controls.Win.MonthCalendarAdv.ico" />
+    <None Remove="Stimulsoft.Controls.Win.StyleManager.ico" />
+    <None Remove="Stimulsoft.Controls.Win.SuperTabControl.ico" />
+    <None Remove="Stimulsoft.Controls.Win.SuperTabStrip.ico" />
+    <None Remove="Stimulsoft.Controls.Win.TimeSelector.ico" />
+    <None Remove="Stimulsoft.Controls.Win.BalloonImages.AlertHot.png" />
+    <None Remove="Stimulsoft.Controls.Win.BalloonImages.AlertNormal.png" />
+    <None Remove="Stimulsoft.Controls.Win.BalloonImages.AlertPress.png" />
+    <None Remove="Stimulsoft.Controls.Win.BalloonImages.BalloonHot.png" />
+    <None Remove="Stimulsoft.Controls.Win.BalloonImages.BalloonNormal.png" />
+    <None Remove="Stimulsoft.Controls.Win.BalloonImages.BalloonPress.png" />
+    <None Remove="Stimulsoft.Controls.Win.Png.dropper.png" />
+    <None Remove="Stimulsoft.Controls.Win.Png.dropper_x2.png" />
+    <None Remove="Stimulsoft.Controls.Win.Png.Notify.png" />
+    <None Remove="Stimulsoft.Controls.Win.Ribbon.RibbonControl.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.AddMoreItemsContainer.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankOffice2010HotSilver.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankOffice2010NormalSilver.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankOffice2010PressedSilver.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHot.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHotBlack.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHotSilver.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHotVistaBlack.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormal.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormalBlack.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormalSilver.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormalVistaBlack.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressed.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressedBlack.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressedSilver.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressedVistaBlack.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankWin7HotBlue.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankWin7NormalBlue.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.BlankWin7PressedBlue.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Calculator.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Category.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.CloseButton.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.CollapseTitle.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.ColorPickerButtonImage.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x2.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x3.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x4.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DateReset.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DefaultNavBarImage.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Delete.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintAllSides.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintAllSides2010.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintBottom.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintBottom2010.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintLeft.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintLeft2010.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintLeftRight2010.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintRight.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintRight2010.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintTab.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintTab2010.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintTop.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintTop2010.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.DockHintTopBottom2010.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.ErrorIcon.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.ExpandTitle.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.FirstRecord.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.FreeText.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.GreenLight.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.ImagePlaceHolder.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.ImagePlaceHolder16x16.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.LastRecord.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.NavBarConfigure.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.NavBarShowLess.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.NavBarShowMore.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.NewRecord.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.NextRecord.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.NoFill.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.NoFill_x1_5.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.NoFill_x2.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Note24.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Note64.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Office2010BlackClientBackground.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Office2010BlueClientBackground.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Office2010SilverClientBackground.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Pin.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.PinInactive.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.PinPushed.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.PinPushedInactive.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.PreviousRecord.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.QatCustomizeItemCombo.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Rating.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.RibbonOverflow.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Shadow3px-2.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Shadow3px.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.Sort.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskBlueFlag.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskBlueStop.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskBulb.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskCheckMark.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskCheckMark2.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskDelete.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskExclamation.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskFlag.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskHand.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskHelp.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskInformation.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskInformation2.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskNoEntry.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskShield.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskShieldHelp.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskShieldOk.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskShieldStop.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskStop.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskStop2.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.TaskUsers.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.VS2010ClientBackground.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.WinClose.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.WinMax.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.WinMin.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.WinRestore.png" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.WizardHeaderImage.png" />
+    <None Remove="Stimulsoft.Controls.Win.BarEditorImages.FileClose.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.BarEditorImages.FileCloseSol.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.BarEditorImages.FileNew.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.BarEditorImages.FileOpen.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.BarEditorImages.FileOpenSol.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.Ribbon.RibbonClientPanel.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.BalloonTip.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.ExpandableSplitter.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.ExplorerBar.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.NavigationBar.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.NavigationPane.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.PanelEx.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.SideBar.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.TabControl.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.TabStrip.bmp" />
+    <None Remove="Stimulsoft.Controls.Win.SystemImages.FontAwesome.ttf" />
+    <None Remove="Stimulsoft.Controls.Win.DRAGCOPY.CUR" />
+    <None Remove="Stimulsoft.Controls.Win.DRAGMOVE.CUR" />
+    <None Remove="Stimulsoft.Controls.Win.DRAGNONE.CUR" />
+    <None Remove="Stimulsoft.Controls.Win.PIPETTE.CUR" />
+    <None Remove="Stimulsoft.Controls.Win.Form1.dotNetBarManager1.xml" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.ColorPickers.ColorCombControl.ico" LogicalName="Stimulsoft.Controls.Win.ColorPickers.ColorCombControl.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.ColorPickers.CustomColorBlender.ico" LogicalName="Stimulsoft.Controls.Win.ColorPickers.CustomColorBlender.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Metro.MetroShell.ico" LogicalName="Stimulsoft.Controls.Win.Metro.MetroShell.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Metro.MetroStatusBar.ico" LogicalName="Stimulsoft.Controls.Win.Metro.MetroStatusBar.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Metro.MetroTilePanel.ico" LogicalName="Stimulsoft.Controls.Win.Metro.MetroTilePanel.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Metro.MetroToolbar.ico" LogicalName="Stimulsoft.Controls.Win.Metro.MetroToolbar.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Ribbon.ItemPanel.ico" LogicalName="Stimulsoft.Controls.Win.Ribbon.ItemPanel.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Ribbon.RibbonBar.ico" LogicalName="Stimulsoft.Controls.Win.Ribbon.RibbonBar.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Ribbon.RibbonControl.ico" LogicalName="Stimulsoft.Controls.Win.Ribbon.RibbonControl.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Ribbon.SuperTooltip.ico" LogicalName="Stimulsoft.Controls.Win.Ribbon.SuperTooltip.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.ScrollBar.HScrollBarAdv.ico" LogicalName="Stimulsoft.Controls.Win.ScrollBar.HScrollBarAdv.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.ScrollBar.VScrollBarAdv.ico" LogicalName="Stimulsoft.Controls.Win.ScrollBar.VScrollBarAdv.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Validator.Highlighter.ico" LogicalName="Stimulsoft.Controls.Win.Validator.Highlighter.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Validator.SuperValidator.ico" LogicalName="Stimulsoft.Controls.Win.Validator.SuperValidator.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Wizard.Wizard.ico" LogicalName="Stimulsoft.Controls.Win.Wizard.Wizard.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.AdvPropertyGrid.ico" LogicalName="Stimulsoft.Controls.Win.AdvPropertyGrid.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.AdvTree.ico" LogicalName="Stimulsoft.Controls.Win.AdvTree.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Bar.ico" LogicalName="Stimulsoft.Controls.Win.Bar.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Calculator.ico" LogicalName="Stimulsoft.Controls.Win.Calculator.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Command.ico" LogicalName="Stimulsoft.Controls.Win.Command.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.DateTimeInput.ico" LogicalName="Stimulsoft.Controls.Win.DateTimeInput.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.DotNetBarManager.ico" LogicalName="Stimulsoft.Controls.Win.DotNetBarManager.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.DoubleInput.ico" LogicalName="Stimulsoft.Controls.Win.DoubleInput.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.ExpandablePanel.ico" LogicalName="Stimulsoft.Controls.Win.ExpandablePanel.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.IntegerInput.ico" LogicalName="Stimulsoft.Controls.Win.IntegerInput.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.IpAddressInput.ico" LogicalName="Stimulsoft.Controls.Win.IpAddressInput.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.MonthCalendarAdv.ico" LogicalName="Stimulsoft.Controls.Win.MonthCalendarAdv.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.StyleManager.ico" LogicalName="Stimulsoft.Controls.Win.StyleManager.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SuperTabControl.ico" LogicalName="Stimulsoft.Controls.Win.SuperTabControl.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SuperTabStrip.ico" LogicalName="Stimulsoft.Controls.Win.SuperTabStrip.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.TimeSelector.ico" LogicalName="Stimulsoft.Controls.Win.TimeSelector.ico" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BalloonImages.AlertHot.png" LogicalName="Stimulsoft.Controls.Win.BalloonImages.AlertHot.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BalloonImages.AlertNormal.png" LogicalName="Stimulsoft.Controls.Win.BalloonImages.AlertNormal.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BalloonImages.AlertPress.png" LogicalName="Stimulsoft.Controls.Win.BalloonImages.AlertPress.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BalloonImages.BalloonHot.png" LogicalName="Stimulsoft.Controls.Win.BalloonImages.BalloonHot.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BalloonImages.BalloonNormal.png" LogicalName="Stimulsoft.Controls.Win.BalloonImages.BalloonNormal.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BalloonImages.BalloonPress.png" LogicalName="Stimulsoft.Controls.Win.BalloonImages.BalloonPress.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Png.dropper.png" LogicalName="Stimulsoft.Controls.Win.Png.dropper.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Png.dropper_x2.png" LogicalName="Stimulsoft.Controls.Win.Png.dropper_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Png.Notify.png" LogicalName="Stimulsoft.Controls.Win.Png.Notify.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Ribbon.RibbonControl.png" LogicalName="Stimulsoft.Controls.Win.Ribbon.RibbonControl.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.AddMoreItemsContainer.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.AddMoreItemsContainer.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankOffice2010HotSilver.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankOffice2010HotSilver.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankOffice2010NormalSilver.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankOffice2010NormalSilver.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankOffice2010PressedSilver.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankOffice2010PressedSilver.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHot.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHot.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHotBlack.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHotBlack.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHotSilver.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHotSilver.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHotVistaBlack.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonHotVistaBlack.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormal.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormal.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormalBlack.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormalBlack.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormalSilver.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormalSilver.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormalVistaBlack.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonNormalVistaBlack.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressed.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressed.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressedBlack.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressedBlack.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressedSilver.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressedSilver.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressedVistaBlack.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankStartButtonPressedVistaBlack.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankWin7HotBlue.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankWin7HotBlue.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankWin7NormalBlue.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankWin7NormalBlue.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.BlankWin7PressedBlue.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.BlankWin7PressedBlue.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Calculator.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Calculator.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Category.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Category.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.CloseButton.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.CloseButton.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.CollapseTitle.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.CollapseTitle.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.ColorPickerButtonImage.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.ColorPickerButtonImage.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x1_5.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x2.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x3.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x4.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.ColorPickerCustomColors_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DateReset.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DateReset.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DefaultNavBarImage.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DefaultNavBarImage.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Delete.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Delete.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintAllSides.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintAllSides.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintAllSides2010.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintAllSides2010.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintBottom.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintBottom.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintBottom2010.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintBottom2010.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintLeft.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintLeft.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintLeft2010.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintLeft2010.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintLeftRight2010.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintLeftRight2010.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintRight.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintRight.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintRight2010.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintRight2010.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintTab.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintTab.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintTab2010.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintTab2010.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintTop.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintTop.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintTop2010.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintTop2010.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.DockHintTopBottom2010.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.DockHintTopBottom2010.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.ErrorIcon.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.ErrorIcon.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.ExpandTitle.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.ExpandTitle.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.FirstRecord.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.FirstRecord.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.FreeText.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.FreeText.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.GreenLight.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.GreenLight.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.ImagePlaceHolder.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.ImagePlaceHolder.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.ImagePlaceHolder16x16.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.ImagePlaceHolder16x16.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.LastRecord.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.LastRecord.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.NavBarConfigure.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.NavBarConfigure.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.NavBarShowLess.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.NavBarShowLess.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.NavBarShowMore.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.NavBarShowMore.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.NewRecord.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.NewRecord.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.NextRecord.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.NextRecord.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.NoFill.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.NoFill.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.NoFill_x1_5.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.NoFill_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.NoFill_x2.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.NoFill_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Note24.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Note24.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Note64.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Note64.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Office2010BlackClientBackground.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Office2010BlackClientBackground.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Office2010BlueClientBackground.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Office2010BlueClientBackground.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Office2010SilverClientBackground.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Office2010SilverClientBackground.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Pin.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Pin.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.PinInactive.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.PinInactive.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.PinPushed.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.PinPushed.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.PinPushedInactive.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.PinPushedInactive.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.PreviousRecord.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.PreviousRecord.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.QatCustomizeItemCombo.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.QatCustomizeItemCombo.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Rating.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Rating.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.RibbonOverflow.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.RibbonOverflow.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Shadow3px-2.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Shadow3px-2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Shadow3px.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Shadow3px.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.Sort.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.Sort.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskBlueFlag.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskBlueFlag.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskBlueStop.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskBlueStop.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskBulb.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskBulb.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskCheckMark.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskCheckMark.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskCheckMark2.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskCheckMark2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskDelete.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskDelete.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskExclamation.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskExclamation.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskFlag.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskFlag.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskHand.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskHand.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskHelp.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskHelp.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskInformation.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskInformation.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskInformation2.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskInformation2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskNoEntry.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskNoEntry.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskShield.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskShield.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskShieldHelp.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskShieldHelp.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskShieldOk.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskShieldOk.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskShieldStop.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskShieldStop.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskStop.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskStop.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskStop2.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskStop2.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.TaskUsers.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.TaskUsers.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.VS2010ClientBackground.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.VS2010ClientBackground.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.WinClose.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.WinClose.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.WinMax.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.WinMax.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.WinMin.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.WinMin.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.WinRestore.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.WinRestore.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.WizardHeaderImage.png" LogicalName="Stimulsoft.Controls.Win.SystemImages.WizardHeaderImage.png" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BarEditorImages.FileClose.bmp" LogicalName="Stimulsoft.Controls.Win.BarEditorImages.FileClose.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BarEditorImages.FileCloseSol.bmp" LogicalName="Stimulsoft.Controls.Win.BarEditorImages.FileCloseSol.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BarEditorImages.FileNew.bmp" LogicalName="Stimulsoft.Controls.Win.BarEditorImages.FileNew.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BarEditorImages.FileOpen.bmp" LogicalName="Stimulsoft.Controls.Win.BarEditorImages.FileOpen.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BarEditorImages.FileOpenSol.bmp" LogicalName="Stimulsoft.Controls.Win.BarEditorImages.FileOpenSol.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Ribbon.RibbonClientPanel.bmp" LogicalName="Stimulsoft.Controls.Win.Ribbon.RibbonClientPanel.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.BalloonTip.bmp" LogicalName="Stimulsoft.Controls.Win.BalloonTip.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.ExpandableSplitter.bmp" LogicalName="Stimulsoft.Controls.Win.ExpandableSplitter.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.ExplorerBar.bmp" LogicalName="Stimulsoft.Controls.Win.ExplorerBar.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.NavigationBar.bmp" LogicalName="Stimulsoft.Controls.Win.NavigationBar.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.NavigationPane.bmp" LogicalName="Stimulsoft.Controls.Win.NavigationPane.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.PanelEx.bmp" LogicalName="Stimulsoft.Controls.Win.PanelEx.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SideBar.bmp" LogicalName="Stimulsoft.Controls.Win.SideBar.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.TabControl.bmp" LogicalName="Stimulsoft.Controls.Win.TabControl.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.TabStrip.bmp" LogicalName="Stimulsoft.Controls.Win.TabStrip.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.SystemImages.FontAwesome.ttf" LogicalName="Stimulsoft.Controls.Win.SystemImages.FontAwesome.ttf" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.DRAGCOPY.CUR" LogicalName="Stimulsoft.Controls.Win.DRAGCOPY.CUR" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.DRAGMOVE.CUR" LogicalName="Stimulsoft.Controls.Win.DRAGMOVE.CUR" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.DRAGNONE.CUR" LogicalName="Stimulsoft.Controls.Win.DRAGNONE.CUR" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.PIPETTE.CUR" LogicalName="Stimulsoft.Controls.Win.PIPETTE.CUR" />
+    <EmbeddedResource Include="Stimulsoft.Controls.Win.Form1.dotNetBarManager1.xml" LogicalName="Stimulsoft.Controls.Win.Form1.dotNetBarManager1.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Xml">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

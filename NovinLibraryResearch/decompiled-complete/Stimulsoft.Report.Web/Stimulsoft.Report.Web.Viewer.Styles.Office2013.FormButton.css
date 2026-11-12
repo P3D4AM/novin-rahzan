@@ -1,0 +1,31 @@
+
+/* Mouse */
+.stiJsViewerFormButton {
+    height: 23px;
+    cursor: default;
+    font-size: 12px;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+.stiJsViewerFormButtonDefault {
+    background: @JsViewerControlsBackgroundColor;
+    border: 1px solid @JsViewerControlsBorderColor;
+}
+
+.stiJsViewerFormButtonOver {
+    background: @JsViewerButtonOverBackgroundColor;
+    border: 1px solid @JsViewerControlsOverBorderColor;
+}
+
+.stiJsViewerFormButtonSelected {
+    background: @JsViewerButtonSelectedBackgroundColor;
+    border: 1px solid @JsViewerControlsSelectedBorderColor;
+}
+
+.stiJsViewerFormButtonDisabled {
+    background: @JsViewerButtonDisabledBackgroundColor;
+    border: 1px solid @JsViewerControlsDisabledBorderColor;
+}

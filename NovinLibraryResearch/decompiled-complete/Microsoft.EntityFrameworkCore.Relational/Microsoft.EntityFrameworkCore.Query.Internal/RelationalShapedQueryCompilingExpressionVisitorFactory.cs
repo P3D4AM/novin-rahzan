@@ -1,0 +1,19 @@
+namespace Microsoft.EntityFrameworkCore.Query.Internal;
+
+public class RelationalShapedQueryCompilingExpressionVisitorFactory : IShapedQueryCompilingExpressionVisitorFactory
+{
+	private readonly ShapedQueryCompilingExpressionVisitorDependencies _dependencies;
+
+	private readonly RelationalShapedQueryCompilingExpressionVisitorDependencies _relationalDependencies;
+
+	public RelationalShapedQueryCompilingExpressionVisitorFactory(ShapedQueryCompilingExpressionVisitorDependencies dependencies, RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies)
+	{
+		_dependencies = dependencies;
+		_relationalDependencies = relationalDependencies;
+	}
+
+	public virtual ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
+	{
+		return new RelationalShapedQueryCompilingExpressionVisitor(_dependencies, _relationalDependencies, queryCompilationContext);
+	}
+}

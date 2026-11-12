@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Softgroup.NetCalculator</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net20</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Softgroup.NetCalculator.PlusMinus.ico" />
+    <None Remove="Softgroup.NetCalculator.Calculator.bmp" />
+    <None Remove="f6ebb9d5-9d38-4ea9-af95-3d71252de47b" />
+    <EmbeddedResource Include="Softgroup.NetCalculator.PlusMinus.ico" LogicalName="Softgroup.NetCalculator.PlusMinus.ico" />
+    <EmbeddedResource Include="Softgroup.NetCalculator.Calculator.bmp" LogicalName="Softgroup.NetCalculator.Calculator.bmp" />
+    <EmbeddedResource Include="f6ebb9d5-9d38-4ea9-af95-3d71252de47b" LogicalName="f6ebb9d5-9d38-4ea9-af95-3d71252de47b" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
+  </ItemGroup>
+</Project>

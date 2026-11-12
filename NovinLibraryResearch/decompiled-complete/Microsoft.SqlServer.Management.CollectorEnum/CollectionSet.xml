@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<EnumObject type="CollectionSet" impl_type="CollectorObject" min_major="10">
+  <settings>
+    <property_link table="msdb.dbo.syscollector_collection_sets" alias="cs" />
+    <property_link fields="#ScheduleName#" left_join="msdb.dbo.sysschedules_localserver_view" alias="scheds">scheds.schedule_uid = cs.schedule_uid</property_link>
+    <property_link fields="#ProxyName#" alias="proxy" left_join="#tmp_help_proxy">proxy.proxy_id = cs.proxy_id</property_link>
+    <prefix fields="#ProxyName#">create table #tmp_help_proxy (
+            proxy_id int null, 
+            name nvarchar(128) null, 
+            credential_identity nvarchar(128) null, 
+            enabled tinyint null, 
+            description nvarchar(1024) null, 
+            user_sid varbinary(40) null,  
+            credential_id int null, 
+            credential_identity_exists int null
+)
+
+-- sp_help_proxy calls sp_verify_subsystems which runs an INSERT-EXEC 
+-- statement if subsystems are not setup. Since INSERT-EXEC statements
+-- cannot be nested, make sure sp_verify_subsystems is executed here once 
+-- or the following INSERT-EXEC statement will fail
+--
+-- dc_operator is granted permission to execute sp_verify_subsystems
+--
+-- this call will populate subsystems table if necessary
+EXEC msdb.dbo.sp_verify_subsystems
+
+insert into #tmp_help_proxy exec msdb.dbo.sp_help_proxy</prefix>
+    <postfix fields="#ProxyName#">drop table #tmp_help_proxy</postfix>
+  </settings>
+  <properties>
+    <include file="inc_urn.xml" />
+    <property name="Id" type="int" access="Read">cs.collection_set_id</property>
+    <property name="UId" type="uniqueidentifier">cs.collection_set_uid</property>
+    <property name="Name" type="sysname">cs.name</property>
+    <property name="TargetName" type="nvarchar" size="max">cs.target</property>
+    <property name="ScheduleName" type="sysname">scheds.name</property>
+    <property name="ProxyName" type="sysname">proxy.name</property>
+    <property name="CollectionMode" type="smallint">cs.collection_mode</property>
+    <property name="LoggingLevel" type="smallint">cs.logging_level</property>
+    <property name="IsRunning" type="bit" access="Read">cs.is_running</property>
+    <property name="IsSystem" type="bit" access="Read">cs.is_system</property>
+    <property name="Description" type="nvarchar" size="max">cs.description</property>
+    <property name="DaysUntilExpiration" type="smallint">cs.days_until_expiration</property>
+  </properties>
+</EnumObject>

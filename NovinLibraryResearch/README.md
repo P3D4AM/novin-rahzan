@@ -1,6 +1,6 @@
 # تحقیقات کتابخانه‌های نوین پرداز — NovinLibraryResearch
 
-این پوشه حاوی خروجی کامل یک تحقیق مهندسی معکوس روی **۵۱ فایل کتابخانه (DLL)** نرم‌افزار حضور و غیاب و حقوق و دستمزد **«نوین پرداز»** (پروژهٔ NPACC) است. بستهٔ اصلی (`NovinDll's.zip`، حدود ۳۵ مگابایت) شامل ۱۳ کتابخانهٔ اختصاصی، ۲۶ کتابخانهٔ `System.*` مایکروسافت و فایل‌های پیکربندی/PDB بود.
+این پوشه حاوی خروجی کامل یک تحقیق مهندسی معکوس روی نرم‌افزار حضور و غیاب و حقوق و دستمزد **«نوین پرداز»** (پروژهٔ NPACC) است. بستهٔ اصلی (`NovinDll's.zip`، حدود ۳۵ مگابایت) شامل ۱۳ کتابخانهٔ اختصاصی، ۲۶ کتابخانهٔ `System.*` مایکروسافت و فایل‌های پیکربندی/PDB بود؛ دو بستهٔ بعدی («All novin-dlls» و «Novin-rahzan-dlls») بعدها برای تکمیل پوشش به همین پوشه اضافه شدند (جدول‌های پایین‌تر).
 
 - **پشتهٔ فناوری شناسایی‌شده:** .NET Framework 4.8 / C# / WinForms / SQL Server
 - **روش تحقیق:** دیکامپایل ۱۱ کتابخانهٔ مدیریت‌شده با ILSpy + استخراج نمادها از ۲ کتابخانهٔ بومی COM (zkemkeeper و zkemsdk) + تحلیل دستی کد
@@ -53,7 +53,7 @@
 | `report/` | گزارش نهایی: **PDF ۴۱ صفحه‌ای**، نسخهٔ HTML قابل ویرایش، خلاصهٔ CSV کتابخانه‌ها و فونت‌های Vazirmatn |
 | `scripts/` | اسکریپت‌های خط تولید گزارش + `sanitize_privacy.py` (پاک‌سازی بازتولیدپذیر) |
 | `decompiled/` | سورس **پاک‌سازی‌شدهٔ** ۱۱ کتابخانهٔ مدیریت‌شدهٔ دیکامپایل‌شده با ILSpy (۶۲۵ فایل) |
-| `decompiled-complete/` | دیکامپایل **کامل هر ۳۶ کتابخانهٔ مدیریتی بسته** — ۱۱ اختصاصی + ۲۵ کتابخانهٔ `System.*` (۱٬۶۱۶ فایل) |
+| `decompiled-complete/` | دیکامپایل کامل هر ۳ بسته — مجموعاً **۲۲۰ کتابخانهٔ مدیریتی** (بستهٔ ۱: ۳۶ عدد، بستهٔ ۲: ۲۰ عدد، بستهٔ ۳: ۱۶۴ عدد) + آرشیو خام ۲۳۹ فایل DLL در `_dlls/` |
 
 ### فایل‌های گزارش
 
@@ -76,6 +76,29 @@
 | اسکن امنیتی | کل ۱٬۶۱۶ فایل برای توکن تلگرام، رمزهای استاد، کلید AES، دامنه‌های سازنده و کانال ربات اسکن شد — **صفر مورد** |
 | خارج از پوشش | `zkemkeeper.dll` و `zkemsdk.dll` (COM بومی ۳۲ بیتی — با ILSpy قابل دیکامپایل نیستند) و فایل‌های `.pdb` / `.config` |
 | بازتولید | `bash scripts/decompile_complete.sh` سپس `python3 scripts/sanitize_privacy.py sources <مسیر decompiled-complete>` |
+
+### بستهٔ دوم «All novin-dlls» (۲۰ کتابخانه)
+
+| مورد | توضیح |
+|---|---|
+| منبع | بستهٔ `All novin-dlls` — ۲۰ کتابخانهٔ اختصاصی/جانبی (Stimulsoft.Report و Win، LK، AccSqlServerPersistence، EntityCacheStandard، PacketParserStandard، BehComponents، DevComponents.DotNetBar2 و…) |
+| ابزار | `ilspycmd 8.2.0.7535` — همان نسخهٔ بستهٔ ۱ |
+| پاک‌سازی | اعمال نشد — سورس‌ها مطابق خروجی خام ILSpy کامیت شدند |
+| بازتولید | `bash scripts/decompile_alldlls.sh` |
+
+### بستهٔ سوم «Novin-rahzan-dlls» — پوشش کامل پوشهٔ نصب (۲۳۹ DLL)
+
+| مورد | توضیح |
+|---|---|
+| منبع | بستهٔ `Novin-rahzan-dlls.zip` (~۷۳ مگابایت، ۲۳۹ فایل DLL) — پوشش کامل DLLهای پوشهٔ نصب نرم‌افزار |
+| ترکیب | ۲۲۰ اسمبلی مدیریت‌شدهٔ .NET + ۱۹ DLL بومی ۳۲/۶۴ بیتی (FKAttend، SBXPCDLL، zkemkeeper، zkemsdk، GEN_FONT، brolib، FaceDataConv، SNI و…) |
+| عملیات | **۵۶ کتابخانهٔ تکراری** با بسته‌های ۱ و ۲ skip شدند؛ **۱۶۴ کتابخانهٔ جدید** دیکامپایل شدند (~۲۳٬۷۰۰ فایل: ۱۵٬۵۰۰+ فایل `.cs` + منابع) |
+| ابزار | `ilspycmd 8.2.0.7535` — همان نسخهٔ بسته‌های ۱ و ۲ (خروجی deterministic) |
+| کتابخانه‌های شاخص جدید | Stimulsoft.Report.Design/Helper/Web/Check/Dashboard/Editor/Blockly، Microsoft.SqlServer.Smo/SqlParser/SqlEnum (مجموعهٔ کامل SMO)، Entity Framework Core + SQL Server، ASP.NET Core SignalR (کلاینت/سرور)، Serilog + همهٔ Sinkها، Microsoft.Identity.Client، Newtonsoft.Json، Ninject، Azure.Core/Identity، ExcelDataReader، Smartgroup، mCoreLib و کتابخانه‌های اختصاصی سازنده: Server.Core، ActivationPacketParserStandard، PayamakSettings، RegisterManagement، SbLogServer، SignalRCoreConnectionCore، Riss.Devices_ZDC2911 |
+| آرشیو باینری | هر ۲۳۹ فایل DLL خام (بدون تغییر) در `decompiled-complete/_dlls/` نگهداری می‌شوند — تنها نسخهٔ موجود از ۱۹ DLL بومیِ غیرقابل‌دیکامپایل نیز همینجاست |
+| اسکن امنیتی | کل ۲۳٬۸۰۰ فایل سورس جدید برای توکن تلگرام (الگوی `\d{8,10}:AA…`)، رمزهای استاد، کلید AES و دامنه‌های سازنده اسکن شد — **صفر توکن/رمز هاردکد در کتابخانه‌های جدید** |
+| یافته‌های غیرحساس | `ActivationPacketParserStandard/SharedActivation/ApiLoginParamter.cs` نقطهٔ پایانی فعال‌سازی `novinrank.ir` را دارد (نشانی عمومی، بدون اعتبارنامه)؛ `Server.Core` در ۸ فایل از `WebTelegramMessage.…bot().Sent2web(...)` برای پایش عملیاتی استفاده می‌کند — خودِ کلاس و توکن‌های آن در `PacketParserStandard` بستهٔ ۲ تعریف شده‌اند |
+| بازتولید | `bash scripts/decompile_rahzan.sh <مسیر-DLLها>` (تشخیص خودکار managed/native با `scripts/classify_dlls.py` و skip خودکار دیکامپایل‌شده‌ها) |
 
 ---
 

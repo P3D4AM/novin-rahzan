@@ -1,0 +1,20 @@
+using Microsoft.SqlServer.Management.SqlParser.Metadata;
+
+namespace Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
+
+public interface IResolvedSynonymFactory
+{
+	IResolvedTableSynonym CreateResolvedTableSynonym(ISynonym synonym, ITable table);
+
+	IResolvedViewSynonym CreateResolvedViewSynonym(ISynonym synonym, IView view);
+
+	IResolvedExtendedStoredProcedureSynonym CreateResolvedExtendedStoredProcedureSynonym(ISynonym synonym, IExtendedStoredProcedure extendedStoredProcedure);
+
+	IResolvedScalarValuedFunctionSynonym CreateResolvedScalarValuedFunctionSynonym(ISynonym synonym, IScalarValuedFunction scalarValuedFunction);
+
+	IResolvedStoredProcedureSynonym CreateResolvedStoredProcedureSynonym(ISynonym synonym, IStoredProcedure storedProcedure);
+
+	IResolvedTableValuedFunctionSynonym CreateResolvedTableValuedFunctionSynonym(ISynonym synonym, ITableValuedFunction tableValuedFunction);
+
+	IResolvedUserDefinedAggregateSynonym CreateResolvedUserDefinedAggregateSynonym(ISynonym synonym, IUserDefinedAggregate userDefinedAggregate);
+}

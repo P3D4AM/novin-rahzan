@@ -1,0 +1,89 @@
+using System;
+using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
+using System.Globalization;
+using System.Reflection;
+
+namespace Stimulsoft.Base.Drawing.Design;
+
+public class RectangleDConverter : TypeConverter
+{
+	public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
+	{
+		return TypeDescriptor.GetProperties(value, attributes);
+	}
+
+	public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+	{
+		if (destinationType == typeof(InstanceDescriptor))
+		{
+			return true;
+		}
+		if (destinationType == typeof(string))
+		{
+			return true;
+		}
+		return base.CanConvertTo(context, destinationType);
+	}
+
+	public override bool GetPropertiesSupported(ITypeDescriptorContext context)
+	{
+		return true;
+	}
+
+	public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+	{
+		if (destinationType == typeof(string))
+		{
+			if (value == null)
+			{
+				return "null";
+			}
+			char separator = culture?.TextInfo.ListSeparator[0] ?? CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
+			RectangleD rectangle = (RectangleD)value;
+			return RectangleDHelper.ConvertRectangleDToString(rectangle, separator);
+		}
+		if (destinationType == typeof(InstanceDescriptor) && value != null)
+		{
+			RectangleD rectangleD = (RectangleD)value;
+			Type[] types = new Type[4]
+			{
+				typeof(double),
+				typeof(double),
+				typeof(double),
+				typeof(double)
+			};
+			ConstructorInfo constructor = typeof(RectangleD).GetConstructor(types);
+			if (constructor != null)
+			{
+				object[] objs = new object[4] { rectangleD.X, rectangleD.Y, rectangleD.Width, rectangleD.Height };
+				return CreateNewInstanceDescriptor(constructor, objs);
+			}
+		}
+		return base.ConvertTo(context, culture, value, destinationType);
+	}
+
+	public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+	{
+		if (sourceType == typeof(string))
+		{
+			return true;
+		}
+		return base.CanConvertFrom(context, sourceType);
+	}
+
+	public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+	{
+		if (value is string str)
+		{
+			char separator = culture?.TextInfo.ListSeparator[0] ?? CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
+			return RectangleDHelper.ConvertStringToRectangleD(str, separator);
+		}
+		return base.ConvertFrom(context, culture, value);
+	}
+
+	private object CreateNewInstanceDescriptor(ConstructorInfo info, object[] objs)
+	{
+		return new InstanceDescriptor(info, objs);
+	}
+}

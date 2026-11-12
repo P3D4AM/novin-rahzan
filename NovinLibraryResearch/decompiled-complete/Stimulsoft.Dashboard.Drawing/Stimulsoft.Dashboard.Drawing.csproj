@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.Dashboard.Drawing</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort.png" />
+    <None Remove="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x4_Light.png" />
+    <None Remove="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort.png" />
+    <None Remove="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x4_Light.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort.png" LogicalName="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x1_5.png" LogicalName="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x2.png" LogicalName="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x3.png" LogicalName="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x4_Light.png" LogicalName="Stimulsoft.Dashboard.Drawing.Images.Actions.Dark.Sort_x4_Light.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort.png" LogicalName="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x1_5.png" LogicalName="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x2.png" LogicalName="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x3.png" LogicalName="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x4_Light.png" LogicalName="Stimulsoft.Dashboard.Drawing.Images.Actions.Light.Sort_x4_Light.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Stimulsoft.Report">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Report.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Dashboard">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Dashboard.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Data">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

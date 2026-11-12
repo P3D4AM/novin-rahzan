@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" ?>
+<EnumObject type="CollectionSetExecutionHistoryDetail" impl_type="CollectorObject" min_major='10'>
+	<settings>
+		<property_link table='msdb.dbo.sysssislog' alias='d'/>
+		<property_link fields='#LogId#' left_join='msdb.dbo.syscollector_execution_log' alias='l'>l.package_execution_id = d.executionid</property_link>
+	</settings>
+	<properties>
+		<include file='inc_urnByLogId.xml' />
+		<property name='LogId' type='bigint' access='Read'>l.log_id</property>
+		<property name='Source' type='nvarchar' size='1024' access='Read'>d.source</property>
+		<property name='Event' type='sysname' access='Read'>d.event</property>
+		<property name='Message' type='nvarchar' size='2048' access='Read'>d.message</property>
+		<property name='StartTime' type='datetime' access='Read'>d.starttime</property>
+		<property name='FinishTime' type='datetime' access='Read'>d.endtime</property>
+		<property name='DataCode' type='int' access='Read'>d.datacode</property>
+	</properties>
+</EnumObject>

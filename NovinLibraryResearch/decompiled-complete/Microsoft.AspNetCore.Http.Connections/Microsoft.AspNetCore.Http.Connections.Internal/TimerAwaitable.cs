@@ -1,0 +1,105 @@
+using System;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Microsoft.AspNetCore.Http.Connections.Internal;
+
+internal class TimerAwaitable : IDisposable, ICriticalNotifyCompletion, INotifyCompletion
+{
+	private Timer _timer;
+
+	private Action _callback;
+
+	private static readonly Action _callbackCompleted = delegate
+	{
+	};
+
+	private readonly TimeSpan _period;
+
+	private readonly TimeSpan _dueTime;
+
+	private bool _disposed;
+
+	private bool _running = true;
+
+	private object _lockObj = new object();
+
+	public bool IsCompleted => (object)_callback == _callbackCompleted;
+
+	public TimerAwaitable(TimeSpan dueTime, TimeSpan period)
+	{
+		_dueTime = dueTime;
+		_period = period;
+	}
+
+	public void Start()
+	{
+		if (_timer != null)
+		{
+			return;
+		}
+		lock (_lockObj)
+		{
+			if (!_disposed && _timer == null)
+			{
+				_timer = new Timer(delegate(object state)
+				{
+					((TimerAwaitable)state).Tick();
+				}, this, _dueTime, _period);
+			}
+		}
+	}
+
+	public TimerAwaitable GetAwaiter()
+	{
+		return this;
+	}
+
+	public bool GetResult()
+	{
+		_callback = null;
+		return _running;
+	}
+
+	private void Tick()
+	{
+		Interlocked.Exchange(ref _callback, _callbackCompleted)?.Invoke();
+	}
+
+	public void OnCompleted(Action continuation)
+	{
+		if ((object)_callback == _callbackCompleted || (object)Interlocked.CompareExchange(ref _callback, continuation, null) == _callbackCompleted)
+		{
+			Task.Run(continuation);
+		}
+	}
+
+	public void UnsafeOnCompleted(Action continuation)
+	{
+		OnCompleted(continuation);
+	}
+
+	public void Stop()
+	{
+		lock (_lockObj)
+		{
+			if (_disposed)
+			{
+				throw new ObjectDisposedException(GetType().FullName);
+			}
+			_running = false;
+		}
+		Tick();
+	}
+
+	void IDisposable.Dispose()
+	{
+		lock (_lockObj)
+		{
+			_disposed = true;
+			_timer?.Dispose();
+			_timer = null;
+		}
+	}
+}

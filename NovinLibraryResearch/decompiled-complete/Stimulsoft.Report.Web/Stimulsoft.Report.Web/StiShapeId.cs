@@ -1,0 +1,38 @@
+namespace Stimulsoft.Report.Web;
+
+internal enum StiShapeId
+{
+	StiShapeTypeService,
+	StiSnipDiagonalSideCornerRectangleShapeType,
+	StiSnipSameSideCornerRectangleShapeType,
+	StiTrapezoidShapeType,
+	StiRegularPentagonShapeType,
+	StiPlusShapeType,
+	StiParallelogramShapeType,
+	StiMultiplyShapeType,
+	StiMinusShapeType,
+	StiFrameShapeType,
+	StiFlowchartSortShapeType,
+	StiFlowchartPreparationShapeType,
+	StiFlowchartOffPageConnectorShapeType,
+	StiFlowchartManualInputShapeType,
+	StiFlowchartDecisionShapeType,
+	StiFlowchartCollateShapeType,
+	StiFlowchartCardShapeType,
+	StiEqualShapeType,
+	StiDivisionShapeType,
+	StiChevronShapeType,
+	StiBentArrowShapeType,
+	StiComplexArrowShapeType,
+	StiVerticalLineShapeType,
+	StiTriangleShapeType,
+	StiTopAndBottomLineShapeType,
+	StiRoundedRectangleShapeType,
+	StiRectangleShapeType,
+	StiOvalShapeType,
+	StiLeftAndRightLineShapeType,
+	StiHorizontalLineShapeType,
+	StiDiagonalUpLineShapeType,
+	StiDiagonalDownLineShapeType,
+	StiArrowShapeType
+}

@@ -1,0 +1,126 @@
+using System;
+using System.Collections;
+using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
+using System.Drawing;
+using System.Globalization;
+using System.Reflection;
+
+namespace Stimulsoft.Base.Localization;
+
+public class StiSizeConverter : TypeConverter
+{
+	public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+	{
+		if (!(sourceType == typeof(string)))
+		{
+			return base.CanConvertFrom(context, sourceType);
+		}
+		return true;
+	}
+
+	public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+	{
+		if (!(destinationType == typeof(InstanceDescriptor)))
+		{
+			return base.CanConvertTo(context, destinationType);
+		}
+		return true;
+	}
+
+	public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+	{
+		if (!(value is string text))
+		{
+			return base.ConvertFrom(context, culture, value);
+		}
+		string text2 = text.Trim();
+		if (text2.Length == 0)
+		{
+			return null;
+		}
+		if (culture == null)
+		{
+			culture = CultureInfo.CurrentCulture;
+		}
+		char c = culture.TextInfo.ListSeparator[0];
+		string[] array = text2.Split(new char[1] { c });
+		int[] array2 = new int[array.Length];
+		TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
+		for (int i = 0; i < array2.Length; i++)
+		{
+			array2[i] = (int)converter.ConvertFromString(context, culture, array[i]);
+		}
+		if (array2.Length != 2)
+		{
+			throw new Exception("ConvertInvalidPrimitive");
+		}
+		return new Size(array2[0], array2[1]);
+	}
+
+	public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+	{
+		if (destinationType == null)
+		{
+			throw new ArgumentNullException("destinationType");
+		}
+		if (value is Size)
+		{
+			if (destinationType == typeof(string))
+			{
+				Size size = (Size)value;
+				if (culture == null)
+				{
+					culture = CultureInfo.CurrentCulture;
+				}
+				string separator = culture.TextInfo.ListSeparator + " ";
+				TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
+				string[] value2 = new string[2]
+				{
+					converter.ConvertToString(context, culture, size.Width),
+					converter.ConvertToString(context, culture, size.Height)
+				};
+				return string.Join(separator, value2);
+			}
+			if (destinationType == typeof(InstanceDescriptor))
+			{
+				Size size2 = (Size)value;
+				ConstructorInfo constructor = typeof(Size).GetConstructor(new Type[2]
+				{
+					typeof(int),
+					typeof(int)
+				});
+				if (constructor != null)
+				{
+					return new InstanceDescriptor(constructor, new object[2] { size2.Width, size2.Height });
+				}
+			}
+		}
+		return base.ConvertTo(context, culture, value, destinationType);
+	}
+
+	public override object CreateInstance(ITypeDescriptorContext context, IDictionary propertyValues)
+	{
+		if (propertyValues == null)
+		{
+			throw new ArgumentNullException("propertyValues");
+		}
+		object obj = propertyValues["Width"];
+		object obj2 = propertyValues["Height"];
+		if (obj == null || obj2 == null || !(obj is int) || !(obj2 is int))
+		{
+			throw new Exception("ConvertInvalidPrimitive");
+		}
+		return new Size((int)obj, (int)obj2);
+	}
+
+	public override bool GetCreateInstanceSupported(ITypeDescriptorContext context)
+	{
+		return true;
+	}
+
+	public override bool GetPropertiesSupported(ITypeDescriptorContext context)
+	{
+		return false;
+	}
+}

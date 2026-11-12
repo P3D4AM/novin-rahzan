@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.Base</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Stimulsoft.Base.Bmp.Service.bmp" />
+    <None Remove="Stimulsoft.Base.Exceptions.Images.Copy.png" />
+    <None Remove="Stimulsoft.Base.Exceptions.Images.Copy_x1_5.png" />
+    <None Remove="Stimulsoft.Base.Exceptions.Images.Copy_x2.png" />
+    <None Remove="Stimulsoft.Base.Exceptions.Images.Copy_x3.png" />
+    <None Remove="Stimulsoft.Base.Exceptions.Images.Copy_x4.png" />
+    <None Remove="Stimulsoft.Base.Exceptions.Images.SaveFile.png" />
+    <None Remove="Stimulsoft.Base.Exceptions.Images.SaveFile_x1_5.png" />
+    <None Remove="Stimulsoft.Base.Exceptions.Images.SaveFile_x2.png" />
+    <None Remove="Stimulsoft.Base.Exceptions.Images.SaveFile_x3.png" />
+    <None Remove="Stimulsoft.Base.Exceptions.Images.SaveFile_x4.png" />
+    <None Remove="Stimulsoft.Base.FontIcons.Stimulsoft.ttf" />
+    <None Remove="Stimulsoft.Base.Localization.en.xml" />
+    <EmbeddedResource Include="Stimulsoft.Base.Bmp.Service.bmp" LogicalName="Stimulsoft.Base.Bmp.Service.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Base.Exceptions.Images.Copy.png" LogicalName="Stimulsoft.Base.Exceptions.Images.Copy.png" />
+    <EmbeddedResource Include="Stimulsoft.Base.Exceptions.Images.Copy_x1_5.png" LogicalName="Stimulsoft.Base.Exceptions.Images.Copy_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Base.Exceptions.Images.Copy_x2.png" LogicalName="Stimulsoft.Base.Exceptions.Images.Copy_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Base.Exceptions.Images.Copy_x3.png" LogicalName="Stimulsoft.Base.Exceptions.Images.Copy_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Base.Exceptions.Images.Copy_x4.png" LogicalName="Stimulsoft.Base.Exceptions.Images.Copy_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Base.Exceptions.Images.SaveFile.png" LogicalName="Stimulsoft.Base.Exceptions.Images.SaveFile.png" />
+    <EmbeddedResource Include="Stimulsoft.Base.Exceptions.Images.SaveFile_x1_5.png" LogicalName="Stimulsoft.Base.Exceptions.Images.SaveFile_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Base.Exceptions.Images.SaveFile_x2.png" LogicalName="Stimulsoft.Base.Exceptions.Images.SaveFile_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Base.Exceptions.Images.SaveFile_x3.png" LogicalName="Stimulsoft.Base.Exceptions.Images.SaveFile_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Base.Exceptions.Images.SaveFile_x4.png" LogicalName="Stimulsoft.Base.Exceptions.Images.SaveFile_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Base.FontIcons.Stimulsoft.ttf" LogicalName="Stimulsoft.Base.FontIcons.Stimulsoft.ttf" />
+    <EmbeddedResource Include="Stimulsoft.Base.Localization.en.xml" LogicalName="Stimulsoft.Base.Localization.en.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Data">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Runtime.Serialization.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

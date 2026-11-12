@@ -1,0 +1,13 @@
+namespace Stimulsoft.Controls.Win.DotNetBar;
+
+public enum eStyleBorderType
+{
+	None,
+	Solid,
+	Dash,
+	DashDot,
+	DashDotDot,
+	Dot,
+	Etched,
+	Double
+}

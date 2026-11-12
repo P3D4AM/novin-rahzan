@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>AxInterop.MSFlexGridLib</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net20</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="Interop.MSFlexGridLib">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Interop.MSFlexGridLib.dll</HintPath>
+    </Reference>
+    <Reference Include="stdole">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/stdole.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

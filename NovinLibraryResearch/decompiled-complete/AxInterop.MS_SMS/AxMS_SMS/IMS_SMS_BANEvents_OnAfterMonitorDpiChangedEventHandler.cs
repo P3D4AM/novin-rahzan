@@ -1,0 +1,3 @@
+namespace AxMS_SMS;
+
+public delegate void IMS_SMS_BANEvents_OnAfterMonitorDpiChangedEventHandler(object sender, IMS_SMS_BANEvents_OnAfterMonitorDpiChangedEvent e);

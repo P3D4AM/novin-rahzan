@@ -1,0 +1,347 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="OptionSpecifiedMultipleTimes" xml:space="preserve"><value>Option '{0}' is specified more than once.</value></data>
+  <data name="InvalidCollation" xml:space="preserve"><value>Invalid collation '{0}'.</value></data>
+  <data name="IncorrectOptionValue" xml:space="preserve"><value>'{1}' in not a correct value for option '{0}'.</value></data>
+  <data name="IncorrectOptionOrder" xml:space="preserve"><value>'{0}' is specified at incorrect location.</value></data>
+  <data name="OutOfRangeDegreeOfParallelism" xml:space="preserve"><value>'{0}' is out of range for index option 'maxdop'. See sp_configure option 'max degree of parallelism' for valid values.</value></data>
+  <data name="ScalePrecisionMismatch" xml:space="preserve"><value>The scale must be less than or equal to the precision.</value></data>
+  <data name="FunctionRequiresRangeOfAruments" xml:space="preserve"><value>The {0} function requires {1} to {2} arguments.</value></data>
+  <data name="DbNameIsNotAllowedForCreateAlterFunc" xml:space="preserve"><value>CREATE/ALTER FUNCTION' does not allow specifying the database name as a prefix to the object name.</value></data>
+  <data name="DbNameIsNotAllowedForCreateAlterProc" xml:space="preserve"><value>CREATE/ALTER PROCEDURE' does not allow specifying the database name as a prefix to the object name.</value></data>
+  <data name="UdtMemberIsNotStatic" xml:space="preserve"><value>Method, property or field '{0}' of class '{1}' in assembly '{2}' is not static.</value></data>
+  <data name="ScalarValuedFunction" xml:space="preserve"><value>scalar-valued function</value></data>
+  <data name="InvalidOnClause" xml:space="preserve"><value>The ON clause is not valid for this statement.</value></data>
+  <data name="DuplicateColumnNamesInIndex" xml:space="preserve"><value>Cannot use duplicate column names in index. Column name '{0}' listed more than once.</value></data>
+  <data name="InvalidRootTypes" xml:space="preserve"><value>The input object roots are not instances of the same type. Differencer cannot continue.</value></data>
+  <data name="CouldNotFindCredential" xml:space="preserve"><value>Cannot find the credential '{0}', because it does not exist or you do not have permission.</value></data>
+  <data name="InvalidBuildModeStatementCreateProcCursorParams" xml:space="preserve"><value>CREATE PROCEDURE statements with cursor parameters are not supported in a data-tier application. Remove the statement or the cursor parameter before rebuilding.</value></data>
+  <data name="WithoutArrayWrapperError" xml:space="preserve"><value>WITHOUT_ARRAY_WRAPPER is only allowed in FOR JSON.</value></data>
+  <data name="CannotCreateGeneratedAlwaysColumnType" xml:space="preserve"><value>Temporal generated always column '{0}' has invalid data type.</value></data>
+  <data name="InsertIntoIdentityColumnNotAllowed" xml:space="preserve"><value>INSERT into an identity column not allowed on table variables.</value></data>
+  <data name="InvalidBuildModeStatementCreateViewWithEncryption" xml:space="preserve"><value>CREATE VIEW statements with ENCRYPTION option are not supported in a data-tier application. Remove the statement or ENCRYPTION option before rebuilding.</value></data>
+  <data name="UdtMemberIsStatic" xml:space="preserve"><value>Method, property or field '{0}' of class '{1}' in assembly '{2}' is static.</value></data>
+  <data name="IsTableValuedFunction" xml:space="preserve"><value>The request for procedure '{0}' failed because '{0}' is a table valued function object.</value></data>
+  <data name="InvalidBaseTypeForAlias" xml:space="preserve"><value>The base type '{0}' is not a valid base type for the alias data type.</value></data>
+  <data name="DeserializationObjectMustHaveOneParent" xml:space="preserve"><value>Object '{0}' has more than one parent: '{1}' and '{2}'.</value></data>
+  <data name="OperatorNotSupported" xml:space="preserve"><value>The 'ALL' version of the {0} operator is not supported.</value></data>
+  <data name="InvalidConstantOutput" xml:space="preserve"><value>Cannot use the OUTPUT option when passing a constant to a stored procedure.</value></data>
+  <data name="Expecting" xml:space="preserve"><value>  Expecting </value></data>
+  <data name="DataTypeMissing" xml:space="preserve"><value>The definition for column '{0}' must include a data type.</value></data>
+  <data name="IncorrectSyntaxNearKeyword" xml:space="preserve"><value>Incorrect syntax near the keyword '{0}'.</value></data>
+  <data name="UserDefinedDataType" xml:space="preserve"><value>user-defined data type</value></data>
+  <data name="CannotCreateIdentityOnNullable" xml:space="preserve"><value>Could not create IDENTITY attribute on nullable column '{0}', table '{1}'.</value></data>
+  <data name="InconsistentParameterFormat" xml:space="preserve"><value>Must pass parameter number {0} and subsequent parameters as '@name = value'. After the form '@name = value' has been used, all subsequent parameters must be passed in the form '@name = value'.</value></data>
+  <data name="Synonym" xml:space="preserve"><value>synonym</value></data>
+  <data name="OrderByItemContainsVariable" xml:space="preserve"><value>The SELECT item identified by the ORDER BY number {0} contains a variable as part of the expression identifying a column position. Variables are only allowed when ordering by an expression referencing a column name.</value></data>
+  <data name="ColumnPrefixMismatch" xml:space="preserve"><value>The column prefix '{0}' does not match with a table name or alias name used in the query.</value></data>
+  <data name="InvalidUsageOfScopedConfiguration" xml:space="preserve"><value>Invalid usage of the scoped configuration {0} in the ALTER DATABASE statement.</value></data>
+  <data name="DatabaseDdlTrigger" xml:space="preserve"><value>database DDL trigger</value></data>
+  <data name="ObjectNotExistOrIsInvalid" xml:space="preserve"><value>The object '{0}' does not exist or is invalid for this operation.</value></data>
+  <data name="GeneratedAlwaysAsRowEndColumnDefinitionMissing" xml:space="preserve"><value>Temporal 'GENERATED ALWAYS AS ROW END' column definition missing.</value></data>
+  <data name="CannotCreateTriggerOnViewWithCheckOption" xml:space="preserve"><value>Cannot create trigger '{0}' on '{1}' because the view is defined with CHECK OPTION.</value></data>
+  <data name="TableValuedParameterMustBeReadOnly" xml:space="preserve"><value>The table-valued parameter "{0}" must be declared with the READONLY option.</value></data>
+  <data name="LoginExist" xml:space="preserve"><value>There is already a login named '{0}' in the database.</value></data>
+  <data name="Column" xml:space="preserve"><value>column</value></data>
+  <data name="NumberOfValuesDoesNotMatchTableDef" xml:space="preserve"><value>Column name or number of supplied values does not match table definition.</value></data>
+  <data name="ForeignKeyInvalidReferencedColumn" xml:space="preserve"><value>Foreign key '{0}' references invalid column '{2}' in referenced table '{1}'.</value></data>
+  <data name="SqlScriptMustHaveOnlyViewStatement" xml:space="preserve"><value>Transact-SQL script must contain a single CREATE/ALTER VIEW statement.</value></data>
+  <data name="IncorrectSyntaxToInvokeXmlMethod" xml:space="preserve"><value>Incorrect syntax was used to invoke the XML data type method '{0}'.</value></data>
+  <data name="EndOfFile" xml:space="preserve"><value>End Of File</value></data>
+  <data name="XmlSchemaCollectionMaxPrefixError" xml:space="preserve"><value>The xml schema collection name '{0}' contains more than the maximum number of prefixes. The maximum is 1.</value></data>
+  <data name="NoPrimaryKeysInReferencedTable" xml:space="preserve"><value>There are no primary or candidate keys in the referenced table '{1}' that match the referencing column list in the foreign key '{0}'.</value></data>
+  <data name="IdentityColumnInvalidType" xml:space="preserve"><value>Identity column '{0}' must be of data type int, bigint, smallint, tinyint, or decimal or numeric with a scale of 0, and constrained to be nonnullable.</value></data>
+  <data name="CouldNotFindMethod" xml:space="preserve"><value>Could not find method '{0}' for type '{1}' in assembly '{2}'.</value></data>
+  <data name="OperandTypeClash" xml:space="preserve"><value>Operand type clash: {0} is incompatible with {1}</value></data>
+  <data name="NestedDmlMustHaveOutputClause" xml:space="preserve"><value>A nested INSERT, UPDATE, DELETE, or MERGE statement must have an OUTPUT clause.</value></data>
+  <data name="DeserializationUnresolvedExternalReference" xml:space="preserve"><value>Unresolved external reference: '{0}'.</value></data>
+  <data name="CollateCannotBeUsedOnUddt" xml:space="preserve"><value>COLLATE clause cannot be used on user-defined data types.</value></data>
+  <data name="AggregateNotAllowedInOutput" xml:space="preserve"><value>An aggregate may not appear in the OUTPUT clause.</value></data>
+  <data name="GeneratedAlwaysAsRowStartColumnDefinitionMissing" xml:space="preserve"><value>Temporal 'GENERATED ALWAYS AS ROW START' column definition missing.</value></data>
+  <data name="Parameter" xml:space="preserve"><value>parameter</value></data>
+  <data name="CannotCallMethodsOnType" xml:space="preserve"><value>Cannot call methods on {0}.</value></data>
+  <data name="TypeError" xml:space="preserve"><value>TYPE option is not allowed in FOR JSON.</value></data>
+  <data name="ColumnSpecifiedMultipleTimesInUnpivot" xml:space="preserve"><value>The column "{0}" is specified multiple times in the column list of the UNPIVOT operator.</value></data>
+  <data name="InvalidIncrement" xml:space="preserve"><value>Identity column '{0}' contains invalid INCREMENT.</value></data>
+  <data name="MultiPartIdentifierBindingError" xml:space="preserve"><value>The multi-part identifier "{0}" could not be bound.</value></data>
+  <data name="TableValuedFunction" xml:space="preserve"><value>table-valued function</value></data>
+  <data name="InvalidObjectName" xml:space="preserve"><value>Invalid object name '{0}'.</value></data>
+  <data name="CannotCreateSparseColumnSetOnTable" xml:space="preserve"><value>Cannot create the sparse column set '{0}' in the table '{1}' because a sparse column set must be a nullable xml column. Modify the column definition to allow null values.</value></data>
+  <data name="DatabaseRole" xml:space="preserve"><value>database role</value></data>
+  <data name="InvalidOptionInCreateTrigger" xml:space="preserve"><value>An invalid option was specified for the statement "CREATE/ALTER TRIGGER".</value></data>
+  <data name="CannotPerformAlterOnObject" xml:space="preserve"><value>Cannot perform alter on '{0}' because it is an incompatible object type.</value></data>
+  <data name="TempFunctionNameIsNotAllowed" xml:space="preserve"><value>Creation of temporary functions is not allowed.</value></data>
+  <data name="Datepart" xml:space="preserve"><value>datepart</value></data>
+  <data name="DataType" xml:space="preserve"><value>data type</value></data>
+  <data name="Database" xml:space="preserve"><value>database</value></data>
+  <data name="TooManyArguments" xml:space="preserve"><value>Procedure or function '{0}' has too many arguments specified.</value></data>
+  <data name="SchemaNotExist" xml:space="preserve"><value> The specified schema name "{0}" either does not exist or you do not have permission to use it.</value></data>
+  <data name="CannotUseDrop" xml:space="preserve"><value>Cannot use DROP {0} with '{2}' because '{2}' is a {3}. Use DROP {1}.</value></data>
+  <data name="CommonTableExpression" xml:space="preserve"><value>common table expression</value></data>
+  <data name="ExpressionTypeInvalidForCollate" xml:space="preserve"><value>Expression type {0} is invalid for COLLATE clause.</value></data>
+  <data name="DeserializationExpectedSingleXmlElement" xml:space="preserve"><value>Expected single element.</value></data>
+  <data name="ParamVarHasInvalidDataType" xml:space="preserve"><value>Parameter or variable '{0}' has an invalid data type.</value></data>
+  <data name="InvalidTriggerSchema" xml:space="preserve"><value>Cannot create trigger '{0}' because its schema is different from the schema of the target table or view.</value></data>
+  <data name="Schema" xml:space="preserve"><value>schema</value></data>
+  <data name="Server" xml:space="preserve"><value>server</value></data>
+  <data name="CouldNotLocateEntryInSysdatabases" xml:space="preserve"><value>Could not locate entry in sysdatabases for database '{0}'. No entry found with that name. Make sure that the name is entered correctly.</value></data>
+  <data name="NotValidFunctionOrProperty" xml:space="preserve"><value>"{0}" is not a valid function, property, or field.</value></data>
+  <data name="Period" xml:space="preserve"><value>.</value></data>
+  <data name="TableIsAmbiguous" xml:space="preserve"><value>The table '{0}' is ambiguous.</value></data>
+  <data name="MoreColumns" xml:space="preserve"><value>'{0}' has more columns than specified in the column list.</value></data>
+  <data name="RowguidcolDatatypeMismatch" xml:space="preserve"><value>The ROWGUIDCOL property can only be specified on the uniqueidentifier data type.</value></data>
+  <data name="OrderByPositionNumberIsOutOfRange" xml:space="preserve"><value>The ORDER BY position number {0} is out of range of the number of items in the select list.</value></data>
+  <data name="InvalidUseOfSideEffectingOperatorWithinFunction" xml:space="preserve"><value>Invalid use of a side-effecting operator '{0}' within a function.</value></data>
+  <data name="CorrelationNameNotUnique" xml:space="preserve"><value>The correlation name '{0}' is specified multiple times in a FROM clause.</value></data>
+  <data name="RequiredParam" xml:space="preserve"><value>The external stream option '{0}' must be included in the ddl.</value></data>
+  <data name="InvalidBuildModeStatementCreateLoginWithDefaultDatabase" xml:space="preserve"><value>CREATE LOGIN statements with DEFAULT_DATABASE option are not supported in a data-tier application. Remove the statement or DEFAULT_DATABASE option before rebuilding.</value></data>
+  <data name="PivotTable" xml:space="preserve"><value>pivot table</value></data>
+  <data name="ColumnNameConflictsInUnpivot" xml:space="preserve"><value>The column name "{0}" specified in the UNPIVOT operator conflicts with the existing column name in the UNPIVOT argument.</value></data>
+  <data name="InvalidCorrelationNamesInFrom" xml:space="preserve"><value>The objects "{0}" and "{1}" in the FROM clause have the same exposed names. Use correlation names to distinguish them.</value></data>
+  <data name="NameOrAuthorizationKeywordRequired" xml:space="preserve"><value>The CREATE SCHEMA statement should be followed by a name or authorization keyword.</value></data>
+  <data name="SqlScriptMustHaveOnlyTriggerStatement" xml:space="preserve"><value>Transact-SQL script must contain a single CREATE/ALTER TRIGGER statement.</value></data>
+  <data name="CouldNotLocateDatabase" xml:space="preserve"><value>Could not locate entry in sysdatabases for database '{0}'. No entry found with that name. Make sure that the name is entered correctly.</value></data>
+  <data name="InvalidTriggerEventType" xml:space="preserve"><value>'{0}' is an invalid event type.</value></data>
+  <data name="ServerDdlTrigger" xml:space="preserve"><value>server DDL trigger</value></data>
+  <data name="InvalidGroupByOption" xml:space="preserve"><value> '{0}' is not a recognized GROUP BY option.</value></data>
+  <data name="DuplicateTriggerActionType" xml:space="preserve"><value>Duplicate specification of the action "{0}" in the trigger declaration.</value></data>
+  <data name="InvalidBuildModeSqlNullStatement" xml:space="preserve"><value>The '{0}' statement is not supported in a data-tier application. Remove the statement before rebuilding.</value></data>
+  <data name="CommaOr" xml:space="preserve"><value>, or </value></data>
+  <data name="CouldNotFindAsymmetricKey" xml:space="preserve"><value>Cannot find the assymetric key '{0}', because it does not exist or you do not have permission.</value></data>
+  <data name="InvalidSeed" xml:space="preserve"><value>Identity column '{0}' contains invalid SEED.</value></data>
+  <data name="ExtendedStoredProceduresNotSupported" xml:space="preserve"><value>Parameter help is not supported for extended stored procedures.</value></data>
+  <data name="CannotFindFunctionOrAggregate" xml:space="preserve"><value>Cannot find either column "{0}" or the user-defined function or aggregate "{1}", or the name is ambiguous.</value></data>
+  <data name="InvalidExecuteAsOption" xml:space="preserve"><value>'{0}' is not a recognized EXECUTE AS option.</value></data>
+  <data name="CannotCreateMoreThanOneGeneratedAlwaysAsRowEndColumnOnTable" xml:space="preserve"><value>Table cannot have more than one 'GENERATED ALWAYS AS ROW END' column.</value></data>
+  <data name="DerivedTable" xml:space="preserve"><value>derived table</value></data>
+  <data name="RecursiveCteHasNoUnionAll" xml:space="preserve"><value>Recursive common table expression '{0}' does not contain a top-level UNION ALL operator.</value></data>
+  <data name="DeserializationInvalidXmlElement1" xml:space="preserve"><value>Invalid '{0}' element.</value></data>
+  <data name="DeserializationInvalidXmlElement2" xml:space="preserve"><value>Invalid '{0}' element, expected '{1}'.</value></data>
+  <data name="IncorrectSyntaxNear" xml:space="preserve"><value>Incorrect syntax near '{0}'.</value></data>
+  <data name="RowTagOnlyInRawAndPath" xml:space="preserve"><value>Row tag name is only allowed with RAW or PATH mode of FOR XML.</value></data>
+  <data name="InvalidProcedureNumberRange" xml:space="preserve"><value>Invalid procedure number {0}.Must be between 1 and 32767.</value></data>
+  <data name="Certificate" xml:space="preserve"><value>certificate</value></data>
+  <data name="RequiredInsteadOfTriggerOnView" xml:space="preserve"><value>Cannot create trigger '{0}' on '{1}'. Only INSTEAD OF triggers are valid on views.</value></data>
+  <data name="CannotCreateSparseColumn" xml:space="preserve"><value>Cannot create the sparse column '{0}' in the table '{1}' because an option or data type specified is not valid. A sparse column must be nullable and cannot have the ROWGUIDCOL, IDENTITY, or FILESTREAM properties. A sparse column cannot be of the following data types: text, ntext, image, geometry, geography, or user-defined type.</value></data>
+  <data name="OutputParameterMismatch" xml:space="preserve"><value>The formal parameter "{0}" was not declared as an OUTPUT parameter, but the actual parameter passed in requested output.</value></data>
+  <data name="ApplicationRole" xml:space="preserve"><value>application role</value></data>
+  <data name="CannotConvertClusteredIndexToNonclustered" xml:space="preserve"><value>Cannot convert a clustered index to a nonclustered index by using the DROP_EXISTING option. To change the index type from clustered to nonclustered, delete the clustered index, and then create a nonclustered index by using two separate statements.</value></data>
+  <data name="CannotCreateMoreThanOneTemporalSystemTimePeriodOnTable" xml:space="preserve"><value>Table cannot have more than one SYSTEM_TIME period definition.</value></data>
+  <data name="DmlTableSource" xml:space="preserve"><value>nested DML source</value></data>
+  <data name="CannotCreateMoreThanOneGeneratedAlwaysAsRowStartColumnOnTable" xml:space="preserve"><value>Table cannot have more than one 'GENERATED ALWAYS AS ROW START' column.</value></data>
+  <data name="InvalidColumnXmlNodeUse" xml:space="preserve"><value>The column '{0}' that was returned from the nodes() method cannot be used directly. It can only be used with one of the four XML data type methods, exist(), nodes(), query(), and value(), or in IS NULL and IS NOT NULL checks.</value></data>
+  <data name="CouldNotFindLogin" xml:space="preserve"><value>Cannot find the login '{0}', because it does not exist or you do not have permission.</value></data>
+  <data name="CouldNotFindIndex" xml:space="preserve"><value>Could not find any index named '{0}' for table '{1}'.</value></data>
+  <data name="ColumnIsNotSameTypeAsRefColumn" xml:space="preserve"><value>Column '{3}.{4}' is not the same data type as referencing column '{1}.{2}' in foreign key '{0}'.</value></data>
+  <data name="ReadonlyCannotBeUsed" xml:space="preserve"><value>The READONLY option cannot be used in an EXECUTE or CREATE AGGREGATE statement.</value></data>
+  <data name="CannotUseOutputOptionInDeclareOrCreateFunction" xml:space="preserve"><value>Cannot use the OUTPUT option in a DECLARE or CREATE FUNCTION statement.</value></data>
+  <data name="UserDefinedAggregate" xml:space="preserve"><value>user-defined aggregate</value></data>
+  <data name="UseReturnStatementWithValueCannotBeUsed" xml:space="preserve"><value> A RETURN statement with a return value cannot be used in this context.</value></data>
+  <data name="InvalidExecuteOption" xml:space="preserve"><value>An invalid option was specified for the statement "EXECUTE".</value></data>
+  <data name="CannotCreateIndexOnViewContainsInvalidColumns" xml:space="preserve"><value>Cannot create index on view '{0}'. It contains text, ntext, image, FILESTREAM or xml columns.</value></data>
+  <data name="IncorrectWhereClauseForFilteredIndex" xml:space="preserve"><value>Incorrect WHERE clause for filtered index '{0}' on table '{1}'.</value></data>
+  <data name="BooleanConditionExpected" xml:space="preserve"><value>An expression of non-boolean type specified in a context where a condition is expected.</value></data>
+  <data name="FunctionRequiresAtLeastNumberOfArguments" xml:space="preserve"><value>Function '{0}' requires at least {1} argument(s).</value></data>
+  <data name="DatabaseNotExist" xml:space="preserve"><value>Database '{0}' does not exist.</value></data>
+  <data name="CannotCreateMoreThanOneColumnSetOnTable" xml:space="preserve"><value>Cannot create the sparse column set '{0}' in the table '{1}' because a table cannot have more than one sparse column set. Modify the statement so that only one column is specified as COLUMN_SET FOR ALL_SPARSE_COLUMNS.</value></data>
+  <data name="FunctionCannotBeUsedToMatchTarget" xml:space="preserve"><value>Function call cannot be used to match a target table in the FROM clause of a DELETE or UPDATE statement. Use function name '{0}' without parameters instead.</value></data>
+  <data name="SelectStatementWithinFunctionCannotReturnData" xml:space="preserve"><value>Select statements included within a function cannot return data to a client.</value></data>
+  <data name="UserDefinedTableType" xml:space="preserve"><value>user-defined table type</value></data>
+  <data name="TableAlias" xml:space="preserve"><value>table alias</value></data>
+  <data name="InvalidBuildModeStatementCreateSchema" xml:space="preserve"><value>CREATE SCHEMA statements that contain schema elements are not supported in a data-tier application. Remove the elements from the statement or write the elements as separate DDL statements before rebuilding.</value></data>
+  <data name="PrimaryKeyNotUnique" xml:space="preserve"><value>Both a PRIMARY KEY and UNIQUE constraint have been defined for column '{0}', table '{1}'. Only one is allowed.</value></data>
+  <data name="DuplicateInsteadOfTrigger" xml:space="preserve"><value>Cannot create trigger '{0}' on '{1}' because an INSTEAD OF {2} trigger already exists on this object.</value></data>
+  <data name="RemoteFunctionRefIsNotAllowed" xml:space="preserve"><value>Remote function reference '{0}' is not allowed, and the column name '{1}' could not be found or is ambiguous.</value></data>
+  <data name="ClusteredIndexExists" xml:space="preserve"><value>Cannot create more than one clustered index on view '{0}'. Drop the existing clustered index '{1}' before creating another.</value></data>
+  <data name="TypeNameMaxPrefixError" xml:space="preserve"><value>The type name '{0}' contains more than the maximum number of prefixes. The maximum is {1}.</value></data>
+  <data name="MaximumPrecisionOutOfRange" xml:space="preserve"><value>The number '{0}' is out of the range for numeric representation (maximum precision 38).</value></data>
+  <data name="InvalidParameter" xml:space="preserve"><value>{0} is not a parameter for procedure {1}.</value></data>
+  <data name="VariableNameNotUnique" xml:space="preserve"><value>The variable name '{0}' has already been declared.Variable names must be unique within a query batch or stored procedure.</value></data>
+  <data name="DuplicateTriggerEventType" xml:space="preserve"><value>"{0}" has already been specified as an event type.</value></data>
+  <data name="ColumnHasUserDefinedTableType" xml:space="preserve"><value>The column "{0}" does not have a valid data type. A column cannot be of a user-defined table type.</value></data>
+  <data name="DmlTrigger" xml:space="preserve"><value>DML trigger</value></data>
+  <data name="UdtPropertyIsStatic" xml:space="preserve"><value>Property or field '{0}' for type '{1}' in assembly '{2}' is static.</value></data>
+  <data name="XmlDataTypeMethod" xml:space="preserve"><value>XML data type method</value></data>
+  <data name="MissingParameters" xml:space="preserve"><value>Procedure {0} has no parameters and arguments were supplied.</value></data>
+  <data name="MissingColumn" xml:space="preserve"><value>No column was specified for column {0} of '{1}'.</value></data>
+  <data name="PrefixedColumnsNotAllowedInPivot" xml:space="preserve"><value>Prefixed columns are not allowed in the column list of a PIVOT operator.</value></data>
+  <data name="OptionNotRecognized" xml:space="preserve"><value>'{0}' is not a recognized option.</value></data>
+  <data name="DeserializationMissingXmlAttribute" xml:space="preserve"><value>Missing '{0}' attribute.</value></data>
+  <data name="InvalidFillFactorPercentage" xml:space="preserve"><value>Fillfactor {0} is not a valid percentage; fillfactor must be between 1 and 100.</value></data>
+  <data name="UserGroupOrRoleExists" xml:space="preserve"><value>User, group, or role '{0}' already exists in the current database.</value></data>
+  <data name="GeneratedAlwaysAsRowEndColumnWrongName" xml:space="preserve"><value>Table SYSTEM_TIME period definition end column name not matching 'GENERATED ALWAYS AS ROW END' column name.</value></data>
+  <data name="ColumnNameConflictsInPivot" xml:space="preserve"><value>The column name "{0}" specified in the PIVOT operator conflicts with the existing column name in the PIVOT argument.</value></data>
+  <data name="NumberOfColumnsMustBeTheSame" xml:space="preserve"><value>The number of columns for each row in a table value constructor must be the same.</value></data>
+  <data name="DatabasePermission" xml:space="preserve"><value>database permission</value></data>
+  <data name="TableConstraintHasNoColumnList" xml:space="preserve"><value>Table level constraint does not specify column list, table '{0}'.</value></data>
+  <data name="XmlSchemaError" xml:space="preserve"><value>Inline schema is not supported with FOR XML PATH.</value></data>
+  <data name="TVFMethodMustBeAliased" xml:space="preserve"><value>The table (and its columns) returned by a table-valued method need to be aliased.</value></data>
+  <data name="SelectListOfInsertHasFewerItems" xml:space="preserve"><value>The select list for the INSERT statement contains fewer items than the insert list. The number of SELECT values must match the number of INSERT columns.</value></data>
+  <data name="CannotCreateInsteadOfTriggerOnTableWithCascade" xml:space="preserve"><value>Cannot create INSTEAD OF {2} trigger '{0}' on '{1}'. This is because table has a FOREIGN KEY with cascading {2}.</value></data>
+  <data name="AsymmetricKey" xml:space="preserve"><value>asymmetric key</value></data>
+  <data name="InvalidUsageOfIndexOption" xml:space="preserve"><value>Invalid usage of the option {0} in the CREATE INDEX statement.</value></data>
+  <data name="Comma" xml:space="preserve"><value>, </value></data>
+  <data name="Login" xml:space="preserve"><value>login</value></data>
+  <data name="BuiltinFunction" xml:space="preserve"><value>built-in function</value></data>
+  <data name="DeserializationMissingXmlElement" xml:space="preserve"><value>Missing '{0}' element.</value></data>
+  <data name="LocalVariable" xml:space="preserve"><value>local variable</value></data>
+  <data name="NoAnchorMemberForRecursiveQuery" xml:space="preserve"><value>No anchor member was specified for recursive query "{0}".</value></data>
+  <data name="AnchorMemberFoundInRecursiveQuery" xml:space="preserve"><value>An anchor member was found in the recursive part of recursive query "{0}".</value></data>
+  <data name="Table" xml:space="preserve"><value>table</value></data>
+  <data name="StoredProceduresAlwaysReturnInt" xml:space="preserve"><value>Stored procedures always return INT.</value></data>
+  <data name="TemporalSystemTimePeriodDefinitionMissing" xml:space="preserve"><value>Cannot create generated always column when SYSTEM_TIME period is not defined.</value></data>
+  <data name="Collation" xml:space="preserve"><value>collation</value></data>
+  <data name="GlobalVariable" xml:space="preserve"><value>global variable</value></data>
+  <data name="RecursiveCteMemberHasMultipleRefs" xml:space="preserve"><value>Recursive member of a common table expression '{0}' has multiple recursive references.</value></data>
+  <data name="CannotDropObject" xml:space="preserve"><value>Cannot drop the {1} '{0}', because it does not exist or you do not have permission.</value></data>
+  <data name="ParametersNotSuppliedForFunction" xml:space="preserve"><value>Parameters were not supplied for the function '{0}'.</value></data>
+  <data name="IndexOrStatisticsExists" xml:space="preserve"><value>The index or statistics with name '{0}' already exists on table or view '{1}'.</value></data>
+  <data name="StatementNotSupportedInIntelliSense" xml:space="preserve"><value>{0} is not currently supported in Transact-SQL IntelliSense.</value></data>
+  <data name="ComputedColumnsConstraintCheckError" xml:space="preserve"><value>Only UNIQUE or PRIMARY KEY constraints can be created on computed columns, while CHECK, FOREIGN KEY, and NOT NULL constraints require that computed columns be persisted.</value></data>
+  <data name="InvalidOptionInCreateView" xml:space="preserve"><value>An invalid option was specified for the statement "CREATE/ALTER VIEW".</value></data>
+  <data name="ParametersSuppliedForNonFunction" xml:space="preserve"><value>Parameters supplied for object '{0}' which is not a function. If the parameters are intended as a table hint, a WITH keyword is required.</value></data>
+  <data name="ObjectCannotBeModified" xml:space="preserve"><value>Object '{0}' cannot be modified.</value></data>
+  <data name="ExplicitValueForIdentityColumn" xml:space="preserve"><value>An explicit value for the identity column in table '{0}' can only be specified when a column list is used and IDENTITY_INSERT is ON.</value></data>
+  <data name="DeserializationInvalidObjectType" xml:space="preserve"><value>Invalid object type '{0}', expected type '{1}'.</value></data>
+  <data name="Credential" xml:space="preserve"><value>credential</value></data>
+  <data name="GeneratedAlwaysAsRowStartColumnWrongName" xml:space="preserve"><value>Table SYSTEM_TIME period definition start column name not matching 'GENERATED ALWAYS AS ROW START' column name.</value></data>
+  <data name="MergeStatementMustTerminated" xml:space="preserve"><value>A MERGE statement must be terminated by a semi-colon (;).</value></data>
+  <data name="InvalidBuildModeDataTypeUse" xml:space="preserve"><value>Using the '{0}' data type is not supported in a data-tier application. Remove the statement or change the data type before rebuilding.</value></data>
+  <data name="CannotHaveDefaultsOnIdentity" xml:space="preserve"><value>Defaults cannot be created on columns with an IDENTITY attribute. Table '{1}', column '{0}'.</value></data>
+  <data name="ColumnSpecifiedMultipleTimes" xml:space="preserve"><value>The column '{0}' was specified multiple times for '{1}'.</value></data>
+  <data name="CannotCreateDefaultConstraintOnSparseColumn" xml:space="preserve"><value>A DEFAULT constraint cannot be created on the column '{0}' in the table '{1}' because the column is a sparse column or sparse column set. Sparse columns or sparse column sets cannot have a DEFAULT constraint.</value></data>
+  <data name="InvalidBuildModeStatementCreateFunction" xml:space="preserve"><value>CREATE FUNCTION statements with cursor parameters are not supported in a data-tier application. Remove the statement or the cursor parameter before rebuilding.</value></data>
+  <data name="UnclosedQuotationMark" xml:space="preserve"><value>Unclosed quotation mark after the character string '{0}'.</value></data>
+  <data name="ForeignKeyReferencesImplicitlyTableWithoutPrimaryKey" xml:space="preserve"><value>Foreign key '{0}' has implicit reference to object '{1}' which does not have a primary key defined on it.</value></data>
+  <data name="MissingParameter" xml:space="preserve"><value>Procedure or function '{0}' expects parameter '{1}', which was not supplied.</value></data>
+  <data name="MixingOldAndNewSyntaxForCursorOptionsNotAllowed" xml:space="preserve"><value>Mixing old and new syntax to specify cursor options is not allowed.</value></data>
+  <data name="InvalidParameterOne" xml:space="preserve"><value>Invalid parameter 1 specified for {0}.</value></data>
+  <data name="UnrecognizedCreateTableOption" xml:space="preserve"><value>'{0}' is not a recognized CREATE TABLE option.</value></data>
+  <data name="OrderByListHasConstantExpression" xml:space="preserve"><value>A constant expression was encountered in the ORDER BY list, position {0}.</value></data>
+  <data name="MaximumSizeError" xml:space="preserve"><value>The size ({0}) given to the type '{1}' exceeds the maximum allowed ({2}).</value></data>
+  <data name="IntegerValueOutOfRange" xml:space="preserve"><value>The integer value {0} is out of range.</value></data>
+  <data name="ObjectNameIsMissingOrEmpty" xml:space="preserve"><value>An object or column name is missing or empty. For SELECT INTO statements, verify each column has a name. For other statements, look for empty alias names. Aliases defined as "" or [] are not allowed. Change the alias to a valid name.</value></data>
+  <data name="DeserializationUnexpectedXmlContent" xml:space="preserve"><value>Unexpected XML content.</value></data>
+  <data name="TemporaryTable" xml:space="preserve"><value>temporary table</value></data>
+  <data name="UserDefinedClrType" xml:space="preserve"><value>user-defined type</value></data>
+  <data name="IncludeNullValuesError" xml:space="preserve"><value>INCLUDE_NULL_VALUES is only allowed in FOR JSON.</value></data>
+  <data name="SetClauseColumnSpecifiedMultipleTimes" xml:space="preserve"><value>The column name '{0}' is specified more than once in the SET clause. A column cannot be assigned more than one value in the same SET clause. Modify the SET clause to make sure that a column is updated only once. If the SET clause updates columns of a view, then the column name '{0}' may appear twice in the view definition.</value></data>
+  <data name="UnpivotTable" xml:space="preserve"><value>unpivot table</value></data>
+  <data name="OutputIntoTargetCannotBeViewOrCte" xml:space="preserve"><value>The target '{0}' of the OUTPUT INTO clause cannot be a view or common table expression.</value></data>
+  <data name="AmbiguousColumnName" xml:space="preserve"><value>Ambiguous column name '{0}'.</value></data>
+  <data name="MaximumSizeErrorForAnyType" xml:space="preserve"><value>The size ({0}) given to the type '{1}' exceeds the maximum allowed for any data type ({2}).</value></data>
+  <data name="InvalidOptionInCreateProcedure" xml:space="preserve"><value>An invalid option was specified for the statement "CREATE/ALTER PROCEDURE".</value></data>
+  <data name="DatabaseNameAsPrefixInCreateView" xml:space="preserve"><value>'CREATE/ALTER VIEW' does not allow specifying the database name as a prefix to the object name.</value></data>
+  <data name="ColumnHasInvalidDataType" xml:space="preserve"><value>Column '{0}' has an invalid data type.</value></data>
+  <data name="CannotCreateIndexOnViewNotSchemaBound" xml:space="preserve"><value>Cannot create index on view '{0}' because the view is not schema bound.</value></data>
+  <data name="ParameterSuppliedMultipleTimes" xml:space="preserve"><value>Parameter '{0}' was supplied multiple times.</value></data>
+  <data name="CannotAssignDefaultValueToALocalVariable" xml:space="preserve"><value>Cannot assign a default value to a local variable.</value></data>
+  <data name="ConflictingCursorOption" xml:space="preserve"><value>Conflicting cursor options {0} and {1}.</value></data>
+  <data name="InvalidBuildModeStatementCreateProcedureWithEncryption" xml:space="preserve"><value>CREATE PROCEDURE statements with ENCRYPTION option are not supported in a data-tier application. Remove the statement or ENCRYPTION option before rebuilding.</value></data>
+  <data name="Base64Error" xml:space="preserve"><value>BINARY BASE64 option is not allowed in FOR JSON.</value></data>
+  <data name="InvalidLengthOrPrecision" xml:space="preserve"><value>Length or precision specification {0} is invalid.</value></data>
+  <data name="CannotCreateIndexOnViewDoesNotHaveUniqueClusteredIndex" xml:space="preserve"><value>Cannot create index on view '{0}'. It does not have a unique clustered index.</value></data>
+  <data name="MultiplePrimaryKey" xml:space="preserve"><value>Cannot add multiple PRIMARY KEY constraints to table '{0}'.</value></data>
+  <data name="SqlScriptMustHaveOnlyModuleStatement" xml:space="preserve"><value>Transact-SQL script must contain a single CREATE/ALTER PROCEDURE, FUNCTION or TRIGGER statement.</value></data>
+  <data name="ParameterCannotBeReadOnly" xml:space="preserve"><value>The parameter "{0}" can not be declared READONLY since it is not a table-valued parameter.</value></data>
+  <data name="FunctionRequiresNumberOfArguments" xml:space="preserve"><value> The {0} function requires {1} argument(s).</value></data>
+  <data name="InvalidScale" xml:space="preserve"><value>Specified scale {0} is invalid.</value></data>
+  <data name="ReturnStatementInScalarValuedFunctionMustIncludeArg" xml:space="preserve"><value>RETURN statements in scalar valued functions must include an argument.</value></data>
+  <data name="SubqueriesNotAllowedInOutput" xml:space="preserve"><value>Subqueries are not allowed in the OUTPUT clause.</value></data>
+  <data name="ColumnNameNotInTargetTable" xml:space="preserve"><value>Column name '{0}' does not exist in the target table or view.</value></data>
+  <data name="ElementsError" xml:space="preserve"><value>ELEMENTS option is only allowed in RAW, AUTO, and PATH modes of FOR XML.</value></data>
+  <data name="ColumnConstraintNotUnique" xml:space="preserve"><value>Multiple {0} constraints were specified for column '{1}', table '{2}'.</value></data>
+  <data name="ForeignKeyNumberOfRefColumnsDiffers" xml:space="preserve"><value>Number of referencing columns in foreign key differs from number of referenced columns, table '{0}'.</value></data>
+  <data name="ExtendedStoredProcedure" xml:space="preserve"><value>extended stored procedure</value></data>
+  <data name="NotRecognizedFunctionName" xml:space="preserve"><value>'{0}' is not a recognized built-in function name.</value></data>
+  <data name="CannotSpecifyIncludedColumnsForClusteredIndex" xml:space="preserve"><value>Cannot specify included columns for a clustered index.</value></data>
+  <data name="InvalidUsageOfCursorOption" xml:space="preserve"><value>Invalid usage of the option '{0}' in the DECLARE CURSOR statement.</value></data>
+  <data name="SystemDataType" xml:space="preserve"><value>data type</value></data>
+  <data name="FunctionNotAllowedInOutput" xml:space="preserve"><value>Function '{0}' is not allowed in the OUTPUT clause, because it performs user or system data access, or is assumed to perform this access. A function is assumed by default to perform data access if it is not schemabound.</value></data>
+  <data name="NotRecognizedDatePartOption" xml:space="preserve"><value>'{0}' is not a recognized {1} option.</value></data>
+  <data name="ColumnIsInvalidForUseAsKeyColumnInIndex" xml:space="preserve"><value>Column '{0}' in table '{1}' is of a type that is invalid for use as a key column in an index.</value></data>
+  <data name="DbNameIsNotAllowedForCreateSynonym" xml:space="preserve"><value>'CREATE SYNONYM' does not allow specifying the database name as a prefix to the object name.</value></data>
+  <data name="DuplicateCteName" xml:space="preserve"><value>Duplicate common table expression name '{0}' was specified.</value></data>
+  <data name="CannotFindStoredProcedure" xml:space="preserve"><value>Could not find stored procedure '{0}'.</value></data>
+  <data name="CouldNotFindCertificate" xml:space="preserve"><value>Cannot find the certificate '{0}', because it does not exist or you do not have permission.</value></data>
+  <data name="ScalarVariableRequired" xml:space="preserve"><value>Must declare the scalar variable "{0}".</value></data>
+  <data name="UdtPropertyIsNotStatic" xml:space="preserve"><value>Property or field '{0}' for type '{1}' in assembly '{2}' is not static</value></data>
+  <data name="CannotCreateGeneratedAlwaysColumnNullable" xml:space="preserve"><value>Period column '{0}' in a system-versioned temporal table cannot be nullable.</value></data>
+  <data name="LastStatementWithinFunctionMustBeReturn" xml:space="preserve"><value>The last statement included within a function must be a return statement.</value></data>
+  <data name="PrefixedColumnsNotAllowedInUnpivot" xml:space="preserve"><value>Prefixes are not allowed in value or pivot columns of an UNPIVOT operator.</value></data>
+  <data name="SelectListOfInsertHasMoreItems" xml:space="preserve"><value>The select list for the INSERT statement contains more items than the insert list. The number of SELECT values must match the number of INSERT columns.</value></data>
+  <data name="InvalidBuildModeStatementCreateTriggerWithEncryption" xml:space="preserve"><value>CREATE TRIGGER statements with ENCRYPTION option are not supported in a data-tier application. Remove the statement or ENCRYPTION option before rebuilding.</value></data>
+  <data name="SelectIntoMustBeFirstQuery" xml:space="preserve"><value>SELECT INTO must be the first query in a statement containing a UNION, INTERSECT or EXCEPT operator.</value></data>
+  <data name="InvalidCorrelationNameWithTable" xml:space="preserve"><value>The correlation name '{0}' has the same exposed name as table '{1}'.</value></data>
+  <data name="DatabaseObjectExist" xml:space="preserve"><value>There is already an object named '{0}' in the database.</value></data>
+  <data name="TableVariableRequired" xml:space="preserve"><value>Must declare the table variable "{0}".</value></data>
+  <data name="OnlineOperationCannotBePerformedOnIndexInvalidColumns" xml:space="preserve"><value>An online operation cannot be performed for index '{0}' because the index contains columns of data type text, ntext, image, varchar(max), nvarchar(max), varbinary(max), xml, or large CLR type.</value></data>
+  <data name="MustBeOnlyStatementInBatch" xml:space="preserve"><value>Incorrect syntax: '{0}' must be the only statement in the batch.</value></data>
+  <data name="ColumnNameNotUnique" xml:space="preserve"><value>Column names in each table must be unique. Column name '{0}' in table '{1}' is specified more than once.</value></data>
+  <data name="CannotCreateNonuniqueClusteredIndexOnView" xml:space="preserve"><value>Cannot create nonunique clustered index on view '{0}' because only unique clustered indexes are allowed. Consider creating unique clustered index instead.</value></data>
+  <data name="InvalidBuildModeStatementCreateLogin" xml:space="preserve"><value>CREATE LOGIN statements with PASSWORD or SID options that do not specify a MUST_CHANGE option are not supported in a data-tier application. Remove the statement or add the MUST_CHANGE option before rebuilding.</value></data>
+  <data name="InvalidBuildModeStatementCreateIndex" xml:space="preserve"><value>CREATE INDEX statements with a DROP_EXISTING option are not supported in a data-tier application. Remove the statement or the DROP EXISTING option before rebuilding.</value></data>
+  <data name="TriggerDoesNotBelongToTarget" xml:space="preserve"><value>Cannot alter trigger '{0}' on '{1}' because this trigger does not belong to this object. Specify the correct trigger name or the correct target object name.</value></data>
+  <data name="UserExist" xml:space="preserve"><value>There is already a user named '{0}' in the database.</value></data>
+  <data name="SelectAssignmentError" xml:space="preserve"><value>A SELECT statement that assigns a value to a variable must not be combined with data-retrieval operations.</value></data>
+  <data name="InvalidTriggerEventTypeOnDatabase" xml:space="preserve"><value>The specified event type '{0}' is not valid on DATABASE target object.</value></data>
+  <data name="TypeIsNotSystemType" xml:space="preserve"><value>Type {0} is not a defined system type.</value></data>
+  <data name="AnonimousColumn" xml:space="preserve"><value> {0} [(No Column Name)]</value></data>
+  <data name="InvalidBuildModeExecutionContextTypeSelf" xml:space="preserve"><value>EXECUTE AS SELF option is not supported in a data-tier application. Specify the principal name explicitly before rebuilding.</value></data>
+  <data name="CannotFindUser" xml:space="preserve"><value>Cannot find the user '{0}', because it does not exist or you do not have permission.</value></data>
+  <data name="InvalidBuildModeStatementCreateFunctionWithEncryption" xml:space="preserve"><value>CREATE FUNCTION statements with ENCRYPTION option are not supported in a data-tier application. Remove the statement or ENCRYPTION option before rebuilding.</value></data>
+  <data name="UnrecognizedCursorOption" xml:space="preserve"><value>'{0}' is not a recognized CURSOR option.</value></data>
+  <data name="FewerColumns" xml:space="preserve"><value>'{0}' has fewer columns than specified in the column list.</value></data>
+  <data name="InvalidColumnName" xml:space="preserve"><value>Invalid column name '{0}'.</value></data>
+  <data name="CannotDefinePrimaryKeyOnNullable" xml:space="preserve"><value>Cannot define PRIMARY KEY constraint on nullable column in table '{0}'.</value></data>
+  <data name="DuplicateParam" xml:space="preserve"><value>The external stream option '{0}' is already included in ddl.</value></data>
+  <data name="InvalidTriggerEventTypes" xml:space="preserve"><value>The specified event type(s) is/are not valid on the specified target object.</value></data>
+  <data name="UserDefinedTypeExist" xml:space="preserve"><value>The type '{0}' already exists, or you do not have permission to create it.</value></data>
+  <data name="ForeignKeyInvalidReferencingColumn" xml:space="preserve"><value>Foreign key '{0}' references invalid column '{2}' in referencing table '{1}'.</value></data>
+  <data name="ColumnAlias" xml:space="preserve"><value>column alias</value></data>
+  <data name="InvalidTableHint" xml:space="preserve"><value>{0} is not a recognized table hints option. If it is intended as a parameter to a table-valued function, ensure that your database compatibility mode is set to 90.</value></data>
+  <data name="InvalidIndexKeyColumnType" xml:space="preserve"><value>Column '{0}' in table '{1}' is of a type that is invalid for use as a key column in an index.</value></data>
+  <data name="StoredProcedure" xml:space="preserve"><value>stored procedure</value></data>
+  <data name="CannotConvertXmlOrSpatialIndexToRelational" xml:space="preserve"><value>Could not convert the XML or spatial index '{0}' to a relational index by using the DROP_EXISTING option.  Drop the XML or spatial index and create a relational index with the same name.</value></data>
+  <data name="CouldNotFindPropertyOrField" xml:space="preserve"><value>Could not find property or field '{0}' for type '{1}' in assembly '{2}'.</value></data>
+  <data name="UseDatabaseStatementNotAllowed" xml:space="preserve"><value>a USE database statement is not allowed in a procedure, function or trigger.</value></data>
+  <data name="ConflictingReturnsNullAndCalledOnNullInputOptions" xml:space="preserve"><value>Conflicting CREATE/ALTER FUNCTION options "RETURNS NULL ON NULL INPUT" and "CALLED ON NULL INPUT".</value></data>
+  <data name="ForeignKeyReferencesInvalidTable" xml:space="preserve"><value>Foreign key '{0}' references invalid table '{1}'.</value></data>
+  <data name="DbNameIsNotAllowedForDropSynonym" xml:space="preserve"><value>'DROP SYNONYM' does not allow specifying the database name as a prefix to the object name.</value></data>
+  <data name="InsufficientArguments" xml:space="preserve"><value>An insufficient number of arguments were supplied for the procedure or function {0}.</value></data>
+  <data name="User" xml:space="preserve"><value>user</value></data>
+  <data name="View" xml:space="preserve"><value>view</value></data>
+  <data name="InvalidBuildModeStatementCreateTriggerDdl" xml:space="preserve"><value>CREATE TRIGGER statements for DDL triggers are not supported in a data-tier application. Remove the statement before rebuilding.</value></data>
+  <data name="FunctionRequiresZeroArguments" xml:space="preserve"><value>The function '{0}' takes exactly 0 argument(s).</value></data>
+  <data name="InvalidIndexIncludedColumnType" xml:space="preserve"><value> Column '{0}' in table '{1}' is of a type that is invalid for use as included column in an index.</value></data>
+  <data name="InvalidAggregateFunction" xml:space="preserve"><value>'{0}' is not a recognized aggregate function.</value></data>
+  <data name="InvalidOptionInCreateFunction" xml:space="preserve"><value>An invalid option was specified for the statement "CREATE/ALTER FUNCTION".</value></data>
+  <data name="ParseResultsShouldNotContainNullElement" xml:space="preserve"><value>The argument parseResults should not contain a Null element.</value></data>
+  </root>

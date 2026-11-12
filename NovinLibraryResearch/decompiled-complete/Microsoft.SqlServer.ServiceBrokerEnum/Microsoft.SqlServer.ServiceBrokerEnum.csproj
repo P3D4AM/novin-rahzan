@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Microsoft.SqlServer.ServiceBrokerEnum</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="BrokerPriority.xml" />
+    <None Remove="BrokerService.xml" />
+    <None Remove="inc_ext_prop.xml" />
+    <None Remove="inc_policy_health_state.xml" />
+    <None Remove="inc_urn.xml" />
+    <None Remove="inc_urn_schema.xml" />
+    <None Remove="MessageType.xml" />
+    <None Remove="MessageTypeMapping.xml" />
+    <None Remove="RemoteServiceBinding.xml" />
+    <None Remove="ServiceBroker.xml" />
+    <None Remove="ServiceContract.xml" />
+    <None Remove="ServiceContractMapping.xml" />
+    <None Remove="ServiceQueues.xml" />
+    <None Remove="ServiceRoute.xml" />
+    <EmbeddedResource Include="BrokerPriority.xml" LogicalName="BrokerPriority.xml" />
+    <EmbeddedResource Include="BrokerService.xml" LogicalName="BrokerService.xml" />
+    <EmbeddedResource Include="inc_ext_prop.xml" LogicalName="inc_ext_prop.xml" />
+    <EmbeddedResource Include="inc_policy_health_state.xml" LogicalName="inc_policy_health_state.xml" />
+    <EmbeddedResource Include="inc_urn.xml" LogicalName="inc_urn.xml" />
+    <EmbeddedResource Include="inc_urn_schema.xml" LogicalName="inc_urn_schema.xml" />
+    <EmbeddedResource Include="MessageType.xml" LogicalName="MessageType.xml" />
+    <EmbeddedResource Include="MessageTypeMapping.xml" LogicalName="MessageTypeMapping.xml" />
+    <EmbeddedResource Include="RemoteServiceBinding.xml" LogicalName="RemoteServiceBinding.xml" />
+    <EmbeddedResource Include="ServiceBroker.xml" LogicalName="ServiceBroker.xml" />
+    <EmbeddedResource Include="ServiceContract.xml" LogicalName="ServiceContract.xml" />
+    <EmbeddedResource Include="ServiceContractMapping.xml" LogicalName="ServiceContractMapping.xml" />
+    <EmbeddedResource Include="ServiceQueues.xml" LogicalName="ServiceQueues.xml" />
+    <EmbeddedResource Include="ServiceRoute.xml" LogicalName="ServiceRoute.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.SqlServer.SqlEnum">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Microsoft.SqlServer.SqlEnum.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

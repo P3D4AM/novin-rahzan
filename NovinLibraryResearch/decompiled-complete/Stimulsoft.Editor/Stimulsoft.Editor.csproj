@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.Editor</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Stimulsoft.Editor.Images.IncrementalSearch.cur" />
+    <None Remove="Stimulsoft.Editor.Images.LeftArrow.cur" />
+    <None Remove="Stimulsoft.Editor.Images.ReverseIncrementalSearch.cur" />
+    <EmbeddedResource Include="Stimulsoft.Editor.Images.IncrementalSearch.cur" LogicalName="Stimulsoft.Editor.Images.IncrementalSearch.cur" />
+    <EmbeddedResource Include="Stimulsoft.Editor.Images.LeftArrow.cur" LogicalName="Stimulsoft.Editor.Images.LeftArrow.cur" />
+    <EmbeddedResource Include="Stimulsoft.Editor.Images.ReverseIncrementalSearch.cur" LogicalName="Stimulsoft.Editor.Images.ReverseIncrementalSearch.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Stimulsoft.Controls">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Design" />
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+  </ItemGroup>
+</Project>

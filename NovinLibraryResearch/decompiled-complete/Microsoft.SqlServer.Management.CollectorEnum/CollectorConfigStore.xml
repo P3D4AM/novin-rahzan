@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<EnumObject type="CollectorConfigStore" impl_type="CollectorObject" min_major="10">
+  <settings>
+    <property_link table="#tmp_pivot_config_table" alias="tmp" fields="#MDWInstance#MDWDatabase#Enabled#CacheWindow#CacheDirectory#" />
+    <!--We create a temporary table to pivot the syscollector_config_store table. This table should have a column for each new property.
+It should be modified everytime a property is added.-->
+    <prefix fields="#MDWInstance#MDWDatabase#Enabled#CacheWindow#CacheDirectory#">
+        DECLARE @MDWInstance sql_variant;
+        DECLARE @MDWDatabase sql_variant;
+        DECLARE @Enabled sql_variant;
+        DECLARE @CacheWindow sql_variant;
+        DECLARE @CacheDirectory sql_variant;
+        
+        SELECT @MDWInstance = parameter_value
+        FROM [msdb].[dbo].[syscollector_config_store]
+        WHERE parameter_name = N'MDWInstance'
+
+        SELECT @MDWDatabase = parameter_value
+        FROM [msdb].[dbo].[syscollector_config_store]
+        WHERE parameter_name = N'MDWDatabase'
+
+        SELECT @Enabled = ISNULL(parameter_value, 0)
+        FROM [msdb].[dbo].[syscollector_config_store]
+        WHERE parameter_name = N'CollectorEnabled'
+
+        SELECT @CacheWindow = ISNULL(parameter_value, 1)
+        FROM [msdb].[dbo].[syscollector_config_store]
+        WHERE parameter_name = N'CacheWindow'
+
+        SELECT @CacheDirectory = parameter_value
+        FROM [msdb].[dbo].[syscollector_config_store]
+        WHERE parameter_name = N'CacheDirectory'
+
+        create table #tmp_pivot_config_table (
+            [MDWInstance] sql_variant null,
+            [MDWDatabase] sql_variant null,
+            [Enabled] sql_variant null,
+            [CacheWindow] sql_variant null,
+            [CacheDirectory] sql_variant null);
+            
+        Insert into #tmp_pivot_config_table Values(@MDWInstance, @MDWDatabase, @Enabled, @CacheWindow, @CacheDirectory)
+    </prefix>
+    <postfix fields="#MDWInstance#MDWDatabase#Enabled#CacheWindow#CacheDirectory#">drop table #tmp_pivot_config_table</postfix>
+  </settings>
+  <properties>
+    <property name="Urn" type="nvarchar" size="600">
+        <link_multiple no='2' expression="'{1}[@Name=' + quotename({0},'''') + ']'">
+            <link_field type='local' field="Name" />
+            <link_field field="NType" />
+        </link_multiple>
+    </property>
+    <property name="Name" type="sysname" cast='true'>serverproperty(N'Servername')</property>
+    <property name="MDWInstance" type="nvarchar" size="max">ISNULL(tmp.MDWInstance, N'')</property>
+    <property name="MDWDatabase" type="nvarchar" size="max">ISNULL(tmp.MDWDatabase, N'')</property>
+    <!-- The extra cast + ISNULL is motivated by the fact that, if the query did not really return any rows
+         (which means that the syscollector_config_store table is really corrupt), we would get back a
+         NULL (DBNull in .Net) value, which would generate a confusing exception in SMO/SSMS when
+         the conversion to a boolean is attempted.
+    -->
+    <property name="Enabled" type="bit" cast="true" access="Read">ISNULL(tmp.Enabled, 0)</property>
+    <property name="CacheWindow" type="int">ISNULL(tmp.CacheWindow, 0)</property>
+    <property name="CacheDirectory" type="nvarchar" size="max">ISNULL(tmp.CacheDirectory, N'')</property>
+  </properties>
+</EnumObject>

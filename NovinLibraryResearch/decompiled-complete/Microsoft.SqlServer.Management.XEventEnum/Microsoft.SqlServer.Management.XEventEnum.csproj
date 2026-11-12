@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Microsoft.SqlServer.Management.XEventEnum</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Action.xml" />
+    <None Remove="ActionInfo.xml" />
+    <None Remove="DataEventColumnInfo.xml" />
+    <None Remove="Event.xml" />
+    <None Remove="EventColumnInfo.xml" />
+    <None Remove="EventField.xml" />
+    <None Remove="EventInfo.xml" />
+    <None Remove="inc_urn.xml" />
+    <None Remove="MapInfo.xml" />
+    <None Remove="MapValueInfo.xml" />
+    <None Remove="Package.xml" />
+    <None Remove="PredCompareInfo.xml" />
+    <None Remove="PredSourceInfo.xml" />
+    <None Remove="ReadOnlyEventColumnInfo.xml" />
+    <None Remove="Session.xml" />
+    <None Remove="Target.xml" />
+    <None Remove="TargetColumnInfo.xml" />
+    <None Remove="TargetField.xml" />
+    <None Remove="TargetInfo.xml" />
+    <None Remove="TypeInfo.xml" />
+    <None Remove="XEStore.xml" />
+    <EmbeddedResource Include="Action.xml" LogicalName="Action.xml" />
+    <EmbeddedResource Include="ActionInfo.xml" LogicalName="ActionInfo.xml" />
+    <EmbeddedResource Include="DataEventColumnInfo.xml" LogicalName="DataEventColumnInfo.xml" />
+    <EmbeddedResource Include="Event.xml" LogicalName="Event.xml" />
+    <EmbeddedResource Include="EventColumnInfo.xml" LogicalName="EventColumnInfo.xml" />
+    <EmbeddedResource Include="EventField.xml" LogicalName="EventField.xml" />
+    <EmbeddedResource Include="EventInfo.xml" LogicalName="EventInfo.xml" />
+    <EmbeddedResource Include="inc_urn.xml" LogicalName="inc_urn.xml" />
+    <EmbeddedResource Include="MapInfo.xml" LogicalName="MapInfo.xml" />
+    <EmbeddedResource Include="MapValueInfo.xml" LogicalName="MapValueInfo.xml" />
+    <EmbeddedResource Include="Package.xml" LogicalName="Package.xml" />
+    <EmbeddedResource Include="PredCompareInfo.xml" LogicalName="PredCompareInfo.xml" />
+    <EmbeddedResource Include="PredSourceInfo.xml" LogicalName="PredSourceInfo.xml" />
+    <EmbeddedResource Include="ReadOnlyEventColumnInfo.xml" LogicalName="ReadOnlyEventColumnInfo.xml" />
+    <EmbeddedResource Include="Session.xml" LogicalName="Session.xml" />
+    <EmbeddedResource Include="Target.xml" LogicalName="Target.xml" />
+    <EmbeddedResource Include="TargetColumnInfo.xml" LogicalName="TargetColumnInfo.xml" />
+    <EmbeddedResource Include="TargetField.xml" LogicalName="TargetField.xml" />
+    <EmbeddedResource Include="TargetInfo.xml" LogicalName="TargetInfo.xml" />
+    <EmbeddedResource Include="TypeInfo.xml" LogicalName="TypeInfo.xml" />
+    <EmbeddedResource Include="XEStore.xml" LogicalName="XEStore.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.SqlServer.Management.Sdk.Sfc">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Microsoft.SqlServer.Management.Sdk.Sfc.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.ConnectionInfo">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Microsoft.SqlServer.ConnectionInfo.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

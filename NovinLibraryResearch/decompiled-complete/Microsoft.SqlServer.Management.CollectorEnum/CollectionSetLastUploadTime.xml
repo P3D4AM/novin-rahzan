@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" ?>
+<EnumObject type="CollectionSetLastUploadTime" impl_type="CollectorObject" min_major='10'>
+	<settings>
+		<parent_link>
+			<link parent="Id" local="CollectionSetId" />
+		</parent_link>
+		<property_link table='msdb.dbo.syscollector_execution_log' alias='l'/>
+		<property_link fields='#CollectionSetId#' left_join='msdb.dbo.syscollector_collection_sets' alias='c'>l.collection_set_id = c.collection_set_id</property_link>
+		<property_link fields='#Status#'>l.status = 1</property_link>
+		<property_link fields='#RuntimeExecutionMode#'>l.runtime_execution_mode = 1</property_link>
+		<property_link fields='#FinishTime#'>l.finish_time IS NOT NULL</property_link>
+	</settings>
+	<properties>
+		<property name='CollectionSetId' type='int' access='Read' hidden='true'>l.collection_set_id</property>
+		<property name='Status' type='smallint' access='Read'>top 1 l.status</property>
+		<property name='RuntimeExecutionMode' type='smallint' access='Read'>l.runtime_execution_mode</property>
+		<property name='FinishTime' type='datetime' access='Read'>l.finish_time</property>
+	</properties>
+</EnumObject>

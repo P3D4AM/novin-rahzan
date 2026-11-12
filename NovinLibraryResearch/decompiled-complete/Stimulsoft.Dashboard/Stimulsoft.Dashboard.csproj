@@ -1,0 +1,234 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.Dashboard</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.DataFilter.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.DropDownArrowMouseOver-white.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.DropDownArrowMouseOver.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.DropDownFilter-white.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.DropDownFilter.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.DropDownFilterMouseOver-white.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.DropDownFilterMouseOver.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.Edit.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.SortArrowAsc-white.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.SortArrowAsc.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.SortArrowDesc-white.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.SortArrowDesc.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Actions.Transformation.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NoResult.NoResult.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NoResult.NoResult_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiCards.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiCards_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiChart.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiChart_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiComboBox.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiComboBox_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiComponent.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiComponent_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiDatePicker.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiDatePicker_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiDateRange.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiDateRange_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiGauge.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiGauge_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiImage.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiImage_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiIndicator.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiIndicator_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiListBox.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiListBox_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiOnlineMap.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiOnlineMap_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiPivotTable.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiPivotTable_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiProgress.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiProgress_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiRegionMap.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiRegionMap_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiShape.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiShape_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiTable.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiTable_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiText.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiText_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiTreeView.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiTreeViewBox.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiTreeViewBox_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.NotDefined.StiTreeView_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.Components.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiButton.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiButton_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiChart.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiChart_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiComboBox.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiComboBox_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiDatePicker.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiDatePicker_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiDateRange.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiDateRange_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiElement.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiElement_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiGauge.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiGauge_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiImage.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiImage_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiIndicator.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiIndicator_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiListBox.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiListBox_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiMap.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiMap_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiOnlineMap.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiOnlineMap_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiPanel.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiPanel_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiPivotTable.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiPivotTable_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiProgress.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiProgress_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiProgress_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiRegionMap.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiRegionMap_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiShape.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiShape_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiTable.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiTable_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiText.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiText_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiTreeView.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiTreeViewBox.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiTreeViewBox_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Images.Toolbox.StiTreeView_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.DataFilter.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.DataFilter.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.DropDownArrowMouseOver-white.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.DropDownArrowMouseOver-white.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.DropDownArrowMouseOver.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.DropDownArrowMouseOver.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.DropDownFilter-white.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.DropDownFilter-white.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.DropDownFilter.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.DropDownFilter.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.DropDownFilterMouseOver-white.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.DropDownFilterMouseOver-white.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.DropDownFilterMouseOver.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.DropDownFilterMouseOver.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.Edit.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.Edit.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.SortArrowAsc-white.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.SortArrowAsc-white.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.SortArrowAsc.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.SortArrowAsc.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.SortArrowDesc-white.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.SortArrowDesc-white.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.SortArrowDesc.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.SortArrowDesc.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Actions.Transformation.png" LogicalName="Stimulsoft.Dashboard.Images.Actions.Transformation.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NoResult.NoResult.png" LogicalName="Stimulsoft.Dashboard.Images.NoResult.NoResult.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NoResult.NoResult_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NoResult.NoResult_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiCards.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiCards.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiCards_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiCards_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiChart.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiChart.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiChart_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiChart_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiComboBox.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiComboBox.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiComboBox_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiComboBox_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiComponent.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiComponent.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiComponent_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiComponent_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiDatePicker.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiDatePicker.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiDatePicker_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiDatePicker_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiDateRange.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiDateRange.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiDateRange_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiDateRange_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiGauge.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiGauge.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiGauge_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiGauge_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiImage.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiImage.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiImage_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiImage_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiIndicator.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiIndicator.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiIndicator_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiIndicator_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiListBox.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiListBox.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiListBox_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiListBox_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiOnlineMap.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiOnlineMap.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiOnlineMap_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiOnlineMap_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiPivotTable.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiPivotTable.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiPivotTable_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiPivotTable_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiProgress.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiProgress.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiProgress_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiProgress_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiRegionMap.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiRegionMap.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiRegionMap_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiRegionMap_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiShape.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiShape.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiShape_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiShape_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiTable.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiTable.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiTable_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiTable_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiText.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiText.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiText_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiText_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiTreeView.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiTreeView.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiTreeViewBox.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiTreeViewBox.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiTreeViewBox_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiTreeViewBox_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.NotDefined.StiTreeView_x2.png" LogicalName="Stimulsoft.Dashboard.Images.NotDefined.StiTreeView_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.Components.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.Components.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiButton.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiButton.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiButton_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiButton_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiChart.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiChart.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiChart_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiChart_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiComboBox.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiComboBox.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiComboBox_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiComboBox_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiDatePicker.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiDatePicker.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiDatePicker_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiDatePicker_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiDateRange.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiDateRange.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiDateRange_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiDateRange_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiElement.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiElement.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiElement_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiElement_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiGauge.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiGauge.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiGauge_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiGauge_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiImage.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiImage.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiImage_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiImage_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiIndicator.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiIndicator.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiIndicator_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiIndicator_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiListBox.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiListBox.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiListBox_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiListBox_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiMap.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiMap.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiMap_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiMap_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiOnlineMap.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiOnlineMap.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiOnlineMap_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiOnlineMap_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiPanel.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiPanel.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiPanel_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiPanel_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiPivotTable.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiPivotTable.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiPivotTable_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiPivotTable_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiProgress.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiProgress.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiProgress_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiProgress_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiProgress_x4.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiProgress_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiRegionMap.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiRegionMap.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiRegionMap_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiRegionMap_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiShape.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiShape.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiShape_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiShape_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiTable.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiTable.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiTable_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiTable_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiText.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiText.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiText_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiText_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiTreeView.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiTreeView.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiTreeViewBox.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiTreeViewBox.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiTreeViewBox_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiTreeViewBox_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Images.Toolbox.StiTreeView_x2.png" LogicalName="Stimulsoft.Dashboard.Images.Toolbox.StiTreeView_x2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Report.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Data">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.DataSetExtensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

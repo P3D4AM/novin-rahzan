@@ -1,0 +1,8 @@
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public interface IRelationalSqlTranslatingExpressionVisitorFactory
+{
+	RelationalSqlTranslatingExpressionVisitor Create(IModel model, QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor);
+}

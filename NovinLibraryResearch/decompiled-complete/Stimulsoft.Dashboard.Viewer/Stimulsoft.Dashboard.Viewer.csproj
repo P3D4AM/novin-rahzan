@@ -1,0 +1,476 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.Dashboard.Viewer</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x4_Light.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x4_Light.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Controls.Remove.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Controls.Remove_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Controls.Remove_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x3.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x4.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.NoResult.Dashboard.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.NoResult.Dashboard_x1_5.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Images.NoResult.Dashboard_x2.png" />
+    <None Remove="Stimulsoft.Dashboard.Viewer.Toolbox.StiViewerControl.bmp" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.CloseFullScreen_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ColumnSelection_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillDown_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.DrillUp_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Edit_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOff_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FilterMultiOptionOn_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Filter_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.FullScreen_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Open_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Refresh_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.RemoveFilter_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ResetZoom_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Save_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x4_Light.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.Sort_x4_Light.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ViewData_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomMinus_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Dark.ZoomPlus_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.CloseFullScreen_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ColumnSelection_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillDown_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.DrillUp_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Edit_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOff_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FilterMultiOptionOn_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Filter_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.FullScreen_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Open_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Refresh_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.RemoveFilter_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ResetZoom_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Save_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x4_Light.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.Sort_x4_Light.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ViewData_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomMinus_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Actions.Light.ZoomPlus_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Controls.Remove.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Controls.Remove.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Controls.Remove_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Controls.Remove_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Controls.Remove_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Controls.Remove_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.EditSmall_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveDown_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.MoveUp_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.NewFilter_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x3.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x3.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x4.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.Editors.Remove_x4.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.NoResult.Dashboard.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.NoResult.Dashboard.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.NoResult.Dashboard_x1_5.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.NoResult.Dashboard_x1_5.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Images.NoResult.Dashboard_x2.png" LogicalName="Stimulsoft.Dashboard.Viewer.Images.NoResult.Dashboard_x2.png" />
+    <EmbeddedResource Include="Stimulsoft.Dashboard.Viewer.Toolbox.StiViewerControl.bmp" LogicalName="Stimulsoft.Dashboard.Viewer.Toolbox.StiViewerControl.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Report.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Controls.Win">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Controls.Win.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Dashboard">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Dashboard.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Dashboard.Export">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Dashboard.Export.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Controls">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Data">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Dashboard.Drawing">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Dashboard.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Data.DataSetExtensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

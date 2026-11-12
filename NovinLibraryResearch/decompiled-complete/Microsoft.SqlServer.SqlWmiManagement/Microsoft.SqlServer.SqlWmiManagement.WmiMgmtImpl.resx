@@ -1,0 +1,610 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="OperationNotInPendingState" xml:space="preserve"><value>Cannot execute this operation for an object that is in Pending state.</value></data>
+  <data name="TriggerNotSupported" xml:space="preserve"><value>INSTEAD OF triggers are not supported on server version {0}.</value></data>
+  <data name="Operator" xml:space="preserve"><value>Operator</value></data>
+  <data name="AlertSystem" xml:space="preserve"><value>AlertSystem</value></data>
+  <data name="EnumMailAccountsForProfile" xml:space="preserve"><value>Enumerate MailAccounts associated with MailProfile</value></data>
+  <data name="StartTimeGreaterThanADay" xml:space="preserve"><value>The start time for a vacuumer is the time within a day and cannot be greater than 24 hours.</value></data>
+  <data name="OperationNotInPendingState2" xml:space="preserve"><value>Before executing this operation you need to set {0} and {1} for this object.</value></data>
+  <data name="OperationNotInPendingState3" xml:space="preserve"><value>Before executing this operation you need to set {0} and {1} and {2} for this object.</value></data>
+  <data name="OperationNotInPendingState1" xml:space="preserve"><value>Before executing this operation you need to set {0} for this object.</value></data>
+  <data name="RemoveNotification" xml:space="preserve"><value>Remove notification</value></data>
+  <data name="InvalidCollation" xml:space="preserve"><value>Collation '{0}' is not valid.</value></data>
+  <data name="Information" xml:space="preserve"><value>Information</value></data>
+  <data name="ChangeMirroringState" xml:space="preserve"><value>Change mirroring state</value></data>
+  <data name="RequiredChildMissingFromParent" xml:space="preserve"><value>A required object of type: {0} is missing from parent object: '{1}' (Type: {2}).</value></data>
+  <data name="GetJobByID" xml:space="preserve"><value>Get job by ID</value></data>
+  <data name="GetFileGroups" xml:space="preserve"><value>Get FileGroups</value></data>
+  <data name="IsWindowsGroupMember" xml:space="preserve"><value>Is windows group member</value></data>
+  <data name="ReasonTextIsEncrypted" xml:space="preserve"><value>The text is encrypted.</value></data>
+  <data name="RemovePrivateKey" xml:space="preserve"><value>Remove private key</value></data>
+  <data name="SetMirrors" xml:space="preserve"><value>Set Mirrors</value></data>
+  <data name="OperationOnlyInPendingState" xml:space="preserve"><value>Cannot perform the operation on this object, because the object is a member of a collection.</value></data>
+  <data name="InnerException" xml:space="preserve"><value>An exception occurred in SMO.</value></data>
+  <data name="EnumServerAttributes" xml:space="preserve"><value>Enumerate server attributes</value></data>
+  <data name="ObjectWithNoChildren" xml:space="preserve"><value>Cannot create {0} that does not contain at least one {1}.</value></data>
+  <data name="SetDefaultFileGroup" xml:space="preserve"><value>Set default file group</value></data>
+  <data name="XmlSchemaCollection" xml:space="preserve"><value>XmlSchemaCollection</value></data>
+  <data name="AddSubSystems" xml:space="preserve"><value>Add subsystems</value></data>
+  <data name="EnumProxies" xml:space="preserve"><value>Enumerate proxies</value></data>
+  <data name="DropAndMove" xml:space="preserve"><value>Drop and move</value></data>
+  <data name="UnknownObjectType" xml:space="preserve"><value>Unknown object type {0}.</value></data>
+  <data name="Enable" xml:space="preserve"><value>Enable</value></data>
+  <data name="LoginPropertyNotSet" xml:space="preserve"><value>You must set the Login property before creating an user.</value></data>
+  <data name="StatisticColumn" xml:space="preserve"><value /></data>
+  <data name="RemoveFromTargetServerGroup" xml:space="preserve"><value>Remove from target server group</value></data>
+  <data name="ErrorInCreatingState" xml:space="preserve"><value>You cannot execute this operation since the object has not been created.</value></data>
+  <data name="EnumDetachedLogFiles" xml:space="preserve"><value>Enum detached log files</value></data>
+  <data name="RecoverMasterKey" xml:space="preserve"><value>Recover</value></data>
+  <data name="EnableAllIndexes" xml:space="preserve"><value>Enable all indexes</value></data>
+  <data name="StopMonitor" xml:space="preserve"><value>Stop monitor</value></data>
+  <data name="UnknownUserAccess" xml:space="preserve"><value>Unknown user access {0}.</value></data>
+  <data name="UserDefinedType" xml:space="preserve"><value>UserDefinedType</value></data>
+  <data name="CheckCatalog" xml:space="preserve"><value>Check catalog</value></data>
+  <data name="AddKeyEncryption" xml:space="preserve"><value>Add key encryption</value></data>
+  <data name="SetPassword" xml:space="preserve"><value>Set password</value></data>
+  <data name="WrongSize" xml:space="preserve"><value>The size specified represents a value that is out of bounds.</value></data>
+  <data name="RemoveSharedSchedule" xml:space="preserve"><value>Remove shared schedule</value></data>
+  <data name="EnumColumns" xml:space="preserve"><value>Enumerate columns</value></data>
+  <data name="TimeoutMustBePositive" xml:space="preserve"><value>A positive value must be supplied for the transaction termination time.</value></data>
+  <data name="IndexMustBeClustered" xml:space="preserve"><value>{0}.{1} is not a clustered index.</value></data>
+  <data name="TruncateLog" xml:space="preserve"><value>Truncate Log</value></data>
+  <data name="EnumHistory" xml:space="preserve"><value>Enumerate history</value></data>
+  <data name="UnsupportedBackupDeviceType" xml:space="preserve"><value>Cannot create device with type {0}.</value></data>
+  <data name="RemoveJobByID" xml:space="preserve"><value>Remove job by ID</value></data>
+  <data name="SplitRangePartition" xml:space="preserve"><value>Split range partition</value></data>
+  <data name="PartitionScheme" xml:space="preserve"><value>PartitionScheme</value></data>
+  <data name="EnumKeyEncryptions" xml:space="preserve"><value>Enumerate key encryptions</value></data>
+  <data name="StopPopulation" xml:space="preserve"><value>Stop population</value></data>
+  <data name="ReadBackupHeader" xml:space="preserve"><value>Read backup header</value></data>
+  <data name="EnumTransactions" xml:space="preserve"><value>Enumerate transactions</value></data>
+  <data name="UserDefinedDataType" xml:space="preserve"><value>UserDefinedDataType</value></data>
+  <data name="RemoveFromTargetServer" xml:space="preserve"><value>Remove from target server</value></data>
+  <data name="UnsupportedUrnAttrib" xml:space="preserve"><value>Internal SMO error. During prefetch the filter attribute {0} is not supported.</value></data>
+  <data name="Synonym" xml:space="preserve"><value>Synonym</value></data>
+  <data name="PropertyReadOnlyExceptionText" xml:space="preserve"><value>Cannot change property {0}. It is read-only.</value></data>
+  <data name="ScriptTransfer" xml:space="preserve"><value>Script transfer</value></data>
+  <data name="FailedOperationExceptionTextScript" xml:space="preserve"><value>The {0} '{1}' cannot be scripted as its data is not accessible.</value></data>
+  <data name="Trigger" xml:space="preserve"><value>Trigger</value></data>
+  <data name="RemoveJobsByLogin" xml:space="preserve"><value>Remove jobs by login</value></data>
+  <data name="NeedToSetParent" xml:space="preserve"><value>You must set Parent property.</value></data>
+  <data name="InvalidNSOperation" xml:space="preserve"><value>The Notification Services operation performed is invalid.</value></data>
+  <data name="UnsupportedUrnFilter" xml:space="preserve"><value>Internal SMO error. During prefetch the filter attribute {0} does not support function type {1}.</value></data>
+  <data name="UpdateStatistics" xml:space="preserve"><value>Update statistics</value></data>
+  <data name="RemoveAllJobSteps" xml:space="preserve"><value>Remove all job steps</value></data>
+  <data name="NoPendingObjForDataType" xml:space="preserve"><value>An object in {0} state cannot be used to create a DataType.</value></data>
+  <data name="Backup" xml:space="preserve"><value>Backup</value></data>
+  <data name="WrongUrn" xml:space="preserve"><value>The {0} object cannot be created with Urn='{1}'.</value></data>
+  <data name="TestMailProfile" xml:space="preserve"><value>Test mail profile</value></data>
+  <data name="SetDefaultInitFields" xml:space="preserve"><value>Set default init fields</value></data>
+  <data name="SqlManagement" xml:space="preserve"><value>SQL Management</value></data>
+  <data name="Column" xml:space="preserve"><value>Column</value></data>
+  <data name="ReCompileReferences" xml:space="preserve"><value>Recompile references</value></data>
+  <data name="EnumAvailableMedia" xml:space="preserve"><value>Enumerate available media</value></data>
+  <data name="TableOrViewParentForUpdateStatistics" xml:space="preserve"><value>Parent of Column must be Table or View in order to call UpdateStatistics</value></data>
+  <data name="Create" xml:space="preserve"><value>Create</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Backup operation failed.</value></data>
+  <data name="PingSqlServerVersion" xml:space="preserve"><value>Ping Sql Server version</value></data>
+  <data name="Service" xml:space="preserve"><value>Service</value></data>
+  <data name="PurgeJobHistory" xml:space="preserve"><value>Purge job history</value></data>
+  <data name="WrongPropertyValueException" xml:space="preserve"><value>The {0} property cannot have a value of {1} for this version of SQL Server.</value></data>
+  <data name="SetName" xml:space="preserve"><value>SetName</value></data>
+  <data name="AddDefaultConstraint" xml:space="preserve"><value>Add default constraint</value></data>
+  <data name="Insert" xml:space="preserve"><value>Insert</value></data>
+  <data name="Invoke" xml:space="preserve"><value>Invoke</value></data>
+  <data name="MessageIDTooSmall" xml:space="preserve"><value>The user defined messages need to have id's bigger than 50000.</value></data>
+  <data name="FailedOperationMessageNotSupportedTempdb" xml:space="preserve"><value>this object does not support this operation for database tempdb</value></data>
+  <data name="InvalidServerUrn" xml:space="preserve"><value>The input Urn refers to server {0}.</value></data>
+  <data name="ParentNull" xml:space="preserve"><value>Internal SMO error. Parent property is null.</value></data>
+  <data name="InvalidPathChildCollectionNotFound" xml:space="preserve"><value>Invalid path: There is no collection of {0} objects that is a child of {1}.</value></data>
+  <data name="EnumPrincipalsForMailProfile" xml:space="preserve"><value>Enumerate Principals associated with MailProfile</value></data>
+  <data name="UnssuportedPermission" xml:space="preserve"><value>Unsupported permission {0}.</value></data>
+  <data name="VerifyFailed0" xml:space="preserve"><value>Verify failed. Backup information for database '{0}' not found.</value></data>
+  <data name="EnumJobStepOutputLogs" xml:space="preserve"><value>Enumerate job step output logs</value></data>
+  <data name="PasswdModiOnlyForStandardLogin" xml:space="preserve"><value>Password can be modified only for a Standard login.</value></data>
+  <data name="CantScriptObject" xml:space="preserve"><value>Cannot script the object with Urn='{0}'.</value></data>
+  <data name="RemoveServerRoleFromProxyAccount" xml:space="preserve"><value>Remove server role from proxy account</value></data>
+  <data name="FullTextService" xml:space="preserve"><value>FullTextService</value></data>
+  <data name="EnumServerRolesOfProxyAccount" xml:space="preserve"><value>Enumerate server role of proxy account</value></data>
+  <data name="DetachedDatabaseInfo" xml:space="preserve"><value>Detached database info</value></data>
+  <data name="CannotChangePassword" xml:space="preserve"><value>Cannot change password for Windows login.</value></data>
+  <data name="BackupDevice" xml:space="preserve"><value>BackupDevice</value></data>
+  <data name="Unbind" xml:space="preserve"><value>Unbind</value></data>
+  <data name="NotSupportedNotification" xml:space="preserve"><value>Property could not be set. The {0} object does not support {1} event notification.</value></data>
+  <data name="InvalidPropertyNumberRange" xml:space="preserve"><value>Invalid value for {0} property: the value must be a number between {1} and {2}.</value></data>
+  <data name="UnsupportedFeatureSqlMail" xml:space="preserve"><value>Database Mail</value></data>
+  <data name="NoObjectWithoutColumns" xml:space="preserve"><value>Cannot create {0} without specifying one or more columns.</value></data>
+  <data name="InvalidThreadPoolSize" xml:space="preserve"><value>The ThreadPoolSize entry is not valid. It must be a non-negative integer.</value></data>
+  <data name="CannotRenameObject" xml:space="preserve"><value>You cannot rename object {0} on server version {1}.</value></data>
+  <data name="MsxEnlist" xml:space="preserve"><value>MSX enlist</value></data>
+  <data name="ExecuteWithResults" xml:space="preserve"><value>Execute with results</value></data>
+  <data name="FileGroup" xml:space="preserve"><value>FileGroup</value></data>
+  <data name="UserDefinedAggregateParameter" xml:space="preserve"><value>UserDefinedAggregateParameter</value></data>
+  <data name="SetEncryptionOptions" xml:space="preserve"><value>Set Encryption Options</value></data>
+  <data name="EnumObjects" xml:space="preserve"><value>Enum objects</value></data>
+  <data name="ServerPropertyMustBeSetForOlap" xml:space="preserve"><value>Server property needs to be set for the OLAP subsystem</value></data>
+  <data name="RestoreFailed" xml:space="preserve"><value>Restore operation failed.</value></data>
+  <data name="UnknownLanguageId" xml:space="preserve"><value>{0} is not a valid language id on the server.</value></data>
+  <data name="NoXmlIndexClustered" xml:space="preserve"><value>An XML index cannot be clustered.</value></data>
+  <data name="MutuallyExclusiveProperties" xml:space="preserve"><value>{0} and {1} cannot both be set at the same time.</value></data>
+  <data name="FullTextIndex" xml:space="preserve"><value>FullTextIndex</value></data>
+  <data name="OneFilePageSupported" xml:space="preserve"><value>You can specify pages for only one file in this operation.</value></data>
+  <data name="EnumForeignKeys" xml:space="preserve"><value>Enumerate foreign keys</value></data>
+  <data name="DatabaseRole" xml:space="preserve"><value>DatabaseRole</value></data>
+  <data name="InvalidGranteeList" xml:space="preserve"><value>The grantee list is not valid.</value></data>
+  <data name="WMIException" xml:space="preserve"><value>The call failed with WMI error {0}. Please consult the WMI documentation.</value></data>
+  <data name="RemoveMSDBRoleFromProxyAccount" xml:space="preserve"><value>Remove msdb role from proxy account</value></data>
+  <data name="UnknownChildCollection" xml:space="preserve"><value>{0} object does not contain a collection of {1}.</value></data>
+  <data name="DropKeyEncryption" xml:space="preserve"><value>Drop key encryption</value></data>
+  <data name="NotEnoughRights" xml:space="preserve"><value>Could not read metadata, possibly due to insufficient access rights.</value></data>
+  <data name="PropertyNotSet" xml:space="preserve"><value>Set property {0} for {1} object to accomplish this action.</value></data>
+  <data name="DataFile" xml:space="preserve"><value>DataFile</value></data>
+  <data name="Database" xml:space="preserve"><value>Database</value></data>
+  <data name="KeyOptionsIncorrect" xml:space="preserve"><value>Symmetric key options are incorrect</value></data>
+  <data name="ViewFragInfoNotInV7" xml:space="preserve"><value>Fragmentation information is not available for views on SQL Server 7.0.</value></data>
+  <data name="GetParentFailed" xml:space="preserve"><value>Internal SMO error. Trying to get the Parent property through reflection failed.</value></data>
+  <data name="MsxDefect" xml:space="preserve"><value>MSX defect</value></data>
+  <data name="GetTransactionCount" xml:space="preserve"><value>Get transaction count</value></data>
+  <data name="Revoke" xml:space="preserve"><value>Revoke</value></data>
+  <data name="Rename" xml:space="preserve"><value>Rename</value></data>
+  <data name="SqlServerTypeName" xml:space="preserve"><value>Microsoft SQL Servers</value></data>
+  <data name="CompareUrn" xml:space="preserve"><value>Compare Urn objects</value></data>
+  <data name="ReasonPropertyIsNotSupportedOnCurrentServerVersion" xml:space="preserve"><value>Property is not supported on current server version</value></data>
+  <data name="BackupToPipesNotSupported" xml:space="preserve"><value>Backup to pipe device is not supported on server version {0}.</value></data>
+  <data name="NeedExistingObjForDataType" xml:space="preserve"><value>DataType instantiation failed: the object {0} does not exist on the server.</value></data>
+  <data name="DatabaseAlreadyExists" xml:space="preserve"><value>Cannot attach a database with the same name as an existing database.</value></data>
+  <data name="LoginEnable" xml:space="preserve"><value>Enable Login.</value></data>
+  <data name="Script" xml:space="preserve"><value>Script</value></data>
+  <data name="Schema" xml:space="preserve"><value>Schema</value></data>
+  <data name="ConflictingScriptingOptions" xml:space="preserve"><value>Cannot specify both {0} and {1} as scripting options.</value></data>
+  <data name="Server" xml:space="preserve"><value>Server</value></data>
+  <data name="UnknownEnumeration" xml:space="preserve"><value>Unexpected value for enumeration type {0}.</value></data>
+  <data name="SetDefaultFullTextCatalog" xml:space="preserve"><value>Set default full-text catalog</value></data>
+  <data name="DatabaseActiveDirectoryUpdateRegistration" xml:space="preserve"><value>Update database registration with Active Directory Services</value></data>
+  <data name="CantSetTypeSchema" xml:space="preserve"><value>Cannot set Schema property for the {0} type.</value></data>
+  <data name="AttachDatabase" xml:space="preserve"><value>Attach database</value></data>
+  <data name="Shrink" xml:space="preserve"><value>Shrink</value></data>
+  <data name="ServiceError0" xml:space="preserve"><value>The request was accepted.</value></data>
+  <data name="ServiceError1" xml:space="preserve"><value>The request is not supported.</value></data>
+  <data name="ServiceError2" xml:space="preserve"><value>The user did not have the necessary access.</value></data>
+  <data name="ServiceError3" xml:space="preserve"><value>The service cannot be stopped because other running services depend on it.</value></data>
+  <data name="ServiceError4" xml:space="preserve"><value>The requested control code is not valid, or it is unacceptable to the service.</value></data>
+  <data name="ServiceError5" xml:space="preserve"><value>The requested control code cannot be sent to the service because the state of the service (Win32_BaseService:State) is equal to 0, 1, or 2.</value></data>
+  <data name="ServiceError6" xml:space="preserve"><value>The service has not been started.</value></data>
+  <data name="ServiceError7" xml:space="preserve"><value>The service did not respond to the start request in a timely fashion.</value></data>
+  <data name="ServiceError8" xml:space="preserve"><value>Unknown failure when starting the service.</value></data>
+  <data name="ServiceError9" xml:space="preserve"><value>The directory path to the service executable was not found.</value></data>
+  <data name="AddDevice" xml:space="preserve"><value>Add device</value></data>
+  <data name="StartPopulation" xml:space="preserve"><value>Start population</value></data>
+  <data name="LinkedServerLogin" xml:space="preserve"><value>LinkedServerLogin</value></data>
+  <data name="NotXmlIndexOnView" xml:space="preserve"><value>An XML index cannot be created on a view.</value></data>
+  <data name="EnumLoginsOfProxyAccount" xml:space="preserve"><value>Enumerate login of proxy account</value></data>
+  <data name="CannotCreateExtendedPropertyWithoutSchema" xml:space="preserve"><value>Cannot create ExtendedProperty, because schema is not specified on the parent object.</value></data>
+  <data name="ObjectRefsNonexCol" xml:space="preserve"><value>The {0} '{1}' references nonexistent column '{2}'.</value></data>
+  <data name="CheckAllocations" xml:space="preserve"><value>Check allocations</value></data>
+  <data name="SetHostLoginAccount" xml:space="preserve"><value>Set host login account</value></data>
+  <data name="EnumDatabaseMappings" xml:space="preserve"><value>Enumerate database mappings</value></data>
+  <data name="InvalidSchema" xml:space="preserve"><value>Schema is not valid.</value></data>
+  <data name="SetProxyAccount" xml:space="preserve"><value>Set proxy account</value></data>
+  <data name="IncorrectTextHeader" xml:space="preserve"><value>The {2} specified in the TextHeader property of {0} '{1}' must match {3} property.</value></data>
+  <data name="ColumnHasNoDefault" xml:space="preserve"><value>Column '{0}' does not have a default named '{1}'.</value></data>
+  <data name="DeleteJobStepLogs" xml:space="preserve"><value>Delete job step output logs</value></data>
+  <data name="ManagedComputer" xml:space="preserve"><value>ManagedComputer</value></data>
+  <data name="Category" xml:space="preserve"><value>Category</value></data>
+  <data name="VerifyFailed" xml:space="preserve"><value>Verify failed. Backup information for database '{0}' (type {1}) not found.</value></data>
+  <data name="EnumNamespaces" xml:space="preserve"><value>Enumerate namespaces</value></data>
+  <data name="ObjectDroppedExceptionText" xml:space="preserve"><value>Cannot access properties or methods for the {0} '{1}', because it has been dropped.</value></data>
+  <data name="MissingConfigVariable" xml:space="preserve"><value>The function {0} was called without supplying variable {1}.</value></data>
+  <data name="ObjectDoesNotExist" xml:space="preserve"><value>The {0} '{1}' does not exist on the server.</value></data>
+  <data name="EnumDirectories" xml:space="preserve"><value>Enumerate directories</value></data>
+  <data name="ServerActiveDirectory" xml:space="preserve"><value>ServerActiveDirectory</value></data>
+  <data name="CantSetDefaultFalse" xml:space="preserve"><value>The IsDefault property cannot be set to false. Please select another file group and try to make it default.</value></data>
+  <data name="NoXmlIndexUnique" xml:space="preserve"><value>An XML index cannot be unique.</value></data>
+  <data name="InvalidOptionForVersion" xml:space="preserve"><value>{0} failed: the {1} option is not available for {2}.</value></data>
+  <data name="GetSmoObject" xml:space="preserve"><value>Attempt to retrieve data for object</value></data>
+  <data name="UnsupportedFeatureServiceBroker" xml:space="preserve"><value>SQL Server Service Broker</value></data>
+  <data name="UnknownShrinkType" xml:space="preserve"><value>Unknown Shrink type.</value></data>
+  <data name="RemoveLoginFromProxyAccount" xml:space="preserve"><value>Remove login from proxy account</value></data>
+  <data name="InvalidScanType" xml:space="preserve"><value>Error creating Statistic object; {0} is not a valid statistic scan type.</value></data>
+  <data name="CannotAddObject" xml:space="preserve"><value>{0} '{1}' could not be added to the collection, because it already exists.</value></data>
+  <data name="EnumStartupProcedures" xml:space="preserve"><value>Enumerate startup procedures</value></data>
+  <data name="ChangePrivateKeyPassword" xml:space="preserve"><value>Change private key password</value></data>
+  <data name="ServiceError22" xml:space="preserve"><value>The account that this service is to run under, is either invalid or lacks the permissions to run the service.</value></data>
+  <data name="ServiceError23" xml:space="preserve"><value>The service exists in the database of services available from the system.</value></data>
+  <data name="ServiceError20" xml:space="preserve"><value>There are invalid characters in the name of the service.</value></data>
+  <data name="ServiceError21" xml:space="preserve"><value>Invalid parameters have been passed to the service.</value></data>
+  <data name="ServiceError24" xml:space="preserve"><value>The service is currently paused in the system.</value></data>
+  <data name="ServiceError11" xml:space="preserve"><value>The database to add a new service is locked.</value></data>
+  <data name="ServiceError10" xml:space="preserve"><value>The service is already running.</value></data>
+  <data name="ServiceError13" xml:space="preserve"><value>The service failed to find the service needed from a dependent service.</value></data>
+  <data name="ServiceError12" xml:space="preserve"><value>A dependency for which this service relies on has been removed from the system.</value></data>
+  <data name="ServiceError15" xml:space="preserve"><value>The service does not have the correct authentication to run on the system.</value></data>
+  <data name="ServiceError14" xml:space="preserve"><value>The service has been disabled from the system.</value></data>
+  <data name="ServiceError17" xml:space="preserve"><value>There is no execution thread for the service.</value></data>
+  <data name="ServiceError16" xml:space="preserve"><value>This service is being removed from the system.</value></data>
+  <data name="ServiceError19" xml:space="preserve"><value>There is a service running under the same name.</value></data>
+  <data name="ServiceError18" xml:space="preserve"><value>There are circular dependencies when starting the service.</value></data>
+  <data name="FailedtoInitialize" xml:space="preserve"><value>Failed to initialize Urn {0}.</value></data>
+  <data name="ServerAlias" xml:space="preserve"><value>ServerAlias</value></data>
+  <data name="FullTextCatalog" xml:space="preserve"><value>FullTextCatalog</value></data>
+  <data name="JobStep" xml:space="preserve"><value>JobStep</value></data>
+  <data name="AddMember" xml:space="preserve"><value>Add member</value></data>
+  <data name="ServerYukon" xml:space="preserve"><value>SQL Server 2005</value></data>
+  <data name="Compare" xml:space="preserve"><value>Compare</value></data>
+  <data name="Reorganize" xml:space="preserve"><value>Reorganize</value></data>
+  <data name="SetOffline" xml:space="preserve"><value>Set offline</value></data>
+  <data name="InvalidType" xml:space="preserve"><value>Type {0} is invalid.</value></data>
+  <data name="FailedOperationExceptionText" xml:space="preserve"><value>{0} failed for {1} '{2}'.</value></data>
+  <data name="PurgeHistory" xml:space="preserve"><value>Purge history</value></data>
+  <data name="CheckIdentityValues" xml:space="preserve"><value>Check identity values</value></data>
+  <data name="SupportedOnlyBelow90" xml:space="preserve"><value>This method or property is accessible only while working against a version earlier than SQL Server 2005.</value></data>
+  <data name="AddSharedSchedule" xml:space="preserve"><value>Add shared schedule</value></data>
+  <data name="InvalidQuantumDuration" xml:space="preserve"><value>The quantum duration specified is not valid. The value must be at least 1 second.</value></data>
+  <data name="EnumSubSystems" xml:space="preserve"><value>Enumerate subsystems</value></data>
+  <data name="EnumLastStatisticsUpdates" xml:space="preserve"><value>Enumerate last statistics update</value></data>
+  <data name="TooFewFiles" xml:space="preserve"><value>At least one file is needed for Database Attach.</value></data>
+  <data name="CantCreateType" xml:space="preserve"><value>Type {0} could not be created.</value></data>
+  <data name="SymmetricKeyClose" xml:space="preserve"><value>Close symmetric key</value></data>
+  <data name="InvalidFailuresBeforeLoggingEvent" xml:space="preserve"><value>The FailuresBeforeLoggingEvent entry is not valid. It must be a non-negative integer.</value></data>
+  <data name="CannotSetPrivilege" xml:space="preserve"><value>The privilege {0} cannot be set for this type of object.</value></data>
+  <data name="MismatchingServerName" xml:space="preserve"><value>The input Urn belongs to server {1}, instead of server {0}. </value></data>
+  <data name="EnumLanguages" xml:space="preserve"><value>Enumerate languages</value></data>
+  <data name="UnknownError" xml:space="preserve"><value>Unknown error.</value></data>
+  <data name="EnumDatabaseMirrorWitnessRoles" xml:space="preserve"><value>Enumerate database mirror witness roles</value></data>
+  <data name="ChangeServicePassword" xml:space="preserve"><value>Change service account password</value></data>
+  <data name="UnknownChild" xml:space="preserve"><value>Child object does not fit with the type of the child collection.</value></data>
+  <data name="InvalidQuantumLimit" xml:space="preserve"><value>The specified quantum limit is not valid. The quantum limit value must be a non-negative integer.</value></data>
+  <data name="RemoveMailAccountFromProfile" xml:space="preserve"><value>Remove MailAccount from MailProfile</value></data>
+  <data name="ApplicationRole" xml:space="preserve"><value>ApplicationRole</value></data>
+  <data name="UrnMissing" xml:space="preserve"><value>Urn '{0}' is missing from the dependencies list.</value></data>
+  <data name="GrantWithGrant" xml:space="preserve"><value>GrantWithGrant</value></data>
+  <data name="EnumReferences" xml:space="preserve"><value>Enumerate references</value></data>
+  <data name="Language" xml:space="preserve"><value>Language</value></data>
+  <data name="InvalidShrinkMethod" xml:space="preserve"><value>Shrink method {0} is not supported here.</value></data>
+  <data name="LoginDisable" xml:space="preserve"><value>Disable Login.</value></data>
+  <data name="OperationInProgress" xml:space="preserve"><value>An operation is already in progress. </value></data>
+  <data name="EnumErrorLogs" xml:space="preserve"><value>Enumerate error logs</value></data>
+  <data name="UserDefinedAggregate" xml:space="preserve"><value>UserDefinedAggregate</value></data>
+  <data name="Cleanup" xml:space="preserve"><value>Cleanup</value></data>
+  <data name="DeleteBackupHistory" xml:space="preserve"><value>Delete backup history</value></data>
+  <data name="AddEncryptionMasterKey" xml:space="preserve"><value>Add encryption</value></data>
+  <data name="WrongPropertyValueExceptionText" xml:space="preserve"><value>Cannot execute this operation while the property {0} is set to '{1}'.</value></data>
+  <data name="FailedToWriteProperty" xml:space="preserve"><value>Writing property {0} of {1} '{2}' is not allowed when {3}.</value></data>
+  <data name="SetSnapshotIsolation" xml:space="preserve"><value>Set snapshot isolation</value></data>
+  <data name="RemoveAllJobSchedules" xml:space="preserve"><value>Remove all job schedules</value></data>
+  <data name="Default" xml:space="preserve"><value>Default</value></data>
+  <data name="RestoreAsync" xml:space="preserve"><value>Asynchronous restore</value></data>
+  <data name="AddToRole" xml:space="preserve"><value>Add to role</value></data>
+  <data name="PropertyTypeMismatchExceptionText" xml:space="preserve"><value>Type mismatch when trying to assign value to property {0}. Received {1} instead of {2}.</value></data>
+  <data name="DropMember" xml:space="preserve"><value>Drop member</value></data>
+  <data name="PrefetchObjects" xml:space="preserve"><value>Prefetch objects</value></data>
+  <data name="SwitchPartition" xml:space="preserve"><value>Switch partition</value></data>
+  <data name="InvalidVersionSmoOperation" xml:space="preserve"><value>Operation is not supported on {0}.</value></data>
+  <data name="EnumBoundColumns" xml:space="preserve"><value>Enumerate bound columns</value></data>
+  <data name="CantCreateTempFile" xml:space="preserve"><value>Cannot create temporary file in directory '{0}'.</value></data>
+  <data name="EnumTargetServers" xml:space="preserve"><value>Enumerate target servers</value></data>
+  <data name="ColumnBeforeNotExisting" xml:space="preserve"><value>Failed to insert column, because column '{0}' does not exist.</value></data>
+  <data name="OnlyOnePrimaryFile" xml:space="preserve"><value>The PRIMARY filegroup already has a primary file.</value></data>
+  <data name="LinkedServer" xml:space="preserve"><value>LinkedServer</value></data>
+  <data name="ApplyToTargetServerGroup" xml:space="preserve"><value>Apply to target server group</value></data>
+  <data name="UnsupportedLoginMode" xml:space="preserve"><value>The login mode {0} is not supported.</value></data>
+  <data name="EnumCandidateKeys" xml:space="preserve"><value>Enum candidate keys</value></data>
+  <data name="Statistic" xml:space="preserve"><value>Statistic</value></data>
+  <data name="HttpEndpoint" xml:space="preserve"><value>HttpEndpoint</value></data>
+  <data name="ClearHostLoginAccount" xml:space="preserve"><value>Clear host login account</value></data>
+  <data name="PropertyNotSetExceptionText" xml:space="preserve"><value>Set property {0} to accomplish this action.</value></data>
+  <data name="AdvancedProperties" xml:space="preserve"><value>Advanced properties</value></data>
+  <data name="Disable" xml:space="preserve"><value>Disable</value></data>
+  <data name="CannotSetDefInitFlds" xml:space="preserve"><value>The type {0} cannot have default init fields.</value></data>
+  <data name="RebuildIndexes" xml:space="preserve"><value>Rebuild indexes</value></data>
+  <data name="DatabaseActiveDirectoryRegister" xml:space="preserve"><value>Register database with Active Directory Services</value></data>
+  <data name="GetPropertyNames" xml:space="preserve"><value>Get property names</value></data>
+  <data name="UnknownPropertyExceptionText" xml:space="preserve"><value>{0}: unknown property.</value></data>
+  <data name="PropertyMustBeSpecifiedInUrn" xml:space="preserve"><value>The input Urn must specify {0} at level {1}.</value></data>
+  <data name="ChangePassword" xml:space="preserve"><value>Change password</value></data>
+  <data name="ServerSphinx" xml:space="preserve"><value>SQL Server 7.0</value></data>
+  <data name="ServerShiloh" xml:space="preserve"><value>SQL Server 2000</value></data>
+  <data name="NoDepForSysObjects" xml:space="preserve"><value>Scripting system objects with dependencies is not supported when AllowSystemObjects is set to false. Error at Urn ='{0}'.</value></data>
+  <data name="Checkpoint" xml:space="preserve"><value>Checkpoint</value></data>
+  <data name="ExportCertificate" xml:space="preserve"><value>Export</value></data>
+  <data name="IndexedColumn" xml:space="preserve"><value>Index</value></data>
+  <data name="MissingObjectExceptionText" xml:space="preserve"><value>The object {0} is missing from parent {1}. Server version is {2}.</value></data>
+  <data name="ParentMustExist" xml:space="preserve"><value>Cannot create {0} '{1}' if parent is not yet created.</value></data>
+  <data name="CheckIndex" xml:space="preserve"><value>Check index</value></data>
+  <data name="InnerWmiException" xml:space="preserve"><value>An exception occurred in SMO while trying to manage a service.</value></data>
+  <data name="CheckTable" xml:space="preserve"><value>Check table</value></data>
+  <data name="DropAllActiveDBConnections" xml:space="preserve"><value>Drop all active database connections</value></data>
+  <data name="ColumnAlreadyHasDefault" xml:space="preserve"><value>Column {0} already has a default.</value></data>
+  <data name="UnsupportedFeature" xml:space="preserve"><value>{0} is not supported on this edition of SQL Server.</value></data>
+  <data name="ReadMediaHeader" xml:space="preserve"><value>Read media header</value></data>
+  <data name="FailedOperationExceptionTextColl" xml:space="preserve"><value>{0} failed for {1}  of {2} '{3}'.</value></data>
+  <data name="EnumMSDBRolesOfProxyAccount" xml:space="preserve"><value>Enumerate msdb role of proxy account</value></data>
+  <data name="SqlAssembly" xml:space="preserve"><value>SqlAssembly</value></data>
+  <data name="CheckFileGroup" xml:space="preserve"><value>Check file group</value></data>
+  <data name="NeedPSParams" xml:space="preserve"><value>PartitionSchemeParameters need to be non-empty when PartitionScheme has been set.</value></data>
+  <data name="AddMemberServer" xml:space="preserve"><value>Add member server</value></data>
+  <data name="NSNotInstalled" xml:space="preserve"><value>The Notification Services component is not installed or you do not have permissions to use it.</value></data>
+  <data name="ConflictingSwitches" xml:space="preserve"><value>The {0} and {1} properties have conflicting settings.</value></data>
+  <data name="EnumNotifications" xml:space="preserve"><value>Enumerate notifications</value></data>
+  <data name="ExtendedProperty" xml:space="preserve"><value>ExtendedProperty</value></data>
+  <data name="InnerRegSvrException" xml:space="preserve"><value>An exception occurred in the RegisteredServer store while updating it.</value></data>
+  <data name="AddNotification" xml:space="preserve"><value>Add notification</value></data>
+  <data name="InvalidEncryptArgumentsAndArgumentKey" xml:space="preserve"><value>Invalid values for properties Instance.{0} and Instance.{1}. If you set Instance.{0} then you must provide a valid Instance.{1}. If you provide an Instance.{1} then you must set Instance.{0}. You must set these properties correctly to encrypt or decrypt argument values.</value></data>
+  <data name="Job" xml:space="preserve"><value>Job</value></data>
+  <data name="Abort" xml:space="preserve"><value>Abort</value></data>
+  <data name="Alert" xml:space="preserve"><value>Alert</value></data>
+  <data name="Alter" xml:space="preserve"><value>Alter</value></data>
+  <data name="Grant" xml:space="preserve"><value>Grant</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Check" xml:space="preserve"><value>Check</value></data>
+  <data name="Index" xml:space="preserve"><value>Index</value></data>
+  <data name="ServerActiveDirectoryUnregister" xml:space="preserve"><value>Unregister server with Active Directory Services</value></data>
+  <data name="Login" xml:space="preserve"><value>Login</value></data>
+  <data name="Table" xml:space="preserve"><value>Table</value></data>
+  <data name="GetActiveDBConnectionCount" xml:space="preserve"><value>Get active connection count</value></data>
+  <data name="Start" xml:space="preserve"><value>Start</value></data>
+  <data name="GetRangeValues" xml:space="preserve"><value>Get range values</value></data>
+  <data name="UserDefinedFunctionParameter" xml:space="preserve"><value>UserDefinedFunctionParameter</value></data>
+  <data name="SetServiceAccount" xml:space="preserve"><value>Set service account</value></data>
+  <data name="ReasonNotIntextMode" xml:space="preserve"><value>TextMode has not been set</value></data>
+  <data name="InvalidNotificationClassBatchSize" xml:space="preserve"><value>The NotificationBatchSize value is not valid. It must be an non-negative integer.</value></data>
+  <data name="CannotChangePrimary" xml:space="preserve"><value>The primary file must reside in the PRIMARY filegroup.</value></data>
+  <data name="TruncateData" xml:space="preserve"><value>Truncate data</value></data>
+  <data name="AddCollection" xml:space="preserve"><value>Add object to collection</value></data>
+  <data name="GetDataType" xml:space="preserve"><value>Get DataType</value></data>
+  <data name="SqlInnerException" xml:space="preserve"><value>An exception occurred while executing a Transact-SQL statement.</value></data>
+  <data name="CannotEnableViewTrigger" xml:space="preserve"><value>You cannot set Enabled property while creating a view trigger.</value></data>
+  <data name="Contains" xml:space="preserve"><value>Collection lookup</value></data>
+  <data name="MoreThanOneProxyAccountIsNotSupported" xml:space="preserve"><value>Only one proxy account is supported on this platform</value></data>
+  <data name="SymmetricKeyOpen" xml:space="preserve"><value>Open symmetric key</value></data>
+  <data name="ThreadPoolSizeNotValidForEdition" xml:space="preserve"><value>The {0} ThreadPoolSize value must be {1} for the Standard Edition of Notification Services.</value></data>
+  <data name="TypeSchemaMustBeDbo" xml:space="preserve"><value>UserDefinedDataType {0} must be dbo. It is {1}.</value></data>
+  <data name="ExecutionContextPrincipalIsNotSpecified" xml:space="preserve"><value>ExecutionContextPrincipal property needs to be set for this activation execution context </value></data>
+  <data name="DenyLoginModiNotForStandardLogin" xml:space="preserve"><value>DenyWindowsLogin cannot be modified for a Standard login.</value></data>
+  <data name="MergeRangePartition" xml:space="preserve"><value>Merge range partition</value></data>
+  <data name="NoSqlGen" xml:space="preserve"><value>No Transact-SQL was generated to create the object '{0}'.</value></data>
+  <data name="RecalculateSpaceUsage" xml:space="preserve"><value>Recalculate space usage</value></data>
+  <data name="SystemMessageReadOnly" xml:space="preserve"><value>The SystemMessage object is read only.</value></data>
+  <data name="RemoveFullTextCatalogs" xml:space="preserve"><value>Remove full-text catalogs</value></data>
+  <data name="DiscoverDependencies" xml:space="preserve"><value>Discover dependencies</value></data>
+  <data name="RemoveSubSystems" xml:space="preserve"><value>Remove subsystems</value></data>
+  <data name="PartitionSchemeParameter" xml:space="preserve"><value>PartitionSchemeParameter</value></data>
+  <data name="PropertyAvailable" xml:space="preserve"><value>This property is not available on </value></data>
+  <data name="ClrNotSupported" xml:space="preserve"><value>Invalid value for property {0}. .NET run-time routines are not supported on server version {1}.</value></data>
+  <data name="MappingObjectIdMissing" xml:space="preserve"><value>The {0} with ID={1} does not exist. You cannot create a {0}Mapping.</value></data>
+  <data name="UnsupportedFeatureSqlAgent" xml:space="preserve"><value>SQL Server Agent</value></data>
+  <data name="PassPhraseAndIdentityNotSpecified" xml:space="preserve"><value>Both pass phrase and identity phrase are not specified.</value></data>
+  <data name="EnumStatistics" xml:space="preserve"><value>Enum statistics</value></data>
+  <data name="DropJobsByServer" xml:space="preserve"><value>Drop jobs by server</value></data>
+  <data name="IsMember" xml:space="preserve"><value>Is Member</value></data>
+  <data name="UnsupportedVersionException" xml:space="preserve"><value>Either the object or one of its properties is not supported on the target server version.</value></data>
+  <data name="EnumJobs" xml:space="preserve"><value>Enumerate jobs</value></data>
+  <data name="DataTypeUnsupported" xml:space="preserve"><value>DataType instantiation failed: {0} type not supported by the constructor.</value></data>
+  <data name="ObjectAlreadyExists" xml:space="preserve"><value>The {0} '{1}' already exists.</value></data>
+  <data name="NeedToPassObject" xml:space="preserve"><value>Transfer cannot process {0}. You need to pass an instance class object.</value></data>
+  <data name="UnknownFilter" xml:space="preserve"><value>Internal error: the filter '{0}' cannot be processed by the prefetch operation.</value></data>
+  <data name="MustSpecifyOneParameter" xml:space="preserve"><value>You must specify a parameter with a non-empty name for this aggregate function.</value></data>
+  <data name="SetMailServerPassword" xml:space="preserve"><value>Set mail server login password</value></data>
+  <data name="ExecuteNonQuery" xml:space="preserve"><value>ExecuteNonQuery</value></data>
+  <data name="GetDefaultInitFields" xml:space="preserve"><value>Get default init fields</value></data>
+  <data name="EnumMembers" xml:space="preserve"><value>Enumerate members</value></data>
+  <data name="Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="ResetNextUsed" xml:space="preserve"><value>Reset next used filegroup</value></data>
+  <data name="InvalidParamForVersion" xml:space="preserve"><value>{0} failed: the {1} parameter cannot be specified on {2}.</value></data>
+  <data name="MultipleRowsForUrn" xml:space="preserve"><value>Internal SMO error. SqlSmoObject.ImplInitialize() got multiple rows for urn '{0}'.</value></data>
+  <data name="Recreate" xml:space="preserve"><value>Recreate</value></data>
+  <data name="SetOwner" xml:space="preserve"><value>Set owner</value></data>
+  <data name="KillProcess" xml:space="preserve"><value>Kill process</value></data>
+  <data name="PartitionFunction" xml:space="preserve"><value>PartitionFunction</value></data>
+  <data name="EnumBoundDataTypes" xml:space="preserve"><value>Enumerate bound data types</value></data>
+  <data name="SetState" xml:space="preserve"><value>Set state</value></data>
+  <data name="IncludeHeader" xml:space="preserve"><value>/****** Object:  {0} {1}    Script Date: {2} ******/</value></data>
+  <data name="JobServer" xml:space="preserve"><value>JobServer</value></data>
+  <data name="SetRange" xml:space="preserve"><value>Set range</value></data>
+  <data name="EnumJobSteps" xml:space="preserve"><value>Enumerate job steps</value></data>
+  <data name="EnumAvailableSqlServers" xml:space="preserve"><value>EnumAvailableSQLServers</value></data>
+  <data name="GetDatabaseUser" xml:space="preserve"><value>Get database user</value></data>
+  <data name="MissingBackupDeviceType" xml:space="preserve"><value>You must specify the type of the backup devices.</value></data>
+  <data name="EnumProcesses" xml:space="preserve"><value>Enumerate processes</value></data>
+  <data name="SetMailServerAccount" xml:space="preserve"><value>Set mail server login account</value></data>
+  <data name="CannotSubscribe" xml:space="preserve"><value>Cannot create an event subscription.</value></data>
+  <data name="ReasonIntextMode" xml:space="preserve"><value>TextMode has been set</value></data>
+  <data name="InvalidInstanceName" xml:space="preserve"><value>Server name cannot be split into machine and instance names.</value></data>
+  <data name="CollectionNotAvailable" xml:space="preserve"><value>{0} collection is not accessible on server version {1}.</value></data>
+  <data name="InvalidPropertyValueForVersion" xml:space="preserve"><value>{0}.{1}: {2} is not a valid option for {3}.</value></data>
+  <data name="TargetServer" xml:space="preserve"><value>TargetServer</value></data>
+  <data name="PrimaryFgMustHaveFiles" xml:space="preserve"><value>The PRIMARY filegroup must have at least one file.</value></data>
+  <data name="InvalidThrottle" xml:space="preserve"><value>The specified throttle value is not valid. The value must be a non-negative integer.</value></data>
+  <data name="UnsupportedVersion" xml:space="preserve"><value>This method cannot be called on the server version {0}.</value></data>
+  <data name="PropNotModifiable" xml:space="preserve"><value>Modifying the {0} property of the {1} object is not allowed. You must drop and recreate the object with the desired property.</value></data>
+  <data name="ForeignKeyColumn" xml:space="preserve"><value>ForeignKeyColumn</value></data>
+  <data name="InvalidUrnServerLevel" xml:space="preserve"><value>Invalid Urn filter on server level: filter must be empty, or server attribute must be equal with the true server name.</value></data>
+  <data name="EnumIndexes" xml:space="preserve"><value>Enumerate indexes</value></data>
+  <data name="EnumPermissions" xml:space="preserve"><value>Enumerate permissions</value></data>
+  <data name="EnumCollations" xml:space="preserve"><value>Enumerate collations</value></data>
+  <data name="RemoveCollection" xml:space="preserve"><value>Remove object from collection</value></data>
+  <data name="ResetOccurrenceCount" xml:space="preserve"><value>Reset occurrence count</value></data>
+  <data name="Version80SP3Only" xml:space="preserve"><value>This property or method requires Microsoft SQL Server 2000 Service Pack 3 or later.</value></data>
+  <data name="FullTextIndexColumn" xml:space="preserve"><value>FullTextIndexColumn</value></data>
+  <data name="IsDetachedPrimaryFile" xml:space="preserve"><value>Is detached primaryFile</value></data>
+  <data name="EnumFragmentation" xml:space="preserve"><value>Enumerate fragmentation information</value></data>
+  <data name="AddPrincipalToMailProfile" xml:space="preserve"><value>Add Principal to MailProfile</value></data>
+  <data name="EnumAlerts" xml:space="preserve"><value>Enumerate alerts</value></data>
+  <data name="CannotStartSubscription" xml:space="preserve"><value>Cannot start an event subscription.</value></data>
+  <data name="EnumTypes" xml:space="preserve"><value>Enumerate types</value></data>
+  <data name="RegenerateMasterKey" xml:space="preserve"><value>Regenerate</value></data>
+  <data name="RemoveMemberServer" xml:space="preserve"><value>Remove member server</value></data>
+  <data name="EnumLocks" xml:space="preserve"><value>Enumerate locks</value></data>
+  <data name="UnsupportedFeatureFullText" xml:space="preserve"><value>Full-text</value></data>
+  <data name="ExtendXmlSchema" xml:space="preserve"><value>Extend XML schema</value></data>
+  <data name="UnknownCategoryType" xml:space="preserve"><value>Unknown Category Type {0}.</value></data>
+  <data name="UnknownCategoryName" xml:space="preserve"><value>Unknown Category Name {0}.</value></data>
+  <data name="NoPermissions" xml:space="preserve"><value>No permissions have been specified.</value></data>
+  <data name="UnknownRecoveryModel" xml:space="preserve"><value>Recovery model {0} is unknown.</value></data>
+  <data name="SetSchema" xml:space="preserve"><value>SetSchema</value></data>
+  <data name="EnumWindowsGroupInfo" xml:space="preserve"><value>Enumerate group information</value></data>
+  <data name="MismatchingNumberOfMirrors" xml:space="preserve"><value>There is a mismatch in the number of mirrored devices. Expected {0}, received {1}.</value></data>
+  <data name="ServerEnumMembers" xml:space="preserve"><value>Enum members</value></data>
+  <data name="AddSchemaDocument" xml:space="preserve"><value>Add schema document</value></data>
+  <data name="SplitHashPartition" xml:space="preserve"><value>Split hash partition</value></data>
+  <data name="InvalidUrn" xml:space="preserve"><value>Urn that starts with {0} is currently not supported.</value></data>
+  <data name="InvalidMulticastRecipientLimit" xml:space="preserve"><value>The MulticastRecipientLimit entry is not valid. It must be a non-negative integer.</value></data>
+  <data name="PropertyCannotBeChangedAfterConnection" xml:space="preserve"><value>Property {0} cannot be changed after connection is established.</value></data>
+  <data name="InvalidLogin" xml:space="preserve"><value>The login '{0}' does not exist on this server.</value></data>
+  <data name="FailedOperationExceptionText3" xml:space="preserve"><value>{0} failed for {1} '{2}'. Reason: {3}.</value></data>
+  <data name="FailedOperationExceptionText2" xml:space="preserve"><value>{0} failed.</value></data>
+  <data name="SetMsxAccount" xml:space="preserve"><value>Set master server account</value></data>
+  <data name="AddMSDBRoleToProxyAccount" xml:space="preserve"><value>Add msdb role to proxy account</value></data>
+  <data name="TempTablesNotSupported" xml:space="preserve"><value>Invalid table name: '{0}'. Temporary tables are not supported.</value></data>
+  <data name="ServerActiveDirectoryUpdateRegistration" xml:space="preserve"><value>Update server registration with Active Directory Services</value></data>
+  <data name="ColumnsMustBeSpecified" xml:space="preserve"><value>Error creating Statistic object, columns must be specified.</value></data>
+  <data name="DropBackupHistory" xml:space="preserve"><value>Drop backup history</value></data>
+  <data name="ExtendedStoredProcedure" xml:space="preserve"><value>ExtendedStoredProcedure</value></data>
+  <data name="EnumLogins" xml:space="preserve"><value>Enumerate logins</value></data>
+  <data name="UserOptions" xml:space="preserve"><value>UserOptions</value></data>
+  <data name="TransferCtorErr" xml:space="preserve"><value>You must supply an existing Database object.</value></data>
+  <data name="DisableAllIndexes" xml:space="preserve"><value>Disable all indexes</value></data>
+  <data name="UnknownSqlDataType" xml:space="preserve"><value>The value does not belong to SqlDataType enumeration.</value></data>
+  <data name="EmptyMapping" xml:space="preserve"><value>Cannot create a {0} object if the {1}Collection is empty.</value></data>
+  <data name="UnknownProperty" xml:space="preserve"><value>Property {0} does not belong to {1}.</value></data>
+  <data name="SystemDataType" xml:space="preserve"><value>SystemDataType</value></data>
+  <data name="UpdateLanguageResources" xml:space="preserve"><value>Update language resources</value></data>
+  <data name="UpdateNotification" xml:space="preserve"><value>Update notification</value></data>
+  <data name="JobSchedule" xml:space="preserve"><value>JobSchedule</value></data>
+  <data name="SqlAssemblyFile" xml:space="preserve"><value>SqlAssemblyFile</value></data>
+  <data name="SetParent" xml:space="preserve"><value>SetParent</value></data>
+  <data name="UpdateIndexStatistics" xml:space="preserve"><value>Update index statistics</value></data>
+  <data name="AddLoginToProxyAccount" xml:space="preserve"><value>Add login to proxy account</value></data>
+  <data name="WrongParent" xml:space="preserve"><value>Parent property of object {0} does not match the collection's parent to which it is added.</value></data>
+  <data name="EmptyInputParam" xml:space="preserve"><value>The input parameter {0} must be a non-empty {1} for this operation to succeed.</value></data>
+  <data name="CheckTables" xml:space="preserve"><value>Check tables</value></data>
+  <data name="Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="ReasonObjectAlreadyCreated" xml:space="preserve"><value>{0} is already created.</value></data>
+  <data name="MissingBackupDevices" xml:space="preserve"><value>No backup devices are set.</value></data>
+  <data name="DetachDatabase" xml:space="preserve"><value>Detach database</value></data>
+  <data name="Rebuild" xml:space="preserve"><value>Rebuild</value></data>
+  <data name="Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="WrongPercentageGrowth" xml:space="preserve"><value>Percentage growth must be a positive integer.</value></data>
+  <data name="EnumMemberServers" xml:space="preserve"><value>Enumerate member servers</value></data>
+  <data name="RemovePrincipalFromMailProfile" xml:space="preserve"><value>Remove Principal from MailProfile</value></data>
+  <data name="OneColumnInXmlIndex" xml:space="preserve"><value>An XML index can have only one column.</value></data>
+  <data name="CouldNotFindManagementObject" xml:space="preserve"><value>Could not find management object for {0} {1}.</value></data>
+  <data name="LogFile" xml:space="preserve"><value>LogFile</value></data>
+  <data name="PropertyCannotBeRetrievedExceptionText" xml:space="preserve"><value>Property {0} is not available for {1} '{2}'. This property may not exist for this object, or may not be retrievable due to insufficient access rights. </value></data>
+  <data name="ViewCannotHaveKeys" xml:space="preserve"><value>You cannot create a PRIMARY KEY or an UNIQUE KEY on a view.</value></data>
+  <data name="DtsNotInstalled" xml:space="preserve"><value>The Integration Services component is not installed or you do not have permission to use it.</value></data>
+  <data name="EnumDetachedDatabaseFiles" xml:space="preserve"><value>Enum detached database files</value></data>
+  <data name="NSNotConnectedToServer" xml:space="preserve"><value>Unable to perform this operation as the object is not connected to a server.</value></data>
+  <data name="SoapMethod" xml:space="preserve"><value>SoapMethod</value></data>
+  <data name="ServerActiveDirectoryRegister" xml:space="preserve"><value>Register server with Active Directory Services</value></data>
+  <data name="FailedToChangeSchema" xml:space="preserve"><value>Schema can only be changed for an existing object. </value></data>
+  <data name="StartMonitor" xml:space="preserve"><value>Start monitor</value></data>
+  <data name="EnumMatchingSPs" xml:space="preserve"><value>Enum matching SPs</value></data>
+  <data name="SetAccount" xml:space="preserve"><value>Set account</value></data>
+  <data name="EnumPerformanceCounters" xml:space="preserve"><value>Enumerate performance counters</value></data>
+  <data name="EnumWindowsDomainGroups" xml:space="preserve"><value>Enumerate domain groups</value></data>
+  <data name="ImportMasterKey" xml:space="preserve"><value>Import</value></data>
+  <data name="SupportedOnlyOn90" xml:space="preserve"><value>This method or property is accessible only while working against SQL Server 2005 or later.</value></data>
+  <data name="SupportedOnlyOn80" xml:space="preserve"><value>This method or property is accessible only while working against SQL Server 2000 or later.</value></data>
+  <data name="ServerLevelMustBePresent" xml:space="preserve"><value>Server level must be present.</value></data>
+  <data name="EnumJobHistory" xml:space="preserve"><value>Enumerate job history</value></data>
+  <data name="ImportXmlSchema" xml:space="preserve"><value>Import XML schema</value></data>
+  <data name="ChangeAcctMasterKey" xml:space="preserve"><value>Change account</value></data>
+  <data name="ObjectNotUnderServer" xml:space="preserve"><value>object {0} does not live under Server.</value></data>
+  <data name="AddPrivateKey" xml:space="preserve"><value>Add private key</value></data>
+  <data name="MergeHashPartition" xml:space="preserve"><value>Merge hash partition</value></data>
+  <data name="ApplyToTargetServer" xml:space="preserve"><value>Apply to target server</value></data>
+  <data name="MustSpecifyGrowth" xml:space="preserve"><value>You must specify Growth if you want to change GrowthType for this object.</value></data>
+  <data name="SetPasswordError" xml:space="preserve"><value>SetPassword cannot be used on existing objects. Use ChangePassword to change the password for an existing object.</value></data>
+  <data name="DatabaseOptions" xml:space="preserve"><value>DatabaseOptions</value></data>
+  <data name="AddMailAccountToProfile" xml:space="preserve"><value>Add MailAccount to MailProfile</value></data>
+  <data name="InvalidFailuresBeforeAbort" xml:space="preserve"><value>The FailuresBeforeAbort entry is not valid. It must be a non-negative integer.</value></data>
+  <data name="ExportMasterKey" xml:space="preserve"><value>Export</value></data>
+  <data name="TargetServerGroup" xml:space="preserve"><value>TargetServerGroup</value></data>
+  <data name="NoPropertyChangeForDotNet" xml:space="preserve"><value>The {0} property cannot be changed for .NET run-time routines.</value></data>
+  <data name="TestNetSend" xml:space="preserve"><value>Test net send</value></data>
+  <data name="KillDatabase" xml:space="preserve"><value>Kill database</value></data>
+  <data name="SetIdentityPhrase" xml:space="preserve"><value>Set Identity Phrase</value></data>
+  <data name="CantSetTypeName" xml:space="preserve"><value>Cannot set Name property for the {0} type.</value></data>
+  <data name="InvalidSmoOperationExceptionText" xml:space="preserve"><value>You cannot perform operation {0} on an object in state {1}.</value></data>
+  <data name="InvalidAcctName" xml:space="preserve"><value>The account name is not valid.</value></data>
+  <data name="ServerRole" xml:space="preserve"><value>ServerRole</value></data>
+  <data name="CallingInitChildLevelWithWrongUrn" xml:space="preserve"><value>InitChildLevel has been called with {0}.</value></data>
+  <data name="DropEncryptionMasterKey" xml:space="preserve"><value>Drop encryption</value></data>
+  <data name="EnumWindowsUserInfo" xml:space="preserve"><value>Enumerate user information</value></data>
+  <data name="UnsupportedObjectNameExceptionText" xml:space="preserve"><value>Cannot use empty object names for {0}.</value></data>
+  <data name="SetDataType" xml:space="preserve"><value>Set DataType</value></data>
+  <data name="SetDatabase" xml:space="preserve"><value>Set Database</value></data>
+  <data name="DatabaseActiveDirectoryUnregister" xml:space="preserve"><value>Unregister database with Active Directory Services</value></data>
+  <data name="NoUrnSuffix" xml:space="preserve"><value>Internal SMO error. This object does not have UrnSuffix or it is empty string.</value></data>
+  <data name="ForeignKey" xml:space="preserve"><value>ForeignKey</value></data>
+  <data name="SoapConfiguration" xml:space="preserve"><value>SoapConfiguration</value></data>
+  <data name="DefaultConstraint" xml:space="preserve"><value>DefaultConstraint</value></data>
+  <data name="SetNamespace" xml:space="preserve"><value>SetNamespace</value></data>
+  <data name="LoginHasUser" xml:space="preserve"><value>The proposed new database owner {0} is mapped as user {1} in this database.</value></data>
+  <data name="CycleErrorLog" xml:space="preserve"><value>Cycle agent error log</value></data>
+  <data name="InvalidPropertySetForExistingObject" xml:space="preserve"><value>Cannot set property {0} for an existing Notification Service Instance or Application.</value></data>
+  <data name="MissingPropertyExceptionText" xml:space="preserve"><value>The property {0} does not exist on server version {1}, or you do not have access to it.</value></data>
+  <data name="ReassignJobsByLogin" xml:space="preserve"><value>Reassign jobs by login</value></data>
+  <data name="StoredProcedure" xml:space="preserve"><value>StoredProcedure</value></data>
+  <data name="ClearProxyAccount" xml:space="preserve"><value>Clear proxy account</value></data>
+  <data name="DatabaseActiveDirectory" xml:space="preserve"><value>DatabaseActiveDirectory</value></data>
+  <data name="AddRange" xml:space="preserve"><value>Add range</value></data>
+  <data name="UserDefinedFunction" xml:space="preserve"><value>UserDefinedFunction</value></data>
+  <data name="DropJobsByLogin" xml:space="preserve"><value>Drop jobs by login</value></data>
+  <data name="OperationNotSupportedWhenPartOfAUDF" xml:space="preserve"><value>Operation is not supported when part of a UserDefinedFunction.</value></data>
+  <data name="SyntaxErrorInTextHeader" xml:space="preserve"><value>Syntax error in TextHeader of {0} '{1}'.</value></data>
+  <data name="InexistentDir" xml:space="preserve"><value>The directory '{0}' does not exist.</value></data>
+  <data name="CollectionCannotBeModified" xml:space="preserve"><value>Collection cannot be modified when </value></data>
+  <data name="ViewColumnsCannotBeModified" xml:space="preserve"><value>View columns cannot be modified or created.</value></data>
+  <data name="UnknownOperator" xml:space="preserve"><value>The operator {0} does not exist.</value></data>
+  <data name="StoredProcedureParameter" xml:space="preserve"><value>StoredProcedureParameter</value></data>
+  <data name="WMIProviderNotInstalled" xml:space="preserve"><value>SQL Server WMI provider is not available on {0}.</value></data>
+  <data name="ReadErrorLog" xml:space="preserve"><value>Read error log</value></data>
+  <data name="InvalidVersion" xml:space="preserve"><value>Invalid version: {0}.</value></data>
+  <data name="AddServerRoleToProxyAccount" xml:space="preserve"><value>Add server role to proxy account</value></data>
+  <data name="Deny" xml:space="preserve"><value>Deny</value></data>
+  <data name="Drop" xml:space="preserve"><value>Drop</value></data>
+  <data name="Bind" xml:space="preserve"><value>Bind</value></data>
+  <data name="Open" xml:space="preserve"><value>Open</value></data>
+  <data name="User" xml:space="preserve"><value>User</value></data>
+  <data name="View" xml:space="preserve"><value>View</value></data>
+  <data name="This" xml:space="preserve"><value>Indexer</value></data>
+  <data name="Rule" xml:space="preserve"><value>Rule</value></data>
+  <data name="Stop" xml:space="preserve"><value>Stop</value></data>
+  <data name="PropertyIsInvalidInUrn" xml:space="preserve"><value>The input Urn property {0} at level {1} has invalid value.</value></data>
+  <data name="LoginHasAlias" xml:space="preserve"><value>The proposed new database owner {0} already has an alias in this database.</value></data>
+  <data name="CouldNotFindKey" xml:space="preserve"><value>Internal SMO error. Could not find key {0}.</value></data>
+  <data name="PassPhraseNotSpecified" xml:space="preserve"><value>Pass phrase is not specified.</value></data>
+  <data name="ClearMsxAccount" xml:space="preserve"><value>Clear master server account</value></data>
+  <data name="FullPropertyBag" xml:space="preserve"><value>Internal SMO error. OnPropertyMissing("{0}") was called for a full property bag.</value></data>
+  <data name="BadCompatLevel" xml:space="preserve"><value>{0} database compatibility level is not supported.</value></data>
+  </root>

@@ -1,0 +1,29 @@
+using System;
+using System.Diagnostics;
+using System.Reflection;
+using System.Resources;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using System.Security;
+using System.Security.Permissions;
+
+[assembly: InternalsVisibleTo("Microsoft.Extensions.Logging.Tests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100f33a29044fa9d740c9b3213a93e57c84b472c84e0b8a0e1ae48e67a9f8f6de9d5f7f3d52ac23e48ac51801f1dc950abe901da34d2a9e3baadb141a17c77ef3c565dd5ee5054b91cf63bb3c6ab83f72ab3aafe93d0fc3c2348b764fafb0b1c0733de51459aeab46580384bf9d74c4e28164b7cde247f891ba07891c9d872ad2bb")]
+[assembly: AssemblyMetadata("Serviceable", "True")]
+[assembly: AssemblyMetadata("PreferInbox", "True")]
+[assembly: AssemblyDefaultAlias("Microsoft.Extensions.Logging.Abstractions")]
+[assembly: NeutralResourcesLanguage("en-US")]
+[assembly: CLSCompliant(true)]
+[assembly: AssemblyMetadata("IsTrimmable", "True")]
+[assembly: DefaultDllImportSearchPaths(DllImportSearchPath.System32 | DllImportSearchPath.AssemblyDirectory)]
+[assembly: AssemblyCompany("Microsoft Corporation")]
+[assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]
+[assembly: AssemblyDescription("Logging abstractions for Microsoft.Extensions.Logging.\r\n\r\nCommonly Used Types:\r\nMicrosoft.Extensions.Logging.ILogger\r\nMicrosoft.Extensions.Logging.ILoggerFactory\r\nMicrosoft.Extensions.Logging.ILogger<TCategoryName>\r\nMicrosoft.Extensions.Logging.LogLevel\r\nMicrosoft.Extensions.Logging.Logger<T>\r\nMicrosoft.Extensions.Logging.LoggerMessage\r\nMicrosoft.Extensions.Logging.Abstractions.NullLogger")]
+[assembly: AssemblyFileVersion("8.0.23.53103")]
+[assembly: AssemblyInformationalVersion("8.0.0+5535e31a712343a63f5d7d796cd874e563e5ac14")]
+[assembly: AssemblyProduct("Microsoft® .NET")]
+[assembly: AssemblyTitle("Microsoft.Extensions.Logging.Abstractions")]
+[assembly: AssemblyMetadata("RepositoryUrl", "https://github.com/dotnet/runtime")]
+[assembly: AssemblyVersion("8.0.0.0")]
+[module: System.Runtime.CompilerServices.RefSafetyRules(11)]
+[module: System.Runtime.CompilerServices.NullablePublicOnly(true)]

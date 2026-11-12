@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<EnumObject type="CollectionItem" impl_type="CollectorObject" min_major="10">
+  <settings>
+    <parent_link>
+      <link parent="Id" local="ParentID" />
+    </parent_link>
+    <property_link table="msdb.dbo.syscollector_collection_items" alias="ci" />
+    <property_link fields="#TypeName#" join="msdb.dbo.syscollector_collector_types" alias="ct">ct.collector_type_uid = ci.collector_type_uid</property_link>
+  </settings>
+  <properties>
+    <include file="inc_urn.xml" />
+    <property name="Id" type="int" access="Read">ci.collection_item_id</property>
+    <property name="ParentID" type="int" access="Read" hidden="true">ci.collection_set_id</property>
+    <property name="Name" type="sysname">ci.name</property>
+    <property name="TypeName" type="sysname">ct.name</property>
+    <!--TODO: make this into timespan whenever the mechanism for having computed fields in SFC come online-->
+    <property name="CollectionFrequency" type="int">ci.frequency</property>
+    <property name="Parameters" type="xml" size="max">ci.parameters</property>
+  </properties>
+</EnumObject>

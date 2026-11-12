@@ -1,0 +1,3 @@
+namespace AxMSFlexGridLib;
+
+public delegate void DMSFlexGridEvents_OLECompleteDragEventHandler(object sender, DMSFlexGridEvents_OLECompleteDragEvent e);

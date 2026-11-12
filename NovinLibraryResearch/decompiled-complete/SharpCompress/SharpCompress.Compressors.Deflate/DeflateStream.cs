@@ -1,0 +1,207 @@
+using System;
+using System.IO;
+using System.Text;
+
+namespace SharpCompress.Compressors.Deflate;
+
+public class DeflateStream : Stream
+{
+	private readonly ZlibBaseStream _baseStream;
+
+	private bool _disposed;
+
+	public virtual FlushType FlushMode
+	{
+		get
+		{
+			return _baseStream._flushMode;
+		}
+		set
+		{
+			if (_disposed)
+			{
+				throw new ObjectDisposedException("DeflateStream");
+			}
+			_baseStream._flushMode = value;
+		}
+	}
+
+	public int BufferSize
+	{
+		get
+		{
+			return _baseStream._bufferSize;
+		}
+		set
+		{
+			if (_disposed)
+			{
+				throw new ObjectDisposedException("DeflateStream");
+			}
+			if (_baseStream._workingBuffer != null)
+			{
+				throw new ZlibException("The working buffer is already set.");
+			}
+			if (value < 1024)
+			{
+				throw new ZlibException($"Don't be silly. {value} bytes?? Use a bigger buffer, at least {1024}.");
+			}
+			_baseStream._bufferSize = value;
+		}
+	}
+
+	public CompressionStrategy Strategy
+	{
+		get
+		{
+			return _baseStream.Strategy;
+		}
+		set
+		{
+			if (_disposed)
+			{
+				throw new ObjectDisposedException("DeflateStream");
+			}
+			_baseStream.Strategy = value;
+		}
+	}
+
+	public virtual long TotalIn => _baseStream._z.TotalBytesIn;
+
+	public virtual long TotalOut => _baseStream._z.TotalBytesOut;
+
+	public override bool CanRead
+	{
+		get
+		{
+			if (_disposed)
+			{
+				throw new ObjectDisposedException("DeflateStream");
+			}
+			return _baseStream._stream.CanRead;
+		}
+	}
+
+	public override bool CanSeek => false;
+
+	public override bool CanWrite
+	{
+		get
+		{
+			if (_disposed)
+			{
+				throw new ObjectDisposedException("DeflateStream");
+			}
+			return _baseStream._stream.CanWrite;
+		}
+	}
+
+	public override long Length
+	{
+		get
+		{
+			throw new NotSupportedException();
+		}
+	}
+
+	public override long Position
+	{
+		get
+		{
+			if (_baseStream._streamMode == ZlibBaseStream.StreamMode.Writer)
+			{
+				return _baseStream._z.TotalBytesOut;
+			}
+			if (_baseStream._streamMode == ZlibBaseStream.StreamMode.Reader)
+			{
+				return _baseStream._z.TotalBytesIn;
+			}
+			return 0L;
+		}
+		set
+		{
+			throw new NotSupportedException();
+		}
+	}
+
+	public MemoryStream InputBuffer => new MemoryStream(_baseStream._z.InputBuffer, _baseStream._z.NextIn, _baseStream._z.AvailableBytesIn);
+
+	public DeflateStream(Stream stream, CompressionMode mode, CompressionLevel level = CompressionLevel.Default, Encoding? forceEncoding = null)
+	{
+		_baseStream = new ZlibBaseStream(stream, mode, level, ZlibStreamFlavor.DEFLATE, forceEncoding);
+	}
+
+	protected override void Dispose(bool disposing)
+	{
+		try
+		{
+			if (!_disposed)
+			{
+				if (disposing)
+				{
+					_baseStream?.Dispose();
+				}
+				_disposed = true;
+			}
+		}
+		finally
+		{
+			base.Dispose(disposing);
+		}
+	}
+
+	public override void Flush()
+	{
+		if (_disposed)
+		{
+			throw new ObjectDisposedException("DeflateStream");
+		}
+		_baseStream.Flush();
+	}
+
+	public override int Read(byte[] buffer, int offset, int count)
+	{
+		if (_disposed)
+		{
+			throw new ObjectDisposedException("DeflateStream");
+		}
+		return _baseStream.Read(buffer, offset, count);
+	}
+
+	public override int ReadByte()
+	{
+		if (_disposed)
+		{
+			throw new ObjectDisposedException("DeflateStream");
+		}
+		return _baseStream.ReadByte();
+	}
+
+	public override long Seek(long offset, SeekOrigin origin)
+	{
+		throw new NotSupportedException();
+	}
+
+	public override void SetLength(long value)
+	{
+		throw new NotSupportedException();
+	}
+
+	public override void Write(byte[] buffer, int offset, int count)
+	{
+		if (_disposed)
+		{
+			throw new ObjectDisposedException("DeflateStream");
+		}
+		_baseStream.Write(buffer, offset, count);
+	}
+
+	public override void WriteByte(byte value)
+	{
+		if (_disposed)
+		{
+			throw new ObjectDisposedException("DeflateStream");
+		}
+		_baseStream.WriteByte(value);
+	}
+}

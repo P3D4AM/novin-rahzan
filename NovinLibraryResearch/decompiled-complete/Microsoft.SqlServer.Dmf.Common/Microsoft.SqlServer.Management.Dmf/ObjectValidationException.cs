@@ -1,0 +1,79 @@
+using System;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
+using Microsoft.SqlServer.Management.Dmf.Common;
+
+namespace Microsoft.SqlServer.Management.Dmf;
+
+[Serializable]
+[StrongNameIdentityPermission(SecurityAction.LinkDemand, PublicKey = "0024000004800000940000000602000000240000525341310004000001000100272736ad6e5f9586bac2d531eabc3acc666c2f8ec879fa94f8f7b0327d2ff2ed523448f83c3d5c5dd2dfc7bc99c5286b2c125117bf5cbe242b9d41750732b2bdffe649c6efb8e5526d526fdd130095ecdb7bf210809c6cdad8824faa9ac0310ac3cba2aa0523567b2dfa7fe250b30facbd62d4ec99b94ac47c7d3b28f1f6e4c8")]
+public sealed class ObjectValidationException : DmfException
+{
+	private string objectType;
+
+	private string objectName;
+
+	public override DmfExceptionType DmfExceptionType => DmfExceptionType.ObjectValidation;
+
+	public override string Message => $"{ExceptionTemplatesSR.ValidationFailed(objectType, objectName)}";
+
+	public string ObjectType => objectType;
+
+	public string ObjectName => objectName;
+
+	public ObjectValidationException()
+	{
+	}
+
+	public ObjectValidationException(string message)
+		: base(message)
+	{
+	}
+
+	public ObjectValidationException(string message, Exception innerException)
+		: base(message, innerException)
+	{
+	}
+
+	public ObjectValidationException(string objectType, string objectName, Exception innerException)
+		: base(string.Empty, innerException)
+	{
+		this.objectType = objectType;
+		this.objectName = objectName;
+		Data["HelpLink.EvtData1"] = objectType;
+	}
+
+	public ObjectValidationException(string objectType, string objectName)
+	{
+		this.objectType = objectType;
+		this.objectName = objectName;
+		Data["HelpLink.EvtData1"] = objectType;
+	}
+
+	private ObjectValidationException(SerializationInfo info, StreamingContext context)
+		: base(info, context)
+	{
+		objectType = info.GetString("objectType");
+		objectName = info.GetString("objectName");
+	}
+
+	[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+	public override void GetObjectData(SerializationInfo info, StreamingContext context)
+	{
+		if (info == null)
+		{
+			throw new ArgumentNullException("info");
+		}
+		info.AddValue("objectType", objectType);
+		info.AddValue("objectName", objectName);
+		base.GetObjectData(info, context);
+	}
+
+	protected override void Init()
+	{
+		base.Init();
+		objectName = string.Empty;
+		objectType = string.Empty;
+		SetHelpContext("ObjectValidationException");
+	}
+}

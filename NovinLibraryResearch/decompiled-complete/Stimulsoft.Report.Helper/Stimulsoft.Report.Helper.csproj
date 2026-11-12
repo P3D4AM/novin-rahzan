@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Stimulsoft.Report.Helper</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Stimulsoft.Report.Helper.de.ext.xml" />
+    <None Remove="Stimulsoft.Report.Helper.en.ext.xml" />
+    <None Remove="Stimulsoft.Report.Helper.fr.ext.xml" />
+    <None Remove="Stimulsoft.Report.Helper.ja.ext.xml" />
+    <None Remove="Stimulsoft.Report.Helper.ko.ext.xml" />
+    <None Remove="Stimulsoft.Report.Helper.ru.ext.xml" />
+    <None Remove="Stimulsoft.Report.Helper.sv.ext.xml" />
+    <EmbeddedResource Include="Stimulsoft.Report.Helper.de.ext.xml" LogicalName="Stimulsoft.Report.Helper.de.ext.xml" />
+    <EmbeddedResource Include="Stimulsoft.Report.Helper.en.ext.xml" LogicalName="Stimulsoft.Report.Helper.en.ext.xml" />
+    <EmbeddedResource Include="Stimulsoft.Report.Helper.fr.ext.xml" LogicalName="Stimulsoft.Report.Helper.fr.ext.xml" />
+    <EmbeddedResource Include="Stimulsoft.Report.Helper.ja.ext.xml" LogicalName="Stimulsoft.Report.Helper.ja.ext.xml" />
+    <EmbeddedResource Include="Stimulsoft.Report.Helper.ko.ext.xml" LogicalName="Stimulsoft.Report.Helper.ko.ext.xml" />
+    <EmbeddedResource Include="Stimulsoft.Report.Helper.ru.ext.xml" LogicalName="Stimulsoft.Report.Helper.ru.ext.xml" />
+    <EmbeddedResource Include="Stimulsoft.Report.Helper.sv.ext.xml" LogicalName="Stimulsoft.Report.Helper.sv.ext.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Xml">
+      <HintPath>../../../../../../../tmp/dotnet/shared/Microsoft.NETCore.App/6.0.36/System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Base">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Stimulsoft.Base.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

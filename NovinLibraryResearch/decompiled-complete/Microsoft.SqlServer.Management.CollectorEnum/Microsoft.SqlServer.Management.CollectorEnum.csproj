@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Microsoft.SqlServer.Management.CollectorEnum</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="CollectionItem.xml" />
+    <None Remove="CollectionSet.xml" />
+    <None Remove="CollectionSetExecutionHistory.xml" />
+    <None Remove="CollectionSetExecutionHistoryDetail.xml" />
+    <None Remove="CollectionSetLastUploadTime.xml" />
+    <None Remove="CollectorConfigStore.xml" />
+    <None Remove="inc_urn.xml" />
+    <None Remove="inc_urnByLogId.xml" />
+    <None Remove="inc_urnByParentLogId.xml" />
+    <EmbeddedResource Include="CollectionItem.xml" LogicalName="CollectionItem.xml" />
+    <EmbeddedResource Include="CollectionSet.xml" LogicalName="CollectionSet.xml" />
+    <EmbeddedResource Include="CollectionSetExecutionHistory.xml" LogicalName="CollectionSetExecutionHistory.xml" />
+    <EmbeddedResource Include="CollectionSetExecutionHistoryDetail.xml" LogicalName="CollectionSetExecutionHistoryDetail.xml" />
+    <EmbeddedResource Include="CollectionSetLastUploadTime.xml" LogicalName="CollectionSetLastUploadTime.xml" />
+    <EmbeddedResource Include="CollectorConfigStore.xml" LogicalName="CollectorConfigStore.xml" />
+    <EmbeddedResource Include="inc_urn.xml" LogicalName="inc_urn.xml" />
+    <EmbeddedResource Include="inc_urnByLogId.xml" LogicalName="inc_urnByLogId.xml" />
+    <EmbeddedResource Include="inc_urnByParentLogId.xml" LogicalName="inc_urnByParentLogId.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.SqlServer.Management.Sdk.Sfc">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Microsoft.SqlServer.Management.Sdk.Sfc.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.ConnectionInfo">
+      <HintPath>../../../extracted/Novin-rahzan-dlls/Microsoft.SqlServer.ConnectionInfo.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

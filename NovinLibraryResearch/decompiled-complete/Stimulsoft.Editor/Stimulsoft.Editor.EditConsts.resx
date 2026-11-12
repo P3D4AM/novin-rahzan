@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="rbFromCursor_SearchDlg" xml:space="preserve"><value>From cursor</value></data>
+  <data name="DlgPrintOptions" xml:space="preserve"><value>Print Settings</value></data>
+  <data name="chbBeyondEol_SyntaxSettingDlg" xml:space="preserve"><value>Beyond Eol</value></data>
+  <data name="chbMoveOnRightButton_SyntaxSettingDlg" xml:space="preserve"><value>Move on Right Button</value></data>
+  <data name="laForeColor_SyntaxSettingDlg" xml:space="preserve"><value>Fore Color:</value></data>
+  <data name="miOneCharInSet_SearchDlg" xml:space="preserve"><value>[] Any one character in the set</value></data>
+  <data name="gbNavigateOptions_SyntaxSettingDlg" xml:space="preserve"><value>Navigate Options</value></data>
+  <data name="InvalidPropName" xml:space="preserve"><value>Invalid Property Name: {0}</value></data>
+  <data name="btReplace_SearchDlg" xml:space="preserve"><value>&amp;Replace</value></data>
+  <data name="btHelp_SearchDlg" xml:space="preserve"><value>Help</value></data>
+  <data name="DefaultDragMarginHint" xml:space="preserve"><value>Ctrl + Click to drag the margin</value></data>
+  <data name="gbFontAttributes_SyntaxSettingDlg" xml:space="preserve"><value>Attributes:</value></data>
+  <data name="chbShowHints_SyntaxSettingDlg" xml:space="preserve"><value>Show Hints</value></data>
+  <data name="btReplaceAll_SearchDlg" xml:space="preserve"><value>Replace &amp;All</value></data>
+  <data name="miTag_SearchDlg" xml:space="preserve"><value>{} Tag expression</value></data>
+  <data name="chbLineNumbers_PrintOptions" xml:space="preserve"><value>Line Numbers</value></data>
+  <data name="DlgSearch" xml:space="preserve"><value>Find</value></data>
+  <data name="laSize_SyntaxSettingDlg" xml:space="preserve"><value>&amp;Size:</value></data>
+  <data name="laReplaceWith_SearchDlg" xml:space="preserve"><value>Re&amp;place with:</value></data>
+  <data name="gbLineNumbers_SyntaxSettingDlg" xml:space="preserve"><value>Line Numbers</value></data>
+  <data name="chbPrintSelection_PrintOptions" xml:space="preserve"><value>Print selection</value></data>
+  <data name="laSampleText_SyntaxSettingDlg" xml:space="preserve"><value>AaBbYyZz</value></data>
+  <data name="chbPromptOnReplace_SearchDlg" xml:space="preserve"><value>Prompt on replace</value></data>
+  <data name="InvalidTabStop" xml:space="preserve"><value>Invalid Tab Stops: {0}</value></data>
+  <data name="DefaultCodeCompletionChars" xml:space="preserve"><value>.(</value></data>
+  <data name="laSample_SyntaxSettingDlg" xml:space="preserve"><value>Sample:</value></data>
+  <data name="LineNumberCaption" xml:space="preserve"><value>Line number ({0} - {1})</value></data>
+  <data name="miOneOrMore_SearchDlg" xml:space="preserve"><value>+ One or more</value></data>
+  <data name="LineNofMstr" xml:space="preserve"><value>Line {0} of {1}</value></data>
+  <data name="rbInsertSpaces_SyntaxSettingDlg" xml:space="preserve"><value>Insert s&amp;paces</value></data>
+  <data name="DefaultHyperTextHint" xml:space="preserve"><value>{0}" + Consts.CRLF + "Ctrl + Click to follow link</value></data>
+  <data name="gbOptions_PrintOptions" xml:space="preserve"><value>Options:</value></data>
+  <data name="NofMstr" xml:space="preserve"><value>{0} of {1}</value></data>
+  <data name="gbSearch_SearchDlg" xml:space="preserve"><value>Search</value></data>
+  <data name="chbHighlightUrls_SyntaxSettingDlg" xml:space="preserve"><value>Highlight Urls</value></data>
+  <data name="chbDisplayProgress_PrintOptions" xml:space="preserve"><value>Display progress</value></data>
+  <data name="miBeginLine_SearchDlg" xml:space="preserve"><value>^ Beginning of line</value></data>
+  <data name="laTabSizes_SyntaxSettingDlg" xml:space="preserve"><value>Tab Sizes:</value></data>
+  <data name="DlgReplace" xml:space="preserve"><value>Replace</value></data>
+  <data name="tpFontsAndColors_SyntaxSettingDlg" xml:space="preserve"><value>Fonts&amp;&amp;Colors</value></data>
+  <data name="gbFileToPrint_PrintOptions" xml:space="preserve"><value>File to Print:</value></data>
+  <data name="laBackColor_SyntaxSettingDlg" xml:space="preserve"><value>Back Color:</value></data>
+  <data name="chbHorzScrollBar_SyntaxSettingDlg" xml:space="preserve"><value>&amp;Horizontal scroll bar</value></data>
+  <data name="chbAllowOutlining_SyntaxSettingDlg" xml:space="preserve"><value>Allow outlining</value></data>
+  <data name="tvProperties_Additional_SyntaxSettingDlg" xml:space="preserve"><value>Additional</value></data>
+  <data name="chbBeyondEof_SyntaxSettingDlg" xml:space="preserve"><value>Beyond Eof</value></data>
+  <data name="tpAdditional_SyntaxSettingDlg" xml:space="preserve"><value>Additional</value></data>
+  <data name="chbUseHeader_PrintOptions" xml:space="preserve"><value>Header</value></data>
+  <data name="chbMatchCase_SearchDlg" xml:space="preserve"><value>Match &amp;case</value></data>
+  <data name="chbDragAndDrop_SyntaxSettingDlg" xml:space="preserve"><value>&amp;Drag and drop text</value></data>
+  <data name="PageStr" xml:space="preserve"><value>Page</value></data>
+  <data name="btClose_SearchDlg" xml:space="preserve"><value>Close</value></data>
+  <data name="tpGeneral_SyntaxSettingDlg" xml:space="preserve"><value>General</value></data>
+  <data name="btCancel_SyntaxSettingDlg" xml:space="preserve"><value>Cancel</value></data>
+  <data name="chbSelectionOnly_SearchDlg" xml:space="preserve"><value>Selection &amp;Only</value></data>
+  <data name="chbMatchWholeWord_SearchDlg" xml:space="preserve"><value>Match &amp;whole word</value></data>
+  <data name="laDisplayItems_SyntaxSettingDlg" xml:space="preserve"><value>&amp;Display items:</value></data>
+  <data name="gbOutlineOptions_SyntaxSettingDlg" xml:space="preserve"><value>Outline Options</value></data>
+  <data name="laFindWhat_SearchDlg" xml:space="preserve"><value>Fi&amp;nd what:</value></data>
+  <data name="laFileName_PrintOptions" xml:space="preserve"><value>File Name:</value></data>
+  <data name="StringNotFound" xml:space="preserve"><value>The specified text was not found. Text : {0}</value></data>
+  <data name="rbEntireScope_SearchDlg" xml:space="preserve"><value>&amp;Entire scope</value></data>
+  <data name="chbLineNumbers_SyntaxSettingDlg" xml:space="preserve"><value>Show Line Numbers</value></data>
+  <data name="btCancel_PrintOptions" xml:space="preserve"><value>Cancel</value></data>
+  <data name="chbBold_SyntaxSettingDlg" xml:space="preserve"><value>Bold</value></data>
+  <data name="chbWordWrap_SyntaxSettingDlg" xml:space="preserve"><value>Word Wrap</value></data>
+  <data name="laGutterWidth_SyntaxSettingDlg" xml:space="preserve"><value>Gutter width:</value></data>
+  <data name="chbUseSyntax_PrintOptions" xml:space="preserve"><value>Syntax print</value></data>
+  <data name="laEnterNewLine_Goto" xml:space="preserve"><value>Line number:</value></data>
+  <data name="DlgGoto" xml:space="preserve"><value>Goto Line</value></data>
+  <data name="chbShowGutter_SyntaxSettingDlg" xml:space="preserve"><value>Show Gutter</value></data>
+  <data name="miOr_SearchDlg" xml:space="preserve"><value>| Or</value></data>
+  <data name="btOk_PrintOptions" xml:space="preserve"><value>Ok</value></data>
+  <data name="miEscape_SearchDlg" xml:space="preserve"><value>\ Escape Special Character</value></data>
+  <data name="chbWordWrap_PrintOptions" xml:space="preserve"><value>Word Wrap</value></data>
+  <data name="miOneCharNotInSet_SearchDlg" xml:space="preserve"><value>[^] Any one character not in the set</value></data>
+  <data name="chbUseFooter_PrintOptions" xml:space="preserve"><value>Footer</value></data>
+  <data name="tvProperties_General_SyntaxSettingDlg" xml:space="preserve"><value>General</value></data>
+  <data name="laDescription_SyntaxSettingDlg" xml:space="preserve"><value>Description:</value></data>
+  <data name="chbItalic_SyntaxSettingDlg" xml:space="preserve"><value>Italic</value></data>
+  <data name="btOK_SyntaxSettingDlg" xml:space="preserve"><value>OK</value></data>
+  <data name="PrintOptionsButtonText" xml:space="preserve"><value>&amp;Options</value></data>
+  <data name="tvProperties_FontsWithColors_SyntaxSettingDlg" xml:space="preserve"><value>Fonts and Colors</value></data>
+  <data name="tvProperties_Options_SyntaxSettingDlg" xml:space="preserve"><value>Options</value></data>
+  <data name="btFindNext_SearchDlg" xml:space="preserve"><value>&amp;Find Next</value></data>
+  <data name="chbPageNumbers_PrintOptions" xml:space="preserve"><value>Page Numbers</value></data>
+  <data name="LineStr" xml:space="preserve"><value>Line</value></data>
+  <data name="chbVertScrollBar_SyntaxSettingDlg" xml:space="preserve"><value>&amp;Vertical scroll bar</value></data>
+  <data name="InvalidRange" xml:space="preserve"><value>Can't create intersecting outline section. Range :{0}, {1}</value></data>
+  <data name="chbShowMargin_SyntaxSettingDlg" xml:space="preserve"><value>Show Margin</value></data>
+  <data name="chbUnderline_SyntaxSettingDlg" xml:space="preserve"><value>Underline</value></data>
+  <data name="rbKeepTabs_SyntaxSettingDlg" xml:space="preserve"><value>&amp;Keep tabs</value></data>
+  <data name="InvalidReference" xml:space="preserve"><value>Invalid Object Reference: {0}</value></data>
+  <data name="chbLineNumbersOnGutter_SyntaxSettingDlg" xml:space="preserve"><value>Display on Gutter</value></data>
+  <data name="PageNofMstr" xml:space="preserve"><value>Page {0} of {1}</value></data>
+  <data name="gbDocument_SyntaxSettingDlg" xml:space="preserve"><value>Document</value></data>
+  <data name="btOK_Goto" xml:space="preserve"><value>OK</value></data>
+  <data name="chbSearchUp_SearchDlg" xml:space="preserve"><value>Search &amp;up</value></data>
+  <data name="chbSearchHiddenText_SearchDlg" xml:space="preserve"><value>Search &amp;hidden text</value></data>
+  <data name="miZeroOrMore_SearchDlg" xml:space="preserve"><value>* Zero or more</value></data>
+  <data name="EmptyOption" xml:space="preserve"><value>None</value></data>
+  <data name="miSingleChar_SearchDlg" xml:space="preserve"><value>. Any single character</value></data>
+  <data name="InvalidTypeName" xml:space="preserve"><value>Invalid Type Name: {0}</value></data>
+  <data name="chbUseColors_PrintOptions" xml:space="preserve"><value>Color print</value></data>
+  <data name="miEndLine_SearchDlg" xml:space="preserve"><value>$ End of line</value></data>
+  <data name="laFont_SyntaxSettingDlg" xml:space="preserve"><value>Font:</value></data>
+  <data name="gbGutterMargin_SyntaxSettingDlg" xml:space="preserve"><value>Gutter&amp;&amp;Margin</value></data>
+  <data name="laMarginPosition_SyntaxSettingDlg" xml:space="preserve"><value>Margin position:</value></data>
+  <data name="chbForced_SyntaxSettingDlg" xml:space="preserve"><value>Forced</value></data>
+  <data name="DlgSyntaxSettings" xml:space="preserve"><value>Syntax Settings</value></data>
+  <data name="chbUseRegularExpressions_SearchDlg" xml:space="preserve"><value>Use &amp;regular expressions</value></data>
+  <data name="gbTabOptions_SyntaxSettingDlg" xml:space="preserve"><value>Tab Options</value></data>
+  <data name="btMarkAll_SearchDlg" xml:space="preserve"><value>&amp;Mark All</value></data>
+  <data name="btCancel_Goto" xml:space="preserve"><value>Cancel</value></data>
+  </root>

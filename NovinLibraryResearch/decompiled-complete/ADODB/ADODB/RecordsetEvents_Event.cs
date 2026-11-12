@@ -1,0 +1,30 @@
+using System.Runtime.InteropServices;
+
+namespace ADODB;
+
+[ComEventInterface(typeof(RecordsetEvents_0000), typeof(RecordsetEvents_EventProvider_0000))]
+[ComVisible(false)]
+public interface RecordsetEvents_Event
+{
+	event RecordsetEvents_WillChangeFieldEventHandler WillChangeField;
+
+	event RecordsetEvents_FieldChangeCompleteEventHandler FieldChangeComplete;
+
+	event RecordsetEvents_WillChangeRecordEventHandler WillChangeRecord;
+
+	event RecordsetEvents_RecordChangeCompleteEventHandler RecordChangeComplete;
+
+	event RecordsetEvents_WillChangeRecordsetEventHandler WillChangeRecordset;
+
+	event RecordsetEvents_RecordsetChangeCompleteEventHandler RecordsetChangeComplete;
+
+	event RecordsetEvents_WillMoveEventHandler WillMove;
+
+	event RecordsetEvents_MoveCompleteEventHandler MoveComplete;
+
+	event RecordsetEvents_EndOfRecordsetEventHandler EndOfRecordset;
+
+	event RecordsetEvents_FetchProgressEventHandler FetchProgress;
+
+	event RecordsetEvents_FetchCompleteEventHandler FetchComplete;
+}

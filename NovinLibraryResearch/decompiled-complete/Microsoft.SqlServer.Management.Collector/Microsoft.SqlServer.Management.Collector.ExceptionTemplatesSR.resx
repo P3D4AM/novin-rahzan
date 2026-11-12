@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="UnableToStartCollectionSet" xml:space="preserve"><value>Unable to start collection set {0}.</value></data>
+  <data name="UnableToAlterConfigStore" xml:space="preserve"><value>Unable to alter properties for the configuration store.</value></data>
+  <data name="UnableToDisableCollector" xml:space="preserve"><value>Unable to disable the collector.</value></data>
+  <data name="UnableToAlterCollectionSet" xml:space="preserve"><value>Unable to alter collection set {0}.</value></data>
+  <data name="CollectionItemAlreadyInCollection" xml:space="preserve"><value>Collection item {0} is already in the collection.</value></data>
+  <data name="TableStatsName" xml:space="preserve"><value>Table Usage Statistics</value></data>
+  <data name="UnsupportedAction" xml:space="preserve"><value>Action not supported.</value></data>
+  <data name="ConfigStoreCannotBeNull" xml:space="preserve"><value>Config store cannot be null.</value></data>
+  <data name="UnableToEnumerateCollectorTypes" xml:space="preserve"><value>Unable to enumerate collector types names.</value></data>
+  <data name="CollectionSetHasNoName" xml:space="preserve"><value>Cannot create a collection set without a name.</value></data>
+  <data name="InvalidLoggingLevel" xml:space="preserve"><value>Invalid logging level for collection set {0}. Valid values are 0, 1, or 2.</value></data>
+  <data name="NoSuchCollection" xml:space="preserve"><value>Collection '{0}' does not exist.</value></data>
+  <data name="CollectionItemCannotBeNull" xml:space="preserve"><value>Collection item cannot be null.</value></data>
+  <data name="UnableToCleanupCollectionSet" xml:space="preserve"><value>Unable to clean up collection set {0}.</value></data>
+  <data name="UnableToRunCollectionSet" xml:space="preserve"><value>Unable to run collection set {0}.</value></data>
+  <data name="CollectionSetDoesNotExist" xml:space="preserve"><value>Collection set {0} does not exist on the configuration store.</value></data>
+  <data name="UnknownEnumeration" xml:space="preserve"><value>The value for enumeration type {0} is not valid.</value></data>
+  <data name="InvalidDaysUntilExpiration" xml:space="preserve"><value>Invalid value for days until expiration property. Valid values must be greater than or equal to zero.</value></data>
+  <data name="SPStatsName" xml:space="preserve"><value>Stored Procedure Usage Statistics</value></data>
+  <data name="TableAnalysisCollectorName" xml:space="preserve"><value>Table Usage Analysis</value></data>
+  <data name="TableAnalysisCollectorDesc" xml:space="preserve"><value>Collects information about table use and the wait time of queries on locks and latches.</value></data>
+  <data name="UnsupportedObjectTypeByFactory" xml:space="preserve"><value>Class {0} does not have a factory for {1}.</value></data>
+  <data name="CollectionItemNoType" xml:space="preserve"><value>Cannot create collection item {0} without a type name.</value></data>
+  <data name="ValueTooLong" xml:space="preserve"><value>Value of property {0} cannot exceed {1} characters.</value></data>
+  <data name="CannotSetObjectNameExistingObject" xml:space="preserve"><value>The name property is not settable for an object existing on the back end, use Rename() instead.</value></data>
+  <data name="UnsupportedObjectType" xml:space="preserve"><value>Object type {0} is not supported by {1}.</value></data>
+  <data name="CollectionItemWasNotCreated" xml:space="preserve"><value>Collection item {0} was not created on the configuration store.</value></data>
+  <data name="CollectionSetScheduleNotExist" xml:space="preserve"><value>The specified agent schedule {0} for collection set {1} does not exist.</value></data>
+  <data name="UnsupportedConnectionType" xml:space="preserve"><value>Connection type '{0}' is not supported. Use a SqlStoreConnection or ServerConnection object instead.</value></data>
+  <data name="InvalidCollectionMode" xml:space="preserve"><value>Invalid collection mode for collection set {0}.</value></data>
+  <data name="CollectionItemHasNoName" xml:space="preserve"><value>Cannot create a collection item without a name.</value></data>
+  <data name="UnableToCreateCollectionSet" xml:space="preserve"><value>Unable to create collection set {0}.</value></data>
+  <data name="CollectionFrequencyIsNegative" xml:space="preserve"><value>Collection frequency for item {0} cannot be negative.</value></data>
+  <data name="UnableToStopCollectionSet" xml:space="preserve"><value>Unable to stop collection set {0}.</value></data>
+  <data name="TransactionCount" xml:space="preserve"><value>Transaction Statistics</value></data>
+  <data name="CollectionItemNotInCollection" xml:space="preserve"><value>Collection item {0} is not in the collection.</value></data>
+  <data name="NameNotNull" xml:space="preserve"><value>Object name cannot be null.</value></data>
+  <data name="SPTableRefs" xml:space="preserve"><value>Stored Procedure Table References</value></data>
+  <data name="UnableToCreateMDWObjects" xml:space="preserve"><value>Unable to create required tables for transaction performance collectors in the management data warehouse.</value></data>
+  <data name="SqlConnectionCannotBeNull" xml:space="preserve"><value>SqlStoreConnection cannot be null.</value></data>
+  <data name="CollectionSetProxyNotExist" xml:space="preserve"><value>The specified agent proxy {0} for the collection set does not exist.</value></data>
+  <data name="CollectionFrequencyTooLarge" xml:space="preserve"><value>Collection frequency cannot exceed {0} seconds.</value></data>
+  <data name="UnableToAlterCollectionItem" xml:space="preserve"><value>Unable to alter the collection item {0}.</value></data>
+  <data name="MigrationBlockers" xml:space="preserve"><value>Migration Blockers</value></data>
+  <data name="UnableToDropCollectionSet" xml:space="preserve"><value>Unable to drop collection set {0}.</value></data>
+  <data name="UnableToCreateTblParserFn" xml:space="preserve"><value>Unable to create '{0}' to identify point scans on tables.</value></data>
+  <data name="CollectionSetAlreadyExists" xml:space="preserve"><value>Collection set {0} already exists.</value></data>
+  <data name="ParentCollectionSetCannotBeNull" xml:space="preserve"><value>Collection set cannot be null.</value></data>
+  <data name="CollectionSetWasRemoved" xml:space="preserve"><value>Collection set {0} was dropped on the configuration store.</value></data>
+  <data name="UnableToCreateSPParserFn" xml:space="preserve"><value>Unable to create '{0}' to identify table references from stored procedures.</value></data>
+  <data name="CollectionItemWasRemoved" xml:space="preserve"><value>Collection item {0} was dropped on the configuration store.</value></data>
+  <data name="UnableToEnableCollector" xml:space="preserve"><value>Unable to enable the collector.</value></data>
+  <data name="UnableToReadExecutionLog" xml:space="preserve"><value>Unable to read the execution log.</value></data>
+  <data name="StoredProcAnalysisCollectorDesc" xml:space="preserve"><value>Collects information about stored procedure use.</value></data>
+  <data name="StoredProcAnalysisCollectorName" xml:space="preserve"><value>Stored Procedure Usage Analysis</value></data>
+  <data name="CollectionItemAlreadyCreatedBefore" xml:space="preserve"><value>Collection item {0} has been created before.</value></data>
+  <data name="CollectionSetWithoutSchedule" xml:space="preserve"><value>Cannot create collection set {0} without a schedule unless in AdHoc CollectionMode.</value></data>
+  <data name="UnableToUploadCollectionSet" xml:space="preserve"><value>Unable to upload collection set {0}.</value></data>
+  <data name="CollectionSetCannotBeNull" xml:space="preserve"><value>Collection set cannot be null.</value></data>
+  </root>

@@ -1,0 +1,662 @@
+﻿<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        #container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        #host {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        #divEmpty {
+            pointer-events: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin-left: 70px;
+        }
+
+        #imageEmpty {
+            position: absolute;
+            transform: translate(-50%, -100%);
+            left: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="host"></div>
+        <div id="divEmpty" class="blocklyTreeLabel">
+            <img id="imageEmpty" height="64px" width="64px" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDYuMC1jMDA2IDc5LjE2NDc1MywgMjAyMS8wMi8xNS0xMTo1MjoxMyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIyLjMgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjNDQTk0MDY4RkU3MTExRUJCQzJEOTE3NTE1NjQxNENBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjNDQTk0MDY5RkU3MTExRUJCQzJEOTE3NTE1NjQxNENBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6M0NBOTQwNjZGRTcxMTFFQkJDMkQ5MTc1MTU2NDE0Q0EiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6M0NBOTQwNjdGRTcxMTFFQkJDMkQ5MTc1MTU2NDE0Q0EiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6gruX2AAAD8UlEQVR42uydPYgTQRSAJ+Yu4a5QLCJikRR6tkqsLOxEEREEbdTe0kIrEbmLCDZiI/ba+gMKIoLYiWJhSjlERNBwiBYe/txFzMW3XIq9uY3Z3O4mO/O+Dx4ym43J7nz75u1cJil0u10DetnEKUAAUMxE1MZms8mZ8ZB6vR5PACXYxU+BIQAQABAAEAAQABAAEAA8Z2KI++SkDLrPHvXrDYuX54MMwBAACADUABmMqUnHsFG/Xt7fXyavRwZgCAAEAAQABAAEAAQABAAEAAQABADvGeZvAaOea8/7okUvzgcZgCEAEACoASIY9Vq5vK/N8/J8kAEYAgABAAEAAQABAAGAeYAerA0kA4DmDAAhisXimgzV6XQKaT5OBoDcZwDWBlIDADWAUgaN2UkfJwMAAgACADWAm/MAWT+fDAAIAAgA1AD5nAfI+vlkABh7BmBtIDUAUAMwDxA5pvN5APAuA7A2kBoAqAEg1pjN5wGAIQAQABBANbO9oAhU2vlzoXbDdQFYG7jxzp9zRQKGgPQ7PyzBLALo7HxnJECA7DrfCQlYG5ht5+e+JiADZN/5uc4ECJBO5zdibsudBAiQTuf3uwvIvQQIkKwmacS4C2ikUN8gQA6wO3NQ5yd93mis7nbXF8/NZjOqqk5alRdS3n/cr5f1/5c69XqdDAAIAAgACJD9HQICKGKz1f7lyhtnbWA6bLHaP8kAuthhtT8jgC5mrPZ7BNDFHqv91ocagLWB8TlgtV+TAfSwTWJfqN2ReIkAejgpUQy1X0j8QAA9nLXaD1x68wiQjCNWAfhH4i4C6CAooK9Z2+5LfEEAHVywrv5g5vKGaweBABtjv8QVa9s9iTcuprF+8Dt+0eySeCRRCm1blrjk4sGQAYbv/OcSFWv7nHFo+hcBQkxPT5tarRZn14MSrySq1vZAiOsuV7JqO75SqZipqalBu5Ylrkqcj7hggqv+lFmd/fNeAK9+x69arcY53mO9q3sm4vFPEockvrp+Lwvrr/jTEuck9vbZ553EYYmPPkxmqGdlZSX456jECYnjElv/s/sTiTMS3304dm0CBB27PRgBFhcXTbvdNktLS2Z5ObiLM48HPDf4mNdFiVvGo6+yH6cAYz2JCwsLcXf9K3FH4nLwNN+uCIaA/gQp/rbETYkPvh4kAqylJfFM4qHEU4m27wesTYDfZnXa9pvc/++enJw0pVLJlMtl02q1dvp8pedRgLH+baBWq9k1iLrOD1A5FRy1TDpqGwIAAgA1QC7u29Nmfn6eIUBrBuh9Bc7AbQgACAB6awB+x48MAAgACAAIAAgACAAIAHrmAXyHeQ7T5+vigSEAEAA08E+AAQDTnuCLu2TNKAAAAABJRU5ErkJggg=="/>
+            <div style="font-size: 12px; opacity: 0.6; margin-top: 10px;">/*empty_lable*/</div>
+        </div>
+    </div>
+    <script>
+        var workspace;
+
+        function getBlockCount() {
+            return Blockly.mainWorkspace.getAllBlocks().length;
+        }
+
+        function checkState(event) {
+            document.getElementById("divEmpty").style.display = getBlockCount() > 0 ? "none" : "block";
+        }
+
+        function initScript() {
+            var blocklyJS = window.chrome.webview.hostObjects.sync.dotnet.GetBlocklyJS();
+            addScript(blocklyJS);
+
+            var bocksJS = window.chrome.webview.hostObjects.sync.dotnet.GetBlocksJS();
+            addScript(bocksJS);
+
+            var locJS = window.chrome.webview.hostObjects.sync.dotnet.GetLocJS();
+            addScript(locJS);
+        }
+
+        function addScript(msg) {
+            var scr = document.createElement('script');
+
+            scr.innerHTML = msg;
+
+            document.body.appendChild(scr);
+        }
+
+        function init() {
+
+            var toolboxXML = window.chrome.webview.hostObjects.sync.dotnet.GetToolboxXML();
+            var workspaceXML = window.chrome.webview.hostObjects.sync.dotnet.GetBlockyWorkspace();
+            initBlocks();
+
+            var options = {
+                media: '../../media/',
+                toolbox: toolboxXML,
+                zoom: {
+                    controls: true,
+                    wheel: true,
+                    startScale: 1,
+                    maxScale: 3,
+                    minScale: 0.3,
+                    scaleSpeed: 1.2
+                }
+            }
+
+            workspace = Blockly.inject('host', options);
+            var wx = Blockly.Xml.textToDom(workspaceXML)
+
+            Blockly.Xml.domToWorkspace(wx, workspace);
+
+            Blockly.mainWorkspace.addChangeListener(checkState);
+        }
+
+        function initBlocks() {
+
+            //Visuals
+            Blockly.Blocks['sti_color_hex'] = {
+                init: function () {
+                    this.appendValueInput("TEXT")
+                        .setCheck(null)
+                        .appendField("Color Hex");
+                    this.setOutput(true, null);
+                    this.setColour("#f3aa60");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_new_pen_style'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField(new Blockly.FieldDropdown([[{ "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAMCAIAAAAVjvFbAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAtSURBVHjaYmKgJWAB4v///9PCaEZGRiaaun0om84CCaAh6/bRNDPc0gxAgAEA2PcGJxNMwcUAAAAASUVORK5CYII=", "width": 31, "height": 12, "alt": "SOLID" }, "SOLID"], [{ "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAMCAIAAAAVjvFbAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAvSURBVHjaYmCgJWAE4v///9PEaEZGJpq6fSibjh38BwPKxZlG08yISTPUAgABBgBcvxf/vGsUdQAAAABJRU5ErkJggg==", "width": 31, "height": 12, "alt": "DASH" }, "DASH"], [{ "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAMCAIAAAAVjvFbAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAxSURBVHjaYmCgJWAE4v///9PEaEZGJpq6fSibjh38BwNMNqlqmEbTzIhJM9QCAAEGAJhIHfmAnP3IAAAAAElFTkSuQmCC", "width": 31, "height": 12, "alt": "DASHDOT" }, "DASHDOT"], [{ "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAMCAIAAAAVjvFbAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABASURBVHjaYmKgJWAB4v///9PCaEZGRiaaun0om84CCSA0UUhMQMRxsYlRzzRgaQZZHBcbj/rRNENymqEWAAgwAG/6JBjYKqFlAAAAAElFTkSuQmCC", "width": 31, "height": 12, "alt": "DASHDOTDOT" }, "DASHDOTDOT"], [{ "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAMCAIAAAAVjvFbAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAA5SURBVHjaYmKgJWAB4v///9PCaEZGRiaaun2om84IBvDAohab5m5HTzNUZI+mGQLhDo9oqgOAAAMATKobOjmU4hMAAAAASUVORK5CYII=", "width": 31, "height": 12, "alt": "DOT" }, "DOT"], [{ "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAMCAIAAAAVjvFbAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAqSURBVHjaYmCgJWAE4v///9PEaEZGJpq6fSibzjCEY5VhNEUOwzQDEGAAFugJDkQsdeUAAAAASUVORK5CYII=", "width": 31, "height": 12, "alt": "DOUBLE" }, "DOUBLE"], [{ "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAMCAIAAAAVjvFbAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAArSURBVHjaYmKgJWAB4v///9PCaEZGRiaaun3U9FHTR5LpLJBMRSPTAQIMAFY6AyA7ubzVAAAAAElFTkSuQmCC", "width": 31, "height": 12, "alt": "NONE" }, "NONE"]]), "VALUE");
+                    this.setOutput(true, null);
+                    this.setColour("#f3aa60");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_new_border'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("Border");
+                    this.appendDummyInput()
+                        .setAlign(Blockly.ALIGN_CENTRE)
+                        .appendField(new Blockly.FieldCheckbox("TRUE"), "TOP");
+                    this.appendDummyInput()
+                        .appendField(new Blockly.FieldCheckbox("TRUE"), "LEFT")
+                        .appendField(new Blockly.FieldImage("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAQAAADlauupAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAGAAAABgAPBrQs8AAAAHdElNRQflBRoGOjUKjn7yAAAATElEQVQ4y+2TMREAIAwDUyxwCEF9ZeCjHBqekRlYGPg9nywxiJBK0RG9G4A0hmhtK2u1SjkLANx3u8EdIJ1NX3zBF7whuD6T3d05YgJGMiyFOuTm6gAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMS0wNS0yNlQwNjo1ODo1MyswMDowMBn+UTkAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjEtMDUtMjZUMDY6NTg6NTMrMDA6MDBoo+mFAAAAAElFTkSuQmCC", 16, 16, { alt: "*", flipRtl: "FALSE" }))
+                        .appendField(new Blockly.FieldCheckbox("TRUE"), "RIGHT");
+                    this.appendDummyInput()
+                        .setAlign(Blockly.ALIGN_CENTRE)
+                        .appendField(new Blockly.FieldCheckbox("TRUE"), "BOTTOM");
+                    this.appendValueInput("COLOR")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Color");
+                    this.appendValueInput("SIZE")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Size");
+                    this.appendValueInput("STYLE")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Style");
+                    this.setInputsInline(false);
+                    this.setOutput(true, null);
+                    this.setColour("#f3aa60");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_new_gradient_brush'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("Gradient Brush");
+                    this.appendValueInput("ANGLE")
+                        .setCheck("Number")
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Angle");
+                    this.appendValueInput("STARTCOLOR")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Start Color");
+                    this.appendValueInput("ENDCOLOR")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("End Color");
+                    this.setOutput(true, null);
+                    this.setColour("#f3aa60");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_new_solid_brush'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("Solid Brush");
+                    this.appendValueInput("COLOR")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Color");
+                    this.setOutput(true, null);
+                    this.setColour("#f3aa60");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_new_font'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("Font");
+                    this.appendDummyInput()
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField(new Blockly.FieldDropdown([["empty", "EMPTY"]]), "NAME");
+                    this.appendDummyInput()
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Bold")
+                        .appendField(new Blockly.FieldCheckbox("TRUE"), "BOLD")
+                        .appendField("Italic")
+                        .appendField(new Blockly.FieldCheckbox("TRUE"), "ITALIC");
+                    this.appendDummyInput()
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Underline")
+                        .appendField(new Blockly.FieldCheckbox("TRUE"), "UNDERLINE")
+                        .appendField("Strikeout")
+                        .appendField(new Blockly.FieldCheckbox("TRUE"), "STRIKEOUT");
+                    this.appendValueInput("SIZE")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Size");
+                    this.setOutput(true, null);
+                    this.setColour("#f3aa60");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_new_margin'] = {
+                init: function () {
+                    this.appendValueInput("LEFT")
+                        .setCheck(null)
+                        .appendField("Margin")
+                        .appendField("left");
+                    this.appendValueInput("TOP")
+                        .setCheck(null)
+                        .appendField("top");
+                    this.appendValueInput("RIGHT")
+                        .setCheck(null)
+                        .appendField("right");
+                    this.appendValueInput("BOTTOM")
+                        .setCheck(null)
+                        .appendField("bottom");
+                    this.setInputsInline(true);
+                    this.setOutput(true, null);
+                    this.setColour("#f3aa60");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_new_padding'] = {
+                init: function () {
+                    this.appendValueInput("LEFT")
+                        .setCheck(null)
+                        .appendField("Padding")
+                        .appendField("left");
+                    this.appendValueInput("TOP")
+                        .setCheck(null)
+                        .appendField("top");
+                    this.appendValueInput("RIGHT")
+                        .setCheck(null)
+                        .appendField("right");
+                    this.appendValueInput("BOTTOM")
+                        .setCheck(null)
+                        .appendField("bottom");
+                    this.setInputsInline(true);
+                    this.setOutput(true, null);
+                    this.setColour("#f3aa60");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            //Objects
+            Blockly.Blocks['sti_this_component'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("This Component");
+                    this.setOutput(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_all_components'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("All Components");
+                    this.setOutput(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_all_components_from'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("All Components from")
+                        .appendField(new Blockly.FieldDropdown([["ComponentGetComponents", "EMPTYCOMPONENTGETCOMPONENTS"]]), "NAME");
+                    this.setOutput(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_this_report'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("This Report");
+                    this.setOutput(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_get_current_value'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("Get Current Value");
+                    this.setOutput(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_set_current_value'] = {
+                init: function () {
+                    this.appendValueInput("VALUE")
+                        .setCheck(null)
+                        .appendField("Set Current Value");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_get_component'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField(new Blockly.FieldDropdown([["Component", "EMPTYCOMPONENT"]]), "NAME");
+                    this.setOutput(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_get_component_by_name'] = {
+                init: function () {
+                    this.appendValueInput("NAME")
+                        .setCheck("String")
+                        .appendField("Get Component by Name");
+                    this.setInputsInline(false);
+                    this.setOutput(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_set_property_to_value'] = {
+                init: function () {
+                    this.appendValueInput("COMPONENT")
+                        .setCheck(null)
+                        .appendField("Set");
+                    this.appendValueInput("VALUE")
+                        .setCheck(null)
+                        .appendField("`s")
+                        .appendField(new Blockly.FieldDropdown([["Enabled", "ENABLED"], ["Background", "BACKGROUND"], ["Width", "WIDTH"], ["Height", "HEIGHT"]]), "PROPERTY")
+                        .appendField("to");
+                    this.setInputsInline(true);
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_get_style_by_name'] = {
+                init: function () {
+                    this.appendValueInput("VALUE")
+                        .setCheck("String")
+                        .appendField("Get Style by Name");
+                    this.setOutput(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_get_property_of_object'] = {
+                init: function () {
+                    this.appendValueInput("PROPERTY")
+                        .setCheck("String")
+                        .appendField("Get Property");
+                    this.appendValueInput("OBJECT")
+                        .setCheck(null)
+                        .appendField("of Object");
+                    this.setOutput(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_set_property_of_object_to'] = {
+                init: function () {
+                    this.appendValueInput("PROPERTY")
+                        .setCheck("String")
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Set Property");
+                    this.appendValueInput("OBJECT")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("of Object");
+                    this.appendValueInput("VALUE")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("to");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour("#00b6ad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            //Data
+            Blockly.Blocks['sti_get_data_source_by_name'] = {
+                init: function () {
+                    this.appendValueInput("NAME")
+                        .setCheck("String")
+                        .appendField("Get Data Source by Name");
+                    this.setOutput(true, null);
+                    this.setColour("#415c71");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_get_data_source'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField(new Blockly.FieldDropdown([["DataSource", "EMPTYDATASOURCE"]]), "NAME");
+                    this.setOutput(true, null);
+                    this.setColour("#415c71");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_data_source_property'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("Get Property")
+                        .appendField(new Blockly.FieldDropdown([["empty", "EMPTYDATASOURCEPROPERTY"]]), "NAME");
+                    this.appendValueInput("OBJECT")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("of Data Source");
+                    this.setOutput(true, null);
+                    this.setColour("#415c71");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_data_source_method'] = {
+                init: function () {
+                    this.appendValueInput("OBJECT")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Data Source");
+                    this.appendDummyInput()
+                        .appendField(new Blockly.FieldDropdown([["empty", "EMPTYDATASOURCEMETHODS"]]), "NAME");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour("#415c71");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_set_data_source_sql_command'] = {
+                init: function () {
+                    this.appendValueInput("DATA")
+                        .setCheck(null)
+                        .appendField("Set Sql Command");
+                    this.appendValueInput("VALUE")
+                        .setCheck("String")
+                        .appendField("'s to");
+                    this.setInputsInline(true);
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour("#415c71");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            //Variable
+            Blockly.Blocks['sti_get_variable_by_name'] = {
+                init: function () {
+                    this.appendValueInput("VALUE")
+                        .setCheck("String")
+                        .appendField("Get Value");
+                    this.setOutput(true, null);
+                    this.setColour("#814968");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_get_variable'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("Get Value")
+                        .appendField(new Blockly.FieldDropdown([["Variable", "EMPTYVARIABLE"]]), "VALUE");
+                    this.setOutput(true, null);
+                    this.setColour("#814968");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_set_variable'] = {
+                init: function () {
+                    this.appendValueInput("NAME")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("Set Variable");
+                    this.appendValueInput("VALUE")
+                        .setCheck(null)
+                        .setAlign(Blockly.ALIGN_RIGHT)
+                        .appendField("to");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour("#814968");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_system_variable'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("System Variable")
+                        .appendField(new Blockly.FieldDropdown([["empty", "EMPTYSYSTEMVARIABLE"]]), "NAME");
+                    this.setOutput(true, null);
+                    this.setColour("#814968");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            //System
+            Blockly.Blocks['sti_is_first_pass'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("Is First Pass");
+                    this.setOutput(true, null);
+                    this.setColour("#adadad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_is_second_pass'] = {
+                init: function () {
+                    this.appendDummyInput()
+                        .appendField("Is Second Pass");
+                    this.setOutput(true, null);
+                    this.setColour("#adadad");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            //Process
+            Blockly.Blocks['sti_open_link'] = {
+                init: function () {
+                    this.appendValueInput("VALUE")
+                        .setCheck(null)
+                        .appendField("Open Link");
+                    this.setInputsInline(true);
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour("#00b1e1");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            Blockly.Blocks['sti_show_message'] = {
+                init: function () {
+                    this.appendValueInput("TEXT")
+                        .setCheck(null)
+                        .appendField("Show Message");
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                    this.setColour("#00b1e1");
+                    this.setTooltip("");
+                    this.setHelpUrl("");
+                }
+            };
+
+            //Functions
+            /*functions*/
+        }
+
+        function update() {
+            var xml = window.chrome.webview.hostObjects.sync.dotnet.XML;
+
+            var dom = Blockly.Xml.textToDom(xml);
+            Blockly.mainWorkspace.clear();
+            Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, dom);
+        }
+
+        function showCode() {
+            Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+            var code = Blockly.JavaScript.workspaceToCode(workspace);
+            return code;
+        }
+
+        function runCode() {
+            window.LoopTrap = 1000;
+            Blockly.JavaScript.INFINITE_LOOP_TRAP =
+                'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
+            var code = Blockly.JavaScript.workspaceToCode(workspace);
+            Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+            try { eval(code); } catch (e) { alert(e); }
+        }
+
+        function getXmlText() {
+            var xml = Blockly.Xml.workspaceToDom(workspace);
+
+            return b64EncodeUnicode(Blockly.Xml.domToText(xml));
+        }
+
+        function b64EncodeUnicode(str) {
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+                function toSolidBytes(match, p1) {
+                    return String.fromCharCode('0x' + p1);
+                }));
+        }
+
+        function setSample(xml) {
+            var dom = Blockly.Xml.textToDom(xml);
+            Blockly.mainWorkspace.clear();
+            Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, dom);
+        }
+    </script>
+</body>
+</html>
