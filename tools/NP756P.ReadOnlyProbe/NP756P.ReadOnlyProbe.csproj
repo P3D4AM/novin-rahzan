@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <RootNamespace>NP756P.ReadOnlyProbe</RootNamespace>
+    <AssemblyName>NP756P.ReadOnlyProbe</AssemblyName>
+    <Description>Read-only diagnostic probe for Novin Pardaz NP756P (Hysoon classic SDK) - net48/x86 console tool</Description>
+    <Deterministic>true</Deterministic>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <!--
+    Allows building net48 on machines without the .NET Framework 4.8 targeting pack
+    (for example Linux CI or clean Windows boxes). On Windows/VS builds this package
+    is a no-op. PrivateAssets keeps it out of the final output.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

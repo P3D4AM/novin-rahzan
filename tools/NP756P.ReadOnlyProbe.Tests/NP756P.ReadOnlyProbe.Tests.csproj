@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Device-free test harness for the probe.
+    Compiles the probe sources directly (except Program.cs, which owns Main and
+    console-only code) and runs them on the local .NET runtime.
+
+    IMPORTANT: this harness never loads any native vendor DLL and never opens a
+    socket; the SDK is exercised only through the IDeviceChannel mock.
+    The shipped tool itself remains net48/x86 (see ../NP756P.ReadOnlyProbe).
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>NP756P.ReadOnlyProbe.Tests</RootNamespace>
+    <AssemblyName>NP756P.ReadOnlyProbe.Tests</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../NP756P.ReadOnlyProbe/**/*.cs"
+             Exclude="../NP756P.ReadOnlyProbe/Program.cs;../NP756P.ReadOnlyProbe/bin/**/*.cs;../NP756P.ReadOnlyProbe/obj/**/*.cs" />
+  </ItemGroup>
+
+</Project>
