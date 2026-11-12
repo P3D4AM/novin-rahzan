@@ -54,6 +54,7 @@
 | `scripts/` | اسکریپت‌های خط تولید گزارش + `sanitize_privacy.py` (پاک‌سازی بازتولیدپذیر) |
 | `decompiled/` | سورس **پاک‌سازی‌شدهٔ** ۱۱ کتابخانهٔ مدیریت‌شدهٔ دیکامپایل‌شده با ILSpy (۶۲۵ فایل) |
 | `decompiled-complete/` | دیکامپایل کامل هر ۳ بسته — مجموعاً **۲۲۰ کتابخانهٔ مدیریتی** (بستهٔ ۱: ۳۶ عدد، بستهٔ ۲: ۲۰ عدد، بستهٔ ۳: ۱۶۴ عدد) + آرشیو خام ۲۳۹ فایل DLL در `_dlls/` |
+| `original dll/` *(در ریشهٔ ریپو)* | آرشیو خام ۲۳۹ فایل DLL بستهٔ سوم — عین فایل‌های آپلودشده در filebin، بدون هیچ تغییری (همان بایت‌های `_dlls/`) |
 
 ### فایل‌های گزارش
 
@@ -95,7 +96,7 @@
 | عملیات | **۵۶ کتابخانهٔ تکراری** با بسته‌های ۱ و ۲ skip شدند؛ **۱۶۴ کتابخانهٔ جدید** دیکامپایل شدند (~۲۳٬۷۰۰ فایل: ۱۵٬۵۰۰+ فایل `.cs` + منابع) |
 | ابزار | `ilspycmd 8.2.0.7535` — همان نسخهٔ بسته‌های ۱ و ۲ (خروجی deterministic) |
 | کتابخانه‌های شاخص جدید | Stimulsoft.Report.Design/Helper/Web/Check/Dashboard/Editor/Blockly، Microsoft.SqlServer.Smo/SqlParser/SqlEnum (مجموعهٔ کامل SMO)، Entity Framework Core + SQL Server، ASP.NET Core SignalR (کلاینت/سرور)، Serilog + همهٔ Sinkها، Microsoft.Identity.Client، Newtonsoft.Json، Ninject، Azure.Core/Identity، ExcelDataReader، Smartgroup، mCoreLib و کتابخانه‌های اختصاصی سازنده: Server.Core، ActivationPacketParserStandard، PayamakSettings، RegisterManagement، SbLogServer، SignalRCoreConnectionCore، Riss.Devices_ZDC2911 |
-| آرشیو باینری | هر ۲۳۹ فایل DLL خام (بدون تغییر) در `decompiled-complete/_dlls/` نگهداری می‌شوند — تنها نسخهٔ موجود از ۱۹ DLL بومیِ غیرقابل‌دیکامپایل نیز همینجاست |
+| آرشیو باینری | هر ۲۳۹ فایل DLL خام (بدون تغییر) در `decompiled-complete/_dlls/` و همچنین در پوشهٔ `original dll/` در ریشهٔ ریپو نگهداری می‌شوند — تنها نسخهٔ موجود از ۱۹ DLL بومیِ غیرقابل‌دیکامپایل نیز همینجاست |
 | اسکن امنیتی | کل ۲۳٬۸۰۰ فایل سورس جدید برای توکن تلگرام (الگوی `\d{8,10}:AA…`)، رمزهای استاد، کلید AES و دامنه‌های سازنده اسکن شد — **صفر توکن/رمز هاردکد در کتابخانه‌های جدید** |
 | یافته‌های غیرحساس | `ActivationPacketParserStandard/SharedActivation/ApiLoginParamter.cs` نقطهٔ پایانی فعال‌سازی `novinrank.ir` را دارد (نشانی عمومی، بدون اعتبارنامه)؛ `Server.Core` در ۸ فایل از `WebTelegramMessage.…bot().Sent2web(...)` برای پایش عملیاتی استفاده می‌کند — خودِ کلاس و توکن‌های آن در `PacketParserStandard` بستهٔ ۲ تعریف شده‌اند |
 | بازتولید | `bash scripts/decompile_rahzan.sh <مسیر-DLLها>` (تشخیص خودکار managed/native با `scripts/classify_dlls.py` و skip خودکار دیکامپایل‌شده‌ها) |
