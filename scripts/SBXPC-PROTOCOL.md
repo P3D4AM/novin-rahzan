@@ -212,3 +212,88 @@ The client PROBES on connect:
 
 Discovered passwords are persisted on the device record (Device.password) and
 reused by later syncs.
+
+---
+
+## v1.2.4 — the "VisibleLight" HTTP JSON API + final SBPCCOMM verification
+
+### SBPCCOMM64.dll crypto dispatch — FINAL (disassembled 0x4630, per link type)
+
+`0x4630(devObj, frame, len)` is the encrypt-send wrapper used ONLY by the `_EXT`
+family (callers 0x1d80/0x1e33 = EXT command/ack, 0x22d4/0x22f1 = data blocks).
+It switches on `[devObj+8]` (link type set by StartTcpX):
+
+| link type | key | sender | meaning |
+|-----------|-----|--------|---------|
+| 1 | salt only | 0x2fb0 | COM (no password — company-mark XOR) |
+| 2 | salt only | —      | USB |
+| 3 | **password + salt** | — | **TCP** (StartTcpX writes 3) |
+| 4 | password + salt | — | P2P/UDP-family |
+| 5 | password + salt | 0x4370 | other |
+
+* The salt slot (RVA 0x2BF10) is beyond `.data` raw size (0x1c00) → **BSS zero**;
+  nothing but `ChangeCompanyMark_EXT` ever writes it → TCP key = **LE32(password)**.
+* The frame is XORed **fully** (frame[j] ^= key[j%4], phase 0 at frame start),
+  sent encrypted, then XORed back in memory.
+* **The CLASSIC path (0x10f0 → 0x4370 etc.) NEVER calls 0x4630 — classic frames
+  are never encrypted.** The vendor's own app (32-bit TimeAttendance.exe →
+  SBXPCDLL.dll OCX → SBPCCOMM.dll) imports ONLY the classic ordinals
+  (1..13,15,28 — none of 21..27) → the vendor software CANNOT talk to a
+  binary-password device at all. Its answer for password-protected NP face
+  devices is the HTTP API below.
+
+### The "VisibleLight" HTTP JSON API (PacketParserStandard.dll → VisibleLightLanSDK)
+
+The newest NP face devices (NP756P=9308, NP761P=9309 in the vendor UI; the
+family the vendor calls **"VisibleLight"**) run an HTTP JSON service on
+**TCP port 14460**:
+
+```
+POST http://<ip>:14460/<endpoint>   Content-Type: application/json
+body: {"pass": <رمز شبکه>}          → reply: {"result": bool, "data": "<string>"
+```
+
+endpoints (strings extracted from PacketParserStandard.dll):
+/getDeviceKey  /getLogCount  /getLogInfo  /getDeviceTime  /setTime
+/getDeviceInfo /getConfig    /setConfig   /getOEM          /getDepartment
+/setDepartment /getTimeGroup /setTimeGroup /getTimePart    /setTimePart
+/getUserPower  /openDoorControl /resetDevice /restartDevice /setPassword
+/deleteAllLog  /deleteNewLog  /getLogCallBack /setLogCallBack  ...
+request shapes: {"pass":N}, {"pass":N,"serverTime":..}, {"pass":N,"index":..},
+{"pass":N,"flag":..,"length":..,"index":..,"isphoto":..},
+{"pass":N,"logCallBackURL":..,"readCard":..}, {"oldPass":..,"newPass":..}
+
+`/getLogCount` reply → data = JSON string like {"count":N}.
+`IsConnectAsync` simply calls `/getDeviceKey` — the vendor's connectivity test.
+The log record the vendor parses (`DeviceLogOnPerson`) carries: PersonNo,
+DateTimeLogM, VerifyMode, InOut, IoMode, DeviceNo, DeviceSerial, DeviceIp,
+DevicePassword, IdTraffic, LogPhoto, TerminalType — the /getLogInfo payload
+schema (field casing to confirm against a live device).
+
+The binary port of these devices is a **legacy stub**: it answers a correctly
+checksummed classic 16B frame with the 10-byte refusal ack (dword 0x10 + cksum
+echo) and silently drops everything else — EXACTLY the fingerprint observed on
+the user's real NP756+ (classic → refusal ack; plaintext EXT → silence;
+encrypted EXT with LE32(12345) and LE32(12345+0x25B84) → silence).
+
+### Client strategy (src/lib/sbxpc.ts, v1.2.4)
+
+after the classic refusal ack:
+1. try EXT_SECURE (salts {0, 0x25B84} × password/candidates) — as before;
+2. **HTTP_JSON probe: POST /getDeviceKey {"pass":pw} on :14460** (number and
+   string pass variants), then /getDeviceTime + /getLogCount → dialect HTTP_JSON
+   with serial/time/logCount (npTest reports them; sync = v1.2.5 once the
+   /getLogInfo record schema is confirmed on a live device);
+3. **CLASSIC_SECURE hypothesis probe**: whole classic exchange XOR-encrypted
+   (ACK 8B/RESULT 14B/DATA frames decrypted per frame — key phase restarts on
+   every frame);
+4. if the binary TCP connect itself fails, npTest falls back to the HTTP probe
+   before reporting failure.
+
+### scripts/np-probe.js — standalone diagnostic (v1.2.4)
+
+`node np-probe.js <ip> <port> <password>` — tries the HTTP API (:14460),
+~16 binary variants (classic/EXT × plaintext/encrypted × key formulas
+LE32(pw), LE32(pw+0x25B84), ASCII, salt-only × full/partial coverage) and UDP,
+prints every raw exchange plus a verdict table. This is the tool to run against
+an unrecognized device; the hex output pins down the exact dialect.

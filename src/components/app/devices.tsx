@@ -276,7 +276,10 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                           <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">ساعت دستگاه</span><span>{faTime(String(testResult.deviceTime))}</span></div>
                         ) : null}
                         {testResult.dialect ? (
-                          <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">گویش پروتکل</span><span>{String(testResult.dialect)}</span></div>
+                          <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">گویش پروتکل</span><span>{({ CLASSIC: 'کلاسیک (۱۶بایتی)', RESULT_DIRECT: 'کلاسیک بدون ACK', EXT: 'EXT (۱۲بایتی)', EXT_SECURE: 'رمزشده (رمز شبکه)', CLASSIC_SECURE: 'کلاسیک رمزشده', HTTP_JSON: 'API HTTP (نسل جدید)' } as Record<string, string>)[String(testResult.dialect)] ?? String(testResult.dialect)}</span></div>
+                        ) : null}
+                        {testResult.logCount != null ? (
+                          <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">ترددهای ذخیره‌شده روی دستگاه</span><span>{String(testResult.logCount)}</span></div>
                         ) : null}
                         {testResult.password != null ? (
                           <div className="flex justify-between md:block rounded-lg bg-muted/60 p-2"><span className="text-xs text-muted-foreground">رمز شبکه</span><span dir="ltr" className="font-mono">{String(testResult.password)}</span></div>

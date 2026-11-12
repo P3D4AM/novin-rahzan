@@ -1,6 +1,6 @@
 {
   "name": "hozorplus",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "حضور+ — سیستم جامع مدیریت حضور و غیاب (HozorPlus web attendance management system)",
   "private": true,
   "scripts": {

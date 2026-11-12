@@ -109,6 +109,8 @@ export async function PATCH(req: NextRequest) {
           RESULT_DIRECT: 'پروتکل کلاسیک بدون ACK',
           EXT: 'پروتکل ۱۲بایتی (EXT)',
           EXT_SECURE: 'پروتکل رمزشدهٔ NP (با «رمز شبکه»)',
+          CLASSIC_SECURE: 'پروتکل کلاسیک رمزشده (با «رمز شبکه»)',
+          HTTP_JSON: 'API HTTP — نسل جدید NP (VisibleLight)',
         }
         await db.device.update({
           where: { id: device.id },
@@ -124,7 +126,7 @@ export async function PATCH(req: NextRequest) {
             deviceId: device.id,
             level: t.ok ? 'SUCCESS' : 'ERROR',
             message: t.ok
-              ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber || '—'}${t.dialect ? ` · ${dialectFa[t.dialect] ?? t.dialect}` : ''}${t.password != null ? ` · رمز شبکه: ${t.password}` : ''}${t.deviceTime ? ` · ساعت دستگاه: ${new Date(t.deviceTime).toLocaleString('fa-IR')}` : ''}${t.note ? ` · ${t.note}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
+              ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber || '—'}${t.dialect ? ` · ${dialectFa[t.dialect] ?? t.dialect}` : ''}${t.password != null ? ` · رمز شبکه: ${t.password}` : ''}${t.logCount != null ? ` · ترددهای ذخیره‌شده روی دستگاه: ${t.logCount}` : ''}${t.deviceTime ? ` · ساعت دستگاه: ${new Date(t.deviceTime).toLocaleString('fa-IR')}` : ''}${t.note ? ` · ${t.note}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
               : `خطای اتصال مستقیم: ${t.error}${t.detail ? ` [${t.detail}]` : ''}${t.note ? ` · ${t.note}` : ''}${t.raw ? ` · فریم‌های خام:\n${t.raw}` : ''}`,
           },
         })

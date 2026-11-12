@@ -8,9 +8,12 @@
  *   node scripts/mock-sbxpc-device.js                          # classic dialect, 0.0.0.0:5005
  *   DIALECT=ext         node scripts/mock-sbxpc-device.js      # 12-byte EXT dialect (plaintext)
  *   DIALECT=extenc      node scripts/mock-sbxpc-device.js      # password-encrypted EXT (real NP756+ behaviour)
+ *   DIALECT=classicenc  node scripts/mock-sbxpc-device.js      # password-encrypted CLASSIC 16B frames
+ *   DIALECT=http        node scripts/mock-sbxpc-device.js      # VisibleLight HTTP API (:14460) + binary stub
  *   DIALECT=result      node scripts/mock-sbxpc-device.js      # classic frames, no ACK
  *   PORT=4238 SERIAL=7561202505176 LOGS=500 USERS="1001,1002" node scripts/mock-sbxpc-device.js
  *   DIALECT=extenc PASSWORD=123456 node scripts/mock-sbxpc-device.js
+ *   DIALECT=http PASSWORD=12345 node scripts/mock-sbxpc-device.js
  *
  * Dialects:
  *   classic (default)  cmd(16B) → ACK(8B 5AA5) → RESULT(14B AA55) → DATA(A55A)
@@ -23,6 +26,13 @@
  *                      key = LE32(PASSWORD + SALT) are honoured (SALT env, default 0 —
  *                      the DLL default). Data blocks are
  *                      [payload][trailer: 5A A5|mid|Σpayload(4)|?(2)|cksum(2)], encrypted.
+ *   classicenc         hypothesis under test: the WHOLE classic exchange (16B commands
+ *                      and all replies) is XOR-encrypted with key=LE32(PASSWORD+SALT).
+ *                      Plaintext classic frames get the 10-byte refusal ack.
+ *   http               "VisibleLight" generation: HTTP JSON API on HTTP_PORT (14460) —
+ *                      POST /getDeviceKey {"pass":N} → {"result":true,"data":"…"}
+ *                      (exactly what PacketParserStandard.dll speaks); the binary port
+ *                      is a legacy stub that refuses classic frames like the real NP756+.
  *
  * Frames (LE):
  *   PC→DEV COMMAND (classic, 16B): 55 AA | mid(2) | 79 19 | cmd(2) | arg2(4) | arg1(2) | cksum(2)
@@ -34,14 +44,16 @@
  *   DEV→PC BIG DATA:               5A A5 | mid(2) | data(≤1020) | cksum(2)
  */
 const net = require('net')
+const http = require('http')
 
 const PORT = Number(process.env.PORT || 5005)
+const HTTP_PORT = Number(process.env.HTTP_PORT || 14460)
 const SERIAL = process.env.SERIAL || '7561202505176'
 const LOG_COUNT = Number(process.env.LOGS || 500)
 const USERS = (process.env.USERS || '1001,1002,1003,1004').split(',').map(Number)
 const NOW_OFFSET_MIN = Number(process.env.NOW_OFFSET_MIN || 0) // simulate device clock drift
-const DIALECT = (process.env.DIALECT || 'classic').toLowerCase() // classic | result | ext | extenc
-const PASSWORD = Number(process.env.PASSWORD || 0) // «رمز شبکه» for DIALECT=extenc
+const DIALECT = (process.env.DIALECT || 'classic').toLowerCase() // classic | result | ext | extenc | classicenc | http
+const PASSWORD = Number(process.env.PASSWORD || 0) // «رمز شبکه» for extenc/classicenc/http
 const SALT = Number(process.env.SALT || 0) // crypto salt: 0 = DLL default; 0x25B84 = legacy variant
 const EXT_CRYPTO_MAGIC = SALT
 
@@ -158,6 +170,73 @@ const server = net.createServer((sock) => {
   let pendingData = null // callback awaiting the PC's 10-byte data frame
   const ip = sock.remoteAddress
   console.log(`[mock-np] client connected: ${ip}`)
+
+  const _rawWrite = sock.write.bind(sock) // true socket write (pre-encryption)
+  // classicenc: encrypt every byte we send
+  if (DIALECT === 'classicenc') {
+    const key = keyFor(PASSWORD)
+    sock.write = (b) => _rawWrite(xor(Buffer.from(b), key))
+  }
+
+  /** classic command dispatcher — f is a DECRYPTED 16B command frame */
+  function dispatchClassic(f) {
+    const mid = f.readUInt16LE(2)
+    const cmd = f.readUInt16LE(6)
+    const arg2 = f.readUInt32LE(8)
+    const arg1 = f.readUInt16LE(12)
+    console.log(`[mock-np] CMD ${cmd.toString(16)} arg1=${arg1} arg2=${arg2} mid=${mid}`)
+    if (DIALECT === 'classic' || DIALECT === 'classicenc') sock.write(ack(mid))
+
+    switch (cmd) {
+      case 0x113: { // GetSerialNumber
+        sock.write(result(mid, 1, SERIAL.length))
+        const s = Buffer.alloc(32)
+        s.write(SERIAL, 0, 'ascii')
+        sock.write(dataFrame(mid, s))
+        break
+      }
+      case 0x10e: { // GetDeviceTime (packed seconds since 2000)
+        sock.write(result(mid, 1, 4))
+        const t = Buffer.alloc(4)
+        t.writeUInt32LE(Math.floor(Date.now() / 1000) + NOW_OFFSET_MIN * 60 - EPOCH_2000, 0)
+        sock.write(dataFrame(mid, t))
+        break
+      }
+      case 0x10b: // EnableDevice(false)
+      case 0x10c: // EnableDevice(true)
+        sock.write(result(mid, 1, 1))
+        break
+      case 0x107: { // ReadAllGLogData
+        if (arg1 === 0) {
+          sock.write(result(mid, 1, LOGS.length))
+        } else {
+          // after the PC sends its 4-byte "1": reply with the count result,
+          // stream the records as big-data chunks, wait for the PC's count
+          // echo, then send the end marker (0x3e8).
+          pendingData = () => {
+            sock.write(result(mid, 1, LOGS.length))
+            // protocol: chunks are exactly 0x3fc (1020) payload bytes except the
+            // last one — records may straddle chunk boundaries (byte stream).
+            const all = Buffer.concat(LOGS)
+            for (let off = 0; off < all.length; off += 1020) {
+              sock.write(bigFrame(mid, all.subarray(off, Math.min(off + 1020, all.length))))
+            }
+            pendingData = () => {
+              console.log(`[mock-np] count echo received — sending end marker`)
+              sock.write(result(mid, 1, 0x3e8))
+            }
+            deliverPending()
+          }
+        }
+        break
+      }
+      case 0x118: // EmptyGeneralLogData
+        sock.write(result(mid, 1, 1))
+        break
+      default:
+        sock.write(result(mid, 1, 1))
+    }
+  }
 
   const deliverPending = () => {
     if (pendingData && buf.length >= 10) {
@@ -325,6 +404,43 @@ const server = net.createServer((sock) => {
       return
     }
 
+    // classicenc: classic 16B frames arrive XOR-encrypted; plaintext ones are refused
+    if (DIALECT === 'classicenc') {
+      const key = keyFor(PASSWORD)
+      for (;;) {
+        if (buf.length < 16) break
+        const dec = xor(buf.subarray(0, 16), key)
+        const validEnc = dec[0] === 0x55 && dec[1] === 0xaa && dec.readUInt16LE(4) === 0x1979
+          && dec.readUInt16LE(14) === sum16(dec, 14)
+        const raw = buf.subarray(0, 16)
+        const validPlain = raw[0] === 0x55 && raw[1] === 0xaa && raw.readUInt16LE(4) === 0x1979
+          && raw.readUInt16LE(14) === sum16(raw, 14)
+        buf = buf.subarray(16)
+        if (validEnc) { dispatchClassic(dec) ; continue }
+        if (validPlain) {
+          console.log('[mock-np] plaintext classic frame — refused with 10-byte ack (device expects encryption)')
+          _rawWrite(npRefusalAck(raw.readUInt16LE(2), raw.readUInt16LE(14)))
+          continue
+        }
+        console.log('[mock-np] garbled encrypted classic frame — dropped (silence)')
+      }
+      return
+    }
+
+    // http dialect: binary port is a legacy stub — parse classic, always refuse
+    if (DIALECT === 'http') {
+      if (buf.length >= 16) {
+        const raw = buf.subarray(0, 16)
+        const validPlain = raw[0] === 0x55 && raw[1] === 0xaa && raw.readUInt16LE(4) === 0x1979
+          && raw.readUInt16LE(14) === sum16(raw, 14)
+        console.log('[mock-np] binary stub: classic frame → 10-byte refusal ack (HTTP-only device)')
+        if (validPlain) sock.write(npRefusalAck(raw.readUInt16LE(2), raw.readUInt16LE(14)))
+        else sock.write(npRefusalAck(1, 0))
+        buf = Buffer.alloc(0)
+      }
+      return
+    }
+
     // classic / result dialects: 16-byte command frames
     while (buf.length >= 16) {
       const f = buf.subarray(0, 16)
@@ -332,62 +448,8 @@ const server = net.createServer((sock) => {
       if (f[0] !== 0x55 || f[1] !== 0xaa) continue
       const mid = f.readUInt16LE(2)
       const mark = f.readUInt16LE(4)
-      const cmd = f.readUInt16LE(6)
-      const arg2 = f.readUInt32LE(8)
-      const arg1 = f.readUInt16LE(12)
       if (mark !== 0x1979) { console.log(`[mock-np] bad company mark ${mark.toString(16)}`); continue }
-      console.log(`[mock-np] CMD ${cmd.toString(16)} arg1=${arg1} arg2=${arg2} mid=${mid}`)
-      if (DIALECT === 'classic') sock.write(ack(mid))
-
-      switch (cmd) {
-        case 0x113: { // GetSerialNumber
-          sock.write(result(mid, 1, SERIAL.length))
-          const s = Buffer.alloc(32)
-          s.write(SERIAL, 0, 'ascii')
-          sock.write(dataFrame(mid, s))
-          break
-        }
-        case 0x10e: { // GetDeviceTime (packed seconds since 2000)
-          sock.write(result(mid, 1, 4))
-          const t = Buffer.alloc(4)
-          t.writeUInt32LE(Math.floor(Date.now() / 1000) + NOW_OFFSET_MIN * 60 - EPOCH_2000, 0)
-          sock.write(dataFrame(mid, t))
-          break
-        }
-        case 0x10b: // EnableDevice(false)
-        case 0x10c: // EnableDevice(true)
-          sock.write(result(mid, 1, 1))
-          break
-        case 0x107: { // ReadAllGLogData
-          if (arg1 === 0) {
-            sock.write(result(mid, 1, LOGS.length))
-          } else {
-            // after the PC sends its 4-byte "1": reply with the count result,
-            // stream the records as big-data chunks, wait for the PC's count
-            // echo, then send the end marker (0x3e8).
-            pendingData = () => {
-              sock.write(result(mid, 1, LOGS.length))
-              // protocol: chunks are exactly 0x3fc (1020) payload bytes except the
-              // last one — records may straddle chunk boundaries (byte stream).
-              const all = Buffer.concat(LOGS)
-              for (let off = 0; off < all.length; off += 1020) {
-                sock.write(bigFrame(mid, all.subarray(off, Math.min(off + 1020, all.length))))
-              }
-              pendingData = () => {
-                console.log(`[mock-np] count echo received — sending end marker`)
-                sock.write(result(mid, 1, 0x3e8))
-              }
-              deliverPending()
-            }
-          }
-          break
-        }
-        case 0x118: // EmptyGeneralLogData
-          sock.write(result(mid, 1, 1))
-          break
-        default:
-          sock.write(result(mid, 1, 1))
-      }
+      dispatchClassic(f)
       deliverPending()
     }
   })
@@ -397,5 +459,50 @@ const server = net.createServer((sock) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`[mock-np] SBXPC device simulator listening on 0.0.0.0:${PORT}`)
-  console.log(`[mock-np] dialect=${DIALECT}${DIALECT === 'extenc' ? ` password=${PASSWORD} salt=${SALT}` : ''} serial=${SERIAL} logs=${LOGS.length} users=[${USERS.join(',')}] clock-offset=${NOW_OFFSET_MIN}min`)
+  console.log(`[mock-np] dialect=${DIALECT}${['extenc', 'classicenc', 'http'].includes(DIALECT) ? ` password=${PASSWORD} salt=${SALT}` : ''} serial=${SERIAL} logs=${LOGS.length} users=[${USERS.join(',')}] clock-offset=${NOW_OFFSET_MIN}min`)
 })
+
+/* ------------------------------------------------------------------ */
+/* "VisibleLight" HTTP JSON API (NP756P/NP761P generation) — mirrors  */
+/* PacketParserStandard.dll: POST http://ip:14460/<endpoint>         */
+/* with {"pass":N} → {"result":bool,"data":"<json-string|text>"}        */
+/* ------------------------------------------------------------------ */
+if (DIALECT === 'http') {
+  const json = (res, code, obj) => {
+    const b = Buffer.from(JSON.stringify(obj))
+    res.writeHead(code, { 'Content-Type': 'application/json', 'Content-Length': b.length })
+    res.end(b)
+  }
+  const readBody = (req, cb) => {
+    let data = ''
+    req.on('data', (c) => { data += c })
+    req.on('end', () => { try { cb(JSON.parse(data || '{}')) } catch { cb({}) } })
+  }
+  const ok = (data) => JSON.stringify({ result: true, data: typeof data === 'string' ? data : JSON.stringify(data) })
+  const fail = (why) => JSON.stringify({ result: false, data: JSON.stringify({ error: why }) })
+
+  const httpServer = http.createServer((req, res) => {
+    const passOk = (body) => Number(body.pass) === PASSWORD || String(body.pass) === String(PASSWORD)
+    readBody(req, (body) => {
+      console.log(`[mock-np] HTTP ${req.method} ${req.url} pass=${body.pass ?? '—'}`)
+      if (!passOk(body)) return json(res, 200, JSON.parse(fail('password')))
+      switch (req.url) {
+        case '/getDeviceKey':
+          return json(res, 200, JSON.parse(ok(SERIAL)))
+        case '/getLogCount':
+          return json(res, 200, JSON.parse(ok(JSON.stringify({ count: LOGS.length }))))
+        case '/getDeviceTime':
+          return json(res, 200, JSON.parse(ok(new Date(Date.now() + NOW_OFFSET_MIN * 60000).toISOString())))
+        case '/getDeviceInfo':
+          return json(res, 200, JSON.parse(ok(JSON.stringify({ model: 'NP756+', serial: SERIAL, users: USERS.length }))))
+        case '/getOEM':
+          return json(res, 200, JSON.parse(ok('NovinPardaz')))
+        default:
+          return json(res, 404, JSON.parse(fail('unknown endpoint')))
+      }
+    })
+  })
+  httpServer.listen(HTTP_PORT, '0.0.0.0', () => {
+    console.log(`[mock-np] VisibleLight HTTP API listening on 0.0.0.0:${HTTP_PORT} (password=${PASSWORD})`)
+  })
+}

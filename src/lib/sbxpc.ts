@@ -5,7 +5,7 @@
  * Reverse-engineered from the vendor's own NovinHozor software
  * (SBXPCDLL64.dll + SBPCCOMM64.dll). See scripts/SBXPC-PROTOCOL.md.
  *
- * Real-world devices come in (at least) four wire "dialects", so this client
+ * Real-world devices come in (at least) SIX wire "dialects", so this client
  * PROBES the device on connect and adapts automatically:
  *
  *  CLASSIC        cmd(16B, 55AA) → ACK(8B, 5AA5) → RESULT(14B, AA55) → DATA(A55A)
@@ -16,6 +16,15 @@
  *                 ("رمز شبکه" in the device menu; auto-probed against common defaults)
  *                 The DLL's salt slot is BSS → default salt = 0 (key = LE32(password));
  *                 some SDK generations use 0x25B84 — the client tries both (v1.2.3).
+ *  CLASSIC_SECURE classic 16B exchange with every frame XOR-encrypted with the
+ *                 same key (v1.2.4 hypothesis — probed when EXT_SECURE fails).
+ *  HTTP_JSON      the "VisibleLight" generation (NP756P/NP761P…): a JSON/HTTP API
+ *                 on port 14460 — POST /getDeviceKey, /getLogCount, /getLogInfo,
+ *                 /getDeviceTime, /getDeviceInfo, /getOEM with {"pass":N} bodies,
+ *                 responses {"result":bool,"data":"…"} (exactly what the vendor's
+ *                 PacketParserStandard.dll speaks — v1.2.4). The binary port of these
+ *                 devices is a legacy stub that refuses classic frames (10-byte ack)
+ *                 and drops everything else — the fingerprint seen on real NP756+.
  *
  * Every exchange can be dumped as raw hex in errors/details, so unrecognized
  * device flavours can be diagnosed from the logs without physical access.
@@ -69,7 +78,10 @@ const PASSWORD_CANDIDATES = [0, 123456, 12345, 1234, 123, 1, 9999, 65535]
 const MODE_TABLE_OLD = [4, 1, 2, 3, 10, 11, 12, 13, 14, 20, 21, 15, 23, 24, 25, 26]
 const MODE_TABLE_NEW = [23, 1, 2, 3, 10, 11, 12, 13, 14, 20, 21, 4, 5, 6, 7, 22]
 
-export type SbxDialect = 'CLASSIC' | 'RESULT_DIRECT' | 'EXT' | 'EXT_SECURE'
+export type SbxDialect = 'CLASSIC' | 'RESULT_DIRECT' | 'EXT' | 'EXT_SECURE' | 'CLASSIC_SECURE' | 'HTTP_JSON'
+
+/** port of the "VisibleLight" HTTP JSON API (vendor constant — PacketParserStandard.dll) */
+export const NP_HTTP_PORT = 14460
 
 /** XOR key for the EXT_SECURE dialect: LE32(password + salt) */
 export function extKeyFor(password: number, salt = 0): Buffer {
@@ -202,6 +214,75 @@ export function parseDataFrame(f: Buffer, payloadLen: number): Buffer | null {
 }
 
 /* ---------------------------------------------------------------- */
+/* HTTP_JSON dialect — "VisibleLight" NP generation (port 14460)      */
+/* (protocol copied from the vendor's PacketParserStandard.dll)      */
+/* ---------------------------------------------------------------- */
+
+export interface HttpApiEnvelope {
+  result: boolean
+  data: string
+}
+
+/** POST one JSON request to the device HTTP API; null = no HTTP device / no answer */
+export async function npHttpPost(
+  ip: string,
+  port: number,
+  endpoint: string,
+  body: Record<string, unknown>,
+  timeoutMs = 2600,
+): Promise<HttpApiEnvelope | null> {
+  const ctl = new AbortController()
+  const timer = setTimeout(() => ctl.abort(), timeoutMs)
+  try {
+    const res = await fetch(`http://${ip}:${port}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: ctl.signal,
+    })
+    const text = (await res.text()).slice(0, 8192)
+    try {
+      const j = JSON.parse(text) as { result?: unknown; data?: unknown }
+      if (typeof j.result !== 'boolean') return null
+      return { result: j.result, data: typeof j.data === 'string' ? j.data : JSON.stringify(j.data ?? '') }
+    } catch {
+      return null
+    }
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+/** parse the /getLogCount "data" payload defensively ({"count":N} | {"logCount":N} | plain N) */
+export function parseHttpLogCount(data: string): number | null {
+  const s = data.trim()
+  try {
+    const j = JSON.parse(s)
+    if (typeof j === 'number') return Math.trunc(j)
+    if (j && typeof j === 'object') {
+      for (const k of ['count', 'logCount', 'log_count', 'total', 'logs']) {
+        const v = (j as Record<string, unknown>)[k]
+        if (typeof v === 'number') return Math.trunc(v)
+        if (typeof v === 'string' && /^\d+$/.test(v.trim())) return Number(v.trim())
+      }
+    }
+  } catch { /* not JSON */ }
+  if (/^\d+$/.test(s)) return Number(s)
+  return null
+}
+
+/** parse a device clock string defensively (ISO | "yyyy-MM-dd HH:mm:ss" | epoch) */
+export function parseHttpDate(data: string): Date | null {
+  const s = data.trim()
+  if (/^\d{10}$/.test(s)) return new Date(Number(s) * 1000) // epoch seconds
+  if (/^\d{13}$/.test(s)) return new Date(Number(s))
+  const d = new Date(s.replace(' ', 'T'))
+  return Number.isFinite(d.getTime()) ? d : null
+}
+
+/* ---------------------------------------------------------------- */
 /* client                                                            */
 /* ---------------------------------------------------------------- */
 
@@ -216,6 +297,8 @@ export interface ProbeInfo {
   password?: number
   /** EXT_SECURE: the salt variant the device accepted (0 = DLL default) */
   salt?: number
+  /** HTTP_JSON: number of stored logs (from /getLogCount) */
+  logCount?: number
 }
 
 // (shared mutable client state lives on the class; nothing else here)
@@ -544,13 +627,26 @@ export class SbxpcClient {
     /* ---- attempt 2b (NEW): password-encrypted EXT dialect ----
        NP756+ & newer units refuse the classic protocol (10-byte refusal ack)
        and silently drop plaintext EXT frames — they ONLY accept frames
-       XOR-encrypted with key(«رمز شبکه» + 0x25B84). */
+       XOR-encrypted with key(«رمز شبکه» + salt). */
     if (sawNpErr) {
       const found = await this.tryExtSecure()
       if (found != null) return this.finishExtSecure(found, info)
+
+      /* ---- v1.2.4: the "VisibleLight" HTTP JSON API (NP756P/NP761P generation) —
+         the vendor's own stack talks to these face devices over HTTP :14460,
+         and their binary port is exactly such a refusing stub ---- */
+      const http = await this.tryHttpApi(info)
+      if (http) return http
+
+      /* ---- v1.2.4: CLASSIC_SECURE hypothesis — the whole classic exchange
+         XOR-encrypted with the «رمز شبکه» key ---- */
+      const classicSec = await this.tryClassicSecure(info)
+      if (classicSec) return classicSec
+
       info.note = this.hadConfiguredPassword
         ? 'دستگاه NP با رمزنگاری شبکه شناسایی شد ولی «رمز شبکه» ثبت‌شده پذیرفته نشد — رمز را از منوی دستگاه (تنظیمات ← ارتباط ← رمز شبکه) بررسی کنید'
         : 'دستگاه NP با رمزنگاری شبکه شناسایی شد ولی هیچ‌یک از رمزهای رایج پذیرفته نشد — «رمز شبکه» دستگاه را از منوی دستگاه (تنظیمات ← ارتباط) پیدا و در پرونده دستگاه وارد کنید'
+      info.note += ' — اگر رمز درست است، خروجی ابزار scripts/np-probe.js را برای پشتیبانی بفرستید'
       return info
     }
 
@@ -617,6 +713,9 @@ export class SbxpcClient {
     }
 
     /* ---- nothing recognized — but the device IS alive ---- */
+    /* v1.2.4: last resort — maybe it is an HTTP_JSON device after all */
+    const http2 = await this.tryHttpApi(info)
+    if (http2) return http2
     info.note = 'دستگاه پاسخ داد ولی فریم‌های آن با هیچ‌یک از گویش‌های شناخته‌شدهٔ پروتکل مطابقت نداشت'
     return info
   }
@@ -647,6 +746,7 @@ export class SbxpcClient {
    * resets on disconnect. Returns the accepted password, or null.
    */
   private async tryExtSecure(): Promise<number | null> {
+    const configuredPw = this.password
     const passwords = this.password != null ? [this.password] : PASSWORD_CANDIDATES
     for (const salt of EXT_SALTS) {
       for (const pw of passwords) {
@@ -656,7 +756,8 @@ export class SbxpcClient {
           await this.resetConnection(4000)
         } catch {
           // device unreachable — abort the whole search
-          if (passwords.length > 1 || EXT_SALTS.length > 1) { this.password = null; this.extSalt = EXT_SALTS[0] }
+          this.password = configuredPw
+          this.extSalt = EXT_SALTS[0]
           return null
         }
         const cmd = this.cmdFrameExtEnc(0x113)
@@ -675,8 +776,141 @@ export class SbxpcClient {
         return pw
       }
     }
-    this.password = null
+    // sweep failed — restore the configured password so later probes use it
+    this.password = configuredPw
     this.extSalt = EXT_SALTS[0]
+    return null
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* v1.2.4 — CLASSIC_SECURE (hypothesis): the whole classic exchange    */
+  /* XOR-encrypted with the «رمز شبکه» key                              */
+  /* ---------------------------------------------------------------- */
+
+  /** send one encrypted classic command; return the DECRYPTED reply drain (or null) */
+  private async classicSecureExchange(
+    cmd: number, arg1: number, arg2: number, pw: number, salt: number, timeoutMs: number,
+    dataLen = 32,
+  ): Promise<Buffer | null> {
+    const key = extKeyFor(pw, salt)
+    const frame = xorCrypt(this.cmdHeader(cmd, arg1, arg2), key)
+    try {
+      this.write(frame)
+      this.record('out', frame)
+    } catch { return null }
+    const r = await this.readAvailable(timeoutMs).catch(() => Buffer.alloc(0))
+    this.record('in', r)
+    if (r.length === 0) return null
+    return this.decryptClassicReply(r, key, dataLen)
+  }
+
+  /**
+   * Turn a (possibly encrypted) classic reply drain into plaintext frames.
+   * The device restarts the XOR phase at byte 0 of EVERY frame, so the frames
+   * are decrypted one at a time: ACK(8B 5AA5) → RESULT(14B AA55) → DATA(6+len).
+   * `dataLen` is the expected payload of the data frame (0x113 → 32, 0x10e → 4);
+   * the result's retCode is NOT trusted for framing (devices disagree on it).
+   * Also accepts a fully plaintext reply.
+   */
+  private decryptClassicReply(drain: Buffer, key: Buffer, dataLen = 32): Buffer | null {
+    // plaintext reply?
+    if (drain[0] === 0x5a && drain[1] === 0xa5) return drain
+    if (drain[0] === 0xaa && drain[1] === 0x55 && drain.length >= 14 && parseExeResult(drain.subarray(0, 14))) return drain
+
+    const parts: Buffer[] = []
+    let off = 0
+    for (let guard = 0; guard < 8 && off + 2 <= drain.length; guard++) {
+      const h0 = drain[off] ^ key[0]
+      const h1 = drain[off + 1] ^ key[1]
+      let flen = 0
+      if (h0 === 0x5a && h1 === 0xa5) flen = 8
+      else if (h0 === 0xaa && h1 === 0x55) flen = 14
+      else if (h0 === 0xa5 && h1 === 0x5a) flen = dataLen + 6
+      else return null
+      if (off + flen > drain.length) return parts.length ? Buffer.concat(parts) : null
+      parts.push(xorCrypt(drain.subarray(off, off + flen), key))
+      off += flen
+    }
+    const plain = Buffer.concat(parts)
+    return plain.length > 0 ? plain : null
+  }
+
+  /** probe CLASSIC_SECURE: encrypted classic 0x113 → valid ACK/RESULT ⇒ dialect confirmed */
+  private async tryClassicSecure(info: ProbeInfo): Promise<ProbeInfo | null> {
+    // last-resort hypothesis — a short candidate list keeps the probe snappy
+    const configuredPw = this.password
+    const passwords = this.password != null ? [this.password] : [12345, 123456, 0]
+    for (const salt of EXT_SALTS) {
+      for (const pw of passwords) {
+        this.password = pw
+        this.extSalt = salt
+        try {
+          await this.resetConnection(4000)
+        } catch {
+          this.password = configuredPw
+          this.extSalt = EXT_SALTS[0]
+          return null
+        }
+        const plain = await this.classicSecureExchange(0x113, 0, 0, pw, salt, 2600, 32)
+        if (!plain) continue
+        const ack = plain.length >= 8 ? parseClassicAck(plain.subarray(0, 8)) : null
+        const res = plain.length >= 14 ? parseExeResult(plain.subarray(8, 22)) : null
+        if (!ack && !res) continue
+        this.dialect = 'CLASSIC_SECURE'
+        info.dialect = 'CLASSIC_SECURE'
+        info.password = pw
+        info.salt = salt
+        if (ack && ack.mid !== this.machineId && ack.mid !== 0xffff) this.machineId = ack.mid
+        const serial = this.trySerialFromTail(plain.subarray(ack ? 8 : 14))
+        if (serial) info.serialNumber = serial
+        // read the clock through the same encrypted classic path
+        const t = await this.classicSecureExchange(0x10e, 0, 4, pw, salt, 2600, 4)
+        if (t) {
+          // the drain starts with the optional 8B ACK — the RESULT frame follows it
+          const ackT = parseClassicAck(t.subarray(0, 8))
+          const off = ackT ? 8 : 0
+          const tres = t.length >= off + 14 ? parseExeResult(t.subarray(off, off + 14)) : null
+          const tdata = tres && t.length >= off + 14 + 10 ? parseDataFrame(t.subarray(off + 14, off + 24), 4) : null
+          if (tdata) info.deviceTime = npTimestamp(tdata.readUInt32LE(0))
+        }
+        info.note = `گویش کلاسیکِ رمزشده — «رمز شبکه»=${pw}${salt ? ` · نمک=${salt}` : ''}`
+        return info
+      }
+    }
+    this.password = configuredPw
+    this.extSalt = EXT_SALTS[0]
+    return null
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* v1.2.4 — HTTP_JSON dialect ("VisibleLight" generation, :14460)      */
+  /* ---------------------------------------------------------------- */
+
+  /**
+   * Probe the device HTTP JSON API (port 14460 — vendor constant).
+   * On success fills dialect/serial/time/logCount into `info` and returns it.
+   */
+  async tryHttpApi(info: ProbeInfo): Promise<ProbeInfo | null> {
+    const pw = this.password ?? 0
+    // some firmwares want the pass as a string, some as a number — try both
+    for (const pass of [pw, String(pw)]) {
+      const key = await npHttpPost(this.ip, NP_HTTP_PORT, '/getDeviceKey', { pass })
+      if (!key || !key.result) continue
+      this.dialect = 'HTTP_JSON'
+      info.dialect = 'HTTP_JSON'
+      info.password = pw
+      const serial = key.data.trim()
+      if (serial) info.serialNumber = serial
+      const time = await npHttpPost(this.ip, NP_HTTP_PORT, '/getDeviceTime', { pass })
+      if (time?.result) info.deviceTime = parseHttpDate(time.data)
+      const cnt = await npHttpPost(this.ip, NP_HTTP_PORT, '/getLogCount', { pass })
+      if (cnt?.result) info.logCount = parseHttpLogCount(cnt.data) ?? undefined
+      info.note =
+        `دستگاه با API HTTP (پورت ${NP_HTTP_PORT}) پاسخ داد — نسل جدید NP («VisibleLight»). ` +
+        `تست اتصال موفق؛ خواندن ترددها روی همین پروتکل در نسخهٔ بعدی فعال می‌شود — ` +
+        `برای تسریع، خروجی scripts/np-probe.js را برای پشتیبانی بفرستید`
+      return info
+    }
     return null
   }
 
@@ -776,6 +1010,11 @@ export class SbxpcClient {
   async getSerialNumber(): Promise<string> {
     if (!this.dialect) await this.probeDialect()
     if (this.probeInfo?.serialNumber) return this.probeInfo.serialNumber
+    if (this.dialect === 'HTTP_JSON') {
+      const key = await npHttpPost(this.ip, NP_HTTP_PORT, '/getDeviceKey', { pass: this.password ?? 0 })
+      if (key?.result) return key.data.trim()
+      throw new SbxpcError('دستگاه فقط API HTTP دارد — خواندن سریال روی این نسل در نسخهٔ بعدی کامل می‌شود')
+    }
 
     if (this.dialect === 'EXT_SECURE') {
       const drain = await this.sendCmd(0x113, 0, 0)
@@ -823,6 +1062,11 @@ export class SbxpcClient {
   async getDeviceTime(): Promise<Date | null> {
     try {
       if (!this.dialect) await this.probeDialect()
+
+      if (this.dialect === 'HTTP_JSON') {
+        const t = await npHttpPost(this.ip, NP_HTTP_PORT, '/getDeviceTime', { pass: this.password ?? 0 })
+        return t?.result ? parseHttpDate(t.data) : null
+      }
 
       if (this.dialect === 'EXT_SECURE') {
         const drain = await this.sendCmd(0x10e, 0, 4)
@@ -898,6 +1142,21 @@ export class SbxpcClient {
    */
   async readAllLogs(timeoutMs = 45000): Promise<NpLog[]> {
     if (!this.dialect) await this.probeDialect()
+    if (this.dialect === 'HTTP_JSON') {
+      // /getLogInfo — the record schema is vendor-specific; enabled once we see a
+      // real response (send your scripts/np-probe.js output). For now: a clear error.
+      throw new SbxpcError(
+        'این دستگاه از نسل جدید NP است و روی API HTTP (پورت 14460) کار می‌کند — تست اتصال موفق است. ' +
+        'خواندن ترددها روی همین پروتکل در نسخهٔ بعدی فعال می‌شود؛ برای تسریع، خروجی scripts/np-probe.js را برای پشتیبانی بفرستید',
+      )
+    }
+
+    if (this.dialect === 'CLASSIC_SECURE') {
+      throw new SbxpcError(
+        'گویش «کلاسیک رمزشده» تشخیص داده شد (رمز شبکه درست است) — خواندن ترددها روی این گویش در نسخهٔ بعدی فعال می‌شود؛ ' +
+        'خروجی scripts/np-probe.js را برای پشتیبانی بفرستید تا اولویت‌بندی کنیم',
+      )
+    }
 
     if (this.dialect === 'EXT_SECURE') {
       return this.readAllLogsExtSecure(timeoutMs)
@@ -1155,6 +1414,8 @@ export interface NpTestResult {
   password?: number
   /** EXT_SECURE: the salt variant that worked (0 = DLL default) */
   salt?: number
+  /** HTTP_JSON: number of logs stored on the device (/getLogCount) */
+  logCount?: number
 }
 
 /** Test the connection to an NP device: connect, probe dialect, read serial + clock. */
@@ -1163,10 +1424,12 @@ export async function npTest(ip: string, port: number, machineId = 1, password?:
   try {
     await client.connect(6000)
     const probe = await client.probeDialect()
+    // v1.2.4: the fallback reads must never kill an otherwise successful probe
+    // (new dialects like HTTP_JSON/CLASSIC_SECURE cannot serve them)
     const serialNumber = probe.serialNumber
       ?? await client.getSerialNumber().catch(() => undefined)
     const deviceTime = probe.deviceTime
-      ?? await client.getDeviceTime()
+      ?? await client.getDeviceTime().catch(() => null)
     const raw = probe.exchanges.map((e) => `${e.dir === 'out' ? '»' : '«'} ${e.hex}`).join('\n')
     const ok = !!probe.dialect || !!serialNumber || !!deviceTime
     return {
@@ -1178,8 +1441,28 @@ export async function npTest(ip: string, port: number, machineId = 1, password?:
       raw: raw.slice(0, 4000),
       password: probe.password,
       salt: probe.salt,
+      logCount: probe.logCount,
     }
   } catch (err) {
+    // v1.2.4: binary port unreachable? The "VisibleLight" generation speaks
+    // HTTP on :14460 — try that before declaring the device dead
+    if (err instanceof SbxpcError || /connect|ECONN|EHOST|timeout|مهلت/i.test(String((err as Error).message))) {
+      const probe: ProbeInfo = { dialect: null, exchanges: [] }
+      const client2 = new SbxpcClient(ip, port, machineId, password ?? null)
+      const http = await client2.tryHttpApi(probe).catch(() => null)
+      if (http) {
+        return {
+          ok: true,
+          serialNumber: http.serialNumber,
+          deviceTime: http.deviceTime ? http.deviceTime.toISOString() : null,
+          dialect: 'HTTP_JSON',
+          note: http.note,
+          password: http.password,
+          logCount: http.logCount,
+          raw: `« (پورت ${port} باینری در دسترس نبود؛ دستگاه از طریق API HTTP پورت ${NP_HTTP_PORT} جواب داد)`,
+        }
+      }
+    }
     return {
       ok: false,
       error: err instanceof Error ? err.message : String(err),
