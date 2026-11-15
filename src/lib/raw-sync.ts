@@ -55,6 +55,12 @@ export interface RawSyncOptions {
   full?: boolean
   /** extra attempts for the transport read (default 2) */
   retries?: number
+  /** v1.4.2 (addendum P3): quiet mode — a no-op run (0 new, no error) writes
+   *  no DeviceLog row and its DeviceSyncRun row is removed (history stays
+   *  meaningful without a 30-second row flood from rt-polls). */
+  quiet?: boolean
+  /** provenance note recorded on the DeviceSyncRun row (e.g. 'rt-poll') */
+  note?: string
 }
 
 export interface RawSyncSummary {
@@ -103,6 +109,7 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
       sourceProtocol: String(opts.provider.protocol),
       mode,
       status: 'RUNNING',
+      ...(opts.note ? { note: opts.note } : {}),
     },
   })
 
@@ -214,16 +221,24 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
       retries,
     }
 
-    await finishRun('SUCCESS', {
-      recordsSeen: summary.seen,
-      recordsInWindow: summary.inWindow,
-      recordsNew: summary.newCount,
-      recordsDuplicate: summary.duplicate,
-      recordsMatched: summary.matched,
-      recordsUnmatched: summary.unmatched,
-      bookmarkAt: newBookmark,
-      error: ingest.invalid > 0 ? `${ingest.invalid} رکورد نامعتبر نادیده گرفته شد` : null,
-    })
+    const noopQuiet = Boolean(opts.quiet) && summary.newCount === 0 && ingest.invalid === 0 && retries === 0
+    if (noopQuiet) {
+      // a quiet no-op run records nothing (0 new, no error, no retries) —
+      // the run row created upfront is removed; punches are what matter and
+      // a no-op run has none attached (nothing references its id)
+      await db.deviceSyncRun.delete({ where: { id: run.id } }).catch(() => {})
+    } else {
+      await finishRun('SUCCESS', {
+        recordsSeen: summary.seen,
+        recordsInWindow: summary.inWindow,
+        recordsNew: summary.newCount,
+        recordsDuplicate: summary.duplicate,
+        recordsMatched: summary.matched,
+        recordsUnmatched: summary.unmatched,
+        bookmarkAt: newBookmark,
+        error: ingest.invalid > 0 ? `${ingest.invalid} رکورد نامعتبر نادیده گرفته شد` : null,
+      })
+    }
 
     await db.device
       .update({
@@ -241,20 +256,25 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
       .catch(() => {})
 
     const modeFa = mode === 'MOCK' ? ' [آزمایشی — Mock]' : mode === 'DRY_RUN' ? ' [بدون ذخیره‌سازی]' : ''
-    await db.deviceLog
-      .create({
-        data: {
-          deviceId: device.id,
-          level: 'SUCCESS',
-          message: redactDeviceSecrets(
-            `دریافت از دستگاه انجام شد${modeFa}: ${summary.seen} تردد در حافظه دستگاه، ${summary.inWindow} در بازه، ` +
-            `${summary.newCount} رکورد جدید، ${summary.duplicate} تکراری (دиноپه)، ${summary.unmatched} بدون تطبیق (نگه‌داشته شد)` +
-            `${effectiveSerial ? ` — سریال: ${effectiveSerial}` : ''}` +
-            ` (اجرای ${run.id.slice(0, 8)})`,
-          ),
-        },
-      })
-      .catch(() => {})
+    const quietNoNews = Boolean(opts.quiet) && summary.newCount === 0 && ingest.invalid === 0 && retries === 0
+    if (!quietNoNews) {
+      // quiet no-op polls write no SUCCESS log — a 30s polling loop would
+      // otherwise flood the device-log list shown in the UI
+      await db.deviceLog
+        .create({
+          data: {
+            deviceId: device.id,
+            level: 'SUCCESS',
+            message: redactDeviceSecrets(
+              `دریافت از دستگاه انجام شد${modeFa}${opts.note === 'rt-poll' ? ' [شبه‌بی‌درنگ]' : ''}: ${summary.seen} تردد در حافظه دستگاه، ${summary.inWindow} در بازه، ` +
+              `${summary.newCount} رکورد جدید، ${summary.duplicate} تکراری (دиноپه)، ${summary.unmatched} بدون تطبیق (نگه‌داشته شد)` +
+              `${effectiveSerial ? ` — سریال: ${effectiveSerial}` : ''}` +
+              ` (اجرای ${run.id.slice(0, 8)})`,
+            ),
+          },
+        })
+        .catch(() => {})
+    }
 
     if (summary.newCount > 0) {
       await emitRealtime('device-sync', {

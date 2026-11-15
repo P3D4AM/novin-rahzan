@@ -27,6 +27,12 @@ export interface NpSyncOptions {
   daysBack?: number | null
   /** what this call actually talks to — HARDWARE (default), MOCK (tests)… */
   mode?: 'HARDWARE' | 'MOCK' | 'DRY_RUN'
+  /** full history read (rt-poll path — fingerprint dedupe keeps it safe) */
+  full?: boolean
+  /** quiet history (no-op runs write nothing) — rt-poll */
+  quiet?: boolean
+  /** provenance note for the DeviceSyncRun row */
+  note?: string
 }
 
 export interface NpSyncResult {
@@ -125,6 +131,9 @@ export async function importNpDeviceLogs(deviceId: string, opts: NpSyncOptions =
         provider,
         mode: opts.mode ?? 'HARDWARE',
         daysBack: opts.daysBack ?? null,
+        full: opts.full ?? false,
+        quiet: opts.quiet ?? false,
+        note: opts.note,
         retries: 2,
       }),
     )

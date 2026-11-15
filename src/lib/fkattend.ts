@@ -270,6 +270,10 @@ export interface FkSyncOptions {
   mode?: 'HARDWARE' | 'MOCK' | 'DRY_RUN'
   /** read the FULL history the device reports (fingerprint dedupe makes it safe) */
   full?: boolean
+  /** quiet history (no-op runs write nothing) — rt-poll */
+  quiet?: boolean
+  /** provenance note for the DeviceSyncRun row */
+  note?: string
 }
 
 /** UI-compatible sync result (same shape as the SBXPC NpSyncResult) */
@@ -301,6 +305,8 @@ export async function importFkAttendLogs(deviceId: string, opts: FkSyncOptions =
       mode: opts.mode ?? 'HARDWARE',
       daysBack: opts.daysBack ?? null,
       full: opts.full ?? false,
+      quiet: opts.quiet ?? false,
+      note: opts.note,
       retries: 2,
     }),
   )
