@@ -74,6 +74,9 @@ namespace NP756P.ReadOnlyProbe
         public bool ConnectionAttempted;
         public int ConnectHandle;
         public int ConnectRawCode;
+        /// <summary>True only when FK_ConnectNet actually RETURNED a value.
+        /// An exception path produces no raw code at all.</summary>
+        public bool ConnectHasRawCode;
         public bool ConnectSucceeded;
         public long ConnectDurationMs;
         public string ConnectExceptionType;
@@ -99,7 +102,14 @@ namespace NP756P.ReadOnlyProbe
         public FailureInfo DeviceTimeFailure;
 
         // [7]
+        /// <summary>True when a live handle existed when the finally block ran
+        /// (i.e. FK_DisConnect was actually required).</summary>
+        public bool DisconnectNeeded;
+        /// <summary>True when FK_DisConnect was really invoked.</summary>
         public bool DisconnectCalled;
+        /// <summary>True when FK_DisConnect was invoked and raised an exception.</summary>
+        public bool DisconnectFailed;
+        public string DisconnectExceptionType;
         public string DisconnectNote;
 
         public FailureInfo FirstFailure;
@@ -115,17 +125,32 @@ namespace NP756P.ReadOnlyProbe
             // [1] native libraries
             sb.AppendLine();
             sb.AppendLine("[1] Native Libraries");
+            if (!Native.DirectoryExists)
+            {
+                sb.AppendLine("    " + Pad("DLL directory", 24) + ": MISSING (" + (Native.Directory ?? "") + ")");
+            }
             foreach (NativeLibraryValidator.DllEntry e in Native.Entries)
             {
                 sb.AppendLine("    " + Pad(e.FileName, 24) + ": " + e.Status);
+                if (e.Status == "FOUND")
+                {
+                    sb.AppendLine("        detail           : " + e.StatusDetail);
+                }
+                else if (!string.IsNullOrEmpty(e.StatusDetail))
+                {
+                    sb.AppendLine("        reason           : " + e.StatusDetail);
+                }
                 if (e.MissingDependencies.Count > 0)
                 {
-                    sb.AppendLine("        missing dependencies : " + string.Join(", ", e.MissingDependencies.ToArray()));
+                    sb.AppendLine("        missing dependency: " + string.Join(", ", e.MissingDependencies.ToArray()));
                 }
-            }
-            if (!Native.DirectoryExists)
-            {
-                sb.AppendLine("    DLL directory          : MISSING (" + (Native.Directory ?? "") + ")");
+                if (e.MissingImports.Count > 0)
+                {
+                    foreach (NativeLibraryValidator.ImportProblem p in e.MissingImports)
+                    {
+                        sb.AppendLine("        unresolved import : " + p.Description());
+                    }
+                }
             }
 
             // [2] architecture
@@ -138,7 +163,7 @@ namespace NP756P.ReadOnlyProbe
             foreach (NativeLibraryValidator.DllEntry e in Native.Entries)
             {
                 if (e.Architecture == "x86") { nativeX86++; }
-                else if (e.Architecture != "-") { nativeOther++; }
+                else if (e.Architecture != "-" && e.Architecture != null) { nativeOther++; }
             }
             string sdkArch = nativeX86 > 0 && nativeOther == 0 ? "x86 (" + nativeX86 + " DLLs)"
                 : (nativeOther > 0 ? "MIXED/UNKNOWN (" + nativeOther + " non-x86)" : "unknown");
@@ -164,11 +189,22 @@ namespace NP756P.ReadOnlyProbe
                 sb.AppendLine("    " + Pad("Machine Number", 24) + ": " + ConnectionMachine.ToString(CultureInfo.InvariantCulture));
                 sb.AppendLine("    " + Pad("Timeout", 24) + ": " + ConnectionTimeout.ToString(CultureInfo.InvariantCulture) + " ms");
                 sb.AppendLine("    " + Pad("License", 24) + ": " + ConnectionLicense.ToString(CultureInfo.InvariantCulture));
-                sb.AppendLine("    " + Pad("Connect Result", 24) + ": " +
-                    (ConnectSucceeded ? "SUCCESS (handle=" + ConnectHandle.ToString(CultureInfo.InvariantCulture) + ")"
-                                      : "FAILED (handle=" + ConnectHandle.ToString(CultureInfo.InvariantCulture) + ")"));
+                string connectLine;
+                if (ConnectSucceeded)
+                {
+                    connectLine = "SUCCESS (handle=" + ConnectHandle.ToString(CultureInfo.InvariantCulture) + ")";
+                }
+                else if (ConnectHasRawCode)
+                {
+                    connectLine = "FAILED (SDK returned " + ConnectRawCode.ToString(CultureInfo.InvariantCulture) + ")";
+                }
+                else
+                {
+                    connectLine = "FAILED (exception: " + (ConnectExceptionType ?? "?") + " - no SDK return value)";
+                }
+                sb.AppendLine("    " + Pad("Connect Result", 24) + ": " + connectLine);
                 sb.AppendLine("    " + Pad("Elapsed", 24) + ": " + ConnectDurationMs.ToString(CultureInfo.InvariantCulture) + " ms");
-                if (!ConnectSucceeded)
+                if (!ConnectSucceeded && ConnectHasRawCode)
                 {
                     sb.AppendLine("    " + Pad("Meaning", 24) + ": " + FkErrorText.For(ConnectRawCode));
                 }
@@ -197,8 +233,26 @@ namespace NP756P.ReadOnlyProbe
             // [7] disconnect
             sb.AppendLine();
             sb.AppendLine("[7] Disconnect");
-            sb.AppendLine("    " + Pad("Result", 24) + ": " +
-                (DisconnectCalled ? "OK (FK_DisConnect executed)" : "NOT NEEDED (no live handle)"));
+            sb.AppendLine("    " + Pad("Needed", 24) + ": " + (DisconnectNeeded ? "yes (live handle)" : "no"));
+            sb.AppendLine("    " + Pad("Called", 24) + ": " + (DisconnectCalled ? "yes" : "no"));
+            string disconnectResult;
+            if (DisconnectFailed)
+            {
+                disconnectResult = "DISCONNECT FAILED (" + (DisconnectExceptionType ?? "?") + ")";
+            }
+            else if (DisconnectNeeded && DisconnectCalled)
+            {
+                disconnectResult = "OK (FK_DisConnect executed)";
+            }
+            else if (!DisconnectNeeded)
+            {
+                disconnectResult = "NOT NEEDED (no live handle)";
+            }
+            else
+            {
+                disconnectResult = "NOT CALLED (internal error)";
+            }
+            sb.AppendLine("    " + Pad("Result", 24) + ": " + disconnectResult);
             if (!string.IsNullOrEmpty(DisconnectNote))
             {
                 sb.AppendLine("    " + Pad("Note", 24) + ": " + DisconnectNote);

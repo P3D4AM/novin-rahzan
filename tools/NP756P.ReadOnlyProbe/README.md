@@ -6,7 +6,11 @@
 
 ## ۱) هدف ابزار
 
-- تایید اینکه زنجیره DLLهای SDK صحیح و قابل بارگذاری است (تحلیل ایستا، بدون اجرای DLL).
+- تایید اینکه زنجیره DLLهای SDK صحیح و قابل بارگذاری است (تحلیل ایستا، بدون اجرای DLL):
+  - معماری x86 هر ۷ فایل؛
+  - Export هر ۶ تابع مجاز از `FK623Attend.dll`؛
+  - حل‌شدن وابستگی‌ها؛
+  - **تطبیق Importهای نام‌دار و Ordinal-based با جدول Export DLL مقصد** (FK623Attend.dll مثلاً ۱۶۰ تابع را با Ordinal از FKAttend.dll وارد می‌کند — Ordinal مفقود = شکست اعتبارسنجی با گزارش مبدأ/مقصد/Ordinal).
 - برقراری یک اتصال آزمایشی با `FK_ConnectNet`.
 - خواندن **فقط** این اطلاعات پایه:
   - شماره سریال (`FK_GetProductData` اندیس ۱) و کد محصول (اندیس ۳)
@@ -41,9 +45,11 @@ Application → FK623Attend.dll → FKAttend.dll → FKViaDev.dll
                               (+ DLLهای سیستم: kernel32, ws2_32, gdi32, gdiplus, ...)
 ```
 
+نکتهٔ مهم: `FK623Attend.dll` علاوه بر `FK_GetLastError` (نام‌دار)، **۱۶۰ تابع را با شمارهٔ Ordinal** از `FKAttend.dll` وارد می‌کند و `FKAttend.dll` نیز توابعی را با Ordinal از `FKPwdEncDec.dll`/`FpDataConv.dll`/`FaceDataConv.dll` و با نام از `FKViaDev.dll`/`LFWViaDev.dll` وارد می‌کند. Validator مرحلهٔ A همهٔ این Importها را با جدول Export مقصد تطبیق می‌دهد.
+
 مسیر این فایل‌ها در ریپو: `NovinLibraryResearch/decompiled-complete/_dlls`
 
-**کپی کورکورانه انجام نشده**؛ ابزار فقط این هفت فایل را کنار خود جست‌وجو می‌کند (یا مسیر را با `--dll-dir` می‌گیرد) و درستی معماری x86 و حل‌شدن وابستگی‌ها را به‌صورت ایستا بررسی می‌کند.
+**کپی کورکورانه انجام نشده**؛ ابزار فقط این هفت فایل را کنار خود جست‌وجو می‌کند (یا مسیر را با `--dll-dir` می‌گیرد) و درستی معماری x86، حل‌شدن وابستگی‌ها و Import/Export Chain را به‌صورت ایستا بررسی می‌کند. فایل غیر-PE، فایل قطع‌شده/خراب، معماری نامناسب، IOException هنگام خواندن و Ordinal/تابع مفقود، همگی به‌عنوان شکست اعتبارسنجی گزارش می‌شوند (رفتار پیش‌فرضِ Validator همیشه شکست است).
 
 ## ۴) پیش‌نیازهای ویندوز
 
@@ -81,6 +87,8 @@ NP756P.ReadOnlyProbe.exe --ip 192.168.1.75 --port 4238
 ۳. رمز عددی ارتباط دستگاه را در پیام راه‌اندازی وارد کنید (ورودی مخفی است).
 ۴. خروجی مرحله‌بندی‌شده [1]..[7] را چاپ و ضبط کنید.
 
+> **کنسول Redirect شده:** اگر ورودی برنامه piped/redirect شده باشد (مثلاً `echo 1234 | ...`)، اعلان رمز مخفی قابل اجرا نیست؛ برنامه به‌جای crash پیام خطای قابل فهم می‌دهد و با کد خروج `1` پایان می‌یابد. ابزار را در پنجرهٔ تعاملی cmd/PowerShell اجرا کنید.
+
 ## ۷) نمونهٔ اجرا با پارامترها
 
 ```
@@ -101,7 +109,8 @@ NP756P.ReadOnlyProbe.exe --help
 ## ۹) تفسیر نتیجهٔ اتصال
 
 - `Connect Result: SUCCESS (handle=N)` — N بزرگ‌تر از صفر یعنی اتصال SDK برقرار است (همان شرط نمونهٔ رسمی فروشنده).
-- `Connect Result: FAILED (handle=-2)` — مقدار برگشتی SDK؛ معنای متنی هر کد در گزارش چاپ می‌شود (بخش ۱۰).
+- `Connect Result: FAILED (SDK returned -2)` — مقدار برگشتی واقعی SDK؛ معنای متنی هر کد در گزارش چاپ می‌شود (بخش ۱۰).
+- `Connect Result: FAILED (exception: <نوع> - no SDK return value)` — اتصال با استثنا شکست خورده؛ در این حالت **هیچ Raw Code یا Last Error ثبت نمی‌شود** تا عدد صفر به‌اشتباه «No support» تلقی نشود.
 - `Elapsed` مدت واقعی فراخوانی اتصال به میلی‌ثانیه.
 - شکست اتصال **هرگز** به تلاش مجدد خودکار، تعویض رمز یا اسکن پورت منجر نمی‌شود.
 
@@ -127,16 +136,27 @@ NP756P.ReadOnlyProbe.exe --help
 | -15 | Mistake fp data version |
 | -13 | در سورس دیکامپایل‌شده متنی ندارد؛ «Unmapped» گزارش می‌شود |
 
-کد خروج برنامه: `0` موفق کامل · `1` خطای ورودی/رمز · `2` شکست مرحلهٔ DLLها · `3` شکست اتصال · `4` شکست مرحلهٔ خواندن · `5` استثنای پیش‌بینی‌نشده.
+**کدهای خروج برنامه (با رفتار واقعی `Program` تطبیق داده شده):**
 
-## ۱۱) محدودیت‌های نسخهٔ اول
+| کد | شرط |
+|---|---|
+| 0 | همهٔ مراحل موفق **و** اتصال واقعاً با `FK_DisConnect` بسته شده (یا از ابتدا هندل معتبری وجود نداشته) |
+| 1 | خطای ورودی/رمز — یا کنسول Redirect شده (بدون crash) |
+| 2 | شکست مرحلهٔ DLLها (فایل مفقود/غیر-PE/خراب/معماری نامناسب/Import-Export حل‌نشده) |
+| 3 | شکست اتصال (مقدار برگشتی ≤ 0 یا استثنا در `FK_ConnectNet`) |
+| 4 | شکست مرحلهٔ خواندن — یا شکست خودِ `FK_DisConnect` (خطای قطع اتصال هرگز با خروجی 0 همراه نیست) |
+| 5 | استثنای پیش‌بینی‌نشدهٔ خارج از جریان عادی؛ با catch سراسری کنترل می‌شود (فقط نوع استثنا + پیام کوتاه، بدون Stack Trace/Inner) |
+
+## ۱۱) محدودیت‌های نسخه
 
 - فقط خواندن؛ هیچ عملیات نوشتنی انجام نمی‌شود.
 - رمز جایگزین و اسکن پورت خودکار ممنوع و پیاده‌سازی نشده.
 - در شکست خواندن، **هیچ فرمان اضافه‌ای برای «رفع خطا»** ارسال نمی‌شود؛ فقط علت گزارش می‌شود.
 - کاربران/بیومتریک/سوابق تردد دریافت نمی‌شوند.
 - `FK_GetLastError` فقط با هندل معتبر و پس از شکست یک خواندن فراخوانی می‌شود.
-- تست‌های خودکار هیچ DLL Native را بارگذاری نمی‌کنند و به هیچ دستگاهی وصل نمی‌شوند.
+- مراحلِ اجرا نشده در گزارش `SKIPPED` هستند، نه `FAILED`؛ تابعِ دقیقاً شکست‌خورده در FAILURE DETAILS با نام کامل (مثلاً `FK_GetProductData(1)`) مشخص می‌شود.
+- پارسر PE ابزار PE32/PE32+ استاندارد را پوشش می‌دهد؛ Delay-Load/Forwarder/Bound و DLLهای سیستم را نه (مستندات پژوهش، بخش ۵ را ببینید).
+- تست‌های خودکار هیچ DLL Native را **اجرا** نمی‌کنند (دو DLL واقعی FK623Attend/FKAttend فقط برای Parse ایستا به‌عنوان دادهٔ مرجع استفاده می‌شوند) و به هیچ دستگاهی وصل نمی‌شوند.
 
 ## ۱۲) توابعی که عمداً اجرا نمی‌شوند (ایمنی)
 
@@ -144,11 +164,11 @@ NP756P.ReadOnlyProbe.exe --help
 FK_SetDeviceTime      FK_SetDeviceInfo      FK_EnableDevice
 FK_EmptyEnrollData    FK_EmptyGeneralLogData  FK_EmptySuperLogData
 FK_DeleteEnrollData   FK_PutEnrollData       FK_SetUserName
-FK_SetEnrollPhoto     FK_SetServerNetInfo   FK_SetRealTimeInfo
+FK_SetEnrollPhoto    FK_SetServerNetInfo   FK_SetRealTimeInfo
 FK_HS_SetTimeZone     FK_HS_SetUserWeekPassTime
 ```
 
-این توابع حتی به‌صورت DllImport در کد تعریف نشده‌اند تا از فراخوانی تصادفی در هر شرایطی جلوگیری شود.
+این توابع حتی به‌صورت DllImport در کد تعریف نشده‌اند تا از فراخوانی تصادفی در هر شرایطی جلوگیری شود (تست واحدِ بازتابی، مجموعهٔ P/Invoke را با فهرست مجاز تطبیق می‌دهد).
 
 ## ۱۳) ارسال گزارش بدون افشای رمز
 
@@ -164,25 +184,26 @@ FK_HS_SetTimeZone     FK_HS_SetUserWeekPassTime
 ```
 tools/NP756P.ReadOnlyProbe/
   NP756P.ReadOnlyProbe.csproj   net48 · x86 · Release-ready
-  Program.cs                    نقطه ورود، ورودی مخفی رمز، اتصال مراحل
+  Program.cs                    نقطهٔ ورود، catch سراسری (کد 5)، ورودی مخفی رمز، کنسول Redirect
   ProbeOptions.cs               پارامترها + اعتبارسنجی کامل (IP/پورت/ماشین/...)
-  NativeMethods.cs              شش DllInvoke مجاز (دقیقاً مطابق FKAttendDLL2.cs)
+  NativeMethods.cs              شش DllImport مجاز (دقیقاً مطابق FKAttendDLL2.cs)
   IDeviceChannel.cs            انتزاع برای Mock کردن در تست‌ها
   FkDeviceChannel.cs            پیاده‌سازی واقعی روی SDK (تنها نقطهٔ اجرای Native)
-  ProbeRunner.cs                ترتیب مراحل A..F + finally-disconnect
+  ProbeRunner.cs                ترتیب مراحل A..F + مدیریت استثنا + finally-disconnect
   ProbeResult.cs                مدل گزارش و رندر (بدون رمز)
-  NativeLibraryValidator.cs     تحلیل ایستای PE: x86، Export، Import Table
+  ExitCodes.cs                  ثابت‌های کد خروج + قالب‌بندی امن پیام استثنا
+  NativeLibraryValidator.cs     تحلیل ایستای PE: x86، Export، Import نام‌دار/Ordinal، Bounds کامل
   README.md
   .gitignore                    (bin/obj از Git حذف‌اند)
 
 tools/NP756P.ReadOnlyProbe.Tests/
   NP756P.ReadOnlyProbe.Tests.csproj   net8.0 هارنس تست بدون دستگاه
-  MockDeviceChannel.cs                شبیه‌ساز SDK (بدون DLL، بدون سوکت)
-  TestRunner.cs                       ۷۲ تست: اعتبارسنجی، PE، سناریوها، محرمانگی
+  MockDeviceChannel.cs                شبیه‌ساز SDK (اندیس‌های 1/3 و 2/3، ثبت گزینه‌ها، استثناها)
+  TestRunner.cs                       ۱۳۵ تست: اعتبارسنجی، PE (مصنوعی + دو DLL واقعی)، سناریوها، محرمانگی، P/Invoke
   .gitignore
 ```
 
-اجرای تست‌ها (بدون دستگاه، بدون DLL، بدون شبکه):
+اجرای تست‌ها (بدون دستگاه، بدون اجرای DLL، بدون شبکه):
 
 ```
 dotnet run -c Release tools/NP756P.ReadOnlyProbe.Tests

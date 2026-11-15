@@ -12,6 +12,10 @@ namespace NP756P.ReadOnlyProbe
     /// FK_GetDeviceTime, FK_DisConnect (+ FK_GetLastError with a valid handle).
     /// It never writes device state, time, users, logs or settings, never calls
     /// FK_EnableDevice, never retries passwords and never scans ports.
+    ///
+    /// Exit codes (see ExitCodes): 0 full success · 1 bad input/password/redirected
+    /// console · 2 native library stage · 3 connect stage · 4 read or disconnect
+    /// stage · 5 unexpected exception (handled, never a crash with a raw stack).
     /// </summary>
     internal static class Program
     {
@@ -31,6 +35,26 @@ namespace NP756P.ReadOnlyProbe
                 // keep default encoding if the console refuses UTF-8
             }
 
+            try
+            {
+                return Run(args);
+            }
+            catch (Exception ex)
+            {
+                // Controlled handling of everything outside ProbeRunner. Only the
+                // exception type and a short sanitized message are printed - no
+                // stack trace, no inner exceptions, no environment dumps.
+                Console.WriteLine();
+                Console.WriteLine("UNEXPECTED ERROR - the probe stops here (exit code " +
+                    ExitCodes.UnexpectedException.ToString() + ").");
+                Console.WriteLine("  " + ExceptionText.SafeSummary(ex));
+                Console.WriteLine("Nothing was written to the device and nothing else is sent.");
+                return ExitCodes.UnexpectedException;
+            }
+        }
+
+        private static int Run(string[] args)
+        {
             Console.WriteLine(Header);
 
             ProbeOptions options;
@@ -47,18 +71,23 @@ namespace NP756P.ReadOnlyProbe
                     Console.WriteLine("Argument error: " + e);
                 }
                 PrintUsage();
-                return 1;
+                return ExitCodes.InputError;
             }
 
             // ---- hidden numeric password (never echoed, never logged) ----
             int password;
             string passwordError;
-            string rawPassword = ReadHidden("Network password (numeric, input is hidden): ");
+            string rawPassword;
+            if (!TryReadHiddenPassword(out rawPassword))
+            {
+                // redirected/unusable console: clear message instead of a crash
+                return ExitCodes.InputError;
+            }
             if (!ProbeOptions.TryParsePassword(rawPassword, out password, out passwordError))
             {
                 Console.WriteLine();
                 Console.WriteLine("Error: " + passwordError);
-                return 1;
+                return ExitCodes.InputError;
             }
             options.NetworkPassword = password;
 
@@ -82,6 +111,46 @@ namespace NP756P.ReadOnlyProbe
             Console.Write(result.Render());
             Console.WriteLine("Exit code: " + result.ExitCode);
             return result.ExitCode;
+        }
+
+        /// <summary>
+        /// Tries to read the password without echoing characters. Returns false
+        /// (with a clear console message, no exception escaping) when input is
+        /// redirected or no interactive key input is available.
+        /// </summary>
+        private static bool TryReadHiddenPassword(out string value)
+        {
+            value = null;
+            if (Console.IsInputRedirected)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Error: console input is redirected (piped), so the hidden password");
+                Console.WriteLine("prompt cannot run. Start the probe from an interactive cmd/PowerShell");
+                Console.WriteLine("window without piping stdin. Nothing was sent to the device.");
+                return false;
+            }
+
+            try
+            {
+                value = ReadHidden("Network password (numeric, input is hidden): ");
+                return true;
+            }
+            catch (InvalidOperationException)
+            {
+                // e.g. no console attached at all
+                Console.WriteLine();
+                Console.WriteLine("Error: no interactive console is available for the hidden password");
+                Console.WriteLine("prompt (Console.ReadKey is unusable here). Run the probe from a");
+                Console.WriteLine("console window. Nothing was sent to the device.");
+                return false;
+            }
+            catch (IOException)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Error: the console could not be read for the hidden password prompt.");
+                Console.WriteLine("Run the probe from an interactive console window.");
+                return false;
+            }
         }
 
         /// <summary>
@@ -131,6 +200,8 @@ namespace NP756P.ReadOnlyProbe
             Console.WriteLine("Defaults: ip=192.168.1.75 port=4238 machine=1 timeout=5000 protocol=tcp license=1261.");
             Console.WriteLine("The probe exe must be able to load FK623Attend.dll and its six vendor");
             Console.WriteLine("companions (see README); pass --dll-dir or copy them beside the exe.");
+            Console.WriteLine("Exit codes: 0 success - 1 bad input/redirected console - 2 native DLL stage -");
+            Console.WriteLine("3 connect - 4 read/disconnect stage - 5 unexpected exception.");
         }
     }
 }

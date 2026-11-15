@@ -15,11 +15,13 @@
 | 9001..9003 | 0 (Eizon) |
 | 9101..9102 | 1 |
 | 9201..9204 | 2 (Ebio) |
-| 9301..9305, 9307 | **3 (Hysoon کلاسیک)** |
-| 9306 | 5 (Dynamic Hysoon) |
+| 9301..9306 | **3 (Hysoon کلاسیک)** |
+| 9307 | **5 (Dynamic Hysoon)** |
 | 9308 | **3 (Hysoon کلاسیک)** ← NP756P |
 | 9309 | 6 |
 | 9400 | 4 (ZK) |
+
+> اصلاح مهم نسبت به نسخهٔ اول این سند: در سوییچِ دیکامپایل‌شده `switch (value - 9301)` کیس‌های ۰ تا ۵ و ۷ به Manufacture=3 می‌نشینند (یعنی **9301..9306 و 9308**)، کیس ۶ (9307) به Manufacture=5 و کیس ۸ (9309) به Manufacture=6. جدول بالا مطابق سورس است؛ نگاشت قبلی «9301..9305 و 9307 = 3 و 9306 = 5» نادرست بود.
 
 `9308` در case `value - 9301 == 7` می‌نشیند و به `DeviceManufacture = 3` نگاشت می‌شود.
 
@@ -87,36 +89,49 @@ int  FK_GetDeviceTime(int anHandleIndex, ref DateTime apnDateTime)
 
 ## ۵. وابستگی‌های Native (تحلیل PE واقعی فایل‌های `_dlls`)
 
-| DLL | معماری | تعداد Export | وابستگی‌های Native غیرسیستمی |
+| DLL | معماری | تعداد Export | Importهای بومی از فروشنده |
 |---|---|---|---|
-| FK623Attend.dll | x86 (i386) | 161 | fkattend.dll |
-| FKAttend.dll | x86 | 162 | fkviadev.dll · lfwviadev.dll · fkpwdencdec.dll · fpdataconv.dll · facedataconv.dll |
-| FKViaDev.dll | x86 | 45 | — |
-| LFWViaDev.dll | x86 | 23 | — |
-| FKPwdEncDec.dll | x86 | 9 | — |
-| FpDataConv.dll | x86 | 8 | — |
-| FaceDataConv.dll | x86 | 1 | — |
+| FK623Attend.dll | x86 (i386) | 161 | از **fkattend.dll**: 1 تابع نام‌دار (`FK_GetLastError`) + **160 تابع به‌صورت Ordinal** (۱..۱۶ و ۱۸..۱۶۱) |
+| FKAttend.dll | x86 | 162 | از **fkviadev.dll**: 14 تابع نام‌دار (نام‌های Managled مانند `?FV_ConnectNet@CFKViaDev@@...`) · از **lfwviadev.dll**: 12 تابع نام‌دار · از **fkpwdencdec.dll**: 9 تابع Ordinal (۱..۹) · از **fpdataconv.dll**: 5 تابع Ordinal (1،2،3،4،6) · از **facedataconv.dll**: 1 تابع Ordinal (۱) |
+| FKViaDev.dll | x86 | 45 | — (فقط DLLهای سیستم) |
+| LFWViaDev.dll | x86 | 23 | — (فقط DLLهای سیستم) |
+| FKPwdEncDec.dll | x86 | 9 | — (فقط kernel32) |
+| FpDataConv.dll | x86 | 8 | — (فقط DLLهای سیستم) |
+| FaceDataConv.dll | x86 | 1 | — (فقط DLLهای سیستم) |
 
-- وابستگی‌های سیستمی: kernel32, user32, gdi32, gdiplus, ws2_32 (سوکت), advapi32, ole32/oleaut32/oleacc, comctl32, comdlg32, msimg32, imm32, shell32, shlwapi, setupapi (USB), winmm, winspool.drv — همه با ویندوز عرضه می‌شوند.
+- وابستگی‌های سیستمی: kernel32, user32, gdi32, gdiplus, ws2_32 (سوکت), advapi32, ole32/oleaut32/oleacc, comctl32, comdlg32, msimg32, imm32, shell32, shlwapi, setupapi (USB), winmm, winspool.drv — همه با ویندوز عرضه می‌شوند و در Validator جزو DLLهای سیستم در نظر گرفته می‌شوند (بدون بررسی Ordinal، چون جدول Export آن‌ها در این محیط موجود نیست).
 - هر دو DLL `FK623Attend.dll` و `FKAttend.dll` شش تابع مجاز ابزار را Export می‌کنند (بررسی‌شده با استخراج جدول Export).
+- **اصلاح مهم نسبت به نسخهٔ اول این سند:** ادعای قبلی که «FK623Attend.dll تنها FK_GetLastError را از fkattend.dll Import مستقیم دارد و بقیه در زمان اجرا حل می‌شوند» نادرست بود. بررسی واقعی Import Table نشان می‌دهد FK623Attend.dll علاوه بر `FK_GetLastError` (نام‌دار)، **۱۶۰ تابع را با شمارهٔ Ordinal** از FKAttend.dll وارد می‌کند؛ به همین دلیل Validator ابزار اکنون Importهای نام‌دار و Ordinal-based را استخراج و در برابر جدول Export DLL مقصد تطبیق می‌دهد (Ordinal مفقود = شکست Validation با گزارش مبدأ/مقصد/Ordinal). همهٔ ۱۶۰ Ordinal موردنیاز در جدول Export FKAttend.dll (162 اسلات، Base=1) موجود و تأییدشده است.
 - نتیجه: **حداقل مجموعهٔ لازم برای بارگذاری = همان ۷ DLL**؛ هر ۷ فایل x86 هستند پس فرایند اجرا باید x86 باشد.
-- توجه: `FK623Attend.dll` تنها `FK_GetLastError` را از `fkattend.dll` به‌صورت Import مستقیم دارد؛ بقیهٔ توابع احتمالاً در زمان اجرا از طریق forwarder/GetProcAddress حل می‌شوند — برای بارگذاری، وجود هر ۷ فایل لازم است.
 - DLLهای دیگر `_dlls` (مانند SBXPCDLL/ZK/…) برای این ابزار لازم نیستند و کپی نمی‌شوند.
+
+### محدودیت‌های Parser ابزار (صادقانه، بدون ادعای سازگاری کامل)
+
+پارسر ایستای Validator کامل نیست و همهٔ گونه‌های PE دنیا را پوشش نمی‌دهد؛ دقیقاً همین‌ها پشتیبانی می‌شوند:
+
+- تصاویر **PE32 (0x10B)** و **PE32+ (0x20B)** با جدول Import/Export استاندارد Microsoft COFF.
+- Import از طریق **OriginalFirstThunk** (و در صورت صفر بودن، fallback به FirstThunk) خوانده می‌شود؛ Importهای نام‌دار و **Ordinal-based** هر دو پشتیبانی می‌شوند.
+- جدول Export با شمارش occupancy اسلات‌های `AddressOfFunctions` بررسی می‌شود (Ordinal `N` فقط وقتی صادق است که `Base ≤ N < Base+NumberOfFunctions` و اسلات غیرصفر باشد).
+- موارد بررسی‌نشده: **Delay-Load Imports**، Importهای Bound (پیش‌حل‌شده)، **Forwarder Exportها** (اسلات اشغال شمرده می‌شوند اما زنجیرهٔ forward دنبال نمی‌شود)، عنوان‌های TLS/Relocation/Debug، فرم‌های mixed-mode دات‌نت، و Importهای DLLهای سیستم ویندوز (که در این محیط موجود نیستند).
+- هرگونه جدول قطع‌شده، RVA خارج از فایل، شمارش نامعقول یا نام خالی، به‌صورت خطای Parse (غیرقابل‌چشم‌پوشی) گزارش می‌شود — رفتار پیش‌فرض همیشه شکست است، نه موفقیت ضمنی.
 
 ## ۶. معماری ابزار و محدودیت ایمنی
 
 - net48 · x86 · کنسول · مستقل از اسمبلی‌های Novin.
-- فقط ۶ تابع مجاز تعریف شده‌اند؛ توابع نوشتنی حتی DllInvoke هم ندارند.
+- فقط ۶ تابع مجاز تعریف شده‌اند؛ توابع نوشتنی حتی DllInvoke هم ندارند (تست واحدِ بازتابی دارد که مجموعهٔ P/Invoke را با فهرست مجاز تطبیق می‌دهد).
 - `FK_EnableDevice` — هرچند در نمونهٔ فروشنده قبل از برخی عملیات استفاده می‌شود — **عمداً در ابزار اجرا نمی‌شود**؛ اگر خواندن‌ها بدون آن شکست خوردند فقط علت گزارش می‌شود (تصمیم جداگانهٔ بعدی).
 - `FK_GetLastError` فقط با هندل معتبر و پس از شکست خواندن صدا زده می‌شود.
 - رمز عددی فقط مخفی از کاربر گرفته می‌شود؛ در هیچ خروجی/لاگ/ToString نمی‌آید (تست واحد مخصوص دارد).
 - شکست هر مرحله، مراحل وابستهٔ بعدی را SKIPPED می‌کند؛ اتصال معتبر همیشه در `finally` بسته می‌شود.
 - هیچ تلاش مجدد رمز/پورت خودکار وجود ندارد.
+- در شکست اتصالِ «مقدار برگشتی»، Raw Code ثبت می‌شود؛ در اتصالِ «استثنا»، هیچ Raw Code/LastError جعلی ثبت نمی‌شود (صفر به‌عنوان No support تفسیر نمی‌شود).
 
 ## ۷. وضعیت Build و تست
 
 - Build واقعی net48/x86 با `dotnet build -c Release` (SDK 8.0.428 روی لینوکس + پکیج reference assemblies) انجام و خروجی PE32/x86 تولید شد.
-- هارنس تست بدون دستگاه (net8.0، ۷۲ تست، Mock + PE مصنوعی) کامل سبز است: هیچ DLL Native در Build/تست اجرا نشده و هیچ سوکتی باز نشده.
+- هارنس تست بدون دستگاه (net8.0، **۱۳۵ تست**، Mock + PE مصنوعی + دو DLL واقعی مرجع فقط برای Parse): کامل سبز است: هیچ DLL Native در Build/تست اجرا نشده و هیچ سوکتی باز نشده. تست‌های دادهٔ واقعی FK623Attend/FKAttend در `_dlls` ریپو به‌عنوان مرجع Parse می‌شوند (160 Ordinal + 1 نام‌دار از FKAttend؛ همهٔ Ordinalها در Export مقصد موجود).
+- کد خروج برنامه: `0` موفق کامل · `1` خطای ورودی/رمز یا کنسول Redirect شده · `2` شکست مرحلهٔ DLLها · `3` شکست اتصال · `4` شکست مرحلهٔ خواندن یا قطع اتصال · `5` استثنای پیش‌بینی‌نشده (با catch سراسری کنترل‌شده؛ بدون Stack Trace). خروجی `0` فقط وقتی صادر می‌شود که اتصال واقعاً بسته شده باشد یا از ابتدا هندل معتبری وجود نداشته باشد.
+- اگر ورودی کنسول Redirect شده باشد، ابزار به‌جای crash پیام قابل فهم می‌دهد و با کد 1 خارج می‌شود.
 - اجرای واقعی SDK و اتصال به دستگاه NP756P فقط دستی روی ویندوز و توسط اپراتور انجام می‌شود.
 
 ## ۸. مسیرهای مرجع (برای بازبینی)
