@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
     await requireRole('EMPLOYEE')
     const sp = req.nextUrl.searchParams
     const withLogs = sp.get('logs') === '1'
+    const withSyncs = sp.get('syncs') === '1'
     const devices = await db.device.findMany({ orderBy: { name: 'asc' } })
     // v1.3.0 (Phase 1 — Security): the device password is a secret at rest;
     // it must never leave the process boundary. UI copy uses hasPassword.
@@ -25,7 +26,15 @@ export async function GET(req: NextRequest) {
           message: redactDeviceSecrets(l.message), // v1.2.x rows may contain a password VALUE
         }))
       : []
-    return NextResponse.json({ devices: devices.map(sanitizeDeviceForApi), logs })
+    // v1.4.0 (addendum P2): sync history — sanitized (error/note never carry secrets)
+    const syncs = withSyncs
+      ? (await db.deviceSyncRun.findMany({ orderBy: { startedAt: 'desc' }, take: 20 })).map((r) => ({
+          ...r,
+          error: r.error ? redactDeviceSecrets(r.error) : null,
+          note: r.note ? redactDeviceSecrets(r.note) : null,
+        }))
+      : []
+    return NextResponse.json({ devices: devices.map(sanitizeDeviceForApi), logs, syncs })
   } catch (err) {
     return fail(err)
   }

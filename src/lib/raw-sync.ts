@@ -232,6 +232,8 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
           status: 'ONLINE',
           lastSyncAt: new Date(),
           lastSyncCount: summary.newCount,
+          // v1.4.0 (addendum P2): the sanitized last error clears on success
+          lastSyncError: null,
           ...(effectiveSerial !== 'UNKNOWN' && !serialOnFile ? { serialNumber: effectiveSerial } : {}),
           ...(newBookmark ? { rawCursorAt: newBookmark, lastLogAt: newBookmark } : {}),
         },
@@ -267,8 +269,18 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
     return summary
   } catch (err) {
     // ---- failure: mark the run FAILED, offline status, sanitized log ------
-    await finishRun('FAILED', { error: redactDeviceSecrets(errorMessage(err)) })
-    await db.device.update({ where: { id: device.id }, data: { status: 'OFFLINE' } }).catch(() => {})
+    const sanitizedError = redactDeviceSecrets(errorMessage(err))
+    await finishRun('FAILED', { error: sanitizedError })
+    await db.device
+      .update({
+        where: { id: device.id },
+        data: {
+          status: 'OFFLINE',
+          // v1.4.0 (addendum P2): sanitized last error for the settings UI
+          lastSyncError: sanitizedError.slice(0, 500),
+        },
+      })
+      .catch(() => {})
     await db.deviceLog
       .create({
         data: { deviceId: device.id, level: 'ERROR', message: redactDeviceSecrets(`خطای دریافت از دستگاه: ${errorMessage(err)} (اجرای ${run.id.slice(0, 8)})`) },

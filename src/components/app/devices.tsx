@@ -46,9 +46,11 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
   const blank = { name: '', type: 'NOVIN_NP', protocolFamily: 'SBXPC', ipAddress: '', port: 5005, protocol: 'TCP', location: '', enabled: true, autoSync: false, syncIntervalMin: 5, serialNumber: '', password: '', connTimeoutMs: 5000, machineNumber: 1, sdkLicense: 1261, bridgeUrl: '', bridgeToken: '', rtEnabled: false, rtPollSec: 30 }
   const [form, setForm] = useState({ ...blank })
 
+  const [syncRuns, setSyncRuns] = useState<Array<{ id: string; deviceId?: string | null; status: string; mode: string; sourceProtocol: string; startedAt: string; recordsNew: number; recordsDuplicate: number; recordsUnmatched: number; retries: number; error?: string | null }>>([])
   const loadLogs = async () => {
-    const res = await api<{ logs: typeof logs }>('/api/devices?logs=1')
+    const res = await api<{ logs: typeof logs; syncs?: typeof syncRuns }>('/api/devices?logs=1&syncs=1')
     setLogs(res.logs)
+    setSyncRuns(res.syncs ?? [])
   }
   const loadGateway = async () => {
     try {
@@ -231,6 +233,26 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                   {d.syncIntervalMin ? <div className="flex justify-between"><span>دریافت خودکار</span><span>هر {faDigits(d.syncIntervalMin)} دقیقه</span></div> : null}
                   {d.syncIntervalMin ? <div className="flex justify-between"><span>دریافت بعدی (طبق برنامه)</span><span>{d.lastSyncAt ? faTime(new Date(new Date(d.lastSyncAt).getTime() + d.syncIntervalMin * 60000).toISOString()) : 'بلافاصله پس از راه‌اندازی سرور'}</span></div> : null}
                   {d.lastSyncError ? <div className="text-xs text-red-600 leading-5 rounded-lg bg-red-50 dark:bg-red-950/30 p-2">آخرین خطا: {d.lastSyncError}</div> : null}
+                  {(() => {
+                    const runs = syncRuns.filter((r) => r.deviceId === d.id).slice(0, 2)
+                    if (!runs.length) return null
+                    return (
+                      <div className="text-[11px] rounded-lg bg-muted/50 p-2 leading-5">
+                        <div className="text-muted-foreground mb-0.5">آخرین اجراها (تاریخچهٔ همگام‌سازی):</div>
+                        {runs.map((r) => (
+                          <div key={r.id} className="flex items-center gap-1.5" dir="rtl">
+                            <span className={r.status === 'SUCCESS' ? 'text-emerald-600' : r.status === 'FAILED' ? 'text-red-600' : 'text-amber-600'}>●</span>
+                            <span>{r.status === 'SUCCESS' ? 'موفق' : r.status === 'FAILED' ? 'ناموفق' : r.status}</span>
+                            <span className="text-muted-foreground">· {faTime(r.startedAt)}</span>
+                            <span className="text-muted-foreground">· {faDigits(r.recordsNew)} جدید / {faDigits(r.recordsDuplicate)} تکراری{r.recordsUnmatched ? ` / ${faDigits(r.recordsUnmatched)} بدون تطبیق` : ''}</span>
+                            {r.retries > 0 ? <span className="text-amber-600">· {faDigits(r.retries)} Retry</span> : null}
+                            {r.mode === 'MOCK' ? <span className="text-purple-600">· آزمایشی (Mock)</span> : null}
+                            {r.error ? <span className="text-red-600 truncate max-w-[160px]" title={r.error}>· {r.error}</span> : null}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
                 {d.type === 'NOVIN_NP' ? (
                   <div className="space-y-2 pt-1">
