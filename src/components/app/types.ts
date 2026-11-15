@@ -116,7 +116,8 @@ export interface DeviceT {
   protocol: string
   location?: string | null
   serialNumber?: string | null
-  password?: number | null
+  /** v1.3.0: the password VALUE is never sent to the client — only this indicator */
+  hasPassword?: boolean
   enabled: boolean
   status: string
   lastSyncAt?: string | null

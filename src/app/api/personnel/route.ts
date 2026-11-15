@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
+import { rematchRawPunches } from '@/lib/raw-import'
 
 export async function GET(req: NextRequest) {
   try {
@@ -59,7 +60,11 @@ export async function POST(req: NextRequest) {
     if (dup) throw new ApiError(400, 'کد پرسنلی یا پین تکراری است')
     const { id, createdAt, updatedAt, ...rest } = b
     const p = await db.personnel.create({ data: { ...rest } })
-    return NextResponse.json({ personnel: p })
+    // v1.3.0 (Phase 1): a new personnel member may match previously UNMATCHED
+    // device punches (deviceUserId / numeric personnelCode) — rematch them now.
+    // Best effort: never blocks or fails the personnel operation.
+    const rematch = await rematchRawPunches().catch(() => null)
+    return NextResponse.json({ personnel: p, ...(rematch ? { rematch } : {}) })
   } catch (err) {
     return fail(err)
   }

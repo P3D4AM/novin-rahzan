@@ -7,6 +7,7 @@ import { getEbioStatus } from '@/lib/ebio'
 import { npTest } from '@/lib/sbxpc'
 import { importNpDeviceLogs } from '@/lib/np-sync'
 import { emitRealtime } from '@/lib/notify'
+import { sanitizeDeviceForApi, sanitizeResultForApi, redactDeviceSecrets } from '@/lib/device-secrets'
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,8 +15,15 @@ export async function GET(req: NextRequest) {
     const sp = req.nextUrl.searchParams
     const withLogs = sp.get('logs') === '1'
     const devices = await db.device.findMany({ orderBy: { name: 'asc' } })
-    const logs = withLogs ? await db.deviceLog.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }) : []
-    return NextResponse.json({ devices, logs })
+    // v1.3.0 (Phase 1 — Security): the device password is a secret at rest;
+    // it must never leave the process boundary. UI copy uses hasPassword.
+    const logs = withLogs
+      ? (await db.deviceLog.findMany({ orderBy: { createdAt: 'desc' }, take: 50 })).map((l) => ({
+          ...l,
+          message: redactDeviceSecrets(l.message), // v1.2.x rows may contain a password VALUE
+        }))
+      : []
+    return NextResponse.json({ devices: devices.map(sanitizeDeviceForApi), logs })
   } catch (err) {
     return fail(err)
   }
@@ -37,7 +45,7 @@ export async function POST(req: NextRequest) {
         password: b.password === '' || b.password == null ? null : Number(b.password),
       },
     })
-    return NextResponse.json({ device })
+    return NextResponse.json({ device: sanitizeDeviceForApi(device) })
   } catch (err) {
     return fail(err)
   }
@@ -51,16 +59,24 @@ export async function PUT(req: NextRequest) {
     const type = b.type === 'NOVIN_NP' ? 'NOVIN_NP' : 'ZKTECO'
     if (type === 'NOVIN_NP' && !b.serialNumber?.trim())
       throw new ApiError(400, 'برای دستگاه‌های نوین پرداز (NP) شماره سریال الزامی است')
+    // v1.3.0: password is no longer echoed back by GET, so an untouched edit form
+    // sends NO password field at all — `undefined` keeps the stored secret intact.
+    // `""` explicitly clears it; a number sets it.
+    const existing = await db.device.findUnique({ where: { id: b.id }, select: { password: true } })
+    let password: number | null | undefined
+    if (b.password === undefined) password = existing?.password ?? null // keep
+    else if (b.password === '' || b.password == null) password = null // clear
+    else password = Number(b.password)
     const device = await db.device.update({
       where: { id: b.id },
       data: {
         name: b.name, type, ipAddress: b.ipAddress || null, port: Number(b.port || 5005), protocol: b.protocol,
         location: b.location || null, enabled: b.enabled, syncIntervalMin: Number(b.syncIntervalMin || 0),
         serialNumber: b.serialNumber?.trim() || null,
-        password: b.password === '' || b.password == null ? null : Number(b.password),
+        ...(password !== undefined ? { password } : {}),
       },
     })
-    return NextResponse.json({ device })
+    return NextResponse.json({ device: sanitizeDeviceForApi(device) })
   } catch (err) {
     return fail(err)
   }
@@ -125,12 +141,15 @@ export async function PATCH(req: NextRequest) {
           data: {
             deviceId: device.id,
             level: t.ok ? 'SUCCESS' : 'ERROR',
-            message: t.ok
-              ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber || '—'}${t.dialect ? ` · ${dialectFa[t.dialect] ?? t.dialect}` : ''}${t.password != null ? ` · رمز شبکه: ${t.password}` : ''}${t.logCount != null ? ` · ترددهای ذخیره‌شده روی دستگاه: ${t.logCount}` : ''}${t.deviceTime ? ` · ساعت دستگاه: ${new Date(t.deviceTime).toLocaleString('fa-IR')}` : ''}${t.note ? ` · ${t.note}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
-              : `خطای اتصال مستقیم: ${t.error}${t.detail ? ` [${t.detail}]` : ''}${t.note ? ` · ${t.note}` : ''}${t.raw ? ` · فریم‌های خام:\n${t.raw}` : ''}`,
+            message: redactDeviceSecrets(
+              t.ok
+                ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber || '—'}${t.dialect ? ` · ${dialectFa[t.dialect] ?? t.dialect}` : ''}${t.password != null ? ' · رمز شبکه: تنظیم شد (مقدار ذخیره شد و نمایش داده نمی‌شود)' : ''}${t.logCount != null ? ` · ترددهای ذخیره‌شده روی دستگاه: ${t.logCount}` : ''}${t.deviceTime ? ` · ساعت دستگاه: ${new Date(t.deviceTime).toLocaleString('fa-IR')}` : ''}${t.note ? ` · ${t.note}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
+                : `خطای اتصال مستقیم: ${t.error}${t.detail ? ` [${t.detail}]` : ''}${t.note ? ` · ${t.note}` : ''}${t.raw ? ` · فریم‌های خام:\n${t.raw}` : ''}`,
+            ),
           },
         })
-        return NextResponse.json({ result: { ...t, serialMatch } })
+        // v1.3.0: the password VALUE never leaves the API — only a boolean indicator
+        return NextResponse.json({ result: { ...sanitizeResultForApi(t as unknown as Record<string, unknown>), serialMatch } })
       }
 
       if (b.action === 'sync') {

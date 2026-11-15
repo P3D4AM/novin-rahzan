@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/auth'
 import { fail } from '@/lib/api'
 import { monthRange, toJalali } from '@/lib/jalali'
+import { sanitizeDeviceForApi } from '@/lib/device-secrets'
 
 export async function GET() {
   try {
@@ -27,7 +28,9 @@ export async function GET() {
     const settingsMap: Record<string, string> = {}
     for (const s of settings) settingsMap[s.id] = s.value
     return NextResponse.json({
-      departments, jobTitles, employmentTypes, shifts, rotations, leaveTypes, devices, users, rules,
+      departments, jobTitles, employmentTypes, shifts, rotations, leaveTypes,
+      // v1.3.0: device rows are sanitized — the network password never leaves the process
+      devices: devices.map(sanitizeDeviceForApi), users, rules,
       holidays, settings: settingsMap,
       today: { jy, jm, jd: toJalali(now).jd },
     })

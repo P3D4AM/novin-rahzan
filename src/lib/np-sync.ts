@@ -1,22 +1,31 @@
 /**
  * NP-series device pull-sync: download attendance logs straight from the
- * device over the SBXPC binary protocol (see lib/sbxpc.ts), import them into
- * PunchRecord and keep an incremental bookmark (Device.lastLogAt) so later
- * syncs — manual or automatic — continue exactly where the previous one
- * stopped instead of re-importing old punches.
+ * device over the SBXPC binary protocol (see lib/sbxpc.ts) and store them
+ * through the RawPunch integrity pipeline (lib/raw-sync.ts + lib/raw-import.ts).
+ *
+ * v1.3.0 (Phase 1) changes — all six historical defects fixed:
+ *   1. every record is stored in RawPunch (unmatched rows are KEPT, no longer
+ *      dropped by a moving bookmark),
+ *   2. dedupe is fingerprint-based (device+enroll+raw tuple+dupIndex) instead
+ *      of relying on the legacy unique key,
+ *   3. a serial mismatch STOPS the import before anything is stored,
+ *   4. punch direction is never guessed — RawPunch.direction stays UNKNOWN and
+ *      the legacy projection uses AUTO (undetermined),
+ *   5. EnableDevice(true) (keypad re-enable) is guaranteed in `finally`,
+ *   6. every run is recorded in DeviceSyncRun (sync history) with retry counts.
  */
-import { db } from '@/lib/db'
 import { SbxpcClient, NpLog } from '@/lib/sbxpc'
-import { recalcDayForPerson } from '@/lib/attendance'
-import { emitRealtime } from '@/lib/notify'
-import { errorMessage } from '@/lib/api'
+import { runRawSync, RawPunchProvider, RawPunchRead, RawSyncSummary } from '@/lib/raw-sync'
+import { db } from '@/lib/db'
 
-/** how far back a first-ever sync goes when nothing else is known */
-export const DEFAULT_FIRST_SYNC_DAYS = 30
+/** how far back a first-ever sync goes when nothing else is known (re-exported for compat) */
+export { DEFAULT_FIRST_SYNC_DAYS } from '@/lib/raw-sync'
 
 export interface NpSyncOptions {
   /** manual "download N days back" (null/undefined = use bookmark / default) */
   daysBack?: number | null
+  /** what this call actually talks to — HARDWARE (default), MOCK (tests)… */
+  mode?: 'HARDWARE' | 'MOCK' | 'DRY_RUN'
 }
 
 export interface NpSyncResult {
@@ -43,14 +52,56 @@ type DeviceRow = {
   lastLogAt: Date | null
 }
 
-/** best-effort IN/OUT from the vendor verify-mode ("IoMode") value */
-function directionFromVerifyMode(v: number): 'IN' | 'OUT' | 'AUTO' {
-  if (v === 1 || v === 4 || v === 10 || v === 11 || v === 12) return 'IN'
-  if (v === 2 || v === 3 || v === 13 || v === 14 || v === 21) return 'OUT'
-  return 'AUTO'
+/** SbxpcClient wrapped as a RawPunchProvider (records kept raw — no guessing). */
+class SbxpcProvider implements RawPunchProvider {
+  readonly protocol = 'SBXPC' as const
+  private client: SbxpcClient | null = null
+
+  constructor(private readonly device: { ipAddress: string; port: number; password: number | null }) {}
+
+  async readAll(): Promise<RawPunchRead> {
+    const c = this.client ?? new SbxpcClient(this.device.ipAddress, this.device.port || 5005, 1, this.device.password ?? null)
+    this.client = c
+    await c.connect()
+    try {
+      const serial = await c.getSerialNumber().catch(() => undefined)
+      const time = await c.getDeviceTime().catch(() => null)
+      // vendor locks the keypad while reading (EnableDevice -1) — re-enable is
+      // guaranteed in `finally` even if the read throws (v1.3.0 fix #5)
+      await c.enableDevice(false).catch(() => {})
+      const logs = await c.readAllLogs()
+      return {
+        records: logs.map(toRawInput),
+        deviceSerial: serial,
+        deviceTime: time ? time.toISOString() : null,
+        meta: { proto: 'sbxpc', logCount: logs.length },
+      }
+    } finally {
+      await c.enableDevice(true).catch(() => {})
+    }
+  }
+
+  disconnect() {
+    try {
+      this.client?.disconnect()
+    } catch {
+      /* ignore */
+    }
+  }
 }
 
-/** Pull + import logs from one NP device. */
+/** NpLog → RawPunchInput (raw values preserved; punchTimeRaw unknown for this dialect) */
+function toRawInput(l: NpLog) {
+  return {
+    enrollNumber: String(l.userId),
+    punchTime: new Date(l.ts),
+    inOutModeRaw: 0, // the classic SBXPC log frame carries no separate in/out byte
+    verifyModeRaw: l.verifyMode,
+    rawPayload: JSON.stringify({ proto: 'sbxpc', verifyMode: l.verifyMode, raw: l.raw }),
+  }
+}
+
+/** Pull + import logs from one NP device (SBXPC dialect, port 5005). */
 export async function importNpDeviceLogs(deviceId: string, opts: NpSyncOptions = {}): Promise<NpSyncResult> {
   const device = await db.device.findUnique({ where: { id: deviceId } })
   if (!device) throw new Error('دستگاه یافت نشد')
@@ -61,142 +112,33 @@ export async function importNpDeviceLogs(deviceId: string, opts: NpSyncOptions =
     )
   }
 
+  const provider = new SbxpcProvider({
+    ipAddress: device.ipAddress.trim(),
+    port: device.port || 5005,
+    password: device.password ?? null,
+  })
   try {
-    return await importNpInner(device as DeviceRow, opts)
-  } catch (err) {
-    await db.device.update({ where: { id: deviceId }, data: { status: 'OFFLINE' } }).catch(() => {})
-    await db.deviceLog.create({
-      data: { deviceId, level: 'ERROR', message: `خطای دریافت از دستگاه: ${errorMessage(err)}` },
-    }).catch(() => {})
-    throw err
-  }
-}
-
-async function importNpInner(device: DeviceRow, opts: NpSyncOptions): Promise<NpSyncResult> {
-  const client = new SbxpcClient(device.ipAddress!.trim(), device.port || 5005, 1, device.password ?? null)
-  let deviceSerial: string | undefined
-  let deviceTime: string | null | undefined
-  let serialMismatch = false
-
-  try {
-    await client.connect()
-    deviceSerial = await client.getSerialNumber().catch(() => undefined)
-    deviceTime = (await client.getDeviceTime())?.toISOString() ?? null
-
-    if (deviceSerial && device.serialNumber && deviceSerial.trim().toLowerCase() !== device.serialNumber.trim().toLowerCase()) {
-      serialMismatch = true
-    }
-
-    // vendor locks the keypad while reading (EnableDevice -1)
-    await client.enableDevice(false).catch(() => {})
-    const logs = await client.readAllLogs()
-    await client.enableDevice(true).catch(() => {})
-
-    const now = Date.now()
-    let cutoffMs: number
-    if (typeof opts.daysBack === 'number' && opts.daysBack > 0) {
-      cutoffMs = now - opts.daysBack * 24 * 3600 * 1000
-    } else if (device.lastLogAt) {
-      // incremental: continue right after the newest log we already have
-      cutoffMs = device.lastLogAt.getTime() - 60 * 1000 // 1-min overlap guard
-    } else {
-      cutoffMs = now - DEFAULT_FIRST_SYNC_DAYS * 24 * 3600 * 1000
-    }
-
-    const fresh = logs.filter((l) => Number.isFinite(l.ts) && l.ts >= cutoffMs && l.ts <= now + 24 * 3600 * 1000)
-
-    // map device user id → personnel (deviceUserId or numeric personnelCode)
-    const persons = await db.personnel.findMany({ select: { id: true, deviceUserId: true, personnelCode: true } })
-    const byUid = new Map<number, string>()
-    for (const p of persons) {
-      if (p.deviceUserId != null) byUid.set(p.deviceUserId, p.id)
-      const code = Number(p.personnelCode)
-      if (!Number.isNaN(code) && !byUid.has(code)) byUid.set(code, p.id)
-    }
-
-    let created = 0
-    let skipped = 0
-    let unmatched = 0
-    const touched = new Map<string, Set<string>>() // personId → local days needing recalc
-    let maxTs: number | null = null
-
-    for (const log of fresh) {
-      if (maxTs === null || log.ts > maxTs) maxTs = log.ts
-      const personId = byUid.get(log.userId)
-      if (!personId) {
-        unmatched++
-        continue
-      }
-      const ts = new Date(log.ts)
-      try {
-        await db.punchRecord.create({
-          data: {
-            personId,
-            timestamp: ts,
-            direction: directionFromVerifyMode(log.verifyMode),
-            source: 'DEVICE',
-            deviceId: device.id,
-            deviceUserId: log.userId,
-            rawPayload: JSON.stringify({ proto: 'sbxpc', verifyMode: log.verifyMode, raw: log.raw }),
-          },
-        })
-        created++
-        const dayKey = new Date(ts.getTime() - 3.5 * 3600 * 1000).toISOString().slice(0, 10)
-        if (!touched.has(dayKey)) touched.set(dayKey, new Set())
-        touched.get(dayKey)!.add(personId)
-      } catch {
-        skipped++ // duplicate (same person+time+source) — already recorded
-      }
-    }
-
-    // recalc attendance days that received new punches
-    for (const [, personIds] of touched) {
-      for (const personId of personIds) {
-        await recalcDayForPerson(personId, new Date(maxTs ?? now)).catch(() => {})
-      }
-    }
-
-    const bookmarkDate = maxTs !== null ? new Date(Math.max(maxTs, device.lastLogAt?.getTime() ?? 0)) : device.lastLogAt
-    await db.device.update({
-      where: { id: device.id },
-      data: {
-        status: 'ONLINE',
-        lastSyncAt: new Date(),
-        lastSyncCount: created,
-        ...(bookmarkDate ? { lastLogAt: bookmarkDate } : {}),
-        ...(deviceSerial && !device.serialNumber ? { serialNumber: deviceSerial } : {}),
-      },
+    const summary: RawSyncSummary = await runRawSync({
+      deviceId: device.id,
+      provider,
+      mode: opts.mode ?? 'HARDWARE',
+      daysBack: opts.daysBack ?? null,
+      retries: 2,
     })
-
-    const summary: NpSyncResult = {
-      created, skipped, unmatched,
-      total: logs.length,
-      imported: fresh.length,
-      cutoff: new Date(cutoffMs).toISOString(),
-      newBookmark: bookmarkDate ? bookmarkDate.toISOString() : null,
-      deviceSerial,
-      deviceTime,
-      serialMismatch,
+    return {
+      created: summary.newCount,
+      skipped: summary.duplicate,
+      unmatched: summary.unmatched,
+      total: summary.seen,
+      imported: summary.inWindow,
+      cutoff: summary.cutoff,
+      newBookmark: summary.newBookmark,
+      deviceSerial: summary.deviceSerial,
+      deviceTime: summary.deviceTime,
+      serialMismatch: false,
     }
-
-    await db.deviceLog.create({
-      data: {
-        deviceId: device.id,
-        level: 'SUCCESS',
-        message:
-          `دریافت از دستگاه انجام شد: ${logs.length} تردد در حافظه دستگاه، ${fresh.length} در بازه انتخابی، ` +
-          `${created} رکورد جدید، ${skipped} تکراری، ${unmatched} بدون تطبیق` +
-          (deviceSerial ? ` — سریال دستگاه: ${deviceSerial}` : '') +
-          (serialMismatch ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''),
-      },
-    }).catch(() => {})
-
-    if (created > 0) {
-      await emitRealtime('device-sync', { deviceId: device.id, created, skipped, unmatched }).catch(() => {})
-    }
-    return summary
   } finally {
-    client.disconnect()
+    provider.disconnect()
   }
 }
 
@@ -211,14 +153,14 @@ export async function autoSyncDueDevices(): Promise<{ synced: string[]; errors: 
     try {
       if (d.type === 'NOVIN_NP') {
         if (!d.ipAddress) continue
-        await importNpDeviceLogs(d.id, {}) // incremental — continues from lastLogAt
+        await importNpDeviceLogs(d.id, {}) // incremental — continues from rawCursorAt
       } else {
         const { importDeviceLogs } = await import('@/lib/zk')
         await importDeviceLogs(d.id)
       }
       synced.push(d.name)
     } catch (err) {
-      errors.push({ name: d.name, error: errorMessage(err) })
+      errors.push({ name: d.name, error: (err as Error)?.message ?? String(err) })
     }
   }
   return { synced, errors }

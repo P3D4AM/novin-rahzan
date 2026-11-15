@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/auth'
 import { fail } from '@/lib/api'
+import { rematchRawPunches } from '@/lib/raw-import'
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
@@ -24,7 +25,9 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
     const b = await req.json()
     const { id: _id, createdAt, updatedAt, user, ...rest } = b
     const p = await db.personnel.update({ where: { id }, data: { ...rest } })
-    return NextResponse.json({ personnel: p })
+    // v1.3.0 (Phase 1): an edited code/deviceUserId may match UNMATCHED punches — rematch them
+    const rematch = await rematchRawPunches().catch(() => null)
+    return NextResponse.json({ personnel: p, ...(rematch ? { rematch } : {}) })
   } catch (err) {
     return fail(err)
   }

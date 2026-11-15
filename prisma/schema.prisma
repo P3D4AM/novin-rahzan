@@ -85,6 +85,7 @@ model Personnel {
   defaultShift     Shift?         @relation("defaultShift", fields: [defaultShiftId], references: [id], onDelete: SetNull)
   user             User?
   punches          PunchRecord[]
+  rawPunches       RawPunch[]
   dailyRecords     DailyAttendance[]
   leaveRequests    LeaveRequest[]
   overtimeRequests OvertimeRequest[]
@@ -244,15 +245,18 @@ model Device {
   protocol      String       @default("TCP") // TCP | UDP
   location      String?
   serialNumber  String?
-  password      Int? // «رمز شبکه» — NP devices with the encrypted protocol (EXT_SECURE)
+  password      Int? // «رمز شبکه» — NP devices with the encrypted protocol (EXT_SECURE); NEVER returned by APIs/logs
   enabled       Boolean      @default(true)
   status        String       @default("UNKNOWN") // ONLINE | OFFLINE | UNKNOWN
   lastSyncAt    DateTime?
   lastSyncCount Int          @default(0)
   lastLogAt     DateTime? // bookmark: newest device log already imported (incremental pull sync)
+  rawCursorAt   DateTime? // v1.3.0 Phase 1 — RawPunch pipeline bookmark; advances ONLY after the batch is safely stored
   syncIntervalMin Int        @default(0) // 0 = manual only
   createdAt     DateTime     @default(now())
   logs          DeviceLog[]
+  rawPunches    RawPunch[]
+  syncRuns      DeviceSyncRun[]
 }
 
 model DeviceLog {
@@ -262,6 +266,79 @@ model DeviceLog {
   message   String
   createdAt DateTime @default(now())
   device    Device?  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+}
+
+// ===================== Raw Punch Integrity Layer (v1.3.0 — Phase 1) =====================
+// RawPunch is the immutable landing zone for attendance records coming from devices
+// (FKATTEND x86 bridge, SBXPC pull, …) or reference CSV imports.
+// Design rules (HozorPlus Blueprint — Data Integrity):
+//   * No mandatory personnel mapping: unmatched records are stored with
+//     matchStatus = UNMATCHED and are NEVER dropped or deleted.
+//   * Punch direction is never guessed: inOutModeRaw/verifyModeRaw are kept as-is
+//     and direction stays "UNKNOWN" until the vendor meaning is confirmed.
+//   * Dedupe identity = device + enroll number + raw fields (+ rawFingerprint hash);
+//     dupIndex distinguishes simultaneous identical punches (same-second multi-punch).
+//   * The device wall-clock value is preserved (punchTimeRaw) alongside the UTC instant.
+model RawPunch {
+  id             String    @id @default(cuid())
+  // ---- identity of the physical record (NOT NULL with defaults → safe inside the UNIQUE key)
+  deviceSerial   String // physical identity of the device that produced the punch
+  sourceProtocol String    @default("UNKNOWN") // FKATTEND | SBXPC | RTLOG | EBIO | CSV_REFERENCE | MOCK
+  enrollNumber   String // raw enroll/user number exactly as the device reports it (kept as text)
+  punchTime      DateTime // UTC instant of the punch (converted from the device wall clock upstream)
+  punchTimeRaw   String    @default("") // device wall-clock string as received — audit trail
+  inOutModeRaw  Int       @default(0) // raw in/out value — meaning NOT verified → direction stays UNKNOWN
+  verifyModeRaw  Int       @default(0) // raw verify value
+  workCode       String    @default("")
+  sourceRecordId String    @default("") // protocol-level record id when the source provides one
+  rawFingerprint String // sha-256 of the canonical raw tuple — the dedupe key
+  dupIndex       Int       @default(0) // ordinal among otherwise-identical records (simultaneous punches)
+  // ---- optional relations (a RawPunch survives device / personnel deletion)
+  deviceId       String?
+  device         Device?   @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  personnelId    String?
+  personnel      Personnel? @relation(fields: [personnelId], references: [id], onDelete: SetNull)
+  // ---- interpretation (never guessed)
+  matchStatus    String    @default("UNMATCHED") // UNMATCHED | MATCHED
+  direction      String    @default("UNKNOWN") // UNKNOWN until the vendor meaning of in/out is verified
+  // ---- audit
+  rawPayload     String? // minimal raw payload (hex / JSON) for auditing
+  syncRunId      String?
+  importedAt     DateTime  @default(now())
+
+  @@unique([deviceSerial, sourceProtocol, enrollNumber, rawFingerprint, dupIndex])
+  @@index([punchTime])
+  @@index([deviceSerial, punchTime])
+  @@index([personnelId])
+  @@index([matchStatus])
+}
+
+// Sync History — one row per device import run (hardware, mock or dry-run).
+// The bookmark (bookmarkAt / Device.rawCursorAt) advances ONLY after the raw batch
+// is safely committed; error/note messages are sanitized and never contain secrets.
+model DeviceSyncRun {
+  id              String    @id @default(cuid())
+  deviceId        String?
+  device          Device?   @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  deviceSerial    String    @default("")
+  sourceProtocol  String    @default("UNKNOWN") // FKATTEND | SBXPC | …
+  mode            String    @default("HARDWARE") // HARDWARE | MOCK | DRY_RUN
+  status          String    @default("RUNNING") // RUNNING | SUCCESS | PARTIAL | FAILED
+  startedAt       DateTime  @default(now())
+  finishedAt      DateTime?
+  recordsSeen     Int       @default(0) // total records reported by the source
+  recordsInWindow Int       @default(0) // records inside the requested window
+  recordsNew      Int       @default(0) // newly stored RawPunch rows
+  recordsDuplicate Int       @default(0) // already stored on a previous run
+  recordsMatched  Int       @default(0) // new rows with a personnel mapping
+  recordsUnmatched Int       @default(0) // new rows without a personnel mapping (kept, never dropped)
+  bookmarkAt      DateTime? // cursor position reached after safe storage
+  retries         Int       @default(0) // automatic retries used (withRetry)
+  error           String? // sanitized error message — device secrets are never written here
+  note            String?
+
+  @@index([deviceSerial, startedAt])
+  @@index([deviceId])
 }
 
 // ===================== Notifications =====================
