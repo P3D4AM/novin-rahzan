@@ -239,20 +239,37 @@ model OvertimeRequest {
 model Device {
   id            String       @id @default(cuid())
   name          String
-  type          String       @default("ZKTECO") // ZKTECO | IMPORT
+  type          String       @default("ZKTECO") // ZKTECO | IMPORT | NOVIN_NP
+  // v1.4.0 (addendum P1) — which device driver/SDK family serves this device.
+  // EXPLICITLY selected by the admin (never guessed from the port number):
+  //   SBXPC    — NP-series binary protocol on :5005 (legacy path, kept working)
+  //   FKATTEND — official FKAttend SDK (x86 bridge) — default port 4238 (NP756+)
+  protocolFamily String     @default("SBXPC")
   ipAddress     String?
   port          Int          @default(4370)
   protocol      String       @default("TCP") // TCP | UDP
   location      String?
   serialNumber  String?
   password      Int? // «رمز شبکه» — NP devices with the encrypted protocol (EXT_SECURE); NEVER returned by APIs/logs
+  // v1.4.0 (addendum P1) — per-device connection / SDK parameters (all validated in backend)
+  connTimeoutMs Int          @default(5000) // FK_ConnectNet timeout
+  machineNumber Int          @default(1) // SDK machine number
+  sdkLicense    Int          @default(1261) // FKAttend SDK license constant (from the recorded successful test)
+  bridgeUrl     String? // FKATTEND only — x86 bridge endpoint, localhost ONLY (e.g. http://127.0.0.1:8765)
+  bridgeToken   String? // bridge shared secret — same handling as the network password (never leaves the process)
   enabled       Boolean      @default(true)
   status        String       @default("UNKNOWN") // ONLINE | OFFLINE | UNKNOWN
   lastSyncAt    DateTime?
   lastSyncCount Int          @default(0)
   lastLogAt     DateTime? // bookmark: newest device log already imported (incremental pull sync)
   rawCursorAt   DateTime? // v1.3.0 Phase 1 — RawPunch pipeline bookmark; advances ONLY after the batch is safely stored
-  syncIntervalMin Int        @default(0) // 0 = manual only
+  lastSyncError String? // v1.4.0 (addendum P2) — sanitized last sync error, cleared on success
+  // v1.4.0 (addendum P2) — automatic pull (0 = manual only; backend-validated 0..1440 minutes)
+  syncIntervalMin Int        @default(0)
+  // v1.4.0 (addendum P3) — near real-time polling (honest label; NOT real push). Off by default.
+  rtEnabled     Boolean      @default(false)
+  rtPollSec     Int          @default(30) // backend-validated 15..600 seconds
+  rtLastPollAt  DateTime?
   createdAt     DateTime     @default(now())
   logs          DeviceLog[]
   rawPunches    RawPunch[]

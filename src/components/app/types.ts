@@ -111,6 +111,8 @@ export interface DeviceT {
   id: string
   name: string
   type: string
+  /** v1.4.0: EXPLICIT driver/SDK family (SBXPC | FKATTEND) — never derived from the port */
+  protocolFamily?: string
   ipAddress?: string | null
   port: number
   protocol: string
@@ -118,12 +120,41 @@ export interface DeviceT {
   serialNumber?: string | null
   /** v1.3.0: the password VALUE is never sent to the client — only this indicator */
   hasPassword?: boolean
+  /** v1.4.0: bridge secret indicator (value never sent to the client) */
+  hasBridgeToken?: boolean
+  connTimeoutMs?: number
+  machineNumber?: number
+  sdkLicense?: number
+  bridgeUrl?: string | null
+  rtEnabled?: boolean
+  rtPollSec?: number
+  rtLastPollAt?: string | null
+  lastSyncError?: string | null
   enabled: boolean
   status: string
   lastSyncAt?: string | null
   lastSyncCount: number
   lastLogAt?: string | null
   syncIntervalMin?: number
+}
+
+/** v1.4.0 (addendum P2): one row of the device sync history (DeviceSyncRun) */
+export interface DeviceSyncRunT {
+  id: string
+  deviceId?: string | null
+  deviceSerial: string
+  sourceProtocol: string
+  mode: string
+  status: string
+  startedAt: string
+  finishedAt?: string | null
+  recordsSeen: number
+  recordsNew: number
+  recordsDuplicate: number
+  recordsUnmatched: number
+  retries: number
+  error?: string | null
+  note?: string | null
 }
 
 export interface NotificationT {

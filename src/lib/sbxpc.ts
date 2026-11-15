@@ -124,8 +124,9 @@ function sum16(buf: Buffer, from: number, toExclusive: number): number {
   return s & 0xffff
 }
 
-/** Tehran wall-clock (what the device clock shows) → correct UTC instant */
-function tehranWallClockToUTC(msSinceEpochLocal: number): Date {
+/** Tehran wall-clock (what the device clock shows) → correct UTC instant
+ * (v1.4.0: exported — also used by the FKAttend bridge provider) */
+export function tehranWallClockToUTC(msSinceEpochLocal: number): Date {
   const asUtc = new Date(msSinceEpochLocal).getTime() // interpret numbers as UTC
   if (!Number.isFinite(asUtc)) return new Date(NaN)
   try {

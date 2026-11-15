@@ -15,6 +15,7 @@
  *   6. every run is recorded in DeviceSyncRun (sync history) with retry counts.
  */
 import { SbxpcClient, NpLog } from '@/lib/sbxpc'
+import { withDeviceSyncLock, SyncBusyError } from '@/lib/sync-mutex'
 import { runRawSync, RawPunchProvider, RawPunchRead, RawSyncSummary } from '@/lib/raw-sync'
 import { db } from '@/lib/db'
 
@@ -118,13 +119,15 @@ export async function importNpDeviceLogs(deviceId: string, opts: NpSyncOptions =
     password: device.password ?? null,
   })
   try {
-    const summary: RawSyncSummary = await runRawSync({
-      deviceId: device.id,
-      provider,
-      mode: opts.mode ?? 'HARDWARE',
-      daysBack: opts.daysBack ?? null,
-      retries: 2,
-    })
+    const summary: RawSyncSummary = await withDeviceSyncLock(device.id, device.name, () =>
+      runRawSync({
+        deviceId: device.id,
+        provider,
+        mode: opts.mode ?? 'HARDWARE',
+        daysBack: opts.daysBack ?? null,
+        retries: 2,
+      }),
+    )
     return {
       created: summary.newCount,
       skipped: summary.duplicate,
@@ -153,7 +156,13 @@ export async function autoSyncDueDevices(): Promise<{ synced: string[]; errors: 
     try {
       if (d.type === 'NOVIN_NP') {
         if (!d.ipAddress) continue
-        await importNpDeviceLogs(d.id, {}) // incremental — continues from rawCursorAt
+        // v1.4.0: dispatch by the EXPLICITLY selected protocol family
+        if (d.protocolFamily === 'FKATTEND') {
+          const { importFkAttendLogs } = await import('@/lib/fkattend')
+          await importFkAttendLogs(d.id, {}) // incremental — continues from rawCursorAt
+        } else {
+          await importNpDeviceLogs(d.id, {}) // incremental — continues from rawCursorAt
+        }
       } else {
         const { importDeviceLogs } = await import('@/lib/zk')
         await importDeviceLogs(d.id)
@@ -168,3 +177,4 @@ export async function autoSyncDueDevices(): Promise<{ synced: string[]; errors: 
 
 /** kept for type-compat with tests */
 export type { NpLog }
+export { SyncBusyError }

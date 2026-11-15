@@ -8,6 +8,8 @@ import { npTest } from '@/lib/sbxpc'
 import { importNpDeviceLogs } from '@/lib/np-sync'
 import { emitRealtime } from '@/lib/notify'
 import { sanitizeDeviceForApi, sanitizeResultForApi, redactDeviceSecrets } from '@/lib/device-secrets'
+import { validateDeviceSettings } from '@/lib/device-validation'
+import { fkTestConnection, importFkAttendLogs, SyncBusyError } from '@/lib/fkattend'
 
 export async function GET(req: NextRequest) {
   try {
@@ -33,16 +35,21 @@ export async function POST(req: NextRequest) {
   try {
     await requireRole('ADMIN')
     const b = await req.json()
-    if (!b.name) throw new ApiError(400, 'نام دستگاه الزامی است')
-    const type = b.type === 'NOVIN_NP' ? 'NOVIN_NP' : 'ZKTECO'
-    if (type === 'NOVIN_NP' && !b.serialNumber?.trim())
-      throw new ApiError(400, 'برای دستگاه‌های نوین پرداز (NP) شماره سریال الزامی است — مانند نرم‌افزار اصلی، پیام‌های دستگاه با سریال مطابقت داده می‌شوند')
+    // v1.4.0 (addendum P1): ALL connection settings go through the shared backend
+    // validator — port defaults per protocol family (FKATTEND → 4238), explicit
+    // family selection, interval/timeout/token ranges, localhost-only bridge URL.
+    const v = validateDeviceSettings(b, { isCreate: true })
+    if (!v.ok) throw new ApiError(400, v.error)
+    const d = v.data
     const device = await db.device.create({
       data: {
-        name: b.name, type, ipAddress: b.ipAddress || null, port: Number(b.port || 5005),
-        protocol: b.protocol || 'TCP', location: b.location || null, enabled: b.enabled ?? true,
-        serialNumber: b.serialNumber?.trim() || null,
-        password: b.password === '' || b.password == null ? null : Number(b.password),
+        name: d.name, type: d.type, protocolFamily: d.protocolFamily,
+        ipAddress: d.ipAddress, port: d.port, protocol: d.protocol,
+        location: d.location, enabled: d.enabled, serialNumber: d.serialNumber,
+        connTimeoutMs: d.connTimeoutMs, machineNumber: d.machineNumber, sdkLicense: d.sdkLicense,
+        bridgeUrl: d.bridgeUrl, bridgeToken: d.bridgeToken,
+        syncIntervalMin: d.syncIntervalMin, rtEnabled: d.rtEnabled, rtPollSec: d.rtPollSec,
+        password: d.password ?? null,
       },
     })
     return NextResponse.json({ device: sanitizeDeviceForApi(device) })
@@ -56,24 +63,39 @@ export async function PUT(req: NextRequest) {
     await requireRole('ADMIN')
     const b = await req.json()
     if (!b.id) throw new ApiError(400, 'شناسه لازم است')
-    const type = b.type === 'NOVIN_NP' ? 'NOVIN_NP' : 'ZKTECO'
-    if (type === 'NOVIN_NP' && !b.serialNumber?.trim())
-      throw new ApiError(400, 'برای دستگاه‌های نوین پرداز (NP) شماره سریال الزامی است')
-    // v1.3.0: password is no longer echoed back by GET, so an untouched edit form
-    // sends NO password field at all — `undefined` keeps the stored secret intact.
-    // `""` explicitly clears it; a number sets it.
-    const existing = await db.device.findUnique({ where: { id: b.id }, select: { password: true } })
-    let password: number | null | undefined
-    if (b.password === undefined) password = existing?.password ?? null // keep
-    else if (b.password === '' || b.password == null) password = null // clear
-    else password = Number(b.password)
+    const existing = await db.device.findUnique({ where: { id: b.id } })
+    if (!existing) throw new ApiError(404, 'دستگاه یافت نشد')
+    // v1.4.0: full backend validation on edit too. Password/bridgeToken follow
+    // the Phase 1 semantics: field absent = keep the stored secret (the edit
+    // form starts empty because GET never echoes secrets).
+    const v = validateDeviceSettings(b, {
+      isCreate: false,
+      existing: {
+        protocolFamily: existing.protocolFamily,
+        port: existing.port,
+        password: existing.password,
+        type: existing.type,
+      },
+    })
+    if (!v.ok) throw new ApiError(400, v.error)
+    const d = v.data
+    // bridgeToken: empty string on edit = KEEP the stored token (admin never sees it);
+    // an explicit non-empty value replaces it. Cleared only via `clearBridgeToken: true`.
+    const bridgeToken = d.bridgeToken
+      ? d.bridgeToken
+      : b.clearBridgeToken === true
+        ? null
+        : existing.bridgeToken
     const device = await db.device.update({
       where: { id: b.id },
       data: {
-        name: b.name, type, ipAddress: b.ipAddress || null, port: Number(b.port || 5005), protocol: b.protocol,
-        location: b.location || null, enabled: b.enabled, syncIntervalMin: Number(b.syncIntervalMin || 0),
-        serialNumber: b.serialNumber?.trim() || null,
-        ...(password !== undefined ? { password } : {}),
+        name: d.name, type: d.type, protocolFamily: d.protocolFamily,
+        ipAddress: d.ipAddress, port: d.port, protocol: d.protocol,
+        location: d.location, enabled: d.enabled, serialNumber: d.serialNumber,
+        connTimeoutMs: d.connTimeoutMs, machineNumber: d.machineNumber, sdkLicense: d.sdkLicense,
+        bridgeUrl: d.bridgeUrl, bridgeToken,
+        syncIntervalMin: d.syncIntervalMin, rtEnabled: d.rtEnabled, rtPollSec: d.rtPollSec,
+        ...(d.password !== undefined ? { password: d.password } : {}),
       },
     })
     return NextResponse.json({ device: sanitizeDeviceForApi(device) })
@@ -110,6 +132,47 @@ export async function PATCH(req: NextRequest) {
 
     /* ---------------- Novin Pardaz NP devices (pull mode) ---------------- */
     if (device.type === 'NOVIN_NP') {
+      /* v1.4.0 (addendum P0/P1): dispatch by the EXPLICITLY selected protocol family.
+         FKATTEND — official SDK via the x86 bridge (read-only, port 4238 default). */
+      if (device.protocolFamily === 'FKATTEND') {
+        if (b.action === 'test') {
+          const t = await fkTestConnection(device)
+          await db.device.update({
+            where: { id: device.id },
+            data: {
+              status: t.ok ? 'ONLINE' : 'OFFLINE',
+              ...(t.ok && t.serialNumber && !device.serialNumber ? { serialNumber: t.serialNumber } : {}),
+            },
+          })
+          await db.deviceLog.create({
+            data: {
+              deviceId: device.id,
+              level: t.ok ? 'SUCCESS' : 'ERROR',
+              message: redactDeviceSecrets(
+                t.ok
+                  ? `اتصال از طریق Bridge FKAttend برقرار شد — پروتکل: FKAttend · پورت ${device.port} · سریال: ${t.serialNumber || '— (بدون پروب سریال)'} · زمان پاسخ: ${t.latencyMs ?? '?'} میلی‌ثانیه${t.deviceTime ? ` · ساعت دستگاه: ${t.deviceTime}` : ''}${t.serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
+                  : `خطای اتصال از طریق Bridge FKAttend: ${t.error ?? 'نامشخص'}`,
+              ),
+            },
+          })
+          // the password/bridge token never leave the process — only indicators
+          return NextResponse.json({ result: sanitizeResultForApi(t as unknown as Record<string, unknown>) })
+        }
+        if (b.action === 'sync') {
+          const daysBack = typeof b.daysBack === 'number' && b.daysBack > 0 ? b.daysBack : null
+          const full = b.full === true
+          try {
+            const result = await importFkAttendLogs(device.id, { daysBack, full })
+            await emitRealtime('device-sync', { deviceId: device.id, ...result })
+            return NextResponse.json({ result })
+          } catch (err) {
+            if (err instanceof SyncBusyError) throw new ApiError(409, err.message)
+            throw err
+          }
+        }
+        throw new ApiError(400, 'برای دستگاه‌های FKAttend فقط «تست اتصال» و «دانلود ترددها» پشتیبانی می‌شود')
+      }
+
       if (b.action === 'test') {
         if (!device.ipAddress?.trim()) {
           throw new ApiError(400,
@@ -154,9 +217,14 @@ export async function PATCH(req: NextRequest) {
 
       if (b.action === 'sync') {
         const daysBack = typeof b.daysBack === 'number' && b.daysBack > 0 ? b.daysBack : null
-        const result = await importNpDeviceLogs(device.id, { daysBack })
-        await emitRealtime('device-sync', { deviceId: device.id, ...result })
-        return NextResponse.json({ result })
+        try {
+          const result = await importNpDeviceLogs(device.id, { daysBack })
+          await emitRealtime('device-sync', { deviceId: device.id, ...result })
+          return NextResponse.json({ result })
+        } catch (err) {
+          if (err instanceof SyncBusyError) throw new ApiError(409, err.message)
+          throw err
+        }
       }
 
       throw new ApiError(400, 'برای دستگاه‌های نوین پرداز فقط «تست اتصال» و «دانلود ترددها» پشتیبانی می‌شود')

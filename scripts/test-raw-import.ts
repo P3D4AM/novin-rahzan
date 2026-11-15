@@ -115,6 +115,9 @@ async function main() {
   check('migration up applied', up1.status === 0 && /RawPunch table: present/.test(up1.stdout), (up1.stderr || '').slice(-200))
   const up2 = sh('node', ['scripts/migrate-v1.3.0-phase1.mjs', 'up'], { DATABASE_URL: `file:${TMP}/mig.db` })
   check('migration up is idempotent (2nd run ok)', up2.status === 0 && /RawPunch table: present/.test(up2.stdout))
+  // v1.4.0 upgrade on top — the parity check runs against the CURRENT schema
+  const up14 = sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: `file:${TMP}/mig.db` })
+  check('v1.4.0 upgrade applies on the v1.3.0 database', up14.status === 0 && /Device.rtPollSec: present/.test(up14.stdout))
 
   const parity = sh('npx', ['prisma', 'db', 'push', '--skip-generate'], { DATABASE_URL: `file:${TMP}/mig.db` })
   const parityOut = (parity.stdout || '') + (parity.stderr || '')
@@ -124,6 +127,7 @@ async function main() {
     parityOut.slice(-200).replace(/\n/g, ' '),
   )
 
+  sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'down', '--confirm'], { DATABASE_URL: `file:${TMP}/mig.db` })
   const down1 = sh('node', ['scripts/migrate-v1.3.0-phase1.mjs', 'down', '--confirm'], { DATABASE_URL: `file:${TMP}/mig.db` })
   check('rollback (down --confirm) removes the new objects', down1.status === 0 && /RawPunch table: MISSING/.test(down1.stdout))
   const downGuard = sh('node', ['scripts/migrate-v1.3.0-phase1.mjs', 'down'], { DATABASE_URL: `file:${TMP}/mig.db` })
@@ -139,6 +143,9 @@ async function main() {
   sh('npx', ['prisma', 'db', 'push', '--schema', OLD_SCHEMA, '--skip-generate'], { DATABASE_URL: MAIN_DB })
   const mainUp = sh('node', ['scripts/migrate-v1.3.0-phase1.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   if (mainUp.status !== 0) throw new Error('main db migration failed: ' + mainUp.stderr)
+  // v1.4.0 upgrade on top (as a real v1.3.0 installation would do)
+  const mainUp14 = sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  if (mainUp14.status !== 0) throw new Error('main db v1.4.0 migration failed: ' + mainUp14.stderr)
 
   // seed: two personnel + one device
   const p1 = await db.personnel.create({

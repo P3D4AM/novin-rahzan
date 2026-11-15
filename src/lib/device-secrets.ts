@@ -15,16 +15,27 @@
  *     Applied on every write to DeviceLog and on every read of log rows via API.
  */
 
-export type DeviceWithPassword = {
+export type DeviceWithSecrets = {
   password?: number | string | null
+  bridgeToken?: string | null
 } & Record<string, unknown>
 
-export type SafeDeviceRow = Omit<DeviceWithPassword, 'password'> & { hasPassword: boolean }
+/** legacy alias (Phase 1) */
+export type DeviceWithPassword = DeviceWithSecrets
 
-/** Strip the device password from a row before it leaves the process boundary. */
-export function sanitizeDeviceForApi(device: DeviceWithPassword): SafeDeviceRow {
-  const { password, ...rest } = device
-  return { ...rest, hasPassword: password != null && password !== '' }
+export type SafeDeviceRow = Omit<DeviceWithSecrets, 'password' | 'bridgeToken'> & {
+  hasPassword: boolean
+  hasBridgeToken: boolean
+}
+
+/** Strip the device secrets (network password, bridge token) from a row before it leaves the process boundary. */
+export function sanitizeDeviceForApi(device: DeviceWithSecrets): SafeDeviceRow {
+  const { password, bridgeToken, ...rest } = device
+  return {
+    ...rest,
+    hasPassword: password != null && password !== '',
+    hasBridgeToken: bridgeToken != null && bridgeToken !== '',
+  }
 }
 
 /** Strip the password from an arbitrary result object (npTest / bridge responses). */
