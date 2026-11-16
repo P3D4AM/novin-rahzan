@@ -17,15 +17,15 @@ import { RefreshCw, Pencil, Search, Loader2, Trash2, Plus } from 'lucide-react'
 
 interface Props { user: SessionUser; boot: Bootstrap; reloadBoot: () => void }
 
-export function AttendanceView({ user, boot, reloadBoot }: Props) {
+export function AttendanceView({ user, boot, reloadBoot, dataVersion }: Props & { dataVersion?: number }) {
   return (
     <Tabs defaultValue="daily" dir="rtl">
       <TabsList className="mb-4">
         <TabsTrigger value="daily">کارکرد روزانه</TabsTrigger>
         <TabsTrigger value="punches">ترددهای خام</TabsTrigger>
       </TabsList>
-      <TabsContent value="daily"><DailyTab boot={boot} /></TabsContent>
-      <TabsContent value="punches"><PunchesTab boot={boot} user={user} reloadBoot={reloadBoot} /></TabsContent>
+      <TabsContent value="daily"><DailyTab boot={boot} dataVersion={dataVersion} /></TabsContent>
+      <TabsContent value="punches"><PunchesTab boot={boot} user={user} reloadBoot={reloadBoot} dataVersion={dataVersion} /></TabsContent>
     </Tabs>
   )
 }
@@ -33,7 +33,7 @@ export function AttendanceView({ user, boot, reloadBoot }: Props) {
 /* ---------------- daily attendance ---------------- */
 function isoToday() { return new Date().toISOString().slice(0, 10) }
 
-function DailyTab({ boot }: { boot: Bootstrap }) {
+function DailyTab({ boot, dataVersion }: { boot: Bootstrap; dataVersion?: number }) {
   const today = boot.today
   const [from, setFrom] = useState(new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10))
   const [to, setTo] = useState(isoToday())
@@ -53,6 +53,10 @@ function DailyTab({ boot }: { boot: Bootstrap }) {
     } finally { setLoading(false) }
   }
   useEffect(() => { load()   }, [from, to, dept, status])
+  // v1.4.3 (addendum P4): device-sync events refetch the report WITHOUT a
+  // manual page refresh (role-scoped data comes from the API — no names are
+  // broadcast over the socket)
+  useEffect(() => { load()   }, [dataVersion])
 
   const filtered = records.filter((r) => {
     if (q) {
@@ -169,7 +173,7 @@ function ObjectEntries({ obj }: { obj: Record<string, string> }) {
 }
 
 /* ---------------- raw punches ---------------- */
-function PunchesTab({ boot, user, reloadBoot }: { boot: Bootstrap; user: SessionUser; reloadBoot: () => void }) {
+function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; user: SessionUser; reloadBoot: () => void; dataVersion?: number }) {
   const [punches, setPunches] = useState<Array<{ id: string; personId: string; timestamp: string; direction: string; source: string; edited: boolean; editReason?: string | null; person?: { firstName: string; lastName: string; personnelCode: string } }>>([])
   const [total, setTotal] = useState(0)
   const [q, setQ] = useState('')
@@ -200,6 +204,8 @@ function PunchesTab({ boot, user, reloadBoot }: { boot: Bootstrap; user: Session
     } finally { setLoading(false) }
   }
   useEffect(() => { load()   }, [q, source, page])
+  // v1.4.3: live refresh on device-sync (no manual page reload)
+  useEffect(() => { load()   }, [dataVersion])
 
   const saveEdit = async () => {
     if (!editPunch || !editTs) return

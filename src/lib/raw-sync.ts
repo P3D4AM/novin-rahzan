@@ -277,6 +277,12 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
     }
 
     if (summary.newCount > 0) {
+      // v1.4.3 (addendum P4): per-user + admin notifications for the NEW rows
+      // (selected by syncRunId — a no-op re-sync can never re-notify).
+      // Best effort: a notification failure must never fail the sync itself.
+      const { createPunchNotifications } = await import('@/lib/notify')
+      await createPunchNotifications({ runId: run.id, deviceName: device.name }).catch(() => {})
+
       await emitRealtime('device-sync', {
         deviceId: device.id,
         created: summary.newCount,

@@ -2,7 +2,9 @@ import { db } from '@/lib/db'
 import { addDays, tehranDayOf } from '@/lib/jalali'
 import { recalcDayForPerson } from '@/lib/attendance'
 
-const RT_URL = 'http://localhost:3004/emit'
+// internal emit endpoint (localhost only). HOZOR_RT_URL allows tests to
+// point emitRealtime at their own listener without touching production code.
+const RT_URL = process.env.HOZOR_RT_URL || 'http://localhost:3004/emit'
 
 /** Push an event to the realtime socket.io service (best effort) */
 export async function emitRealtime(event: string, payload: unknown) {
@@ -115,4 +117,61 @@ export async function onLeaveRequest(requestId: string) {
     requestId
   )
   await emitRealtime('leave-request', { requestId, fullName, kind: req.kind })
+}
+
+/**
+ * v1.4.3 (addendum P4): notifications for newly imported device punches.
+ *
+ * Rules implemented:
+ *   * only NEW rows are considered — selected by syncRunId (a re-sync that
+ *     imports nothing new can never re-notify: dedupe by construction);
+ *   * matched punches notify ONLY the punched person's own user account
+ *     (EMPLOYEE never sees other people's punches in their notifications);
+ *   * punches of personnel WITHOUT a linked user account notify nobody
+ *     (the reports carry them);
+ *   * UNMATCHED punches notify admins (ADMIN + SUPER_ADMIN) with ONE
+ *     aggregated row per run — they are kept, visible and auto-rematch later;
+ *   * the direction is deliberately NOT mentioned anywhere: it stays UNKNOWN
+ *     until the vendor meaning of InOutModeRaw is confirmed;
+ *   * per user per run: ONE aggregated notification (no 30-row spam when a
+ *     poll delivers several punches).
+ */
+export async function createPunchNotifications(input: {
+  runId: string
+  deviceName: string
+}): Promise<{ userNotifications: number; adminNotifications: number; usersNotified: number }> {
+  const rows = await db.rawPunch.findMany({
+    where: { syncRunId: input.runId, matchStatus: 'MATCHED' },
+    select: { punchTime: true, personnelId: true, personnel: { select: { user: { select: { id: true } } } } },
+  })
+  const perUser = new Map<string, { count: number; lastAt: Date }>()
+  for (const r of rows) {
+    const uid = r.personnel?.user?.id
+    if (!uid) continue // no linked user account — reports carry the data
+    const cur = perUser.get(uid) ?? { count: 0, lastAt: r.punchTime }
+    cur.count++
+    if (r.punchTime > cur.lastAt) cur.lastAt = r.punchTime
+    perUser.set(uid, cur)
+  }
+  const fmt = new Intl.DateTimeFormat('fa-IR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tehran' })
+  for (const [uid, agg] of perUser) {
+    await notifyUser(
+      uid,
+      'تردد جدید ثبت شد',
+      `${agg.count === 1 ? 'یک تردد جدید' : `${agg.count.toLocaleString('fa-IR')} تردد جدید`} شما از دستگاه «${input.deviceName}» دریافت شد — آخرین ساعت ${fmt.format(agg.lastAt)}.`,
+      'PUNCH',
+    )
+  }
+  const unmatched = await db.rawPunch.count({ where: { syncRunId: input.runId, matchStatus: 'UNMATCHED' } })
+  let adminNotifications = 0
+  if (unmatched > 0) {
+    await notifyRoles(
+      ['ADMIN', 'SUPER_ADMIN'],
+      'تردد بدون تطبیق دریافت شد',
+      `${unmatched.toLocaleString('fa-IR')} تردد بدون تطبیق کارمند از دستگاه «${input.deviceName}» دریافت و نگه‌داشته شد (حذف نمی‌شود) — با تعریف پرسنل مربوط، خودکار تطبیق می‌خورد.`,
+      'UNMATCHED_PUNCH',
+    )
+    adminNotifications = 1
+  }
+  return { userNotifications: perUser.size, adminNotifications, usersNotified: perUser.size }
 }

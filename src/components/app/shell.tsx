@@ -62,6 +62,15 @@ export function AppShell({ user, onLogout }: { user: SessionUser; onLogout: () =
   const [unread, setUnread] = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [liveFeed, setLiveFeed] = useState<Array<{ personName: string; direction: string; time: string; source: string }>>([])
+  // v1.4.3 (addendum P4): bumped on every device-sync event so the data views
+  // (attendance/reports) refetch WITHOUT a manual page refresh
+  const [dataVersion, setDataVersion] = useState(0)
+  // lazy init from the persisted opt-in (no setState-in-effect)
+  const [browserNotif, setBrowserNotif] = useState(() => {
+    if (typeof window === 'undefined' || typeof Notification === 'undefined') return false
+    try { return localStorage.getItem('hozorBrowserNotif') === '1' && Notification.permission === 'granted' } catch { return false }
+  })
+  const browserNotifRef = useRef(browserNotif) // mirror for the socket handler (no stale closure)
   const socketRef = useRef<Socket | null>(null)
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
@@ -111,14 +120,49 @@ export function AppShell({ user, onLogout }: { user: SessionUser; onLogout: () =
       if (msg.event === 'notification') {
         loadNotifications()
         toast({ title: msg.payload.title as string, description: msg.payload.body as string })
+        // v1.4.3 (addendum P5): optional browser notification — only when the
+        // user EXPLICITLY granted permission; denial never affects the in-app
+        // notifications above
+        if (browserNotifRef.current && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          try { new Notification(msg.payload.title as string, { body: msg.payload.body as string, tag: 'hozorplus-notification' }) } catch { /* ignore */ }
+        }
       }
       if (msg.event === 'device-sync') {
         toast({ title: 'همگام‌سازی دستگاه', description: `${msg.payload.created} تردد جدید دریافت شد` })
         loadBoot()
+        // live reports: notifications list + data views refetch without a
+        // manual page refresh (the event payload carries counts only — no
+        // person-level data is broadcast)
+        loadNotifications()
+        setDataVersion((v) => v + 1)
       }
     })
     return () => { clearTimeout(t); socket.disconnect() }
   }, [])
+
+  const enableBrowserNotifications = async () => {
+    if (typeof Notification === 'undefined') {
+      toast({ title: 'مرورگر شما از اعلان دسکتاپ پشتیبانی نمی‌کند', description: 'اعلان‌های داخل نرم‌افزار همچنان کار می‌کنند.' })
+      return
+    }
+    let perm: NotificationPermission = Notification.permission
+    if (perm === 'default') {
+      // transparent permission request — the user decides
+      perm = await Notification.requestPermission().catch(() => 'denied' as NotificationPermission)
+    }
+    if (perm === 'granted') {
+      try { localStorage.setItem('hozorBrowserNotif', '1') } catch { /* ignore */ }
+      browserNotifRef.current = true
+      setBrowserNotif(true)
+      toast({ title: 'اعلان مرورگر فعال شد' })
+      try { new Notification('اعلان‌های حضور+ فعال شد', { tag: 'hozorplus-notification' }) } catch { /* ignore */ }
+    } else {
+      try { localStorage.setItem('hozorBrowserNotif', '0') } catch { /* ignore */ }
+      browserNotifRef.current = false
+      setBrowserNotif(false)
+      toast({ title: 'مجوز اعلان مرورگر داده نشد', description: 'هیچ مشکلی نیست — اعلان‌های داخل نرم‌افزار مستقل از آن کار می‌کنند و اطلاعاتی از دست نمی‌رود.' })
+    }
+  }
 
   const markAllRead = async () => {
     await api('/api/notifications', { method: 'PUT', body: JSON.stringify({}) })
@@ -215,9 +259,22 @@ export function AppShell({ user, onLogout }: { user: SessionUser; onLogout: () =
               <PopoverContent className="w-80 p-0" align="end">
                 <div className="p-3 border-b flex items-center justify-between">
                   <span className="font-semibold text-sm">اعلان‌ها</span>
-                  <Button variant="ghost" size="sm" onClick={markAllRead} className="h-7 text-xs gap-1">
-                    <CheckCheck className="h-3.5 w-3.5" /> خواندن همه
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {/* v1.4.3: transparent opt-in for BROWSER notifications —
+                        denial never blocks the in-app notifications */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={enableBrowserNotifications}
+                      className="h-7 text-xs gap-1"
+                      title={browserNotif ? 'اعلان مرورگر فعال است' : 'فعال‌سازی اعلان مرورگر (اختیاری)'}
+                    >
+                      {browserNotif ? '🔔' : '🔕'} {browserNotif ? 'اعلان مرورگر روشن' : 'اعلان مرورگر'}
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={markAllRead} className="h-7 text-xs gap-1">
+                      <CheckCheck className="h-3.5 w-3.5" /> خواندن همه
+                    </Button>
+                  </div>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
                   {notifications.length === 0 && <p className="p-4 text-center text-sm text-muted-foreground">اعلانی نیست</p>}
@@ -254,7 +311,7 @@ export function AppShell({ user, onLogout }: { user: SessionUser; onLogout: () =
               {view === 'dashboard' && <DashboardView {...viewProps} liveFeed={liveFeed} />}
               {view === 'personnel' && <PersonnelView {...viewProps} />}
               {view === 'shifts' && <ShiftsView {...viewProps} />}
-              {view === 'attendance' && <AttendanceView {...viewProps} />}
+              {view === 'attendance' && <AttendanceView {...viewProps} dataVersion={dataVersion} />}
               {view === 'leave' && <LeaveView {...viewProps} />}
               {view === 'overtime' && <OvertimeView {...viewProps} />}
               {view === 'reports' && <ReportsView {...viewProps} />}
