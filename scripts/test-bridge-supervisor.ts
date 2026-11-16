@@ -28,7 +28,7 @@
  *   npx tsx scripts/test-bridge-supervisor.ts
  */
 import { spawn } from 'child_process'
-import { mkdirSync, rmSync, writeFileSync } from 'fs'
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import http from 'http'
 import path from 'path'
 
@@ -68,9 +68,7 @@ function procAlive(pid: number | null | undefined): boolean {
 /** read a /proc file of a SAME-USER process (Linux sandbox only) */
 function readProc(pid: number, file: 'cmdline' | 'environ'): string | null {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const fs = require('fs') as typeof import('fs')
-    return fs.readFileSync(`/proc/${pid}/${file}`, 'utf8')
+    return readFileSync(`/proc/${pid}/${file}`, 'utf8')
   } catch { return null }
 }
 
