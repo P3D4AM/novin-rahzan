@@ -13,7 +13,7 @@ set "DBURL=!DBURL: =%%20!"
 set "DATABASE_URL=!DBURL!"
 
 echo ==========================================================
-echo   HozorPlus  -  Attendance Management System  v1.4.0
+echo   HozorPlus  -  Attendance Management System  v1.5.0
 echo   Windows Installer
 echo ==========================================================
 echo.
@@ -139,6 +139,13 @@ echo     - register the device here with its SERIAL NUMBER
 echo     - on the device: Communication menu -> Server address = THIS PC's IP
 echo       Server port = 5005   (allow port 5005 in Windows Firewall)
 echo     - attendance logs then stream in automatically, real-time.
+echo.
+echo   NP756+ via the official FK623 SDK (recommended, read-only):
+echo     - ONE TIME: copy the vendor SDK DLLs (at minimum FK623Attend.dll)
+echo       from your NP756 SDK package into  tools\fkattend-bridge\bin
+echo     - then simply add the device (IP + port 4238 + network password).
+echo       The connection service starts and manages itself - no scripts,
+echo       no windows, no tokens. See README.md for details.
 echo.
 pause
 exit /b 0

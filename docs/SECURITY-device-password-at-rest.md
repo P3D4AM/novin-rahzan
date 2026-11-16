@@ -91,10 +91,14 @@ device log — the credential is never lost, and the gap stays visible.
    machine, the database keeps the passwords in plaintext — by design, because
    flipping it on silently would change recovery semantics for every existing
    installation. This is the documented gap, not a solved problem.
-2. **`Device.bridgeToken`** (the localhost bridge shared secret) remains
-   plaintext at rest — same exposure class, but it only ever protects a
-   localhost-only endpoint, so it is not on the critical path. It can move to
-   the same DPAPI store later without schema changes (same pattern).
+2. **v1.5.0 — the bridge token no longer exists at rest.** The FK623 bridge
+   is supervisor-managed: its token is generated per launch
+   (`crypto.randomBytes(32)`), lives only in process memory and the child's
+   environment, and is never stored in the database (the `Device.bridgeUrl`/
+   `Device.bridgeToken` columns were dropped by
+   `scripts/migrate-v1.5.0-bridge-internal.mjs`). Historical v1.4.0 rows that
+   still carry a stored token are stripped defensively on read and are
+   obsolete — the supervised bridge never reads them.
 3. **DPAPI scope is LocalMachine**, not per-service-account: any local process
    can decrypt. A tighter scope (CurrentUser + a service account) would break
    the "any admin account on the box can run the app" deployment model; that
