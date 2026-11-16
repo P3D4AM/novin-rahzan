@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Isolated FKAttend probe — reads serial number + device time (optional extras).
 

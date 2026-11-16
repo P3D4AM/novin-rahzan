@@ -4,7 +4,7 @@ title HozorPlus FK623 Bridge - DEBUG ONLY (x86)
 cd /d "%~dp0"
 
 REM ============================================================
-REM  v1.5.0: THIS WINDOW IS NEEDED ONLY FOR DEBUGGING.
+REM  v1.5.1: THIS WINDOW IS NEEDED ONLY FOR DEBUGGING.
 REM
 REM  Normal operation needs NO manual steps at all: HozorPlus
 REM  starts, hides, supervises and stops its bridge by itself
@@ -33,7 +33,7 @@ echo   NOTE: the app does NOT read this instance - it manages
 echo   its own hidden bridge. Close this window when done.
 echo.
 
-REM FK623Attend.dll is 32-bit → MUST use the 32-bit PowerShell (SysWOW64).
+REM FK623Attend.dll is 32-bit -> MUST use the 32-bit PowerShell (SysWOW64).
 "%WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "%~dp0fkattend-bridge.ps1" -Port %BRIDGE_PORT% -DllDir "%DLLDIR%"
 
 echo.

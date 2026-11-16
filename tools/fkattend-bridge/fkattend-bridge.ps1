@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   HozorPlus FK623 Bridge — READ-ONLY device access for NP756+ (port 4238).
 
@@ -30,6 +30,16 @@
     * POST /shutdown   — token-authenticated graceful stop (supervisor).
     * Exit codes: 0 = clean stop, 1 = wrong architecture, 2 = script error,
       3 = port already in use, 4 = FK623Attend.dll not found.
+
+  v2.1.0 — shipped-DLL + parser/encoding fixes:
+    * The 7 vendor SDK DLLs now ship INSIDE the installer at
+      tools\fkattend-bridge\bin (closure verified by PE import tables;
+      see bin/README-DLL.txt) — a missing DLL now means a broken install
+      or antivirus quarantine, never a manual copy step.
+    * This file is saved UTF-8 WITH BOM. Windows PowerShell 5.1 decodes
+      BOM-less scripts with the legacy ANSI codepage, which garbles the
+      Persian service/error strings on real Windows (the "parser" bug
+      fixed in v1.5.1). The BOM pins UTF-8 for every codepage.
 
   Guarantees (unchanged from v1.4.0):
     * READ-ONLY: no destructive SDK call is EVER made; there is no endpoint
@@ -78,12 +88,13 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$script:BridgeVersion = '2.0.0'
+$script:BridgeVersion = '2.1.0'
 $script:Root = $PSScriptRoot
 
 # ---------------------------------------------------------------- environment
 if ([Environment]::Is64BitProcess) {
   Write-Host '[fk-bridge] FATAL: this bridge is 32-bit only (x86 FK623Attend.dll).'
+  Write-Host '[fk-bridge] The DLLs ship with the app (tools\fkattend-bridge\bin) - no manual copy is ever needed.'
   Write-Host '[fk-bridge] Run it via START-BRIDGE.bat or:'
   Write-Host '[fk-bridge]   %WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File fkattend-bridge.ps1'
   exit 1
@@ -94,7 +105,8 @@ if (-not $DllDir) { $DllDir = $script:Root }
 $DllDir = [System.IO.Path]::GetFullPath($DllDir)
 if (-not (Test-Path (Join-Path $DllDir 'FK623Attend.dll'))) {
   Write-Host "[fk-bridge] FATAL: FK623Attend.dll not found in: $DllDir"
-  Write-Host '[fk-bridge] Production: copy the vendor SDK DLLs into tools\fkattend-bridge\bin next to the app.'
+  Write-Host '[fk-bridge] The SDK DLLs ship with the HozorPlus zip in tools\fkattend-bridge\bin.'
+  Write-Host '[fk-bridge] If they are missing, re-extract the setup zip (or reinstall); check antivirus quarantine.'
   exit 4
 }
 
