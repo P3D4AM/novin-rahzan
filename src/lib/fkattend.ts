@@ -1,25 +1,32 @@
 /**
- * FKAttend device driver (addendum P0/P1) — talks to the real NP756+ through
- * the **x86 FKAttend bridge** (tools/fkattend-bridge/fkattend-bridge.ps1,
- * 32-bit PowerShell, FKAttend.dll — the exact method that recorded the
+ * FKAttend device driver (v1.5.0) — talks to the real NP756+ through the
+ * **supervised x86 FK623 bridge** (tools/fkattend-bridge/fkattend-bridge.ps1,
+ * 32-bit PowerShell + FK623Attend.dll — the exact method that recorded the
  * successful port-4238 connection) and feeds the Phase 1 RawPunch pipeline
  * through the shared runRawSync orchestrator.
  *
- * Architecture (architecture decision D2 — x86 DLLs NEVER load inside the
- * x64 Node/Next process):
+ * Architecture (docs/BRIDGE-SUPERVISION.md — x86 DLLs NEVER load inside the
+ * x64 Node/Next process; the bridge is a MANAGED HIDDEN CHILD of this server):
  *
- *   HozorPlus (x64 Node) ──localhost HTTP + token──▶ x86 Bridge (PowerShell)
- *        └─ FKAttend.dll (32-bit) ──TCP 4238──▶ NP756+
+ *   HozorPlus (x64 Node) ──localhost HTTP + auto-token──▶ x86 Bridge (child)
+ *        └─ FK623Attend.dll (32-bit) ──TCP 4238──▶ NP756+
  *
- * Bridge contract: tools/fkattend-bridge/CONTRACT.md
- *   POST /health        → liveness + DLL status
- *   POST /device/test   → READ-ONLY connect probe (no keypad lock, no reads)
+ * v1.5.0: the user no longer configures ANYTHING about the bridge. The URL
+ * and the token come from the bridge supervisor (ensureBridge) — started,
+ * restarted and stopped by the app itself. There is no bridgeUrl/bridgeToken
+ * on the Device row anymore, nothing to paste, nothing to keep running.
+ *
+ * Bridge contract: tools/fkattend-bridge/CONTRACT.md (v2)
+ *   GET  /ping           → liveness (no token — readiness probe only)
+ *   POST /health          → status (token)
+ *   POST /device/test     → READ-ONLY connect probe (no keypad lock, no reads)
  *   POST /device/read-logs → full log pull (keypad locked, re-enabled in finally)
+ *   POST /shutdown        → graceful stop (token)
  *
  * The bridge deliberately exposes NO destructive endpoint (no empty/delete/
  * set-time). Device settings (IP/port/timeout/password/license/machine) all
- * come from the Device row — nothing is hardcoded here. The bridge URL must
- * be localhost (validated at save time; re-checked here as defense in depth).
+ * come from the Device row — nothing is hardcoded here. The bridge endpoint
+ * is supervisor-internal (localhost by construction).
  */
 import { db } from '@/lib/db'
 import { runRawSync, RawPunchProvider, RawPunchRead } from '@/lib/raw-sync'
@@ -27,6 +34,7 @@ import type { RawPunchInput } from '@/lib/raw-import'
 import { withDeviceSyncLock, SyncBusyError } from '@/lib/sync-mutex'
 import { tehranWallClockToUTC } from '@/lib/sbxpc'
 import { getDevicePassword } from '@/lib/device-secret-store'
+import { ensureBridge, invalidateBridgeForRestart } from '@/lib/bridge-supervisor'
 
 export interface FkBridgeConfig {
   bridgeUrl: string
@@ -54,12 +62,14 @@ export interface FkAttendTestResult {
   meta?: Record<string, unknown>
 }
 
-/** bridge JSON record (see CONTRACT.md) */
+/** bridge JSON record (see CONTRACT.md v2 — workCode is OPTIONAL: the
+ * confirmed FK623Attend.dll signature of FK_GetGeneralLogData does NOT return
+ * one, so the bridge omits it entirely; a fake value is never fabricated) */
 interface FkBridgeRecord {
   enrollNumber: number
   verifyMode: number
   inOutMode: number
-  workCode: number
+  workCode?: number
   /** device wall clock "YYYY-MM-DD HH:MM:SS" (Tehran local) */
   timestamp: string
 }
@@ -73,23 +83,21 @@ interface FkBridgeReadResponse {
   records?: FkBridgeRecord[]
   error?: string
   code?: string
+  /** v2: true when the read ended with an UNEXPECTED code (never silently
+   * treated as a complete read downstream) */
+  endCodeAbnormal?: boolean
   /** echo of the request parameters (for config-propagation tests; NO password) */
   meta?: { machine?: number; ip?: string; port?: number; timeoutMs?: number; license?: number }
 }
 
 const LOCALHOST_HOSTS = new Set(['localhost', '127.0.0.1', '::1'])
 
-function assertLocalBridge(url: string): URL {
-  const u = new URL(url)
+/** POST JSON to the bridge with token auth + timeout; maps network errors to Persian. */
+async function bridgePost<T>(cfg: { bridgeUrl: string; bridgeToken: string | null }, path: string, body: Record<string, unknown>, timeoutMs: number): Promise<T> {
+  const u = new URL(cfg.bridgeUrl)
   if (!LOCALHOST_HOSTS.has(u.hostname.toLowerCase())) {
     throw new Error('آدرس Bridge فقط روی همین سیستم (localhost) مجاز است — تنظیمات دستگاه را اصلاح کنید')
   }
-  return u
-}
-
-/** POST JSON to the bridge with token auth + timeout; maps network errors to Persian. */
-async function bridgePost<T>(cfg: { bridgeUrl: string; bridgeToken: string | null }, path: string, body: Record<string, unknown>, timeoutMs: number): Promise<T> {
-  const u = assertLocalBridge(cfg.bridgeUrl)
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   if (cfg.bridgeToken) headers['x-bridge-token'] = cfg.bridgeToken
   let res: Response
@@ -103,19 +111,18 @@ async function bridgePost<T>(cfg: { bridgeUrl: string; bridgeToken: string | nul
     })
   } catch (err) {
     const msg = (err as Error)?.name === 'TimeoutError' || (err as Error)?.message?.includes('abort')
-      ? 'مهلت پاسخ Bridge به پایان رسید — Bridge در حال اجراست؟'
-      : 'ارتباط با Bridge برقرار نشد — Bridge روی همین سیستم در حال اجراست؟ (اجرای START-BRIDGE.bat)'
-    const errAny = err as NodeJS.ErrnoException
-    if (errAny?.code === 'ECONNREFUSED') {
-      throw new Error('Bridge در حال اجرا نیست (اتصال رد شد) — ابتدا START-BRIDGE.bat را روی همین سیستم اجرا کنید')
-    }
+      ? 'مهلت پاسخ سرویس ارتباط دستگاه به پایان رسید — لطفاً دوباره تلاش کنید'
+      : 'ارتباط با سرویس ارتباط دستگاه برقرار نشد — لطفاً دوباره تلاش کنید'
     throw new Error(msg)
   }
   if (res.status === 401) {
-    throw new Error('توکن Bridge نامعتبر است — توکن نمایش‌داده‌شده هنگام اجرای Bridge را در تنظیمات دستگاه وارد کنید')
+    // a stale/foreign bridge instance is squatting our port → drop the state
+    // so the NEXT ensureBridge starts a fresh one elsewhere
+    invalidateBridgeForRestart()
+    throw new Error('خطای داخلی سرویس ارتباط دستگاه — یک بار دیگر تلاش کنید؛ در صورت تکرار، راه‌اندازی مجدد نرم‌افزار را بررسی کنید')
   }
   if (!res.ok && res.status !== 200) {
-    throw new Error(`خطای Bridge (HTTP ${res.status})`)
+    throw new Error(`خطای سرویس ارتباط دستگاه (HTTP ${res.status})`)
   }
   return (await res.json()) as T
 }
@@ -162,19 +169,22 @@ class FkAttendBridgeProvider implements RawPunchProvider {
         invalid++
         continue
       }
+      const hasWorkCode = r.workCode !== undefined && r.workCode !== null
       out.push({
         enrollNumber: String(r.enrollNumber),
         punchTime: t,
         punchTimeRaw: r.timestamp, // device wall clock preserved verbatim
         inOutModeRaw: Number.isFinite(r.inOutMode) ? r.inOutMode : 0,
         verifyModeRaw: Number.isFinite(r.verifyMode) ? r.verifyMode : 0,
-        workCode: String(r.workCode ?? ''),
+        // v1.5.0: the FK623 signature returns NO workCode → empty string, and
+        // the raw payload simply omits the key (never a fabricated value)
+        workCode: hasWorkCode ? String(r.workCode) : '',
         rawPayload: JSON.stringify({
           proto: 'fkattend',
           enrollNumber: r.enrollNumber,
           verifyMode: r.verifyMode,
           inOutMode: r.inOutMode,
-          workCode: r.workCode,
+          ...(hasWorkCode ? { workCode: r.workCode } : {}),
           timestamp: r.timestamp,
         }),
       })
@@ -183,7 +193,7 @@ class FkAttendBridgeProvider implements RawPunchProvider {
       records: out,
       deviceSerial: res.serialNumber ?? undefined,
       deviceTime: res.deviceTime ?? null,
-      meta: { endCode: res.endCode, bridgeLatencyMs: res.latencyMs, invalidTimestamps: invalid, echoed: res.meta },
+      meta: { endCode: res.endCode, endCodeAbnormal: res.endCodeAbnormal ?? false, bridgeLatencyMs: res.latencyMs, invalidTimestamps: invalid, echoed: res.meta },
     }
   }
 }
@@ -192,8 +202,6 @@ type DeviceLike = {
   id: string
   name: string
   serialNumber: string | null
-  bridgeUrl: string | null
-  bridgeToken: string | null
   machineNumber: number
   ipAddress: string | null
   port: number
@@ -204,15 +212,15 @@ type DeviceLike = {
 }
 
 async function deviceToBridgeConfig(device: DeviceLike): Promise<FkBridgeConfig> {
-  if (!device.bridgeUrl?.trim()) {
-    throw new Error('آدرس Bridge تنظیم نشده است — در پرونده دستگاه، آدرس Bridge (مثل http://127.0.0.1:8765) را وارد کنید')
-  }
   if (!device.ipAddress?.trim()) {
     throw new Error('آدرس IP دستگاه تنظیم نشده است — IP دستگاه (مثل 192.168.1.75) را در پرونده دستگاه وارد کنید')
   }
+  // v1.5.0: the bridge endpoint is INTERNAL — started/restarted/stopped by the
+  // supervisor. No user-facing URL or token exists anymore.
+  const ep = await ensureBridge()
   return {
-    bridgeUrl: device.bridgeUrl.trim(),
-    bridgeToken: device.bridgeToken ?? null,
+    bridgeUrl: ep.baseUrl,
+    bridgeToken: ep.token,
     machineNumber: device.machineNumber || 1,
     ipAddress: device.ipAddress.trim(),
     port: device.port || 4238,

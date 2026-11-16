@@ -13,11 +13,11 @@
  *     device-stressing values are rejected).
  *   * rtPollSec: 15..600 seconds (near real-time polling floor protects the
  *     device from a read loop that would keep its keypad locked).
- *   * bridgeUrl: http(s) with host ∈ {localhost, 127.0.0.1, ::1} ONLY —
- *     the x86 bridge must never be exposed beyond the local machine.
  *   * network password semantics (Phase 1): undefined = keep the stored
  *     secret on edit; ''/null = clear; number = set (32-bit range).
- *   * bridgeToken: free-form secret, trimmed, max 200 chars, never returned.
+ *   * v1.5.0: bridgeUrl/bridgeToken are GONE — the FKAttend bridge is fully
+ *     internal (supervisor-managed). Any such field in a legacy payload is
+ *     silently ignored (never written, never validated).
  */
 export type ProtocolFamily = 'SBXPC' | 'FKATTEND'
 
@@ -31,6 +31,9 @@ export const DEFAULT_PORT_BY_FAMILY: Record<string, number> = {
 }
 
 const LOCALHOST_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]'])
+// kept for FKBRIDGE_URL validation in bridge-supervisor.ts (v1.5.0: the
+// DEVICE no longer carries a bridge URL — it is internal)
+export { LOCALHOST_HOSTS }
 
 export interface DeviceSettingsInput {
   name?: unknown
@@ -47,6 +50,7 @@ export interface DeviceSettingsInput {
   connTimeoutMs?: unknown
   machineNumber?: unknown
   sdkLicense?: unknown
+  /** v1.5.0: accepted-but-IGNORED legacy fields (bridge is internal now) */
   bridgeUrl?: unknown
   bridgeToken?: unknown
   rtEnabled?: unknown
@@ -67,8 +71,6 @@ export interface DeviceSettingsResult {
   connTimeoutMs: number
   machineNumber: number
   sdkLicense: number
-  bridgeUrl: string | null
-  bridgeToken: string | null
   rtEnabled: boolean
   rtPollSec: number
   /** password data ONLY when it must be written; `undefined` = keep stored */
@@ -165,23 +167,10 @@ export function validateDeviceSettings(
     return { ok: false, error: 'مقدار License SDK نامعتبر است' }
   }
 
-  // ---- bridge endpoint: localhost ONLY ----------------------------------
-  const bridgeUrlRaw = String(raw.bridgeUrl ?? '').trim()
-  let bridgeUrl: string | null = null
-  if (bridgeUrlRaw) {
-    try {
-      const u = new URL(bridgeUrlRaw)
-      if (u.protocol !== 'http:' && u.protocol !== 'https:') throw new Error('proto')
-      if (!LOCALHOST_HOSTS.has(u.hostname.toLowerCase())) throw new Error('host')
-      bridgeUrl = u.origin
-    } catch {
-      return { ok: false, error: 'آدرس Bridge فقط روی همین سیستم مجاز است — مانند http://127.0.0.1:8765 (امنیت: بریج نباید از شبکه در دسترس باشد)' }
-    }
-  }
-  const bridgeTokenRaw = String(raw.bridgeToken ?? '').trim()
-  if (bridgeTokenRaw.length > 200) {
-    return { ok: false, error: 'توکن Bridge بیش از حد طولانی است (حداکثر ۲۰۰ کاراکتر)' }
-  }
+  // ---- v1.5.0: bridge endpoint settings REMOVED --------------------------
+  // The FKAttend bridge is fully internal (bridge-supervisor). Legacy
+  // bridgeUrl/bridgeToken values in old payloads are ignored — the settings
+  // simply never reach the database.
 
   // ---- near real-time polling (honest label; validated like everything) --
   const rtEnabled = Boolean(raw.rtEnabled)
@@ -222,8 +211,6 @@ export function validateDeviceSettings(
       connTimeoutMs,
       machineNumber,
       sdkLicense,
-      bridgeUrl,
-      bridgeToken: bridgeTokenRaw || null,
       rtEnabled,
       rtPollSec,
       password,

@@ -114,10 +114,10 @@ async function main() {
   check('rt polling 5s rejected (< 15 floor — protects the device)', !v8.ok)
 
   const v9 = validateDeviceSettings(
-    { name: 'x', type: 'NOVIN_NP', serialNumber: SERIAL, protocolFamily: 'FKATTEND', bridgeUrl: 'http://192.168.1.9:8765' },
+    { name: 'x', type: 'NOVIN_NP', serialNumber: SERIAL, protocolFamily: 'FKATTEND', bridgeUrl: 'http://192.168.1.9:8765', bridgeToken: 'legacy-value' },
     { isCreate: true },
   )
-  check('non-localhost bridge URL rejected (security rule)', !v9.ok && (v9 as { error: string }).error.includes('همین سیستم'))
+  check('v1.5.0: legacy bridgeUrl/bridgeToken fields are IGNORED (bridge is internal)', v9.ok && (v9.data as unknown as Record<string, unknown>).bridgeUrl === undefined && (v9.data as unknown as Record<string, unknown>).bridgeToken === undefined)
 
   const v10 = validateDeviceSettings(
     { name: 'x', type: 'NOVIN_NP', serialNumber: SERIAL, protocolFamily: 'FKATTEND', bridgeUrl: 'http://127.0.0.1:8765', connTimeoutMs: 999 },
@@ -150,14 +150,14 @@ async function main() {
   check('edit without family keeps the stored family', v14.ok && v14.data.protocolFamily === 'SBXPC')
 
   /* ---- secrets ---- */
-  section('SECRETS — bridge token handling')
+  section('SECRETS — device row hygiene (v1.5.0: no stored bridge token at all)')
   const safe = sanitizeDeviceForApi({
     id: 'd1', name: 'X', type: 'NOVIN_NP', protocolFamily: 'FKATTEND',
-    password: 4891489, bridgeToken: 'secret-token-value',
-    bridgeUrl: 'http://127.0.0.1:8765', port: 4238, status: 'ONLINE', enabled: true, lastSyncCount: 0,
+    password: 4891489, bridgeToken: 'legacy-bridge-token', // v1.4.0 rows may still carry it — stripped defensively
+    port: 4238, status: 'ONLINE', enabled: true, lastSyncCount: 0,
   })
-  check('sanitizeDeviceForApi strips bridgeToken AND password', safe.password === undefined && safe.bridgeToken === undefined && safe.hasPassword === true && safe.hasBridgeToken === true)
-  check('no secret value in the serialized row', !JSON.stringify(safe).includes('secret-token-value') && !JSON.stringify(safe).includes('4891489'))
+  check('sanitizeDeviceForApi strips the password AND any legacy bridgeToken', safe.password === undefined && (safe as unknown as Record<string, unknown>).bridgeToken === undefined && safe.hasPassword === true)
+  check('no secret value in the serialized row', !JSON.stringify(safe).includes('legacy-bridge-token') && !JSON.stringify(safe).includes('4891489'))
 
   /* ================================================================
    * 2) wall-clock conversion (shared with the SBXPC path)
@@ -188,6 +188,10 @@ async function main() {
   check('v1.4.0 migration up (on a Phase-1 DB)', up14.status === 0 && /Device.rtPollSec: present/.test(up14.stdout))
   const up14b = sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   check('v1.4.0 migration idempotent', up14b.status === 0 && /already present/.test(up14b.stdout))
+  const up15 = sh('node', ['scripts/migrate-v1.5.0-bridge-internal.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  check('v1.5.0 migration up drops Device.bridgeUrl/bridgeToken', up15.status === 0 && /dropped Device\.(bridgeUrl|bridgeToken)/.test(up15.stdout))
+  const up15b = sh('node', ['scripts/migrate-v1.5.0-bridge-internal.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  check('v1.5.0 migration idempotent', up15b.status === 0 && /already absent/.test(up15b.stdout))
   const parity = sh('npx', ['prisma', 'db', 'push', '--skip-generate'], { DATABASE_URL: MAIN_DB })
   const parityOut = (parity.stdout || '') + (parity.stderr || '')
   check('prisma db push sees no drift (INSTALL.bat parity)', parity.status === 0 && /already in sync/i.test(parityOut))
@@ -198,7 +202,6 @@ async function main() {
       name: 'دستگاه آزمایشی FK', type: 'NOVIN_NP', protocolFamily: 'FKATTEND',
       ipAddress: '192.168.1.75', port: 4238, serialNumber: SERIAL,
       connTimeoutMs: 3000, machineNumber: 1, sdkLicense: 1261,
-      bridgeUrl: `http://127.0.0.1:${BRIDGE_PORT}`, bridgeToken: 'test-token',
     },
   })
 
@@ -207,12 +210,23 @@ async function main() {
    * ================================================================ */
   const mock = spawn('node', ['scripts/mock-fkattend-bridge.js'], {
     cwd: ROOT,
-    env: { ...process.env, PORT: String(BRIDGE_PORT), TOKEN: 'test-token', SERIAL, LOGS: '60', USERS: '1001,7777' },
+    env: { ...process.env, PORT: String(BRIDGE_PORT), TOKEN: 'test-token', FKBRIDGE_PORT: String(BRIDGE_PORT), FKBRIDGE_TOKEN: 'test-token', SERIAL, LOGS: '60', USERS: '1001,7777' },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   const mockErr: string[] = []
   mock.stderr?.on('data', (d) => mockErr.push(String(d)))
   await new Promise((r) => setTimeout(r, 800))
+
+  // v1.5.0: there are NO per-device bridge settings anymore. The bridge
+  // endpoint comes from the supervisor; in this suite (and any mock/CI run)
+  // it is the EXTERNAL override: FKBRIDGE_URL + FKBRIDGE_TOKEN → the mock
+  // bridge. No child x86 process is spawned on non-Windows.
+  const { resetBridgeSupervisorForTests } = await import('../src/lib/bridge-supervisor')
+  const setBridgeOverride = (token: string) => {
+    process.env.FKBRIDGE_URL = `http://127.0.0.1:${BRIDGE_PORT}`
+    process.env.FKBRIDGE_TOKEN = token
+  }
+  setBridgeOverride('test-token')
 
   section('TEST CONNECTION (read-only, via mock bridge)')
   const tRes = await fkTestConnection(device)
@@ -230,9 +244,11 @@ async function main() {
   await db.device.update({ where: { id: device.id }, data: { port: 4238 } })
 
   section('FAILED CONNECTION (acceptance item 2)')
-  // wrong token
-  const badTok = await fkTestConnection({ ...device, bridgeToken: 'wrong' })
-  check('wrong bridge token → clear Persian error', !badTok.ok && (badTok.error ?? '').includes('توکن'))
+  // wrong internal token (auth mismatch surfaces as a Persian service error)
+  setBridgeOverride('wrong-token')
+  const badTok = await fkTestConnection(device)
+  check('wrong internal bridge auth → clear Persian error (no token jargon)', !badTok.ok && (badTok.error ?? '').includes('سرویس ارتباط دستگاه'))
+  setBridgeOverride('test-token')
   // device unreachable via failure injection
   await fetch(`http://127.0.0.1:${BRIDGE_PORT}/mock/flaky`, { method: 'POST', headers: { 'x-bridge-token': 'test-token' }, body: JSON.stringify({ failTimes: 1 }) })
   const badConn = await fkTestConnection(device)
@@ -247,6 +263,7 @@ async function main() {
   check('direction UNKNOWN for all (never guessed)', rawRows.every((r) => r.direction === 'UNKNOWN'))
   check('punchTimeRaw preserves the device wall clock', rawRows.every((r) => /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(r.punchTimeRaw)))
   check('inOutModeRaw/verifyModeRaw preserved', rawRows.every((r) => r.inOutModeRaw === 1 && r.verifyModeRaw >= 1 && r.verifyModeRaw <= 3))
+  check('v1.5.0 FK623: records carry NO workCode — never fabricated (empty + raw payload omits the key)', rawRows.every((r) => (r.workCode ?? '') === '') && rawRows.every((r) => !(r.rawPayload ?? '').includes('workCode')))
   check('matched enroll 1001 linked to personnel', rawRows.find((r) => r.enrollNumber === '1001')?.personnelId === p1.id)
   check('unmatched enroll 7777 kept with UNMATCHED status', rawRows.filter((r) => r.enrollNumber === '7777').every((r) => r.matchStatus === 'UNMATCHED' && r.personnelId === null))
   const runRow = await db.deviceSyncRun.findFirst({ where: { deviceId: device.id }, orderBy: { startedAt: 'desc' } })
@@ -294,7 +311,6 @@ async function main() {
     data: {
       name: 'دستگاه سریال غلط', type: 'NOVIN_NP', protocolFamily: 'FKATTEND',
       ipAddress: '192.168.1.75', port: 4238, serialNumber: 'OTHER-SERIAL-999',
-      bridgeUrl: `http://127.0.0.1:${BRIDGE_PORT}`, bridgeToken: 'test-token',
     },
   })
   let mismatchThrew = false
@@ -306,14 +322,14 @@ async function main() {
   mock.kill('SIGTERM')
   await new Promise((r) => setTimeout(r, 400))
   const down = await fkTestConnection(device)
-  check('bridge down → clear Persian error (not a crash)', !down.ok && /Bridge|اتصال رد شد|ارتباط با Bridge/.test(down.error ?? ''))
+  check('bridge down → clear Persian error (not a crash)', !down.ok && /سرویس ارتباط دستگاه|ارتباط با/.test(down.error ?? ''))
   const errRun = await db.deviceLog.findMany({ where: { deviceId: device.id, level: 'ERROR' } })
   check('device logs carry no secrets after errors', errRun.every((l) => !/test-token|4891489/.test(l.message)))
 
   /* ---- restart bridge → recovery ---- */
   const mock2 = spawn('node', ['scripts/mock-fkattend-bridge.js'], {
     cwd: ROOT,
-    env: { ...process.env, PORT: String(BRIDGE_PORT), TOKEN: 'test-token', SERIAL, LOGS: '60', USERS: '1001,7777' },
+    env: { ...process.env, PORT: String(BRIDGE_PORT), TOKEN: 'test-token', FKBRIDGE_PORT: String(BRIDGE_PORT), FKBRIDGE_TOKEN: 'test-token', SERIAL, LOGS: '60', USERS: '1001,7777' },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   await new Promise((r) => setTimeout(r, 800))
@@ -331,6 +347,11 @@ async function main() {
   check('recovery is stable — next import is fully idempotent', s4.created === 0 && s4.skipped === 60)
 
   mock2.kill('SIGTERM')
+
+  // v1.5.0: leave no bridge override behind for other suites in this process
+  delete process.env.FKBRIDGE_URL
+  delete process.env.FKBRIDGE_TOKEN
+  resetBridgeSupervisorForTests()
 
   /* ================================================================
    * summary — mock vs hardware explicitly separated

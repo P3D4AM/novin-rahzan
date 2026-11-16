@@ -260,9 +260,11 @@ model Device {
   // v1.4.0 (addendum P1) — per-device connection / SDK parameters (all validated in backend)
   connTimeoutMs Int          @default(5000) // FK_ConnectNet timeout
   machineNumber Int          @default(1) // SDK machine number
-  sdkLicense    Int          @default(1261) // FKAttend SDK license constant (from the recorded successful test)
-  bridgeUrl     String? // FKATTEND only — x86 bridge endpoint, localhost ONLY (e.g. http://127.0.0.1:8765)
-  bridgeToken   String? // bridge shared secret — same handling as the network password (never leaves the process)
+  sdkLicense    Int          @default(1261) // FK623 SDK license constant (from the recorded successful test)
+  // v1.5.0: bridgeUrl / bridgeToken REMOVED — the FK623 bridge is fully internal
+  // (src/lib/bridge-supervisor.ts): started/restarted/stopped by the app with a
+  // per-launch memory-only token. Nothing bridge-related is user-configurable
+  // anymore (migration migrate-v1.5.0-bridge-internal.mjs drops the columns).
   enabled       Boolean      @default(true)
   status        String       @default("UNKNOWN") // ONLINE | OFFLINE | UNKNOWN
   lastSyncAt    DateTime?

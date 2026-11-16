@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { SessionUser, Bootstrap, api, DeviceT } from './types'
 import { faDigits, faTime } from './jalali-ui'
@@ -43,7 +44,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
   const [syncDays, setSyncDays] = useState<Record<string, string>>({})
   const { toast } = useToast()
 
-  const blank = { name: '', type: 'NOVIN_NP', protocolFamily: 'SBXPC', ipAddress: '', port: 5005, protocol: 'TCP', location: '', enabled: true, autoSync: false, syncIntervalMin: 5, serialNumber: '', password: '', connTimeoutMs: 5000, machineNumber: 1, sdkLicense: 1261, bridgeUrl: '', bridgeToken: '', rtEnabled: false, rtPollSec: 30 }
+  const blank = { name: '', type: 'NOVIN_NP', protocolFamily: 'SBXPC', ipAddress: '', port: 5005, protocol: 'TCP', location: '', enabled: true, autoSync: false, syncIntervalMin: 5, serialNumber: '', password: '', connTimeoutMs: 5000, machineNumber: 1, sdkLicense: 1261, rtEnabled: false, rtPollSec: 30 }
   const [form, setForm] = useState({ ...blank })
 
   const [syncRuns, setSyncRuns] = useState<Array<{ id: string; deviceId?: string | null; status: string; mode: string; sourceProtocol: string; startedAt: string; recordsNew: number; recordsDuplicate: number; recordsUnmatched: number; retries: number; error?: string | null }>>([])
@@ -58,7 +59,16 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
       setGateway(res.result)
     } catch { /* ignore */ }
   }
-  useEffect(() => { loadLogs(); loadGateway() }, [])
+  // v1.5.0: STATUS-ONLY view of the internal FKAttend bridge service — the
+  // user no longer starts/stops/configures it; this just shows its health.
+  const [bridgeSvc, setBridgeSvc] = useState<{ running: boolean; external: boolean; pid: number | null; port: number | null; version: string | null; dllFound: boolean; platformOk: boolean; restarts: number; lastError: string | null } | null>(null)
+  const loadBridgeStatus = async () => {
+    try {
+      const res = await api<{ bridge?: typeof bridgeSvc }>('/api/devices?bridge=1')
+      setBridgeSvc(res.bridge ?? null)
+    } catch { setBridgeSvc(null) }
+  }
+  useEffect(() => { loadLogs(); loadGateway(); loadBridgeStatus() }, [])
 
   const openNew = () => { setEditing(null); setForm({ ...blank }); setOpen(true) }
   const openEdit = (d: DeviceT) => {
@@ -71,7 +81,6 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
       enabled: d.enabled, autoSync: (d.syncIntervalMin ?? 0) > 0, syncIntervalMin: d.syncIntervalMin ?? 5,
       serialNumber: d.serialNumber ?? '', password: '',
       connTimeoutMs: d.connTimeoutMs ?? 5000, machineNumber: d.machineNumber ?? 1, sdkLicense: d.sdkLicense ?? 1261,
-      bridgeUrl: d.bridgeUrl ?? '', bridgeToken: '',
       rtEnabled: d.rtEnabled ?? false, rtPollSec: d.rtPollSec ?? 30,
     })
     setOpen(true)
@@ -86,12 +95,11 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
     try {
       // v1.3.0: send a password only when the admin typed one — empty field keeps
       // the stored secret on edit (PUT: undefined) and means "none" on create.
-      // v1.4.0: same rule for the bridge token; autoSync checkbox maps to the interval.
+      // v1.5.0: bridge settings no longer exist in the payload (internal service).
       const payload: Record<string, unknown> = { ...form }
       delete payload.autoSync
       payload.syncIntervalMin = form.autoSync ? form.syncIntervalMin : 0
       if (String(form.password).trim() === '') delete payload.password
-      if (String(form.bridgeToken ?? '').trim() === '') delete payload.bridgeToken
       if (editing) await api('/api/devices', { method: 'PUT', body: JSON.stringify({ id: editing.id, ...payload }) })
       else await api('/api/devices', { method: 'POST', body: JSON.stringify(payload) })
       setOpen(false)
@@ -199,6 +207,23 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
           </CardContent>
         </Card>
 
+        {boot.devices.some((d) => d.type === 'NOVIN_NP' && d.protocolFamily === 'FKATTEND') && (
+          <div className="flex items-center justify-between gap-3 rounded-lg border px-4 py-2.5 text-sm">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-primary" />
+              <span>سرویس ارتباط دستگاه (داخلی):</span>
+              {bridgeSvc === null ? <span className="text-muted-foreground text-xs">وضعیت نامشخص</span>
+                : bridgeSvc.running ? <span className="text-emerald-600 text-xs font-medium">در حال اجرا{bridgeSvc.version ? ` · نسخه ${bridgeSvc.version}` : ''}{bridgeSvc.restarts > 0 ? ` · ${faDigits(bridgeSvc.restarts)} راه‌اندازی مجدد` : ''}</span>
+                : <span className="text-amber-600 text-xs font-medium">آماده — هنگام اولین استفادهٔ دستگاه خودکار اجرا می‌شود</span>}
+            </div>
+            {!bridgeSvc?.dllFound && bridgeSvc && (
+              <span className="text-amber-600 text-[11px] leading-4">فایل‌های SDK دستگاه (FK623Attend.dll) در پوشهٔ tools\fkattend-bridge\bin کنار نرم‌افزار قرار بگیرد</span>
+            )}
+            {bridgeSvc?.lastError && !bridgeSvc.running && (
+              <span className="text-red-600 text-[11px] leading-4 max-w-[50%] truncate" title={bridgeSvc.lastError}>{bridgeSvc.lastError}</span>
+            )}
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {boot.devices.map((d) => (
             <Card key={d.id} className={d.status === 'ONLINE' ? 'border-emerald-400' : ''}>
@@ -207,7 +232,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                   <Fingerprint className="h-5 w-5 text-primary" />
                   {d.name}
                   {d.status === 'ONLINE' ? <Wifi className="h-4 w-4 text-emerald-500" /> : d.status === 'OFFLINE' ? <WifiOff className="h-4 w-4 text-red-500" /> : null}
-                  {d.type === 'NOVIN_NP' && d.protocolFamily === 'FKATTEND' && <Badge variant="secondary" className="text-[10px]">FKAttend · Bridge</Badge>}
+                  {d.type === 'NOVIN_NP' && d.protocolFamily === 'FKATTEND' && <Badge variant="secondary" className="text-[10px]">FKAttend · SDK رسمی</Badge>}
                   {d.type === 'NOVIN_NP' && d.protocolFamily !== 'FKATTEND' && <Badge variant="secondary" className="text-[10px]">NP پوش</Badge>}
                 </CardTitle>
               </CardHeader>
@@ -218,9 +243,8 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                     <span>{d.type === 'NOVIN_NP' ? 'نوین پرداز NP (پوش + دانلود)' : 'ZKTeco و سازگارها'}</span>
                   </div>
                   {d.type === 'NOVIN_NP' && <div className="flex justify-between"><span>سریال دستگاه</span><span dir="ltr" className="font-mono text-xs">{d.serialNumber ?? '—'}</span></div>}
-                  {d.type === 'NOVIN_NP' && <div className="flex justify-between"><span>پروتکل SDK</span><span className="text-xs">{d.protocolFamily === 'FKATTEND' ? 'FKAttend (SDK رسمی از طریق Bridge)' : 'SBXPC (باینری مستقیم)'}</span></div>}
+                  {d.type === 'NOVIN_NP' && <div className="flex justify-between"><span>پروتکل SDK</span><span className="text-xs">{d.protocolFamily === 'FKATTEND' ? 'FKAttend (SDK رسمی FK623)' : 'SBXPC (باینری مستقیم)'}</span></div>}
                   {d.type === 'NOVIN_NP' && <div className="flex justify-between"><span>آدرس دستگاه</span><span dir="ltr" className="font-mono text-xs">{d.ipAddress ? `${d.ipAddress}:${d.port}` : '— (برای تست/دانلود وارد کنید)'}</span></div>}
-                  {d.type === 'NOVIN_NP' && d.protocolFamily === 'FKATTEND' && <div className="flex justify-between"><span>Bridge</span><span dir="ltr" className="font-mono text-xs">{d.bridgeUrl || '— (تنظیم کنید)'}{d.hasBridgeToken ? ' · توکن: ●●●●' : ' · توکن: —'}</span></div>}
                   {d.type === 'NOVIN_NP' && d.rtEnabled && <div className="flex justify-between"><span>شبه‌بی‌درنگ (Polling)</span><span className="text-xs">فعال — هر {faDigits(d.rtPollSec ?? 30)} ثانیه{d.rtLastPollAt ? ` · آخرین بررسی: ${faTime(d.rtLastPollAt)}` : ''}</span></div>}
                   {d.type === 'NOVIN_NP' && <div className="flex justify-between"><span>رمز شبکه</span><span dir="ltr" className="font-mono text-xs">{d.hasPassword ? '●●●● (تنظیم‌شده — نمایش داده نمی‌شود)' : '— (خالی)'}</span></div>}
                   {d.type !== 'NOVIN_NP' && <div className="flex justify-between"><span>پروتکل</span><span dir="ltr">ZKTeco · {d.protocol} · {faDigits(d.port)}</span></div>}
@@ -282,7 +306,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                     </div>
                     <div className="text-xs rounded-lg bg-muted/60 p-2.5 leading-6 text-muted-foreground">
                       {d.protocolFamily === 'FKATTEND'
-                        ? 'دکمه «دانلود ترددها» کل حافظهٔ دستگاه را از طریق Bridge می‌خواند و فقط رکوردهای جدید را ذخیره می‌کند (تکراری‌ها idempotent نادیده گرفته می‌شوند). «تست اتصال» فقط وضعیت/زمان پاسخ را می‌خواند و چیزی روی دستگاه تغییر نمی‌دهد.'
+                        ? 'دکمه «دانلود ترددها» کل حافظهٔ دستگاه را از طریق سرویس ارتباط داخلی نرم‌افزار می‌خواند و فقط رکوردهای جدید را ذخیره می‌کند (تکراری‌ها idempotent نادیده گرفته می‌شوند). «تست اتصال» فقط وضعیت/زمان پاسخ را می‌خواند و چیزی روی دستگاه تغییر نمی‌دهد.'
                         : 'ترددهای جدید به‌صورت لحظه‌ای (پوش) هم دریافت می‌شوند؛ دکمه «دانلود ترددها» اطلاعات ذخیره‌شده در حافظه دستگاه را می‌گیرد و دفعه بعد به‌صورت خودکار از همان‌جا ادامه می‌دهد.'}
                     </div>
                   </div>
@@ -436,7 +460,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="FKATTEND">FKAttend — SDK رسمی FKAttend از طریق Bridge (۳۲ بیتی) · پورت پیش‌فرض ۴۲۳۸ · مسیر تأییدشدهٔ NP756+</SelectItem>
+                    <SelectItem value="FKATTEND">FKAttend — SDK رسمی FK623 نوین‌پرداز · پورت پیش‌فرض ۴۲۳۸ · مسیر تأییدشدهٔ NP756+ (توصیه‌شده)</SelectItem>
                     <SelectItem value="SBXPC">SBXPC — پروتکل باینری مستقیم · پورت پیش‌فرض ۵۰۰۵ (مسیر قدیمی، حفظ شده)</SelectItem>
                   </SelectContent>
                 </Select>
@@ -468,30 +492,24 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                   <div className="text-xs text-muted-foreground leading-5">مدل‌های جدید NP (مثل NP756+) فرمان‌ها را فقط <b>رمزشده</b> می‌پذیرند؛ کلید رمز از همین «رمز شبکه» ساخته می‌شود (منوی دستگاه ← تنظیمات ← ارتباط ← رمز شبکه). اگر خالی بگذارید، نرم‌افزار هنگام «تست اتصال» رمزهای رایج (۰، ۱۲۳۴۵۶ و…) را خودکار امتحان می‌کند و رمز درست را به یاد می‌سپارد. <b>مقدار رمز هرگز نمایش داده یا در لاگ‌ها ثبت نمی‌شود.</b></div>
                 </div>
                 {form.protocolFamily === 'FKATTEND' && (
-                  <div className="space-y-2 rounded-lg border p-3 bg-muted/30">
-                    <div className="text-xs font-semibold">تنظیمات اتصال FKAttend (از طریق Bridge)</div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-1.5">
-                        <Label>آدرس Bridge</Label>
-                        <Input dir="ltr" value={form.bridgeUrl} onChange={(e) => setForm({ ...form, bridgeUrl: e.target.value })} placeholder="http://127.0.0.1:8765" />
-                        <div className="text-[10px] text-muted-foreground leading-4">فقط روی همین سیستم (localhost) مجاز است. Bridge با اجرای START-BRIDGE.bat کنار نرم‌افزار بالا می‌آید.</div>
+                  <Collapsible className="rounded-lg border bg-muted/30">
+                    <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground">
+                      تنظیمات پیشرفتهٔ SDK (پیش‌فرض‌ها برای NP756+ مناسب است)
+                      <span className="text-[10px]">نمایش / پنهان</span>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="p-3 pt-0 space-y-2">
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="space-y-1.5"><Label>مهلت اتصال (ms)</Label><Input type="number" dir="ltr" value={form.connTimeoutMs} onChange={(e) => setForm({ ...form, connTimeoutMs: Number(e.target.value) })} /></div>
+                        <div className="space-y-1.5"><Label>شمارهٔ دستگاه SDK</Label><Input type="number" dir="ltr" value={form.machineNumber} onChange={(e) => setForm({ ...form, machineNumber: Number(e.target.value) })} /></div>
+                        <div className="space-y-1.5"><Label>License SDK</Label><Input type="number" dir="ltr" value={form.sdkLicense} onChange={(e) => setForm({ ...form, sdkLicense: Number(e.target.value) })} /></div>
                       </div>
-                      <div className="space-y-1.5">
-                        <Label>توکن Bridge</Label>
-                        <Input type="password" dir="ltr" value={form.bridgeToken} onChange={(e) => setForm({ ...form, bridgeToken: e.target.value })} placeholder={editing ? 'خالی = بدون تغییر' : 'از پنجرهٔ Bridge کپی کنید'} />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="space-y-1.5"><Label>مهلت اتصال (ms)</Label><Input type="number" dir="ltr" value={form.connTimeoutMs} onChange={(e) => setForm({ ...form, connTimeoutMs: Number(e.target.value) })} /></div>
-                      <div className="space-y-1.5"><Label>شمارهٔ دستگاه SDK</Label><Input type="number" dir="ltr" value={form.machineNumber} onChange={(e) => setForm({ ...form, machineNumber: Number(e.target.value) })} /></div>
-                      <div className="space-y-1.5"><Label>License SDK</Label><Input type="number" dir="ltr" value={form.sdkLicense} onChange={(e) => setForm({ ...form, sdkLicense: Number(e.target.value) })} /></div>
-                    </div>
-                    <div className="text-[10px] text-muted-foreground leading-4">توکن و رمز شبکه هرگز نمایش داده یا در لاگ‌ها ثبت نمی‌شوند. Bridge فقط خواندن انجام می‌دهد و هیچ فرمان تغییر/حذف روی دستگاه ارسال نمی‌کند.</div>
-                  </div>
+                      <div className="text-[10px] text-muted-foreground leading-4">سرویس ارتباط دستگاه به‌صورت خودکار و پنهان توسط خود نرم‌افزار اجرا و مدیریت می‌شود — هیچ فایل، پنجره، آدرس یا توکنی را وارد یا اجرا نمی‌کنید. رمز شبکه هرگز نمایش داده یا در لاگ‌ها ثبت نمی‌شود و روی دستگاه فقط عملیات خواندن انجام می‌شود.</div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 )}
                 <div className="text-xs rounded-lg bg-muted/60 p-3 leading-6 text-muted-foreground">
                   {form.protocolFamily === 'FKATTEND'
-                    ? <>دریافت ترددها از طریق Bridge مستقیم از حافظهٔ دستگاه دانلود می‌شود (همان روش موفق آزمایش‌شده روی پورت ۴۲۳۸)؛ دفعات بعدی از همان‌جا ادامه می‌دهد. ترددهای لحظه‌ای با «دریافت شبه‌بی‌درنگ» در تنظیمات خودکار فعال می‌شوند (Polling — نه پوش واقعی).</>
+                    ? <>دریافت ترددها مستقیم از حافظهٔ دستگاه دانلود می‌شود (همان روش موفق آزمایش‌شده روی پورت ۴۲۳۸)؛ سرویس ارتباط داخلی نرم‌افزار خودش به‌صورت پنهان اجرا و در صورت نیاز راه‌اندازی مجدد می‌شود و دفعات بعدی از همان‌جا ادامه می‌دهد. ترددهای لحظه‌ای با «دریافت شبه‌بی‌درنگ» در تنظیمات خودکار فعال می‌شوند (Polling — نه پوش واقعی).</>
                     : <>دریافت ترددها به دو روش کار می‌کند: <b>لحظه‌ای (پوش)</b> — دستگاه خودش به سرور وصل می‌شود؛ کافی است در منوی دستگاه ← تنظیمات ← ارتباط، آدرس سرور را IP همین سیستم و پورت را 5005 بگذارید. و <b>دانلود مستقیم</b> — با وارد کردن IP دستگاه بالا، ترددهای ذخیره‌شده در حافظه دستگاه دریافت می‌شود (همان روش نرم‌افزار اصلی).</>}
                 </div>
               </div>

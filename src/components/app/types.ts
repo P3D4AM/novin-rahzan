@@ -120,12 +120,9 @@ export interface DeviceT {
   serialNumber?: string | null
   /** v1.3.0: the password VALUE is never sent to the client — only this indicator */
   hasPassword?: boolean
-  /** v1.4.0: bridge secret indicator (value never sent to the client) */
-  hasBridgeToken?: boolean
   connTimeoutMs?: number
   machineNumber?: number
   sdkLicense?: number
-  bridgeUrl?: string | null
   rtEnabled?: boolean
   rtPollSec?: number
   rtLastPollAt?: string | null

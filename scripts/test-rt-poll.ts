@@ -64,6 +64,11 @@ async function main() {
   const { db } = await import('../src/lib/db')
   const { computeDue } = await import('../src/lib/scheduler')
   const { importFkAttendLogs } = await import('../src/lib/fkattend')
+  // v1.5.0: the bridge is supervisor-internal; in mock suites the endpoint is
+  // the EXTERNAL override pointing at the mock bridge (no x86 child on Linux)
+  const { resetBridgeSupervisorForTests } = await import('../src/lib/bridge-supervisor')
+  process.env.FKBRIDGE_URL = `http://127.0.0.1:${BRIDGE_PORT}`
+  process.env.FKBRIDGE_TOKEN = 'test-token'
 
   // base = the v1.3.0 (Phase 1) schema — pinned to the Phase 1 commit, never
   // a drifting HEAD — then the real migration chain a user's DB would follow
@@ -72,13 +77,13 @@ async function main() {
   sh('npx', ['prisma', 'db', 'push', '--schema', `${TMP}/phase1-schema.prisma`, '--skip-generate'], { DATABASE_URL: MAIN_DB })
   sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   sh('node', ['scripts/migrate-v1.3.1-phase1-fixes.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  sh('node', ['scripts/migrate-v1.5.0-bridge-internal.mjs', 'up'], { DATABASE_URL: MAIN_DB })
 
   await db.personnel.create({ data: { personnelCode: '1001', firstName: 'علی', lastName: 'محمدی', pin: '1001', deviceUserId: 1001 } })
   const device = await db.device.create({
     data: {
       name: 'دستگاه شبه‌بی‌درنگ', type: 'NOVIN_NP', protocolFamily: 'FKATTEND',
       ipAddress: '192.168.1.75', port: 4238, serialNumber: SERIAL,
-      bridgeUrl: `http://127.0.0.1:${BRIDGE_PORT}`, bridgeToken: 'test-token',
       syncIntervalMin: 0, // automatic sync OFF — polling must be independent
       rtEnabled: true, rtPollSec: 30,
     },
@@ -86,7 +91,7 @@ async function main() {
 
   const mock = spawn('node', ['scripts/mock-fkattend-bridge.js'], {
     cwd: ROOT,
-    env: { ...process.env, PORT: String(BRIDGE_PORT), TOKEN: 'test-token', SERIAL, LOGS: '20', USERS: '1001' },
+    env: { ...process.env, PORT: String(BRIDGE_PORT), TOKEN: 'test-token', FKBRIDGE_PORT: String(BRIDGE_PORT), FKBRIDGE_TOKEN: 'test-token', SERIAL, LOGS: '20', USERS: '1001' },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   await new Promise((r) => setTimeout(r, 900))
@@ -224,6 +229,9 @@ async function main() {
   await db.$disconnect()
   rmSync(MAIN_DB_FILE, { force: true }) // own, validated, auto-generated file only
   rmSync(`${MAIN_DB_FILE}-journal`, { force: true })
+  delete process.env.FKBRIDGE_URL
+  delete process.env.FKBRIDGE_TOKEN
+  resetBridgeSupervisorForTests()
   process.exit(failed > 0 ? 1 : 0)
 }
 

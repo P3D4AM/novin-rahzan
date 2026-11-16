@@ -214,6 +214,8 @@ async function main() {
   const up1 = sh('node', ['scripts/migrate-v1.3.0-phase1.mjs', 'up'], { DATABASE_URL: MIG_URL })
   check('v1.3.0 migration up applied', up1.status === 0 && /RawPunch table: present/.test(up1.stdout), (up1.stderr || '').slice(-200))
   const up14 = sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: MIG_URL })
+  const up15 = sh('node', ['scripts/migrate-v1.5.0-bridge-internal.mjs', 'up'], { DATABASE_URL: MIG_URL })
+  check('v1.5.0 migration drops the obsolete bridge columns', up15.status === 0 && /dropped Device\.bridgeUrl/.test(up15.stdout))
   check('v1.4.0 upgrade applies on the v1.3.0 database', up14.status === 0 && /Device.rtPollSec: present/.test(up14.stdout))
   const up131 = sh('node', ['scripts/migrate-v1.3.1-phase1-fixes.mjs', 'up'], { DATABASE_URL: MIG_URL })
   check(
@@ -282,7 +284,7 @@ async function main() {
    * ================================================================ */
   const pushMainOld = sh('npx', ['prisma', 'db', 'push', '--schema', OLD_SCHEMA, '--skip-generate'], { DATABASE_URL: MAIN_DB_URL })
   if (pushMainOld.status !== 0) throw new Error('main db old-schema push failed: ' + (pushMainOld.stderr || '').slice(-300))
-  for (const m of ['migrate-v1.3.0-phase1.mjs', 'migrate-v1.4.0-phase2.mjs', 'migrate-v1.3.1-phase1-fixes.mjs']) {
+  for (const m of ['migrate-v1.3.0-phase1.mjs', 'migrate-v1.4.0-phase2.mjs', 'migrate-v1.3.1-phase1-fixes.mjs', 'migrate-v1.5.0-bridge-internal.mjs']) {
     const r = sh('node', [`scripts/${m}`, 'up'], { DATABASE_URL: MAIN_DB_URL })
     if (r.status !== 0) throw new Error(`main db migration failed (${m}): ` + (r.stderr || '').slice(-300))
   }
@@ -769,7 +771,7 @@ async function main() {
     const safeEnc = sanitizeDeviceForApi({
       id: 'd2', name: 'Y', password: null, passwordEnc: 'dpapi:machine:SECRETBLOB', bridgeToken: 'bt', serialNumber: 'S', port: 5005, enabled: true, status: 'ONLINE', type: 'NOVIN_NP', protocol: 'TCP', location: null, ipAddress: null, lastLogAt: null, lastSyncAt: null, lastSyncCount: 0, syncIntervalMin: 0, createdAt: new Date(), rawCursorAt: null,
     })
-    check('sanitizeDeviceForApi strips the PROTECTED blob and the bridge token too', safeEnc.passwordEnc === undefined && safeEnc.bridgeToken === undefined && safeEnc.hasProtectedPassword === true && !JSON.stringify(safeEnc).includes('SECRETBLOB'))
+    check('sanitizeDeviceForApi strips the PROTECTED blob and any legacy bridge token too', safeEnc.passwordEnc === undefined && (safeEnc as unknown as Record<string, unknown>).bridgeToken === undefined && safeEnc.hasProtectedPassword === true && !JSON.stringify(safeEnc).includes('SECRETBLOB') && !JSON.stringify(safeEnc).includes('"bt"'))
     const protectScript = sh('npx', ['tsx', 'scripts/protect-device-secrets.ts'], {})
     check('protect-device-secrets script refuses to run on non-Windows (exit 2, nothing touched)', protectScript.status === 2)
   }

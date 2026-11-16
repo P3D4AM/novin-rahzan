@@ -18,6 +18,10 @@ export async function GET(req: NextRequest) {
     const sp = req.nextUrl.searchParams
     const withLogs = sp.get('logs') === '1'
     const withSyncs = sp.get('syncs') === '1'
+    // v1.5.0: ?bridge=1 — STATUS-ONLY view of the internal FKAttend bridge
+    // service (never starts anything, never exposes the token or any secret).
+    // Lets the devices UI show the service state the user no longer manages.
+    const withBridge = sp.get('bridge') === '1'
     const devices = await db.device.findMany({ orderBy: { name: 'asc' } })
     // v1.3.0 (Phase 1 — Security): the device password is a secret at rest;
     // it must never leave the process boundary. UI copy uses hasPassword.
@@ -35,7 +39,14 @@ export async function GET(req: NextRequest) {
           note: r.note ? redactDeviceSecrets(r.note) : null,
         }))
       : []
-    return NextResponse.json({ devices: devices.map(sanitizeDeviceForApi), logs, syncs })
+    let bridge: import('@/lib/bridge-supervisor').BridgeStatus | undefined
+    if (withBridge) {
+      try {
+        const { getBridgeStatus } = await import('@/lib/bridge-supervisor')
+        bridge = getBridgeStatus()
+      } catch { /* status is best-effort; the devices list still loads */ }
+    }
+    return NextResponse.json({ devices: devices.map(sanitizeDeviceForApi), logs, syncs, ...(bridge ? { bridge } : {}) })
   } catch (err) {
     return fail(err)
   }
@@ -47,7 +58,9 @@ export async function POST(req: NextRequest) {
     const b = await req.json()
     // v1.4.0 (addendum P1): ALL connection settings go through the shared backend
     // validator — port defaults per protocol family (FKATTEND → 4238), explicit
-    // family selection, interval/timeout/token ranges, localhost-only bridge URL.
+    // family selection, interval/timeout ranges. v1.5.0: bridge settings are
+    // INTERNAL (supervisor-managed) — legacy bridgeUrl/bridgeToken in the payload
+    // are ignored and never stored.
     const v = validateDeviceSettings(b, { isCreate: true })
     if (!v.ok) throw new ApiError(400, v.error)
     const d = v.data
@@ -61,7 +74,6 @@ export async function POST(req: NextRequest) {
         ipAddress: d.ipAddress, port: d.port, protocol: d.protocol,
         location: d.location, enabled: d.enabled, serialNumber: d.serialNumber,
         connTimeoutMs: d.connTimeoutMs, machineNumber: d.machineNumber, sdkLicense: d.sdkLicense,
-        bridgeUrl: d.bridgeUrl, bridgeToken: d.bridgeToken,
         syncIntervalMin: d.syncIntervalMin, rtEnabled: d.rtEnabled, rtPollSec: d.rtPollSec,
         password: stored.password,
         passwordEnc: stored.passwordEnc,
@@ -91,9 +103,10 @@ export async function PUT(req: NextRequest) {
     if (!b.id) throw new ApiError(400, 'شناسه لازم است')
     const existing = await db.device.findUnique({ where: { id: b.id } })
     if (!existing) throw new ApiError(404, 'دستگاه یافت نشد')
-    // v1.4.0: full backend validation on edit too. Password/bridgeToken follow
-    // the Phase 1 semantics: field absent = keep the stored secret (the edit
-    // form starts empty because GET never echoes secrets).
+    // v1.4.0: full backend validation on edit too. The password follows the
+    // Phase 1 semantics: field absent = keep the stored secret (the edit
+    // form starts empty because GET never echoes secrets). v1.5.0: bridge
+    // settings are internal — legacy bridge fields are ignored.
     const v = validateDeviceSettings(b, {
       isCreate: false,
       existing: {
@@ -105,13 +118,6 @@ export async function PUT(req: NextRequest) {
     })
     if (!v.ok) throw new ApiError(400, v.error)
     const d = v.data
-    // bridgeToken: empty string on edit = KEEP the stored token (admin never sees it);
-    // an explicit non-empty value replaces it. Cleared only via `clearBridgeToken: true`.
-    const bridgeToken = d.bridgeToken
-      ? d.bridgeToken
-      : b.clearBridgeToken === true
-        ? null
-        : existing.bridgeToken
     // v1.3.1 (fix 6): an explicitly provided password goes through the single
     // at-rest decision point (DPAPI when opted in on Windows). An absent field
     // keeps BOTH stored columns untouched (Phase 1 "keep" semantics).
@@ -126,7 +132,6 @@ export async function PUT(req: NextRequest) {
         ipAddress: d.ipAddress, port: d.port, protocol: d.protocol,
         location: d.location, enabled: d.enabled, serialNumber: d.serialNumber,
         connTimeoutMs: d.connTimeoutMs, machineNumber: d.machineNumber, sdkLicense: d.sdkLicense,
-        bridgeUrl: d.bridgeUrl, bridgeToken,
         syncIntervalMin: d.syncIntervalMin, rtEnabled: d.rtEnabled, rtPollSec: d.rtPollSec,
         ...(passwordData ? { password: passwordData.password, passwordEnc: passwordData.passwordEnc } : {}),
       },

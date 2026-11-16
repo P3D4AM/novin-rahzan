@@ -20,27 +20,27 @@ import { deviceHasPassword } from '@/lib/device-secret-store'
 export type DeviceWithSecrets = {
   password?: number | string | null
   passwordEnc?: string | null
-  bridgeToken?: string | null
 } & Record<string, unknown>
 
 /** legacy alias (Phase 1) */
 export type DeviceWithPassword = DeviceWithSecrets
 
-export type SafeDeviceRow = Omit<DeviceWithSecrets, 'password' | 'passwordEnc' | 'bridgeToken'> & {
+export type SafeDeviceRow = Omit<DeviceWithSecrets, 'password' | 'passwordEnc'> & {
   hasPassword: boolean
   hasProtectedPassword: boolean
-  hasBridgeToken: boolean
 }
 
-/** Strip the device secrets (network password — plaintext or protected-at-rest —
- *  and the bridge token) from a row before it leaves the process boundary. */
+/** Strip the device secrets (network password — plaintext or protected-at-rest)
+ *  from a row before it leaves the process boundary. v1.5.0: the bridge token
+ *  no longer exists as a stored device field (the bridge is supervisor-managed
+ *  with a per-launch memory-only token); if a legacy row still carries one,
+ *  it is stripped here too — belt and braces. */
 export function sanitizeDeviceForApi(device: DeviceWithSecrets): SafeDeviceRow {
   const { password, passwordEnc, bridgeToken, ...rest } = device
   return {
     ...rest,
     hasPassword: deviceHasPassword({ password, passwordEnc }),
     hasProtectedPassword: passwordEnc != null && passwordEnc !== '',
-    hasBridgeToken: bridgeToken != null && bridgeToken !== '',
   }
 }
 
