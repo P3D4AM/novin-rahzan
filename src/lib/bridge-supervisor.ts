@@ -129,8 +129,18 @@ function logTail(): string[] {
 // ------------------------------------------------------------------ config
 
 function resolveRoot(): string {
-  // standalone server + start-windows.js both run with cwd = install root
-  return process.cwd()
+  // The install root is where INSTALL.bat/START.bat/tools/ live.
+  // Priority: the launcher's explicit HOZORPLUS_ROOT (start-windows.js passes
+  // it to both children), then the standalone-server heuristic (Next's
+  // standalone server.js process.chdir()s into <install>/.next/standalone — the
+  // install root is two levels up from there), then plain cwd (dev/tests).
+  const envRoot = process.env.HOZORPLUS_ROOT
+  if (envRoot && envRoot.trim()) return path.resolve(envRoot.trim())
+  const cwd = process.cwd()
+  if (path.basename(cwd) === 'standalone' && path.basename(path.dirname(cwd)) === '.next') {
+    return path.resolve(cwd, '..', '..')
+  }
+  return cwd
 }
 
 function resolveDllDir(): { dllDir: string | null; found: boolean; reason?: string } {

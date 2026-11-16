@@ -19,6 +19,9 @@ const env = Object.assign({}, process.env, {
   PORT: port,
   HOSTNAME: process.env.HOSTNAME || '0.0.0.0',
   DATABASE_URL: dbUrl,
+  // v1.5.0: explicit install root for the bridge supervisor — the standalone
+  // server chdirs into .next/standalone, the SDK bridge lives at the root
+  HOZORPLUS_ROOT: root,
 })
 
 const children = []
