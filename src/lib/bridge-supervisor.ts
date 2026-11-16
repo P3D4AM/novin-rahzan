@@ -1,7 +1,10 @@
 /**
- * FKAttend bridge supervisor (v1.5.0) — full lifecycle management of the x86
+ * FKAttend bridge supervisor (v1.5.1) — full lifecycle management of the x86
  * FK623 bridge so the user NEVER runs START-BRIDGE.bat, keeps a console open,
  * copies a token or manages processes (docs/BRIDGE-SUPERVISION.md).
+ * v1.5.1: the 7 vendor SDK DLLs now SHIP in the installer at
+ * tools/fkattend-bridge/bin (PE-import-verified closure) — a missing DLL
+ * is a broken install / antivirus quarantine, never a manual copy step.
  *
  * Reality it is built on: HozorPlus runs on the SAME Windows machine that can
  * reach the device (START.bat → start-windows.js → this Next.js server), so
@@ -334,7 +337,7 @@ async function startBridge(): Promise<BridgeEndpoint> {
   const dll = resolveDllDir()
   if (!dll.found) {
     throw new Error(
-      'فایل‌های SDK دستگاه (FK623Attend.dll و DLLهای همراه) یافت نشد — آن‌ها را از پکیج SDK نوین‌پرداز در پوشهٔ tools\\fkattend-bridge\\bin کنار نرم‌افزار کپی کنید',
+      'فایل‌های SDK دستگاه (FK623Attend.dll و ۶ DLL همراه) یافت نشد — این فایل‌ها همراه خود بستهٔ نصب در tools\\fkattend-bridge\\bin قرار دارند؛ اگر نبودند، بستهٔ نصب را دوباره باز کنید یا آنتی‌ویروس را (قرنطینهٔ فایل) بررسی کنید',
     )
   }
 
@@ -394,7 +397,7 @@ async function startBridge(): Promise<BridgeEndpoint> {
         continue
       }
       if (msg === 'CHILD_EXIT_4') {
-        throw new Error('فایل FK623Attend.dll در مسیر SDK یافت نشد — پوشهٔ tools\\fkattend-bridge\\bin را بررسی کنید')
+        throw new Error('فایل FK623Attend.dll در پوشهٔ tools\\fkattend-bridge\\bin یافت نشد — DLLها همراه بستهٔ نصب هستند؛ بسته را دوباره باز کنید یا قرنطینهٔ آنتی‌ویروس را بررسی کنید')
       }
       const detail = msg === 'BRIDGE_AUTH'
         ? 'پاسخ سلامت سرویس معتبر نبود'

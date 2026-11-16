@@ -1,6 +1,6 @@
 # FK623 Bridge — Hardware Validation Checklist (Windows machine)
 
-This checklist runs the **real-hardware validation** of the v1.5.0 integration
+This checklist runs the **real-hardware validation** of the v1.5.1 release
 (NP756+ through the supervised FK623 bridge). Until every step below is
 executed on the Windows machine that hosts the NP756+, the feature is
 honestly reported as **"implemented + Mock-tested"** — NOT hardware-tested.
@@ -8,9 +8,11 @@ honestly reported as **"implemented + Mock-tested"** — NOT hardware-tested.
 Machine context (recorded from the successful tests):
 * Device: Novin Pardaz NP756+, serial `7561202505176`
 * Device IP: `192.168.1.75`, TCP port **4238**
-* SDK DLLs (all x86): in `C:\Users\Administrator\Desktop\NP756-SDK-Analysis`
-  (`FK623Attend.dll` 41,984 bytes + siblings: FKAttend.dll, FKViaDev.dll,
-  LFWViaDev.dll, FKPwdEncDec.dll, FpDataConv.dll, FaceDataConv.dll)
+* SDK DLLs (all x86, all 7 of them) SHIP INSIDE the v1.5.1 zip at
+  `tools\fkattend-bridge\bin` (`FK623Attend.dll` 41,984 bytes +
+  FKAttend.dll, FKViaDev.dll, LFWViaDev.dll, FKPwdEncDec.dll,
+  FpDataConv.dll, FaceDataConv.dll — the closure verified by PE import
+  analysis; SHA-256 list in `bin/README-DLL.txt`)
 * 32-bit PowerShell is the ONLY process type that may load them:
   `%WINDIR%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe`
 * v1.5.0 reads through **FK623Attend.dll** with the recorded-successful
@@ -21,6 +23,11 @@ Machine context (recorded from the successful tests):
 > hides, supervises and stops the bridge by itself. This checklist exercises
 > exactly the user-visible behaviour; a debug appendix at the end covers
 > manual inspection when something needs investigating.
+>
+> **v1.5.1 note:** there is NO manual DLL copy anymore either. The 7 SDK DLLs
+> ship inside the setup zip (`tools\fkattend-bridge\bin`) and the bridge
+> script is saved UTF-8 **with BOM** so Windows PowerShell 5.1 decodes the
+> Persian messages correctly on every system codepage.
 
 ---
 
@@ -28,12 +35,12 @@ Machine context (recorded from the successful tests):
 
 - [ ] Install HozorPlus (INSTALL.bat) on the Windows machine that can reach
       `192.168.1.75`. Start it once (START.bat), stop it again.
-- [ ] Copy the SDK DLLs from `C:\Users\Administrator\Desktop\NP756-SDK-Analysis`
-      into `<install>\tools\fkattend-bridge\bin\` (at minimum
-      `FK623Attend.dll`; bring its siblings too — some load each other).
-- [ ] Optional sanity: `dir tools\fkattend-bridge\bin\FK623Attend.dll` →
-      the ~41 KB file is there. (Nothing is committed to Git — the folder is
-      documented in `tools/fkattend-bridge/bin/README-DLL.txt`.)
+- [ ] Sanity (should already be true — nothing is copied manually anymore):
+      `dir tools\fkattend-bridge\bin\FK623Attend.dll` → the ~41 KB file is
+      there, together with its 6 companion DLLs (they ship in the zip).
+- [ ] The device form now opens as a sectioned wider dialog (v1.5.1
+      redesign: شناسهٔ دستگاه / اتصال / دریافت خودکار) — everything else
+      behaves as before.
 
 ## 2) Device profile (NO bridge fields — they no longer exist)
 
@@ -108,8 +115,9 @@ Machine context (recorded from the successful tests):
 - [ ] Wrong port in the profile → the right error; restore `4238` → works.
       The DEVICE's own settings are never modified by any of this.
 - [ ] Remove `tools\fkattend-bridge\bin\FK623Attend.dll` temporarily → the
-      app shows the actionable «فایل‌های SDK را در tools\fkattend-bridge\bin
-      قرار دهید» message; restore the DLL → works again.
+      app shows the actionable «DLLهای SDK همراه خود بسته هستند — بسته را
+      دوباره باز کنید / قرنطینهٔ آنتی‌ویروس» message; restore the DLL → works
+      again.
 - [ ] Close HozorPlus (STOP.bat) → no powershell bridge child remains.
 
 ## Rollback

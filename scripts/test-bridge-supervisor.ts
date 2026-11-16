@@ -32,6 +32,11 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import http from 'http'
 import path from 'path'
 
+// v1.5.1: the supervisor reads FKBRIDGE_PORT_BASE at MODULE-LOAD time — set
+// it BEFORE the dynamic import of the supervisor so `npm run test:bridge`
+// is self-contained (no shell env needed).
+process.env.FKBRIDGE_PORT_BASE = process.env.FKBRIDGE_PORT_BASE || '8891'
+
 const ROOT = path.resolve(__dirname, '..')
 const TMP = process.env.TMPDIR_BRIDGE || '/tmp/nr-bridge-sup'
 const PORT_BASE = Number(process.env.FKBRIDGE_PORT_BASE || 8891)
@@ -172,11 +177,20 @@ async function main() {
   reset()
   // FKBRIDGE_COMMAND stays set so the (Linux) platform guard is skipped and
   // the DLL-presence check is reached — that is what we are testing here.
+  // v1.5.1: the 7 real SDK DLLs now ship in <repo>/tools/fkattend-bridge/bin,
+  // so pointing ONLY FKBRIDGE_DLLDIR away is not enough anymore — the second
+  // candidate (install root bin/) would find them and mask the error.
+  // HOZORPLUS_ROOT is moved to a DLL-less temp dir so EVERY candidate misses.
+  const prevRoot = process.env.HOZORPLUS_ROOT
   process.env.FKBRIDGE_DLLDIR = path.join(TMP, 'no-dll-here') // exists, but no DLL inside
+  process.env.HOZORPLUS_ROOT = path.join(TMP, 'no-dll-root') // no tools\fkattend-bridge\bin here
   mkdirSync(path.join(TMP, 'no-dll-here'), { recursive: true })
+  mkdirSync(path.join(TMP, 'no-dll-root'), { recursive: true })
   let err: any = null
   try { await ensureBridge() } catch (e) { err = e }
   check('DLL missing → Persian actionable error, mentions FK623Attend.dll', Boolean(err) && /FK623Attend\.dll/.test(err?.message || ''), err?.message?.slice(0, 90))
+  if (prevRoot === undefined) delete process.env.HOZORPLUS_ROOT
+  else process.env.HOZORPLUS_ROOT = prevRoot
 
   reset()
   delete process.env.FKBRIDGE_COMMAND

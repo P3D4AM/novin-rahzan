@@ -66,9 +66,9 @@ Next.js server (x64 Node) ── supervisor ──> child: SysWOW64 powershell.e
   می‌دهد (بدون spawn — فقط وضعیت).
 * «تست اتصال» / «دریافت تردد» → provider خودش `ensureBridge()` را صدا می‌زند؛
   اگر Bridge نباشد، بالا آورده می‌شود؛ اگر crash کرده باشد، restart می‌شود.
-* خطاها فارسی و قابل‌اقدام‌اند: DLL نبود → «فایل‌های SDK را در
-  `tools\fkattend-bridge\bin` قرار دهید»؛ PowerShell 32-bit نبود؛ دستگاه خاموش
-  (کد FK_ConnectNet)؛ غیر-Windows.
+* خطاها فارسی و قابل‌اقدام‌اند: DLL نبود (v1.5.1: DLLها همراه بسته‌اند؛ یعنی
+  نصب خراب یا قرنطینهٔ آنتی‌ویروس → «بسته را دوباره باز کنید»)؛ PowerShell
+  32-bit نبود؛ دستگاه خاموش (کد FK_ConnectNet)؛ غیر-Windows.
 
 ## محدودیت‌ها (صادقانه)
 

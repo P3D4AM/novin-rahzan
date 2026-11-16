@@ -13,7 +13,7 @@ set "DBURL=!DBURL: =%%20!"
 set "DATABASE_URL=!DBURL!"
 
 echo ==========================================================
-echo   HozorPlus  -  Attendance Management System  v1.5.0
+echo   HozorPlus  -  Attendance Management System  v1.5.1
 echo   Windows Installer
 echo ==========================================================
 echo.
@@ -63,7 +63,7 @@ if errorlevel 1 (
 
 for /f "tokens=1 delims=." %%a in ('node -p process.versions.node') do set "NODEMAJ=%%a"
 if !NODEMAJ! LSS 20 (
-    echo   [!] Node.js v!NODEMAJ! detected — version 20 or newer is required.
+    echo   [!] Node.js v!NODEMAJ! detected - version 20 or newer is required.
     echo       Please update Node.js from https://nodejs.org and run again.
     pause
     exit /b 1
@@ -112,7 +112,7 @@ if "!SEED!"=="yes" (
     call npx tsx scripts\seed.ts
     if errorlevel 1 goto :fail
 ) else (
-    echo   Skipped — keeping existing data.
+    echo   Skipped - keeping existing data.
 )
 
 REM ================== 7) build ==================
@@ -131,7 +131,7 @@ echo   2.  The browser opens at  http://localhost:3000
 echo   3.  Login:  admin / admin123      ^(more in README.md^)
 echo.
 echo   To stop the app: close the server window or run STOP.bat
-echo   On first run Windows Firewall may ask for permission —
+echo   On first run Windows Firewall may ask for permission -
 echo   click "Allow access" if you want LAN access from other PCs.
 echo.
 echo   Novin Pardaz devices (NP756+, NP746, NP770 ...):
@@ -141,9 +141,9 @@ echo       Server port = 5005   (allow port 5005 in Windows Firewall)
 echo     - attendance logs then stream in automatically, real-time.
 echo.
 echo   NP756+ via the official FK623 SDK (recommended, read-only):
-echo     - ONE TIME: copy the vendor SDK DLLs (at minimum FK623Attend.dll)
-echo       from your NP756 SDK package into  tools\fkattend-bridge\bin
-echo     - then simply add the device (IP + port 4238 + network password).
+echo     - the 7 vendor SDK DLLs (FK623Attend.dll + companions) are
+echo       PRE-INSTALLED in  tools\fkattend-bridge\bin  - nothing to copy.
+echo     - just add the device (IP + port 4238 + network password).
 echo       The connection service starts and manages itself - no scripts,
 echo       no windows, no tokens. See README.md for details.
 echo.
