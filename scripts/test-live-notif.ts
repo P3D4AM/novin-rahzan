@@ -29,13 +29,17 @@ import { spawn, spawnSync } from 'child_process'
 import { rmSync, mkdirSync, writeFileSync } from 'fs'
 import http from 'http'
 import path from 'path'
-import { db } from '../src/lib/db'
-import { importFkAttendLogs } from '../src/lib/fkattend'
+import { generateTestDatabasePath, assertTestOwnedDatabasePath, sqliteUrl } from './test-db-guard'
+
+// v1.3.1 (Phase 1 review fix 5): auto-generated unique test database; an
+// external DATABASE_URL is ignored and NEVER deleted; schema baseline pinned
+// to the Phase 1 commit; db-dependent modules imported dynamically below.
 
 const ROOT = path.resolve(__dirname, '..')
 const TMP = process.env.TMPDIR_RAWTEST || '/tmp/nr-addendum4'
-const MAIN_DB = process.env.DATABASE_URL || ''
-const MAIN_DB_FILE = MAIN_DB.replace(/^file:/, '')
+const MAIN_DB_FILE = generateTestDatabasePath(TMP)
+const MAIN_DB = sqliteUrl(MAIN_DB_FILE)
+process.env.DATABASE_URL = MAIN_DB // before the db client is imported below
 
 let passed = 0
 let failed = 0
@@ -56,13 +60,16 @@ const BRIDGE_PORT = 8794
 const rtEvents: Array<{ event: string; payload: Record<string, unknown> }> = []
 
 async function main() {
-  if (!MAIN_DB) throw new Error('DATABASE_URL must point at a TEMP database')
-  if (/custom\.db/i.test(MAIN_DB)) throw new Error('refusing to run against db/custom.db')
   mkdirSync(TMP, { recursive: true })
+  assertTestOwnedDatabasePath(MAIN_DB, TMP)
 
-  /* ---- mini realtime listener on a dedicated test port ----
-     (notify.ts honours HOZOR_RT_URL — set before the module loads) */
+  /* ---- mini realtime listener on a dedicated test port -------------------
+     (notify.ts reads HOZOR_RT_URL at MODULE-LOAD time — it must be set
+     BEFORE any db-chain module is imported, which is why every module that
+     transitively imports notify.ts is imported dynamically below) */
   process.env.HOZOR_RT_URL = 'http://127.0.0.1:3999/emit'
+  const { db } = await import('../src/lib/db')
+  const { importFkAttendLogs } = await import('../src/lib/fkattend')
   await new Promise<void>((resolve) => {
     const srv = http.createServer((req, res) => {
       let body = ''
@@ -79,13 +86,11 @@ async function main() {
   })
 
   /* ---- DB ---- */
-  rmSync(MAIN_DB_FILE, { force: true })
-  rmSync(`${MAIN_DB_FILE}-journal`, { force: true })
-  const phase1 = sh('git', ['show', 'HEAD:prisma/schema.prisma'], {})
+  const phase1 = sh('git', ['show', '3c254597:prisma/schema.prisma'], {})
   writeFileSync(`${TMP}/phase1-schema.prisma`, phase1.stdout)
   sh('npx', ['prisma', 'db', 'push', '--schema', `${TMP}/phase1-schema.prisma`, '--skip-generate'], { DATABASE_URL: MAIN_DB })
-  sh('node', ['scripts/migrate-v1.3.0-phase1.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  sh('node', ['scripts/migrate-v1.3.1-phase1-fixes.mjs', 'up'], { DATABASE_URL: MAIN_DB })
 
   /* ---- users + personnel ---- */
   const { hashPassword } = await import('../src/lib/auth')
@@ -219,11 +224,14 @@ async function main() {
     for (const f of failures) console.log(`   - ${f}`)
   }
   await db.$disconnect()
+  rmSync(MAIN_DB_FILE, { force: true }) // own, validated, auto-generated file only
+  rmSync(`${MAIN_DB_FILE}-journal`, { force: true })
   process.exit(failed > 0 ? 1 : 0)
 }
 
 main().catch(async (err) => {
   console.error('SUITE CRASHED:', err)
-  await db.$disconnect().catch(() => {})
+  const { db } = await import('../src/lib/db').catch(() => ({ db: null as never }))
+  await db?.$disconnect?.()
   process.exit(1)
 })

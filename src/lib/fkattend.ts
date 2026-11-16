@@ -26,6 +26,7 @@ import { runRawSync, RawPunchProvider, RawPunchRead } from '@/lib/raw-sync'
 import type { RawPunchInput } from '@/lib/raw-import'
 import { withDeviceSyncLock, SyncBusyError } from '@/lib/sync-mutex'
 import { tehranWallClockToUTC } from '@/lib/sbxpc'
+import { getDevicePassword } from '@/lib/device-secret-store'
 
 export interface FkBridgeConfig {
   bridgeUrl: string
@@ -35,6 +36,7 @@ export interface FkBridgeConfig {
   port: number
   connTimeoutMs: number
   password: number | null
+  passwordEnc?: string | null
   sdkLicense: number
 }
 
@@ -197,10 +199,11 @@ type DeviceLike = {
   port: number
   connTimeoutMs: number
   password: number | null
+  passwordEnc: string | null
   sdkLicense: number
 }
 
-function deviceToBridgeConfig(device: DeviceLike): FkBridgeConfig {
+async function deviceToBridgeConfig(device: DeviceLike): Promise<FkBridgeConfig> {
   if (!device.bridgeUrl?.trim()) {
     throw new Error('آدرس Bridge تنظیم نشده است — در پرونده دستگاه، آدرس Bridge (مثل http://127.0.0.1:8765) را وارد کنید')
   }
@@ -214,14 +217,16 @@ function deviceToBridgeConfig(device: DeviceLike): FkBridgeConfig {
     ipAddress: device.ipAddress.trim(),
     port: device.port || 4238,
     connTimeoutMs: device.connTimeoutMs || 5000,
-    password: device.password ?? 0,
+    // v1.3.1 (fix 6): the working password may live in the protected column —
+    // getDevicePassword decrypts inside the process when needed
+    password: (await getDevicePassword(device)) ?? 0,
     sdkLicense: device.sdkLicense ?? 1261,
   }
 }
 
 /** READ-ONLY connection test through the bridge (no keypad lock, no data read). */
 export async function fkTestConnection(device: DeviceLike): Promise<FkAttendTestResult> {
-  const cfg = deviceToBridgeConfig(device)
+  const cfg = await deviceToBridgeConfig(device)
   const serialOnFile = device.serialNumber?.trim() ?? ''
   const t0 = Date.now()
   try {
@@ -283,6 +288,11 @@ export interface FkSyncResult {
   unmatched: number
   total: number
   imported: number
+  /** v1.3.1 (fix 4): malformed records quarantined (new) and window-excluded records */
+  rejected?: number
+  outOfWindow?: number
+  /** v1.3.1 (fix 2): distinct (personId, day) pairs whose recalculation failed */
+  recalcFailed?: number
   cutoff: string
   newBookmark: string | null
   deviceSerial?: string
@@ -296,7 +306,7 @@ export interface FkSyncResult {
 export async function importFkAttendLogs(deviceId: string, opts: FkSyncOptions = {}): Promise<FkSyncResult> {
   const device = await db.device.findUnique({ where: { id: deviceId } })
   if (!device) throw new Error('دستگاه یافت نشد')
-  const cfg = deviceToBridgeConfig(device)
+  const cfg = await deviceToBridgeConfig(device)
   const provider = new FkAttendBridgeProvider(cfg)
   const summary = await withDeviceSyncLock(device.id, device.name, () =>
     runRawSync({
@@ -316,6 +326,9 @@ export async function importFkAttendLogs(deviceId: string, opts: FkSyncOptions =
     unmatched: summary.unmatched,
     total: summary.seen,
     imported: summary.inWindow,
+    rejected: summary.rejected,
+    outOfWindow: summary.outOfWindow,
+    recalcFailed: summary.recalcFailed,
     cutoff: summary.cutoff,
     newBookmark: summary.newBookmark,
     deviceSerial: summary.deviceSerial,

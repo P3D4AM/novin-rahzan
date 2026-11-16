@@ -8,6 +8,7 @@ import { npTest } from '@/lib/sbxpc'
 import { importNpDeviceLogs } from '@/lib/np-sync'
 import { emitRealtime } from '@/lib/notify'
 import { sanitizeDeviceForApi, sanitizeResultForApi, redactDeviceSecrets } from '@/lib/device-secrets'
+import { getDevicePassword, storeDevicePassword } from '@/lib/device-secret-store'
 import { validateDeviceSettings } from '@/lib/device-validation'
 import { fkTestConnection, importFkAttendLogs, SyncBusyError } from '@/lib/fkattend'
 
@@ -50,6 +51,10 @@ export async function POST(req: NextRequest) {
     const v = validateDeviceSettings(b, { isCreate: true })
     if (!v.ok) throw new ApiError(400, v.error)
     const d = v.data
+    // v1.3.1 (fix 6): the at-rest representation of the network password is
+    // decided in ONE place — storeDevicePassword (DPAPI when opted in on
+    // Windows, plaintext column otherwise; the gap stays documented).
+    const stored = await storeDevicePassword(d.password ?? null)
     const device = await db.device.create({
       data: {
         name: d.name, type: d.type, protocolFamily: d.protocolFamily,
@@ -58,9 +63,21 @@ export async function POST(req: NextRequest) {
         connTimeoutMs: d.connTimeoutMs, machineNumber: d.machineNumber, sdkLicense: d.sdkLicense,
         bridgeUrl: d.bridgeUrl, bridgeToken: d.bridgeToken,
         syncIntervalMin: d.syncIntervalMin, rtEnabled: d.rtEnabled, rtPollSec: d.rtPollSec,
-        password: d.password ?? null,
+        password: stored.password,
+        passwordEnc: stored.passwordEnc,
       },
     })
+    if (stored.stored === 'plaintext' && d.password != null) {
+      // the operator asked for protection but the platform cannot provide it
+      // — stored plaintext on purpose (never lose a credential); make it visible
+      await db.deviceLog.create({
+        data: {
+          deviceId: device.id,
+          level: 'WARN',
+          message: 'رمز شبکه بدون محافظت در پایگاه‌داده ذخیره شد — محافظت DPAPI فقط روی Windows و با فعال‌بودن HOZOR_DEVICE_SECRET_PROTECTION فعال می‌شود (محدودیت مستندشده)',
+        },
+      }).catch(() => {})
+    }
     return NextResponse.json({ device: sanitizeDeviceForApi(device) })
   } catch (err) {
     return fail(err)
@@ -95,6 +112,13 @@ export async function PUT(req: NextRequest) {
       : b.clearBridgeToken === true
         ? null
         : existing.bridgeToken
+    // v1.3.1 (fix 6): an explicitly provided password goes through the single
+    // at-rest decision point (DPAPI when opted in on Windows). An absent field
+    // keeps BOTH stored columns untouched (Phase 1 "keep" semantics).
+    const passwordData =
+      d.password !== undefined
+        ? await storeDevicePassword(d.password)
+        : null
     const device = await db.device.update({
       where: { id: b.id },
       data: {
@@ -104,9 +128,18 @@ export async function PUT(req: NextRequest) {
         connTimeoutMs: d.connTimeoutMs, machineNumber: d.machineNumber, sdkLicense: d.sdkLicense,
         bridgeUrl: d.bridgeUrl, bridgeToken,
         syncIntervalMin: d.syncIntervalMin, rtEnabled: d.rtEnabled, rtPollSec: d.rtPollSec,
-        ...(d.password !== undefined ? { password: d.password } : {}),
+        ...(passwordData ? { password: passwordData.password, passwordEnc: passwordData.passwordEnc } : {}),
       },
     })
+    if (passwordData && passwordData.stored === 'plaintext' && d.password != null) {
+      await db.deviceLog.create({
+        data: {
+          deviceId: device.id,
+          level: 'WARN',
+          message: 'رمز شبکه بدون محافظت در پایگاه‌داده ذخیره شد — محافظت DPAPI فقط روی Windows و با فعال‌بودن HOZOR_DEVICE_SECRET_PROTECTION فعال می‌شود (محدودیت مستندشده)',
+        },
+      }).catch(() => {})
+    }
     return NextResponse.json({ device: sanitizeDeviceForApi(device) })
   } catch (err) {
     return fail(err)
@@ -188,7 +221,10 @@ export async function PATCH(req: NextRequest) {
             'برای تست اتصال، آدرس IP دستگاه را در پرونده دستگاه وارد کنید (مثل 192.168.1.201). ' +
             'دستگاه‌های NP روی پورت 5005 هم به نرم‌افزار وصل می‌شوند (پوش لحظه‌ای) و هم از همان پورت پاسخ فرمان‌های دانلود را می‌دهند.')
         }
-        const t = await npTest(device.ipAddress.trim(), device.port || 5005, 1, device.password ?? null)
+        // v1.3.1 (fix 6): the working password may live in the protected
+        // column — one read helper decides (decrypts only inside the process)
+        const workingPassword = await getDevicePassword(device)
+        const t = await npTest(device.ipAddress.trim(), device.port || 5005, 1, workingPassword)
         const serialMatch = t.ok && t.serialNumber && device.serialNumber
           ? t.serialNumber.trim().toLowerCase() === device.serialNumber.trim().toLowerCase()
           : null
@@ -200,13 +236,17 @@ export async function PATCH(req: NextRequest) {
           CLASSIC_SECURE: 'پروتکل کلاسیک رمزشده (با «رمز شبکه»)',
           HTTP_JSON: 'API HTTP — نسل جدید NP (VisibleLight)',
         }
+        // remember a newly discovered «رمز شبکه» so syncs reuse it — through
+        // the single at-rest decision point, and only when NOTHING is stored yet
+        const discovered = t.ok && t.password != null && device.password == null && device.passwordEnc == null
+          ? await storeDevicePassword(t.password)
+          : null
         await db.device.update({
           where: { id: device.id },
           data: {
             status: t.ok ? 'ONLINE' : 'OFFLINE',
             ...(t.ok && t.serialNumber && !device.serialNumber ? { serialNumber: t.serialNumber } : {}),
-            // remember a newly discovered «رمز شبکه» so syncs reuse it
-            ...(t.ok && t.password != null && device.password == null ? { password: t.password } : {}),
+            ...(discovered ? { password: discovered.password, passwordEnc: discovered.passwordEnc } : {}),
           },
         })
         await db.deviceLog.create({

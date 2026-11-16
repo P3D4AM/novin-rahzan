@@ -20,21 +20,26 @@
  *   [lastError]   failure stores sanitized Device.lastSyncError; success
  *                 clears it
  *
- * Run (DATABASE_URL REQUIRED — refuses db/custom.db):
- *   DATABASE_URL=file:/tmp/nr-addendum2/addendum2.db npx tsx scripts/test-scheduler.ts
+ * v1.3.1 (Phase 1 review fix 5): the suite AUTO-GENERATES its own unique
+ * temporary database under the test directory (scripts/test-db-guard.ts) — an
+ * external DATABASE_URL is ignored and NEVER deleted; the schema baseline is
+ * pinned to the actual Phase 1 commit instead of a drifting HEAD. The
+ * per-device sync lock (fix 7) is now DB-backed — isDeviceSyncing is async.
+ *
+ * Run:
+ *   npx tsx scripts/test-scheduler.ts
  */
 import { spawn, spawnSync } from 'child_process'
 import { rmSync, mkdirSync, writeFileSync } from 'fs'
 import path from 'path'
-import { db } from '../src/lib/db'
-import { computeDue, startDeviceScheduler, isSchedulerRunning, SchedulerDeviceRow } from '../src/lib/scheduler'
-import { importNpDeviceLogs } from '../src/lib/np-sync'
-import { withDeviceSyncLock, isDeviceSyncing } from '../src/lib/sync-mutex'
+import { generateTestDatabasePath, assertTestOwnedDatabasePath, sqliteUrl } from './test-db-guard'
+import type { SchedulerDeviceRow } from '../src/lib/scheduler'
 
 const ROOT = path.resolve(__dirname, '..')
 const TMP = process.env.TMPDIR_RAWTEST || '/tmp/nr-addendum2'
-const MAIN_DB = process.env.DATABASE_URL || ''
-const MAIN_DB_FILE = MAIN_DB.replace(/^file:/, '')
+const MAIN_DB_FILE = generateTestDatabasePath(TMP)
+const MAIN_DB = sqliteUrl(MAIN_DB_FILE)
+process.env.DATABASE_URL = MAIN_DB // before the db client is imported below
 
 let passed = 0
 let failed = 0
@@ -52,18 +57,22 @@ const SERIAL = '7561202505176'
 const MOCK_PORT = 5177
 
 async function main() {
-  if (!MAIN_DB) throw new Error('DATABASE_URL must point at a TEMP database')
-  if (/custom\.db/i.test(MAIN_DB)) throw new Error('refusing to run against db/custom.db')
   mkdirSync(TMP, { recursive: true })
+  assertTestOwnedDatabasePath(MAIN_DB, TMP)
 
-  /* ---- DB: Phase-1 schema + both migrations ---- */
-  rmSync(MAIN_DB_FILE, { force: true })
-  rmSync(`${MAIN_DB_FILE}-journal`, { force: true })
-  const phase1 = sh('git', ['show', 'HEAD:prisma/schema.prisma'], {})
+  // db-dependent modules are imported AFTER DATABASE_URL points at the
+  // auto-generated test database
+  const { db } = await import('../src/lib/db')
+  const { computeDue, startDeviceScheduler, isSchedulerRunning } = await import('../src/lib/scheduler')
+  const { importNpDeviceLogs } = await import('../src/lib/np-sync')
+  const { withDeviceSyncLock, isDeviceSyncing } = await import('../src/lib/sync-mutex')
+
+  /* ---- DB: Phase-1 schema (pinned commit) + real migration chain ---- */
+  const phase1 = sh('git', ['show', '3c254597:prisma/schema.prisma'], {})
   writeFileSync(`${TMP}/phase1-schema.prisma`, phase1.stdout)
   sh('npx', ['prisma', 'db', 'push', '--schema', `${TMP}/phase1-schema.prisma`, '--skip-generate'], { DATABASE_URL: MAIN_DB })
-  sh('node', ['scripts/migrate-v1.3.0-phase1.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  sh('node', ['scripts/migrate-v1.3.1-phase1-fixes.mjs', 'up'], { DATABASE_URL: MAIN_DB })
 
   const p1 = await db.personnel.create({ data: { personnelCode: '1001', firstName: 'علی', lastName: 'محمدی', pin: '1001', deviceUserId: 1001 } })
   const device = await db.device.create({
@@ -128,7 +137,15 @@ async function main() {
    * ================================================================ */
   section('CONCURRENCY (acceptance item 6)')
   const busyPromise = withDeviceSyncLock(device.id, device.name, () => new Promise<{ created: number }>((resolve) => setTimeout(() => resolve({ created: 0 }), 700)))
-  check('device marked as syncing while the manual run holds the lock', isDeviceSyncing(device.id))
+  // the DB-backed lock is acquired asynchronously — poll briefly until the
+  // live lease is visible (the DB constraint, not this status flag, is the
+  // authority for exclusion)
+  let marked = false
+  for (let i = 0; i < 40 && !marked; i++) {
+    if (await isDeviceSyncing(device.id)) marked = true
+    else await new Promise((r) => setTimeout(r, 25))
+  }
+  check('device marked as syncing while the manual run holds the lock (async DB lease)', marked)
   await db.device.update({ where: { id: device.id }, data: { lastSyncAt: new Date(Date.now() - 10 * 60_000) } })
   const r3b = await sched.tickNow() // due AND busy → must skip
   const manualResult = await busyPromise
@@ -201,11 +218,14 @@ async function main() {
     for (const f of failures) console.log(`   - ${f}`)
   }
   await db.$disconnect()
+  rmSync(MAIN_DB_FILE, { force: true }) // own, validated, auto-generated file only
+  rmSync(`${MAIN_DB_FILE}-journal`, { force: true })
   process.exit(failed > 0 ? 1 : 0)
 }
 
 main().catch(async (err) => {
   console.error('SUITE CRASHED:', err)
-  await db.$disconnect().catch(() => {})
+  const { db } = await import('../src/lib/db').catch(() => ({ db: null as never }))
+  await db?.$disconnect?.()
   process.exit(1)
 })

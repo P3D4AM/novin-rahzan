@@ -1,6 +1,6 @@
 {
   "name": "hozorplus",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "حضور+ — سیستم جامع مدیریت حضور و غیاب (HozorPlus web attendance management system)",
   "private": true,
   "scripts": {
@@ -12,6 +12,8 @@
     "recalc": "tsx scripts/recalc.ts",
     "lint": "eslint .",
     "test:raw": "tsx scripts/test-raw-import.ts",
+    "test:raw:concurrency-worker": "tsx scripts/test-concurrent-import-worker.ts",
+    "secrets:protect": "tsx scripts/protect-device-secrets.ts",
     "db:push": "prisma db push --accept-data-loss",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

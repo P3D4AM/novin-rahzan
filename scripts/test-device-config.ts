@@ -26,16 +26,22 @@
 import { spawn } from 'child_process'
 import { rmSync, mkdirSync } from 'fs'
 import path from 'path'
-import { db } from '../src/lib/db'
+import { generateTestDatabasePath, assertTestOwnedDatabasePath, sqliteUrl } from './test-db-guard'
 import { validateDeviceSettings } from '../src/lib/device-validation'
 import { sanitizeDeviceForApi } from '../src/lib/device-secrets'
-import { fkTestConnection, importFkAttendLogs, fkWallClockToUTC, SyncBusyError } from '../src/lib/fkattend'
-import { SerialMismatchError } from '../src/lib/raw-sync'
+import { fkWallClockToUTC } from '../src/lib/fkattend'
+
+// v1.3.1 (Phase 1 review fix 5): the suite AUTO-GENERATES its own unique
+// temporary database under the test directory — an external DATABASE_URL is
+// ignored and NEVER deleted; the schema baseline is pinned to the actual
+// Phase 1 commit instead of a drifting HEAD. Db-dependent modules are
+// imported dynamically AFTER DATABASE_URL points at the generated file.
 
 const ROOT = path.resolve(__dirname, '..')
 const TMP = process.env.TMPDIR_RAWTEST || '/tmp/nr-addendum1'
-const MAIN_DB = process.env.DATABASE_URL || ''
-const MAIN_DB_FILE = MAIN_DB.replace(/^file:/, '')
+const MAIN_DB_FILE = generateTestDatabasePath(TMP)
+const MAIN_DB = sqliteUrl(MAIN_DB_FILE)
+process.env.DATABASE_URL = MAIN_DB // before the db client is imported below
 
 let passed = 0
 let failed = 0
@@ -51,9 +57,14 @@ const SERIAL = '7561202505176'
 const BRIDGE_PORT = 8791
 
 async function main() {
-  if (!MAIN_DB) throw new Error('DATABASE_URL must point at a TEMP database, e.g. file:/tmp/nr-addendum1/addendum1.db')
-  if (/custom\.db/i.test(MAIN_DB)) throw new Error('refusing to run against db/custom.db — point DATABASE_URL at a temp database')
   mkdirSync(TMP, { recursive: true })
+  assertTestOwnedDatabasePath(MAIN_DB, TMP)
+
+  // db-dependent modules are imported AFTER DATABASE_URL points at the
+  // auto-generated test database
+  const { db } = await import('../src/lib/db')
+  const { fkTestConnection, importFkAttendLogs, SyncBusyError } = await import('../src/lib/fkattend')
+  const { SerialMismatchError } = await import('../src/lib/raw-sync')
 
   /* ================================================================
    * 1) VALIDATION — per-device connection settings (P1)
@@ -162,17 +173,18 @@ async function main() {
   /* ================================================================
    * 3) prepare DB (Phase-1 schema + v1.4.0 migration) + device rows
    * ================================================================ */
-  rmSync(MAIN_DB_FILE, { force: true })
-  rmSync(`${MAIN_DB_FILE}-journal`, { force: true })
+  // base = the v1.3.0 (Phase 1) schema — pinned to the Phase 1 commit, then
+  // the real migration chain a user's DB would follow (fresh unique file —
+  // nothing pre-existing is ever deleted)
   const { spawnSync } = await import('child_process')
   const { writeFileSync } = await import('fs')
   const sh = (cmd: string, args: string[], env: Record<string, string>) =>
     spawnSync(cmd, args, { cwd: ROOT, env: { ...process.env, ...env }, encoding: 'utf8', timeout: 120_000 })
-  // base = the v1.3.0 (Phase 1) schema, as a real user's DB would look like
-  const phase1Schema = sh('git', ['show', 'HEAD:prisma/schema.prisma'], {})
+  const phase1Schema = sh('git', ['show', '3c254597:prisma/schema.prisma'], {})
   writeFileSync(`${TMP}/phase1-schema.prisma`, phase1Schema.stdout)
   sh('npx', ['prisma', 'db', 'push', '--schema', `${TMP}/phase1-schema.prisma`, '--skip-generate'], { DATABASE_URL: MAIN_DB })
   const up14 = sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  sh('node', ['scripts/migrate-v1.3.1-phase1-fixes.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   check('v1.4.0 migration up (on a Phase-1 DB)', up14.status === 0 && /Device.rtPollSec: present/.test(up14.stdout))
   const up14b = sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   check('v1.4.0 migration idempotent', up14b.status === 0 && /already present/.test(up14b.stdout))
@@ -247,13 +259,35 @@ async function main() {
   check('no extra RawPunch rows', (await db.rawPunch.count({ where: { deviceSerial: SERIAL, sourceProtocol: 'FKATTEND' } })) === 60)
 
   section('CONCURRENT SYNC GUARD (acceptance item 6)')
-  // start one slow import (bridge call takes ~real ms; hold it via a delayed
-  // second attempt in parallel): use a manual Promise.all race
+  // deterministic busy case: hold the per-device DB lock, then attempt a sync
+  const { withDeviceSyncLock } = await import('../src/lib/sync-mutex')
+  const hold = withDeviceSyncLock(device.id, device.name, () => new Promise((r) => setTimeout(() => r({ held: true }), 600)))
+  let busyRejected = false
+  try {
+    await importFkAttendLogs(device.id, { mode: 'MOCK', full: true })
+  } catch (err) {
+    busyRejected = err instanceof SyncBusyError
+  }
+  check('a sync attempt while the device lock is held is rejected with SyncBusyError', busyRejected)
+  await hold
+  // two genuinely concurrent syncs: at least one runs; every rejection is a
+  // SyncBusyError (serialized — they never interleave; row count proves it)
+  const rowsBeforeConcurrent = await db.rawPunch.count({ where: { deviceSerial: SERIAL, sourceProtocol: 'FKATTEND' } })
   const [a, b] = await Promise.allSettled([
     importFkAttendLogs(device.id, { mode: 'MOCK', full: true }),
     importFkAttendLogs(device.id, { mode: 'MOCK', full: true }),
   ])
-  check('one of two concurrent syncs is rejected with SyncBusyError', (a.status === 'fulfilled' ? a.value : null) != null && (b.status === 'rejected' ? b.reason : null) instanceof SyncBusyError)
+  const okCount = [a, b].filter((r) => r.status === 'fulfilled').length
+  const busyCount = [a, b].filter((r) => r.status === 'rejected' && r.reason instanceof SyncBusyError).length
+  check(
+    'two concurrent syncs serialize: at least one runs, any rejection is SyncBusyError',
+    okCount >= 1 && okCount + busyCount === 2,
+    `ok=${okCount} busy=${busyCount}`,
+  )
+  check(
+    'concurrent syncs add no duplicate rows (exclusion + unique key)',
+    (await db.rawPunch.count({ where: { deviceSerial: SERIAL, sourceProtocol: 'FKATTEND' } })) === rowsBeforeConcurrent,
+  )
 
   section('SERIAL MISMATCH GUARD')
   const devForeign = await db.device.create({
@@ -309,11 +343,14 @@ async function main() {
     for (const f of failures) console.log(`   - ${f}`)
   }
   await db.$disconnect()
+  rmSync(MAIN_DB_FILE, { force: true }) // own, validated, auto-generated file only
+  rmSync(`${MAIN_DB_FILE}-journal`, { force: true })
   process.exit(failed > 0 ? 1 : 0)
 }
 
 main().catch(async (err) => {
   console.error('SUITE CRASHED:', err)
-  await db.$disconnect().catch(() => {})
+  const { db } = await import('../src/lib/db').catch(() => ({ db: null as never }))
+  await db?.$disconnect?.()
   process.exit(1)
 })

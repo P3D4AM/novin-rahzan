@@ -251,6 +251,12 @@ model Device {
   location      String?
   serialNumber  String?
   password      Int? // «رمز شبکه» — NP devices with the encrypted protocol (EXT_SECURE); NEVER returned by APIs/logs
+  // v1.3.1 (Phase 1 review fix 6) — OPTIONAL at-rest protection of the network password
+  // via Windows DPAPI (see docs/SECURITY-device-password-at-rest.md). Format:
+  // "dpapi:machine:<base64 blob>". While null, the password lives as the plaintext
+  // integer above (the documented, explicitly accepted gap). Opt-in only:
+  // scripts/protect-device-secrets.ts — never enabled silently, never guessed.
+  passwordEnc   String? // protected at-rest form of the same secret (kept exclusive with password)
   // v1.4.0 (addendum P1) — per-device connection / SDK parameters (all validated in backend)
   connTimeoutMs Int          @default(5000) // FK_ConnectNet timeout
   machineNumber Int          @default(1) // SDK machine number
@@ -274,6 +280,7 @@ model Device {
   logs          DeviceLog[]
   rawPunches    RawPunch[]
   syncRuns      DeviceSyncRun[]
+  rejectedRecords RejectedRecord[]
 }
 
 model DeviceLog {
@@ -318,6 +325,11 @@ model RawPunch {
   // ---- interpretation (never guessed)
   matchStatus    String    @default("UNMATCHED") // UNMATCHED | MATCHED
   direction      String    @default("UNKNOWN") // UNKNOWN until the vendor meaning of in/out is verified
+  // v1.3.1 (Phase 1 review fix 1) — why a row is still UNMATCHED: null = plain
+  // "no personnel candidate found"; "AMBIGUOUS…" = the enroll number maps to more
+  // than one person (or collides across deviceUserId/personnelCode) — the row stays
+  // unassigned and visible for an administrator to resolve manually.
+  matchNote      String? // null | AMBIGUOUS_<reason> — set only while personnelId is null
   // ---- audit
   rawPayload     String? // minimal raw payload (hex / JSON) for auditing
   syncRunId      String?
@@ -349,6 +361,12 @@ model DeviceSyncRun {
   recordsDuplicate Int       @default(0) // already stored on a previous run
   recordsMatched  Int       @default(0) // new rows with a personnel mapping
   recordsUnmatched Int       @default(0) // new rows without a personnel mapping (kept, never dropped)
+  // v1.3.1 (Phase 1 review fix 4) — full accounting for every source record:
+  // malformed records are quarantined in RejectedRecord and counted here, and
+  // records excluded by the requested date window are counted separately, so
+  // seen = inWindow + rejected + outOfWindow — nothing disappears silently.
+  recordsRejected Int       @default(0) // malformed records newly quarantined this run
+  recordsOutOfWindow Int    @default(0) // valid records intentionally excluded by the date window
   bookmarkAt      DateTime? // cursor position reached after safe storage
   retries         Int       @default(0) // automatic retries used (withRetry)
   error           String? // sanitized error message — device secrets are never written here
@@ -356,6 +374,49 @@ model DeviceSyncRun {
 
   @@index([deviceSerial, startedAt])
   @@index([deviceId])
+}
+
+// Rejected-record quarantine (v1.3.1 — Phase 1 review fix 4). A record the
+// source reported but that could NOT be stored as a RawPunch (e.g. an invalid /
+// non-finite timestamp) lands here instead of vanishing: the original raw
+// payload, enroll number and raw wall-clock string are preserved whenever
+// available, plus a machine-readable reject reason. Never auto-purged.
+// fingerprint = sha-256 of the canonical rejected tuple → re-reads of the same
+// bad record are recognized as duplicates (no row flood from 30s rt-polls).
+model RejectedRecord {
+  id             String    @id @default(cuid())
+  deviceId       String?
+  device         Device?   @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  deviceSerial   String    @default("")
+  sourceProtocol String    @default("UNKNOWN")
+  syncRunId      String? // the run that quarantined it first
+  enrollNumber   String? // exact string as reported (null when the source provided none)
+  punchTimeRaw   String? // device wall-clock string as received, if any
+  rawPayload     String? // original raw payload (hex / JSON) whenever available
+  rejectReason   String // machine-readable reason, e.g. INVALID_TIMESTAMP
+  sourceMeta     String? // JSON of the surviving source fields (inOutModeRaw, verifyModeRaw, …)
+  fingerprint    String    @unique // dedupe key — see model comment
+  receivedAt     DateTime  @default(now())
+
+  @@index([deviceSerial, receivedAt])
+  @@index([rejectReason])
+}
+
+// Per-device sync lock (v1.3.1 — Phase 1 review fix 7) — the authoritative
+// mutual-exclusion primitive lives IN THE DATABASE so that two server processes
+// can never interleave sync operations for the same device (a process-local map
+// would only protect one process and would falsely claim protection). The lease
+// (expiresAt) guarantees crash recovery: a dead process's lock is taken over
+// once the lease expires. Database uniqueness (the RawPunch unique key) remains
+// the FINAL duplicate safeguard — the lock is a serialization aid, not a
+// correctness claim.
+model DeviceSyncLock {
+  deviceId   String   @id // locked device — deliberately NO FK: a lock must not depend on the device row
+  lockToken  String // random token — only the owner releases
+  acquiredAt DateTime @default(now())
+  expiresAt  DateTime // lease deadline — takeover is allowed after it passes
+
+  @@index([expiresAt])
 }
 
 // ===================== Notifications =====================

@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    await requireRole('ADMIN')
+    const user = await requireRole('ADMIN')
     const b = await req.json()
     if (!b.personnelCode || !b.firstName || !b.lastName) throw new ApiError(400, 'کد پرسنلی، نام و نام خانوادگی الزامی است')
     const dup = await db.personnel.findFirst({ where: { OR: [{ personnelCode: b.personnelCode }, ...(b.pin ? [{ pin: b.pin }] : [])] } })
@@ -61,9 +61,11 @@ export async function POST(req: NextRequest) {
     const { id, createdAt, updatedAt, ...rest } = b
     const p = await db.personnel.create({ data: { ...rest } })
     // v1.3.0 (Phase 1): a new personnel member may match previously UNMATCHED
-    // device punches (deviceUserId / numeric personnelCode) — rematch them now.
-    // Best effort: never blocks or fails the personnel operation.
-    const rematch = await rematchRawPunches().catch(() => null)
+    // device punches (deviceUserId / personnelCode) — rematch them now.
+    // v1.3.1 (fix 3): the acting admin is recorded in the AuditLog rows; a
+    // rematch failure no longer hides behind a null (per-row failures are
+    // reported and the rows stay UNMATCHED + recoverable).
+    const rematch = await rematchRawPunches({ userId: user.id }).catch(() => null)
     return NextResponse.json({ personnel: p, ...(rematch ? { rematch } : {}) })
   } catch (err) {
     return fail(err)

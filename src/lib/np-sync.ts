@@ -17,6 +17,7 @@
 import { SbxpcClient, NpLog } from '@/lib/sbxpc'
 import { withDeviceSyncLock, SyncBusyError } from '@/lib/sync-mutex'
 import { runRawSync, RawPunchProvider, RawPunchRead, RawSyncSummary } from '@/lib/raw-sync'
+import { getDevicePassword } from '@/lib/device-secret-store'
 import { db } from '@/lib/db'
 
 /** how far back a first-ever sync goes when nothing else is known (re-exported for compat) */
@@ -41,11 +42,17 @@ export interface NpSyncResult {
   unmatched: number
   total: number
   imported: number
+  /** v1.3.1 (fix 4): malformed records quarantined (new) and window-excluded records */
+  rejected?: number
+  outOfWindow?: number
+  /** v1.3.1 (fix 2): distinct (personId, day) pairs whose recalculation failed — recoverable via retrySyncRunRecalcs */
+  recalcFailed?: number
   cutoff: string
   newBookmark: string | null
   deviceSerial?: string
   deviceTime?: string | null
   serialMismatch?: boolean
+  runId?: string
 }
 
 type DeviceRow = {
@@ -122,7 +129,9 @@ export async function importNpDeviceLogs(deviceId: string, opts: NpSyncOptions =
   const provider = new SbxpcProvider({
     ipAddress: device.ipAddress.trim(),
     port: device.port || 5005,
-    password: device.password ?? null,
+    // v1.3.1 (fix 6): the working password may live in the protected column —
+    // getDevicePassword decrypts inside the process when needed
+    password: await getDevicePassword(device),
   })
   try {
     const summary: RawSyncSummary = await withDeviceSyncLock(device.id, device.name, () =>
@@ -143,11 +152,15 @@ export async function importNpDeviceLogs(deviceId: string, opts: NpSyncOptions =
       unmatched: summary.unmatched,
       total: summary.seen,
       imported: summary.inWindow,
+      rejected: summary.rejected,
+      outOfWindow: summary.outOfWindow,
+      recalcFailed: summary.recalcFailed,
       cutoff: summary.cutoff,
       newBookmark: summary.newBookmark,
       deviceSerial: summary.deviceSerial,
       deviceTime: summary.deviceTime,
       serialMismatch: false,
+      runId: summary.runId,
     }
   } finally {
     provider.disconnect()
