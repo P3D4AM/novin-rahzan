@@ -18,7 +18,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "test:bridge": "tsx scripts/test-bridge-supervisor.ts"
+    "test:bridge": "tsx scripts/test-bridge-supervisor.ts",
+    "test:time": "tsx scripts/test-time.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
