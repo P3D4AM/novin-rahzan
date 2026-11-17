@@ -13,7 +13,7 @@ set "DBURL=!DBURL: =%%20!"
 set "DATABASE_URL=!DBURL!"
 
 echo ==========================================================
-echo   HozorPlus  -  Attendance Management System  v1.5.1
+echo   HozorPlus  -  Attendance Management System  v1.6.0
 echo   Windows Installer
 echo ==========================================================
 echo.
