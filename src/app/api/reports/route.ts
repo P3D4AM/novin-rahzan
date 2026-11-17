@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
-import { addDays, monthRange, toJalali, faDigits } from '@/lib/jalali'
+
 import { parseDayParam } from '@/lib/time'
 
 export async function GET(req: NextRequest) {
