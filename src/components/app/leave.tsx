@@ -12,7 +12,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SessionUser, Bootstrap, api, LeaveRequestT, Person, full_name, ROLE_FA } from './types'
-import { faDigits, durationFa } from './jalali-ui'
+import { JalaliDatePicker, TimeInput, faDigits, durationFa, faTime, gregKeyToJalali } from './jalali-ui'
+import { tehranTodayMarker, markerKey, tehranWallClockStringToInstant } from '@/lib/time'
 import { useToast } from '@/hooks/use-toast'
 import { Plus, Check, X, Trash2, Loader2, Palmtree } from 'lucide-react'
 
@@ -52,8 +53,12 @@ export function LeaveView({ user, boot, reloadBoot }: Props) {
     setSaving(true)
     try {
       const isHourly = form.kind === 'HOURLY'
-      const start = new Date(`${form.date}T${isHourly ? form.time : '08:00'}:00`)
-      const end = isHourly ? new Date(`${form.date}T${form.endTime}:00`) : new Date(`${form.endDate || form.date}T16:00:00`)
+      // v1.6.0 (phase 1 stage 4): Tehran wall-clock instants (was browser-local new Date)
+      const start = tehranWallClockStringToInstant(`${form.date} ${isHourly ? form.time : '08:00'}`)
+      const end = isHourly
+        ? tehranWallClockStringToInstant(`${form.date} ${form.endTime}`)
+        : tehranWallClockStringToInstant(`${form.endDate || form.date} 16:00`)
+      if (!start || !end) { toast({ title: 'زمان نامعتبر است', variant: 'destructive' }); return }
       if (end <= start) { toast({ title: 'پایان باید بعد از شروع باشد', variant: 'destructive' }); return }
       await api('/api/leave/requests', {
         method: 'POST',
@@ -146,7 +151,8 @@ export function LeaveView({ user, boot, reloadBoot }: Props) {
                       </span>
                     </TableCell>
                     <TableCell className="text-xs" dir="ltr">
-                      {faDigits(r.startDateTime.slice(0, 10))}{r.kind === 'HOURLY' ? ` · ${new Date(r.startDateTime).toISOString().slice(11, 16)}` : ''} → {faDigits(r.endDateTime.slice(0, 10))}
+                      {/* v1.6.0: Jalali dates + TEHRAN time (was UTC slice + Gregorian) */}
+                      {gregKeyToJalali(r.startDateTime.slice(0, 10))}{r.kind === 'HOURLY' ? ` · ${faTime(r.startDateTime)}` : ''} → {gregKeyToJalali(r.endDateTime.slice(0, 10))}
                     </TableCell>
                     <TableCell className="text-xs">{r.kind === 'DAILY' ? `${faDigits(Math.round(r.durationMinutes / 480))} روز` : durationFa(r.durationMinutes)}</TableCell>
                     <TableCell className="hidden md:table-cell text-xs text-muted-foreground max-w-40 truncate">{r.reason}</TableCell>
@@ -209,22 +215,22 @@ export function LeaveView({ user, boot, reloadBoot }: Props) {
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1.5">
                 <Label>{form.kind === 'HOURLY' ? 'روز' : 'از تاریخ'}</Label>
-                <input type="date" dir="ltr" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm bg-background" />
+                <JalaliDatePicker value={form.date} onChange={(v) => setForm({ ...form, date: v })} />
               </div>
               {form.kind === 'DAILY' ? (
                 <div className="space-y-1.5">
                   <Label>تا تاریخ</Label>
-                  <input type="date" dir="ltr" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm bg-background" />
+                  <JalaliDatePicker value={form.endDate} onChange={(v) => setForm({ ...form, endDate: v })} />
                 </div>
               ) : (
                 <>
                   <div className="space-y-1.5">
-                    <Label>از ساعت</Label>
-                    <input type="time" dir="ltr" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm bg-background" />
+                    <Label>از ساعت (تهران)</Label>
+                    <TimeInput value={form.time} onChange={(v) => setForm({ ...form, time: v })} />
                   </div>
                   <div className="space-y-1.5">
-                    <Label>تا ساعت</Label>
-                    <input type="time" dir="ltr" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm bg-background" />
+                    <Label>تا ساعت (تهران)</Label>
+                    <TimeInput value={form.endTime} onChange={(v) => setForm({ ...form, endTime: v })} />
                   </div>
                 </>
               )}
@@ -251,7 +257,8 @@ export function OvertimeView({ user, boot, reloadBoot }: Props) {
   const canDecide = user.role === 'APPROVER' || user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
   const isEmployee = user.role === 'EMPLOYEE'
   const { toast } = useToast()
-  const [form, setForm] = useState({ personId: '', date: new Date().toISOString().slice(0, 10), hours: 2, minutes: 0, reason: '' })
+  // v1.6.0 (phase 1 stage 4): Tehran-based default day (was UTC slice)
+  const [form, setForm] = useState({ personId: '', date: markerKey(tehranTodayMarker()), hours: 2, minutes: 0, reason: '' })
 
   useEffect(() => { api<{ personnel: Person[] }>('/api/personnel').then((r) => setPersons(r.personnel)).catch(() => {}) }, [])
 
@@ -326,7 +333,7 @@ export function OvertimeView({ user, boot, reloadBoot }: Props) {
                 {items.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell className="font-medium text-sm">{full_name(r.person)}</TableCell>
-                    <TableCell className="text-xs" dir="ltr">{faDigits(r.date.slice(0, 10))}</TableCell>
+                    <TableCell className="text-xs" dir="ltr">{gregKeyToJalali(r.date)}</TableCell>
                     <TableCell className="text-sm font-medium text-teal-600">{durationFa(r.minutes)}</TableCell>
                     <TableCell className="hidden md:table-cell text-xs text-muted-foreground max-w-40 truncate">{r.reason}</TableCell>
                     <TableCell><span className={`px-2 py-0.5 rounded-full text-[11px] ${STATUS_BADGE[r.status]}`}>{STATUS_TEXT[r.status]}</span></TableCell>
@@ -366,7 +373,7 @@ export function OvertimeView({ user, boot, reloadBoot }: Props) {
               </div>
             )}
             <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1.5"><Label>تاریخ</Label><input type="date" dir="ltr" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm bg-background" /></div>
+              <div className="space-y-1.5"><Label>تاریخ (شمسی)</Label><JalaliDatePicker value={form.date} onChange={(v) => setForm({ ...form, date: v })} /></div>
               <div className="space-y-1.5"><Label>مدت (ساعت)</Label><Input type="number" dir="ltr" min="0" step="0.5" value={form.hours} onChange={(e) => setForm({ ...form, hours: Number(e.target.value) })} /></div>
             </div>
             <div className="space-y-1.5"><Label>دلیل</Label><Textarea value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} rows={2} /></div>

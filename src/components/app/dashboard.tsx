@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { SessionUser, Bootstrap, api, DailyRecordT } from './types'
 import { minutesToHM, durationFa, jFormatFa, faDigits } from './jalali-ui'
+import { tehranTodayMarker, addDaysMarker, markerKey } from '@/lib/time'
 import { Users, UserCheck, UserX, Clock4, TrendingUp, Palmtree, LogIn, LogOut, RefreshCw } from 'lucide-react'
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar } from 'recharts'
 
@@ -38,7 +39,8 @@ export function DashboardView({ user, boot, liveFeed }: Props) {
   const load = async () => {
     setLoading(true)
     try {
-      const today = new Date().toISOString().slice(0, 10)
+      // v1.6.0 (phase 1 stage 4): Tehran today (was UTC-date slice — browser-tz sensitive)
+      const today = markerKey(tehranTodayMarker())
       const res = await api<{ records: DailyRecordT[] }>(`/api/attendance?from=${today}&to=${today}`)
       const daily = res.records
       const persons = await api<{ personnel: Array<{ department?: { name: string } | null }> }>('/api/personnel')
@@ -63,7 +65,7 @@ export function DashboardView({ user, boot, liveFeed }: Props) {
         .map((r) => ({ name: `${r.person?.firstName} ${r.person?.lastName}`, minutes: r.overtimeMinutes }))
 
       // 14-day trend
-      const from = new Date(Date.now() - 13 * 86400000).toISOString().slice(0, 10)
+      const from = markerKey(addDaysMarker(tehranTodayMarker(), -13))
       const hist = await api<{ records: DailyRecordT[] }>(`/api/attendance?from=${from}&to=${today}`)
       const byDay = new Map<string, { present: number; absent: number }>()
       for (const r of hist.records) {

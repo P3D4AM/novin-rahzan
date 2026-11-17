@@ -11,7 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { SessionUser, Bootstrap, api, DailyRecordT, STATUS_FA, STATUS_COLOR, Person, full_name } from './types'
-import { JalaliDateInput, MonthPicker, faTime, faDigits, durationFa, monthLabel, toG, monthGrid } from './jalali-ui'
+import { JalaliDatePicker, TimeInput, faTime, faDigits, durationFa, gregKeyToJalali } from './jalali-ui'
+import { tehranTodayMarker, addDaysMarker, markerKey, tehranWallClockStringToInstant, formatJalaliInstant, dayMarkerOf, formatTehranTime } from '@/lib/time'
 import { useToast } from '@/hooks/use-toast'
 import { RefreshCw, Pencil, Search, Loader2, Trash2, Plus } from 'lucide-react'
 
@@ -31,12 +32,15 @@ export function AttendanceView({ user, boot, reloadBoot, dataVersion }: Props & 
 }
 
 /* ---------------- daily attendance ---------------- */
-function isoToday() { return new Date().toISOString().slice(0, 10) }
+// v1.6.0 (phase 1 stage 4): Tehran-based today/defaults via the central module
+// (was new Date().toISOString().slice(0,10) — UTC date, browser-tz sensitive)
+function tehranTodayKey() { return markerKey(tehranTodayMarker()) }
+function tehranDaysAgoKey(n: number) { return markerKey(addDaysMarker(tehranTodayMarker(), -n)) }
 
 function DailyTab({ boot, dataVersion }: { boot: Bootstrap; dataVersion?: number }) {
   const today = boot.today
-  const [from, setFrom] = useState(new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10))
-  const [to, setTo] = useState(isoToday())
+  const [from, setFrom] = useState(tehranDaysAgoKey(6))
+  const [to, setTo] = useState(tehranTodayKey())
   const [dept, setDept] = useState('all')
   const [status, setStatus] = useState('all')
   const [q, setQ] = useState('')
@@ -98,9 +102,9 @@ function DailyTab({ boot, dataVersion }: { boot: Bootstrap; dataVersion?: number
         </Select>
         <div className="flex items-center gap-1.5 text-xs">
           <span className="text-muted-foreground">از</span>
-          <input type="date" dir="ltr" value={from} onChange={(e) => setFrom(e.target.value)} className="border rounded-md px-2 py-1.5 bg-background" />
+          <div className="w-32"><JalaliDatePicker value={from} onChange={setFrom} /></div>
           <span className="text-muted-foreground">تا</span>
-          <input type="date" dir="ltr" value={to} onChange={(e) => setTo(e.target.value)} className="border rounded-md px-2 py-1.5 bg-background" />
+          <div className="w-32"><JalaliDatePicker value={to} onChange={setTo} /></div>
         </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /></Button>
       </div>
@@ -132,7 +136,7 @@ function DailyTab({ boot, dataVersion }: { boot: Bootstrap; dataVersion?: number
               <TableBody>
                 {paged.map((r) => (
                   <TableRow key={r.id}>
-                    <TableCell className="text-xs" dir="ltr">{faDigits(r.date)}</TableCell>
+                    <TableCell className="text-xs" dir="ltr">{gregKeyToJalali(r.date)}</TableCell>
                     <TableCell className="font-medium text-sm">{full_name(r.person)} <span className="text-[10px] text-muted-foreground">({r.person?.personnelCode})</span></TableCell>
                     <TableCell className="hidden md:table-cell text-muted-foreground text-xs">
                       {r.shift ? (
@@ -182,10 +186,11 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
   const [loading, setLoading] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [editPunch, setEditPunch] = useState<{ id: string; personId: string; timestamp: string } | null>(null)
-  const [editTs, setEditTs] = useState('')
+  const [editDate, setEditDate] = useState('') // Gregorian business-day key of the punch (Tehran day)
+  const [editTs, setEditTs] = useState('') // HH:MM Tehran wall clock
   const [editReason, setEditReason] = useState('')
   const [addOpen, setAddOpen] = useState(false)
-  const [addForm, setAddForm] = useState({ personId: '', date: isoToday(), time: '09:00', direction: 'AUTO', reason: '' })
+  const [addForm, setAddForm] = useState({ personId: '', date: tehranTodayKey(), time: '09:00', direction: 'AUTO', reason: '' })
   const [persons, setPersons] = useState<Person[]>([])
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
@@ -197,8 +202,9 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
   const load = async () => {
     setLoading(true)
     try {
-      const from = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10)
-      const res = await api<{ punches: typeof punches; total: number }>(`/api/punches?from=${from}&to=${isoToday()}&q=${encodeURIComponent(q)}&source=${source === 'all' ? '' : source}&page=${page}&pageSize=${pageSize}`)
+      // v1.6.0 (phase 1 stage 4): last 7 TEHRAN days (was UTC-date slice)
+      const from = tehranDaysAgoKey(7)
+      const res = await api<{ punches: typeof punches; total: number }>(`/api/punches?from=${from}&to=${tehranTodayKey()}&q=${encodeURIComponent(q)}&source=${source === 'all' ? '' : source}&page=${page}&pageSize=${pageSize}`)
       setPunches(res.punches)
       setTotal(res.total)
     } finally { setLoading(false) }
@@ -211,7 +217,10 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
     if (!editPunch || !editTs) return
     setSaving(true)
     try {
-      await api('/api/punches', { method: 'PUT', body: JSON.stringify({ id: editPunch.id, timestamp: new Date(editTs).toISOString(), reason: editReason }) })
+      // v1.6.0 (phase 1 stage 4): Tehran wall-clock instant (was browser-local new Date)
+      const ts = tehranWallClockStringToInstant(`${editDate} ${editTs}`)
+      if (!ts) { toast({ title: 'زمان نامعتبر است', variant: 'destructive' }); return }
+      await api('/api/punches', { method: 'PUT', body: JSON.stringify({ id: editPunch.id, timestamp: ts.toISOString(), reason: editReason }) })
       setEditOpen(false)
       load()
       toast({ title: 'تردد ویرایش شد' })
@@ -230,7 +239,9 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
     if (!addForm.personId || !addForm.date || !addForm.time) { toast({ title: 'همه فیلدها الزامی است', variant: 'destructive' }); return }
     setSaving(true)
     try {
-      const ts = new Date(`${addForm.date}T${addForm.time}:00`)
+      // v1.6.0 (phase 1 stage 4): Tehran wall-clock instant (was browser-local new Date)
+      const ts = tehranWallClockStringToInstant(`${addForm.date} ${addForm.time}`)
+      if (!ts) { toast({ title: 'زمان نامعتبر است', variant: 'destructive' }); return }
       await api('/api/punches', { method: 'POST', body: JSON.stringify({ personId: addForm.personId, timestamp: ts.toISOString(), direction: addForm.direction, reason: addForm.reason }) })
       setAddOpen(false)
       load()
@@ -279,7 +290,7 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
                 {punches.map((p) => (
                   <TableRow key={p.id}>
                     <TableCell className="text-xs" dir="ltr">
-                      {faDigits(p.timestamp.slice(0, 10))} · {faTime(p.timestamp)}
+                      {formatJalaliInstant(new Date(p.timestamp), { fa: true })} · {faTime(p.timestamp)}
                     </TableCell>
                     <TableCell className="font-medium text-sm">{full_name(p.person)}</TableCell>
                     <TableCell>
@@ -292,7 +303,14 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
                     {isAdmin && (
                       <TableCell>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditPunch(p); setEditTs(p.timestamp.slice(0, 16)); setEditReason(''); setEditOpen(true) }}><Pencil className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
+                            const inst = new Date(p.timestamp)
+                            setEditPunch(p)
+                            setEditDate(markerKey(dayMarkerOf(inst)))
+                            setEditTs(formatTehranTime(inst))
+                            setEditReason('')
+                            setEditOpen(true)
+                          }}><Pencil className="h-3.5 w-3.5" /></Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => remove(p.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                         </div>
                       </TableCell>
@@ -320,9 +338,9 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
           <DialogHeader><DialogTitle>ویرایش تردد</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div className="text-sm text-muted-foreground">{editPunch && full_name(persons.find((p) => p.id === editPunch.personId))}</div>
-            <div className="space-y-1.5">
-              <Label>زمان جدید</Label>
-              <input type="datetime-local" dir="ltr" value={editTs} onChange={(e) => setEditTs(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm bg-background" />
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1.5"><Label>تاریخ (شمسی)</Label><JalaliDatePicker value={editDate} onChange={setEditDate} /></div>
+              <div className="space-y-1.5"><Label>ساعت (تهران)</Label><TimeInput value={editTs} onChange={setEditTs} /></div>
             </div>
             <div className="space-y-1.5"><Label>دلیل ویرایش</Label><Input value={editReason} onChange={(e) => setEditReason(e.target.value)} placeholder="مثلاً فراموشی کارت" /></div>
           </div>
@@ -346,8 +364,8 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1.5"><Label>تاریخ</Label><input type="date" dir="ltr" value={addForm.date} onChange={(e) => setAddForm({ ...addForm, date: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm bg-background" /></div>
-              <div className="space-y-1.5"><Label>ساعت</Label><input type="time" dir="ltr" value={addForm.time} onChange={(e) => setAddForm({ ...addForm, time: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm bg-background" /></div>
+              <div className="space-y-1.5"><Label>تاریخ (شمسی)</Label><JalaliDatePicker value={addForm.date} onChange={(v) => setAddForm({ ...addForm, date: v })} /></div>
+              <div className="space-y-1.5"><Label>ساعت (تهران)</Label><TimeInput value={addForm.time} onChange={(v) => setAddForm({ ...addForm, time: v })} /></div>
             </div>
             <div className="space-y-1.5">
               <Label>نوع</Label>

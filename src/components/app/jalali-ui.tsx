@@ -1,7 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { toJalaali, toGregorian, jalaaliMonthLength } from 'jalaali-js'
+import { toGregorian, jalaaliMonthLength } from 'jalaali-js'
+import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  tehranTodayMarker,
+  jalaliOfMarker,
+  jalaliOfInstant,
+  markerKey,
+  parseJalaliInput,
+  formatJalaliMarker,
+  faDigits as faDigitsCentral,
+} from '@/lib/time'
 
 export const FA_MONTHS = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -16,18 +27,22 @@ export function faWeekday(d: Date): number {
 }
 
 export function faDigits(s: string | number): string {
-  return String(s).replace(/\d/g, (dg) => '۰۱۲۳۴۵۶۷۸۹'[Number(dg)])
+  return faDigitsCentral(s)
 }
 
+/** v1.6.0 (phase 1 stage 4): Tehran-based "today" via the central module —
+ *  browser-timezone independent (was local getters). */
 export function faToday(): { jy: number; jm: number; jd: number } {
-  return toJalaali(new Date())
+  return jalaliOfMarker(tehranTodayMarker())
 }
 
+/** Jalali '1405/08/26' (Persian digits) of an instant's Tehran calendar day — browser-tz independent.
+ *  Works for API marker ISOs too (a marker's Tehran calendar day is the marker's own date). */
 export function jFormatFa(d: Date | string): string {
   const date = typeof d === 'string' ? new Date(d) : d
   if (isNaN(date.getTime())) return '-'
-  const { jy, jm, jd } = toJalaali(date)
-  return faDigits(`${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`)
+  const { jy, jm, jd } = jalaliOfInstant(date)
+  return faDigitsCentral(`${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`)
 }
 
 export function faTime(d: Date | string | null | undefined): string {
@@ -112,6 +127,182 @@ export function MonthPicker({ jy, jm, onChange }: { jy: number; jm: number; onCh
   )
 }
 
+/* ---------- JalaliDatePicker (v1.6.0 — phase 1 stage 4) ----------
+ * Value convention: '' or 'YYYY-MM-DD' — the GREGORIAN date-only key of the
+ * business day (what the API day-params expect; see docs/API-DATE-CONTRACTS.md).
+ * Display & user interaction are fully Jalali (RTL grid, month/year navigation,
+ * leap-correct month lengths, Tehran-based "today", typed input with Persian
+ * validation, mobile-sized cells). Never uses the browser timezone.
+ */
+export function JalaliDatePicker({
+  value,
+  onChange,
+  placeholder = 'انتخاب تاریخ',
+  allowClear = true,
+}: {
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+  allowClear?: boolean
+}) {
+  const selected = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00.000Z`) : null
+  const [open, setOpen] = useState(false)
+  const [view, setView] = useState<{ jy: number; jm: number }>(() => jalaliOfMarker(selected ?? tehranTodayMarker()))
+  // draft = raw text while the user is typing; null → display the formatted value
+  const [draft, setDraft] = useState<string | null>(null)
+  const [error, setError] = useState('')
+  const text = draft ?? (selected ? formatJalaliMarker(selected) : '')
+
+  const commit = (marker: Date | null) => {
+    setError('')
+    setDraft(null)
+    if (marker) {
+      onChange(markerKey(marker))
+      setView(jalaliOfMarker(marker))
+    } else {
+      onChange('')
+    }
+    setOpen(false)
+  }
+
+  const onTyping = (raw: string) => {
+    setDraft(raw)
+    if (!raw) {
+      setError('')
+      if (allowClear) onChange('')
+      return
+    }
+    const r = parseJalaliInput(raw)
+    if (r.ok) {
+      setError('')
+      onChange(markerKey(r.marker))
+    } else {
+      setError(r.error)
+    }
+  }
+
+  const ty = jalaliOfMarker(tehranTodayMarker()).jy
+  const grid = monthGrid(view.jy, view.jm)
+  const selectedKey = selected ? markerKey(selected) : ''
+  const todayKey = markerKey(tehranTodayMarker())
+
+  const moveMonth = (delta: number) => {
+    let { jy, jm } = view
+    jm += delta
+    if (jm < 1) { jm = 12; jy -= 1 }
+    if (jm > 12) { jm = 1; jy += 1 }
+    setView({ jy, jm })
+  }
+
+  return (
+    <div className="w-full">
+      <div className="flex items-center gap-1.5">
+        <input
+          dir="ltr"
+          inputMode="numeric"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-center tracking-widest"
+          placeholder={placeholder || '1405/08/26'}
+          value={text}
+          onChange={(e) => onTyping(e.target.value.replace(/[^\d/]/g, ''))}
+        />
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              aria-label="تقویم شمسی"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-input bg-background hover:bg-accent"
+            >
+              <CalendarDays className="h-4 w-4" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent dir="rtl" align="start" className="w-auto p-0">
+            <div className="w-[17.5rem] p-3">
+              {/* header: month navigation */}
+              <div className="mb-2 flex items-center gap-1">
+                <button type="button" className="inline-flex h-7 w-7 items-center justify-center rounded-md hover:bg-accent" onClick={() => moveMonth(-1)} aria-label="ماه قبل">
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <div className="flex flex-1 items-center justify-center gap-1.5">
+                  <select
+                    className="rounded-md border border-input bg-background px-1.5 py-1 text-sm"
+                    value={view.jm}
+                    onChange={(e) => setView({ ...view, jm: Number(e.target.value) })}
+                  >
+                    {FA_MONTHS.map((m, i) => (
+                      <option key={m} value={i + 1}>{m}</option>
+                    ))}
+                  </select>
+                  <select
+                    className="rounded-md border border-input bg-background px-1.5 py-1 text-sm"
+                    value={view.jy}
+                    onChange={(e) => setView({ ...view, jy: Number(e.target.value) })}
+                  >
+                    {Array.from({ length: 13 }, (_, i) => ty - 10 + i).map((y) => (
+                      <option key={y} value={y}>{faDigits(y)}</option>
+                    ))}
+                  </select>
+                </div>
+                <button type="button" className="inline-flex h-7 w-7 items-center justify-center rounded-md hover:bg-accent" onClick={() => moveMonth(1)} aria-label="ماه بعد">
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+              </div>
+              {/* weekday headers */}
+              <div className="grid grid-cols-7 gap-0.5 pb-1 text-center text-[11px] text-muted-foreground">
+                {FA_WEEKDAYS_SHORT.map((w, i) => (
+                  <span key={i}>{w}</span>
+                ))}
+              </div>
+              {/* day cells */}
+              <div className="grid grid-cols-7 gap-0.5">
+                {grid.map((cell, i) =>
+                  cell ? (
+                    <button
+                      type="button"
+                      key={i}
+                      onClick={() => commit(cell.gDate)}
+                      className={`flex h-9 w-9 items-center justify-center rounded-md text-sm hover:bg-accent ${
+                        selectedKey === markerKey(cell.gDate)
+                          ? 'bg-primary text-primary-foreground hover:bg-primary'
+                          : markerKey(cell.gDate) === todayKey
+                            ? 'border border-primary/60 text-primary'
+                            : ''
+                      }`}
+                    >
+                      {faDigits(cell.jd)}
+                    </button>
+                  ) : (
+                    <span key={i} />
+                  ),
+                )}
+              </div>
+              {/* footer */}
+              <div className="mt-2 flex items-center justify-between gap-2 border-t pt-2">
+                <button
+                  type="button"
+                  className="rounded-md px-2 py-1 text-xs text-primary hover:bg-accent"
+                  onClick={() => commit(tehranTodayMarker())}
+                >
+                  امروز
+                </button>
+                {allowClear && (
+                  <button
+                    type="button"
+                    className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-accent"
+                    onClick={() => commit(null)}
+                  >
+                    پاک کردن
+                  </button>
+                )}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+    </div>
+  )
+}
+
 /* ---------- Live Tehran clock ---------- */
 export function useTehranClock(): { time: string; dateFa: string } {
   const [now, setNow] = useState(() => new Date())
@@ -138,4 +329,13 @@ export function durationFa(m: number): string {
   if (h && mm) return `${faDigits(h)}س ${faDigits(mm)}د`
   if (h) return `${faDigits(h)} ساعت`
   return `${faDigits(mm)} دقیقه`
+}
+
+/** Jalali 'YYYY/MM/DD' (Persian digits) of an API day field — accepts 'YYYY-MM-DD' or full marker ISO ('…T00:00:00.000Z'). */
+export function gregKeyToJalali(s: string | null | undefined): string {
+  const key = String(s ?? '').slice(0, 10)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return '-'
+  const marker = new Date(`${key}T00:00:00.000Z`)
+  if (isNaN(marker.getTime())) return '-'
+  return faDigits(formatJalaliMarker(marker))
 }
