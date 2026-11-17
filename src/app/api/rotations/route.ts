@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
-import { datesBetween, startOfUTCDay, faWeekday } from '@/lib/jalali'
+import { datesBetween, faWeekday } from '@/lib/jalali'
+import { parseDayParam } from '@/lib/time'
 import { recalcRange } from '@/lib/attendance'
 
 export async function GET() {
@@ -25,9 +26,9 @@ export async function POST(req: NextRequest) {
     const pattern = JSON.parse(rotation.pattern) as Array<{ shiftId?: string; off?: boolean; days: number }>
     const cycleLen = pattern.reduce((a, s) => a + s.days, 0)
     if (!cycleLen) throw new ApiError(400, 'الگوی چرخش خالی است')
-    const from = startOfUTCDay(new Date(b.from))
-    const to = startOfUTCDay(new Date(b.to))
-    if (isNaN(from.getTime()) || isNaN(to.getTime()) || to < from) throw new ApiError(400, 'بازه تاریخ نامعتبر')
+    const from = parseDayParam(String(b.from))
+    const to = parseDayParam(String(b.to))
+    if (!from || !to || to < from) throw new ApiError(400, 'بازه تاریخ نامعتبر')
     const personIds: string[] = b.personIds || []
     if (!personIds.length) throw new ApiError(400, 'پرسنل انتخاب نشده است')
 

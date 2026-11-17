@@ -34,6 +34,8 @@ import {
   addDaysMarker,
   markerKey,
   parseDateOnly,
+  parseDayParam,
+  markerRangeInstantWindow,
   tehranDayWindowOfMarker,
   jalaliOfMarker,
   jalaliOfInstant,
@@ -253,13 +255,16 @@ section('7. Tehran→UTC conversion', () => {
   check('DST summer: tehranInstant(2021,6,15,12,0) = 12:00Z - 270min', () => {
     assert.equal(iso(tehranInstant(2021, 6, 15, 12, 0)), '2021-06-15T07:30:00.000Z')
   })
-  check('wall-clock-string parse ("YYYY-MM-DD HH:MM[:SS]")', () => {
+  check('wall-clock-string parse ("YYYY-MM-DD HH:MM[:SS]", lenient digits/separators)', () => {
     const d = tehranWallClockStringToInstant('2026-11-17 02:30:00')
     assert.equal(iso(d!), '2026-11-16T23:00:00.000Z')
     // seconds optional — HH:MM equals HH:MM:00
     assert.equal(tehranWallClockStringToInstant('2026-11-17 02:30')!.getTime(), d!.getTime())
+    // lenient: '/' separators and 1–2 digit fields (CSV import contract)
+    assert.equal(tehranWallClockStringToInstant('2026/11/17 2:30')!.getTime(), d!.getTime())
+    assert.equal(tehranWallClockStringToInstant('2026-11-17 2:5')!.getTime(), tehranWallClockStringToInstant('2026-11-17 02:05')!.getTime())
     assert.equal(tehranWallClockStringToInstant('garbage'), null)
-    assert.equal(tehranWallClockStringToInstant('2026/11/17 02:30:00'), null) // strict grammar
+    assert.equal(tehranWallClockStringToInstant('1405/08/26 02:30'), null) // Jalali strings are NOT this grammar
   })
 })
 
@@ -469,6 +474,34 @@ section('12+13. Host-timezone independence (child probes under 4 TZs)', () => {
     assert.equal(data.time, '02:30')
     assert.equal(data.workday, '2026-11-14')
     assert.equal(data.windowStart, '2026-11-14T18:30:00.000Z')
+  })
+})
+
+// [16] API day-param contract (stage 3) --------------------------------------
+section('16. API day-param & CSV-timestamp contracts (stage 3)', () => {
+  check('parseDayParam: date-only, full marker ISO, instant floored, junk rejected', () => {
+    assert.equal(markerKey(parseDayParam('2026-11-17')!), '2026-11-17')
+    assert.equal(markerKey(parseDayParam('2026-11-7')!), '2026-11-07')
+    assert.equal(markerKey(parseDayParam('2026-11-17T00:00:00.000Z')!), '2026-11-17')
+    // a full ISO instant is floored to its UTC day (legacy startOfUTCDay semantics)
+    assert.equal(markerKey(parseDayParam('2026-11-17T22:30:00Z')!), '2026-11-17')
+    assert.equal(parseDayParam('garbage'), null)
+    assert.equal(parseDayParam(null), null)
+    assert.equal(parseDayParam(''), null)
+  })
+  check('markerRangeInstantWindow: [from, to+1) — engine-consistent punch filter', () => {
+    const w = markerRangeInstantWindow(g(2026, 11, 14), g(2026, 11, 15))
+    assert.equal(iso(w.gte), '2026-11-14T00:00:00.000Z')
+    assert.equal(iso(w.lt), '2026-11-16T00:00:00.000Z')
+  })
+  check('CSV import: ISO passthrough vs naive Tehran wall-clock', () => {
+    // ISO (has 'T') → instant, unchanged
+    assert.equal(tehranWallClockStringToInstant('2026-11-17T22:30:00Z'), null) // not this grammar — handled by new Date() in the route
+    // naive date+time columns → Tehran wall-clock instant
+    const ts = tehranWallClockStringToInstant('2026-11-17 08:30')
+    assert.equal(iso(ts!), '2026-11-17T05:00:00.000Z') // 08:30 Tehran = 05:00Z
+    // DST-era naive string → +04:30
+    assert.equal(iso(tehranWallClockStringToInstant('2021-06-15 12:00')!), '2021-06-15T07:30:00.000Z')
   })
 })
 

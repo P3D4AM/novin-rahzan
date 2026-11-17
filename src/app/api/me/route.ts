@@ -4,7 +4,7 @@ import { requireAuth, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
 import { onPunchRecorded } from '@/lib/notify'
 import { recalcDayForPerson, recalcRange } from '@/lib/attendance'
-import { tehranDayOf, addDays, toJalali, monthRange, startOfUTCDay } from '@/lib/jalali'
+import { tehranTodayMarker, addDaysMarker, jalaliOfInstant, jalaliMonthRange } from '@/lib/time'
 
 export async function GET() {
   try {
@@ -21,14 +21,16 @@ export async function GET() {
     })
     if (!person) return NextResponse.json({ error: 'پرونده پرسنلی یافت نشد' }, { status: 404 })
 
-    const today = tehranDayOf(new Date())
-    const { jy, jm } = toJalali(new Date())
-    const mr = monthRange(jy, jm)
+    // v1.6.0 (phase 1 stage 3): Tehran today/month via the central tz-aware module
+    // (server-machine timezone independence); marker & window conventions preserved.
+    const today = tehranTodayMarker()
+    const { jy, jm } = jalaliOfInstant(new Date())
+    const mr = jalaliMonthRange(jy, jm)
 
     const [todayPunches, dailyToday, monthRecords, myLeaves, myOvertime, leaveTypes] = await Promise.all([
-      db.punchRecord.findMany({ where: { personId: person.id, timestamp: { gte: today, lt: addDays(today, 1) } }, orderBy: { timestamp: 'asc' } }),
+      db.punchRecord.findMany({ where: { personId: person.id, timestamp: { gte: today, lt: addDaysMarker(today, 1) } }, orderBy: { timestamp: 'asc' } }),
       db.dailyAttendance.findUnique({ where: { personId_date: { personId: person.id, date: today } } }),
-      db.dailyAttendance.findMany({ where: { personId: person.id, date: { gte: mr.start, lte: mr.end } }, orderBy: { date: 'asc' } }),
+      db.dailyAttendance.findMany({ where: { personId: person.id, date: { gte: mr.startMarker, lte: mr.endMarker } }, orderBy: { date: 'asc' } }),
       db.leaveRequest.findMany({ where: { personId: person.id }, include: { leaveType: { select: { name: true, color: true } } }, orderBy: { createdAt: 'desc' }, take: 30 }),
       db.overtimeRequest.findMany({ where: { personId: person.id }, orderBy: { date: 'desc' }, take: 30 }),
       db.leaveType.findMany(),
@@ -51,8 +53,9 @@ export async function POST(req: NextRequest) {
     if (!user.personId) throw new ApiError(400, 'کاربر به پرونده پرسنلی متصل نیست')
     const b = await req.json().catch(() => ({}))
     const now = new Date()
-    const dayStart = tehranDayOf(now)
-    const dayEnd = addDays(dayStart, 1)
+    // v1.6.0 (phase 1 stage 3): same Tehran-day marker window as GET — tz-robust
+    const dayStart = tehranTodayMarker()
+    const dayEnd = addDaysMarker(dayStart, 1)
     const todayPunches = await db.punchRecord.findMany({ where: { personId: user.personId, timestamp: { gte: dayStart, lt: dayEnd } }, orderBy: { timestamp: 'desc' }, take: 1 })
     const direction = todayPunches.length === 0 ? 'IN' : todayPunches[0].direction === 'IN' ? 'OUT' : 'IN'
     const dup = await db.punchRecord.findFirst({ where: { personId: user.personId, timestamp: { gte: new Date(now.getTime() - 60000) } } })
@@ -67,5 +70,3 @@ export async function POST(req: NextRequest) {
     return fail(err)
   }
 }
-
-void startOfUTCDay

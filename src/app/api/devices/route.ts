@@ -10,6 +10,7 @@ import { emitRealtime } from '@/lib/notify'
 import { sanitizeDeviceForApi, sanitizeResultForApi, redactDeviceSecrets } from '@/lib/device-secrets'
 import { getDevicePassword, storeDevicePassword } from '@/lib/device-secret-store'
 import { validateDeviceSettings } from '@/lib/device-validation'
+import { formatTehranDateTime } from '@/lib/time'
 import { fkTestConnection, importFkAttendLogs, SyncBusyError } from '@/lib/fkattend'
 
 export async function GET(req: NextRequest) {
@@ -260,7 +261,7 @@ export async function PATCH(req: NextRequest) {
             level: t.ok ? 'SUCCESS' : 'ERROR',
             message: redactDeviceSecrets(
               t.ok
-                ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber || '—'}${t.dialect ? ` · ${dialectFa[t.dialect] ?? t.dialect}` : ''}${t.password != null ? ' · رمز شبکه: تنظیم شد (مقدار ذخیره شد و نمایش داده نمی‌شود)' : ''}${t.logCount != null ? ` · ترددهای ذخیره‌شده روی دستگاه: ${t.logCount}` : ''}${t.deviceTime ? ` · ساعت دستگاه: ${new Date(t.deviceTime).toLocaleString('fa-IR')}` : ''}${t.note ? ` · ${t.note}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
+                ? `اتصال مستقیم برقرار شد — سریال: ${t.serialNumber || '—'}${t.dialect ? ` · ${dialectFa[t.dialect] ?? t.dialect}` : ''}${t.password != null ? ' · رمز شبکه: تنظیم شد (مقدار ذخیره شد و نمایش داده نمی‌شود)' : ''}${t.logCount != null ? ` · ترددهای ذخیره‌شده روی دستگاه: ${t.logCount}` : ''}${t.deviceTime ? ` · ساعت دستگاه: ${formatTehranDateTime(new Date(t.deviceTime), { fa: true })}` : ''}${t.note ? ` · ${t.note}` : ''}${serialMatch === false ? ' (⚠️ با سریال ثبت‌شده در پرونده دستگاه یکی نیست)' : ''}`
                 : `خطای اتصال مستقیم: ${t.error}${t.detail ? ` [${t.detail}]` : ''}${t.note ? ` · ${t.note}` : ''}${t.raw ? ` · فریم‌های خام:\n${t.raw}` : ''}`,
             ),
           },

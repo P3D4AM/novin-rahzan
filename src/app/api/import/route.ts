@@ -4,6 +4,7 @@ import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
 import { recalcRange } from '@/lib/attendance'
 import { startOfUTCDay, addDays } from '@/lib/jalali'
+import { tehranWallClockStringToInstant } from '@/lib/time'
 
 /** POST multipart: file + mode=punches|personnel + mapping JSON */
 export async function POST(req: NextRequest) {
@@ -70,11 +71,23 @@ export async function POST(req: NextRequest) {
       const dateRaw = String(r['تاریخ'] ?? r['date'] ?? '').trim()
       const timeRaw = String(r['ساعت'] ?? r['time'] ?? '').trim()
       const dtRaw = String(r['datetime'] ?? r['زمان'] ?? '').trim()
+      // v1.6.0 (phase 1 stage 3): CSV timestamp contract —
+      //   * full ISO strings (with 'T' + timezone) → instants, passthrough
+      //   * naive "YYYY-MM-DD HH:MM[:SS]" → TEHRAN wall-clock (matches device
+      //     semantics; identical result on a Tehran-tz server, correct on any other).
+      // Unparseable rows are skipped exactly as before — never fabricated.
       let ts: Date | null = null
       try {
-        if (dtRaw) ts = new Date(dtRaw)
-        else if (dateRaw) ts = new Date(`${dateRaw}T${timeRaw || '00:00'}:00`)
-        if (ts && isNaN(ts.getTime())) ts = null
+        if (dtRaw) {
+          if (/^\d{4}-\d{2}-\d{2}T/.test(dtRaw)) {
+            const d = new Date(dtRaw)
+            ts = isNaN(d.getTime()) ? null : d
+          } else {
+            ts = tehranWallClockStringToInstant(dtRaw)
+          }
+        } else if (dateRaw) {
+          ts = tehranWallClockStringToInstant(`${dateRaw.replace(/\//g, '-')} ${timeRaw || '00:00'}`)
+        }
       } catch { ts = null }
       if (!ts) { skipped++; continue }
 

@@ -148,9 +148,9 @@ export function tehranWallClockToInstant(msSinceEpochWallAsUtc: number): Date {
   )
 }
 
-/** Parse a "YYYY-MM-DD HH:MM[:SS]" Tehran wall-clock string → UTC instant (null when invalid). Mirrors fkattend.ts:fkWallClockToUTC semantics. */
+/** Parse a "YYYY-MM-DD HH:MM[:SS]" Tehran wall-clock string → UTC instant (null when invalid). Mirrors fkattend.ts:fkWallClockToUTC semantics; lenient on 1–2 digit fields and '/' separators for CSV imports. Gregorian year must be 1900–2199 — Jalali-year strings like "1405/08/26 02:30" are rejected (never silently reinterpreted). */
 export function tehranWallClockStringToInstant(s: string): Date | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})(?::(\d{2}))?$/.exec(String(s ?? '').trim())
+  const m = /^((?:1[9]|2[01])\d{2})[-/](\d{1,2})[-/](\d{1,2}) (\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/.exec(String(s ?? '').trim())
   if (!m) return null
   const d = tehranInstant(
     Number(m[1]),
@@ -217,6 +217,39 @@ export function parseDateOnly(s: string): DayMarker | null {
     return null // e.g. 2026-02-31
   }
   return marker
+}
+
+// ---------------------------------------------------------------------------
+// API day-parameter parsing (single, tested contract for all routes)
+// ---------------------------------------------------------------------------
+
+/**
+ * Parse an API "day" parameter into a marker. Accepts:
+ *   - "YYYY-MM-DD" (date-only — parsed as UTC midnight per the ES spec, NO tz shift)
+ *   - a full ISO instant (floored to its UTC day — the legacy startOfUTCDay behavior)
+ * Returns null for absent/invalid input (routes decide their own 400 handling).
+ */
+export function parseDayParam(s: string | null | undefined): DayMarker | null {
+  if (!s) return null
+  const direct = parseDateOnly(String(s))
+  if (direct) return direct
+  const d = new Date(String(s))
+  if (!Number.isFinite(d.getTime())) return null
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
+}
+
+/**
+ * Instant window for a [from, to] marker range as consumed by punch-instant
+ * filters: [from-marker, (to+1)-marker) — UTC-midnight semantics, consistent
+ * with the attendance engine's day-attribution convention (see
+ * docs/API-DATE-CONTRACTS.md for why Tehran-midnight windows are deferred to
+ * the engine phase).
+ */
+export function markerRangeInstantWindow(fromMarker: DayMarker, toMarker: DayMarker): {
+  gte: Date
+  lt: Date
+} {
+  return { gte: fromMarker, lt: addDaysMarker(toMarker, 1) }
 }
 
 // ---------------------------------------------------------------------------

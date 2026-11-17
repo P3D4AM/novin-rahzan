@@ -2,15 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
-import { addDays, startOfUTCDay, tehranDayOf } from '@/lib/jalali'
+import { parseDayParam, markerRangeInstantWindow } from '@/lib/time'
 import { recalcDayForPerson } from '@/lib/attendance'
 
 export async function GET(req: NextRequest) {
   try {
     await requireRole('EMPLOYEE')
     const sp = req.nextUrl.searchParams
-    const from = sp.get('from') ? new Date(sp.get('from')!) : null
-    const to = sp.get('to') ? new Date(sp.get('to')!) : null
+    // v1.6.0 (phase 1 stage 3): from/to are DATE-ONLY business days ('YYYY-MM-DD'
+    // or marker ISO) → UTC-midnight marker window [from, to+1) — the SAME
+    // instant-window convention the attendance engine uses for day attribution
+    // (see docs/API-DATE-CONTRACTS.md; junk now yields a clean 400 instead of a 500).
+    const from = parseDayParam(sp.get('from'))
+    const to = parseDayParam(sp.get('to'))
+    if ((sp.get('from') && !from) || (sp.get('to') && !to)) throw new ApiError(400, 'بازه تاریخ نامعتبر')
     const personId = sp.get('personId') || undefined
     const source = sp.get('source') || undefined
     const q = sp.get('q')?.trim() || ''
@@ -28,7 +33,7 @@ export async function GET(req: NextRequest) {
     }
 
     const where: Record<string, unknown> = {
-      ...(from && to ? { timestamp: { gte: from, lt: addDays(to, 1) } } : {}),
+      ...(from && to ? { timestamp: markerRangeInstantWindow(from, to) } : {}),
       ...(personId ? { personId } : {}),
       ...(personIds ? { personId: { in: personIds } } : {}),
       ...(source ? { source } : {}),

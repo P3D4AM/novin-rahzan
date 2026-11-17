@@ -2,17 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
-import { startOfUTCDay, addDays, monthRange, toJalali, faDigits } from '@/lib/jalali'
+import { addDays, monthRange, toJalali, faDigits } from '@/lib/jalali'
+import { parseDayParam } from '@/lib/time'
 
 export async function GET(req: NextRequest) {
   try {
     await requireRole('EMPLOYEE')
     const sp = req.nextUrl.searchParams
     const type = sp.get('type') || 'daily'
-    const from = startOfUTCDay(new Date(sp.get('from') || ''))
-    const to = startOfUTCDay(new Date(sp.get('to') || ''))
+    // v1.6.0 (phase 1 stage 3): from/to are DATE-ONLY business days → markers
+    const from = parseDayParam(sp.get('from'))
+    const to = parseDayParam(sp.get('to'))
     const departmentId = sp.get('departmentId') || ''
-    if (isNaN(from.getTime()) || isNaN(to.getTime())) throw new ApiError(400, 'بازه تاریخ نامعتبر')
+    if (!from || !to) throw new ApiError(400, 'بازه تاریخ نامعتبر')
 
     const personWhere: Record<string, unknown> = {}
     if (departmentId) personWhere.departmentId = departmentId

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/auth'
 import { fail } from '@/lib/api'
-import { addDays, tehranDayOf, toJalali, jFormat, durationText, faDigits } from '@/lib/jalali'
+import { durationText, faDigits } from '@/lib/jalali'
+import { tehranTodayMarker, addDaysMarker, dayMarkerOf, formatJalaliMarker } from '@/lib/time'
 
 interface ToolResult {
   action: string
@@ -11,17 +12,20 @@ interface ToolResult {
 
 /** Execute structured action from assistant */
 async function runAction(name: string, args: Record<string, unknown>, userName: string): Promise<ToolResult> {
-  const today = tehranDayOf(new Date())
-  const yesterday = addDays(today, -1)
+  // v1.6.0 (phase 1 stage 3): central module — tz-robust "today"/markers
+  const today = tehranTodayMarker()
+  const yesterday = addDaysMarker(today, -1)
+  // jFormat(day, {fa}) equivalents on markers (legacy signature kept for instants is untouched)
+  const jFa = (marker: Date) => formatJalaliMarker(marker, { fa: true })
 
   if (name === 'absent_list') {
-    const day = args.date ? tehranDayOf(new Date(String(args.date))) : yesterday
+    const day = args.date ? dayMarkerOf(new Date(String(args.date))) : yesterday
     const records = await db.dailyAttendance.findMany({
       where: { date: day, status: 'ABSENT' },
       include: { person: { select: { firstName: true, lastName: true } } },
     })
     const names = records.map((r) => `${r.person.firstName} ${r.person.lastName}`).join('، ')
-    return { action: 'absent_list', summary: `غایبان ${jFormat(day, { fa: true })}: ${names || 'هیچ‌کس'}` }
+    return { action: 'absent_list', summary: `غایبان ${jFa(day)}: ${names || 'هیچ‌کس'}` }
   }
 
   if (name === 'present_now') {
@@ -55,13 +59,13 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
     })
     if (!persons.length) return { action: 'person_report', summary: `شخصی به نام «${q}» پیدا نشد` }
     const p = persons[0]
-    const day = args.date ? tehranDayOf(new Date(String(args.date))) : yesterday
+    const day = args.date ? dayMarkerOf(new Date(String(args.date))) : yesterday
     const rec = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: p.id, date: day } } })
-    if (!rec) return { action: 'person_report', summary: `برای ${p.firstName} ${p.lastName} در ${jFormat(day, { fa: true })} رکوردی نیست` }
+    if (!rec) return { action: 'person_report', summary: `برای ${p.firstName} ${p.lastName} در ${jFa(day)} رکوردی نیست` }
     const statusFa: Record<string, string> = { PRESENT: 'حاضر', ABSENT: 'غایب', LEAVE: 'مرخصی', HOLIDAY: 'تعطیل', OFF: 'تعطیلی', INCOMPLETE: 'ناقص', PENDING: 'در انتظار' }
     return {
       action: 'person_report',
-      summary: `${p.firstName} ${p.lastName} در ${jFormat(day, { fa: true })}: ${statusFa[rec.status] ?? rec.status}${rec.lateMinutes ? `، تأخیر ${durationText(rec.lateMinutes)}` : ''}${rec.workedMinutes ? `، کارکرد ${durationText(rec.workedMinutes)}` : ''}${rec.overtimeMinutes ? `، اضافه‌کاری ${durationText(rec.overtimeMinutes)}` : ''}`,
+      summary: `${p.firstName} ${p.lastName} در ${jFa(day)}: ${statusFa[rec.status] ?? rec.status}${rec.lateMinutes ? `، تأخیر ${durationText(rec.lateMinutes)}` : ''}${rec.workedMinutes ? `، کارکرد ${durationText(rec.workedMinutes)}` : ''}${rec.overtimeMinutes ? `، اضافه‌کاری ${durationText(rec.overtimeMinutes)}` : ''}`,
     }
   }
 
@@ -76,7 +80,7 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
     const lt = await db.leaveType.findFirst({ where: { name: { contains: 'استحقاقی' } } })
     if (!lt) return { action: 'leave_register', summary: 'نوع مرخصی استحقاقی تعریف نشده است' }
     const days = Number(args.days || 1)
-    const startDay = args.date ? tehranDayOf(new Date(String(args.date))) : addDays(today, 1)
+    const startDay = args.date ? dayMarkerOf(new Date(String(args.date))) : addDaysMarker(today, 1)
     const end = new Date(startDay.getTime() + days * 86400000 - 3600000)
     const req = await db.leaveRequest.create({
       data: {
@@ -87,11 +91,11 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
         approverId: 'assistant', decidedAt: new Date(),
       },
     })
-    return { action: 'leave_register', summary: `مرخصی ${days} روزه برای ${p.firstName} ${p.lastName} از ${jFormat(startDay, { fa: true })} ثبت شد.` }
+    return { action: 'leave_register', summary: `مرخصی ${days} روزه برای ${p.firstName} ${p.lastName} از ${jFa(startDay)} ثبت شد.` }
   }
 
   if (name === 'overtime_report') {
-    const day = args.date ? tehranDayOf(new Date(String(args.date))) : yesterday
+    const day = args.date ? dayMarkerOf(new Date(String(args.date))) : yesterday
     const records = await db.dailyAttendance.findMany({
       where: { date: day, overtimeMinutes: { gt: 0 } },
       include: { person: { select: { firstName: true, lastName: true } } },
@@ -99,11 +103,11 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
       take: 10,
     })
     const lines = records.map((r) => `${r.person.firstName} ${r.person.lastName}: ${durationText(r.overtimeMinutes)}`).join('؛ ')
-    return { action: 'overtime_report', summary: `اضافه‌کاری ${jFormat(day, { fa: true })}: ${lines || 'ثبت نشده'}` }
+    return { action: 'overtime_report', summary: `اضافه‌کاری ${jFa(day)}: ${lines || 'ثبت نشده'}` }
   }
 
   if (name === 'late_report') {
-    const day = args.date ? tehranDayOf(new Date(String(args.date))) : yesterday
+    const day = args.date ? dayMarkerOf(new Date(String(args.date))) : yesterday
     const records = await db.dailyAttendance.findMany({
       where: { date: day, lateMinutes: { gt: 0 } },
       include: { person: { select: { firstName: true, lastName: true } } },
@@ -111,7 +115,7 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
       take: 10,
     })
     const lines = records.map((r) => `${r.person.firstName} ${r.person.lastName}: ${durationText(r.lateMinutes)}`).join('؛ ')
-    return { action: 'late_report', summary: `تأخیرهای ${jFormat(day, { fa: true })}: ${lines || 'هیچ تأخیری ثبت نشده'}` }
+    return { action: 'late_report', summary: `تأخیرهای ${jFa(day)}: ${lines || 'هیچ تأخیری ثبت نشده'}` }
   }
 
   return { action: name, summary: 'عملیات شناخته نشد' }

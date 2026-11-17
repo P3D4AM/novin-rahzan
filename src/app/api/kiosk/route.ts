@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { fail } from '@/lib/api'
 import { onPunchRecorded } from '@/lib/notify'
 import { recalcDayForPerson } from '@/lib/attendance'
+import { tehranTodayMarker, addDaysMarker } from '@/lib/time'
 
 /** Kiosk punch: POST { mode: "pin" | "qr", code?, pin?, token? } — no auth needed (shared device) */
 export async function POST(req: NextRequest) {
@@ -26,8 +27,11 @@ export async function POST(req: NextRequest) {
     }
 
     // find today's punches to determine direction
-    const dayStart = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z')
-    const dayEnd = new Date(dayStart.getTime() + 86400000)
+    // v1.6.0 (phase 1 stage 3): Tehran-day marker window — same convention as
+    // /api/me POST and the engine's day attribution (was UTC calendar day).
+    // Tehran 00:00–03:29 punches now correctly belong to the current Tehran day.
+    const dayStart = tehranTodayMarker()
+    const dayEnd = addDaysMarker(dayStart, 1)
     const todayPunches = await db.punchRecord.findMany({
       where: { personId: person.id, timestamp: { gte: dayStart, lt: dayEnd } },
       orderBy: { timestamp: 'desc' },

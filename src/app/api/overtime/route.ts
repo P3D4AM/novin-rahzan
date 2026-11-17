@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole, ApiError, hasRole } from '@/lib/auth'
 import { fail } from '@/lib/api'
+import { parseDayParam } from '@/lib/time'
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,8 +31,12 @@ export async function POST(req: NextRequest) {
     const personId = hasRole(user, 'ADMIN') && b.personId ? b.personId : user.personnelId
     if (!personId) throw new ApiError(400, 'کاربر به پرسنلی متصل نیست')
     if (!b.date || !b.minutes) throw new ApiError(400, 'تاریخ و مدت الزامی است')
+    // v1.6.0 (phase 1 stage 3): explicit date-only contract (YYYY-MM-DD or marker ISO)
+    // — parsed as a UTC-midnight marker, never timezone-shifted
+    const day = parseDayParam(String(b.date))
+    if (!day) throw new ApiError(400, 'تاریخ نامعتبر است')
     const item = await db.overtimeRequest.create({
-      data: { personId, date: startOfDay(b.date), minutes: Number(b.minutes), reason: b.reason || null, status: 'PENDING' },
+      data: { personId, date: day, minutes: Number(b.minutes), reason: b.reason || null, status: 'PENDING' },
     })
     return NextResponse.json({ item })
   } catch (err) {
@@ -66,9 +71,4 @@ export async function DELETE(req: NextRequest) {
   } catch (err) {
     return fail(err)
   }
-}
-
-function startOfDay(s: string): Date {
-  const d = new Date(s)
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
 }
