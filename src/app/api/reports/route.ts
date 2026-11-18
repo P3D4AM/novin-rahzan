@@ -85,8 +85,8 @@ function exportXlsx(type: string, persons: unknown[], byPerson: Map<string, unkn
   return (async () => {
     const XLSX = await import('xlsx')
     const data: Record<string, unknown>[] = []
-    const summaryRows = (persons as Array<{ personnelCode: string; firstName: string; lastName: string; department?: { name: string } }>).map((p) => {
-      const rs = (byPerson.get((p as { id: string }).id) ?? []) as Array<{ status: string; workedMinutes: number; lateMinutes: number; overtimeMinutes: number; leaveMinutes: number }>
+    const summaryRows = (persons as Array<{ personnelCode: string; firstName: string; lastName: string; department?: { name: string }; id: string }>).map((p) => {
+      const rs = (byPerson.get(p.id) ?? []) as Array<{ status: string; workedMinutes: number; lateMinutes: number; overtimeMinutes: number; leaveMinutes: number }>
       return {
         'کد پرسنلی': p.personnelCode,
         'نام و نام خانوادگی': `${p.firstName} ${p.lastName}`,
@@ -104,7 +104,8 @@ function exportXlsx(type: string, persons: unknown[], byPerson: Map<string, unkn
     const ws = XLSX.utils.json_to_sheet(summaryRows)
     XLSX.utils.book_append_sheet(wb, ws, 'خلاصه ماهانه')
     const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }) as Buffer
-    const res = new NextResponse(buf)
+    // Uint8Array copy — BodyInit-compatible under the DOM typings
+    const res = new NextResponse(new Uint8Array(buf))
     res.headers.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     res.headers.set('Content-Disposition', `attachment; filename="hozorplus-report-${type}.xlsx"`)
     return res

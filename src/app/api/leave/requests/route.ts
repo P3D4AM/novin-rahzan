@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     const where: Record<string, unknown> = {}
     if (status) where.status = status
     if (personId) where.personId = personId
-    if (mine || user.role === 'EMPLOYEE') where.personId = user.personnelId ?? 'none'
+    if (mine || user.role === 'EMPLOYEE') where.personId = user.personId ?? 'none'
     const items = await db.leaveRequest.findMany({
       where,
       include: {
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await requireRole('EMPLOYEE')
     const b = await req.json()
-    const personId = hasRole(user, 'ADMIN') && b.personId ? b.personId : user.personnelId
+    const personId = hasRole(user, 'ADMIN') && b.personId ? b.personId : user.personId
     if (!personId) throw new ApiError(400, 'کاربر به پرسنلی متصل نیست')
     if (!b.leaveTypeId || !b.startDateTime || !b.endDateTime) throw new ApiError(400, 'نوع مرخصی و بازه زمانی الزامی است')
     const start = new Date(b.startDateTime)
@@ -115,7 +115,7 @@ export async function DELETE(req: NextRequest) {
     const id = req.nextUrl.searchParams.get('id') || ''
     const item = await db.leaveRequest.findUnique({ where: { id } })
     if (!item) throw new ApiError(404, 'یافت نشد')
-    const canDelete = hasRole(user, 'ADMIN') || (user.personnelId === item.personId && item.status === 'PENDING')
+    const canDelete = hasRole(user, 'ADMIN') || (user.personId === item.personId && item.status === 'PENDING')
     if (!canDelete) throw new ApiError(403, 'اجازه حذف ندارید')
     await db.leaveRequest.delete({ where: { id } })
     const span = affectedWorkdayRange(item.startDateTime, item.endDateTime)

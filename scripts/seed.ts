@@ -1,5 +1,5 @@
 /* Seed: Persian demo data for حضور+ attendance system */
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, type Personnel } from '@prisma/client'
 import { randomBytes, scryptSync } from 'crypto'
 import { addDays, faWeekday, tehranDate, toJalali, jalaaliMonthLength, toGregorianObject } from '../src/lib/jalali'
 
@@ -133,7 +133,7 @@ async function main() {
     MORNING: shiftMorning.id, EVENING: shiftEvening.id, NIGHT: shiftNight.id, SPLIT: shiftSplit.id,
   }
 
-  const persons = []
+  const persons: Personnel[] = []
   for (let i = 0; i < peopleSpec.length; i++) {
     const [fn, ln, deptIdx, jobIdx, devUid, shiftCode] = peopleSpec[i]
     const p = await db.personnel.create({

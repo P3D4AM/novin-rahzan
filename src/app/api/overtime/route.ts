@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     const status = sp.get('status') || ''
     const where: Record<string, unknown> = {}
     if (status) where.status = status
-    if (user.role === 'EMPLOYEE') where.personId = user.personnelId ?? 'none'
+    if (user.role === 'EMPLOYEE') where.personId = user.personId ?? 'none'
     const items = await db.overtimeRequest.findMany({
       where,
       include: { person: { select: { id: true, firstName: true, lastName: true, personnelCode: true } } },
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await requireRole('EMPLOYEE')
     const b = await req.json()
-    const personId = hasRole(user, 'ADMIN') && b.personId ? b.personId : user.personnelId
+    const personId = hasRole(user, 'ADMIN') && b.personId ? b.personId : user.personId
     if (!personId) throw new ApiError(400, 'کاربر به پرسنلی متصل نیست')
     if (!b.date || !b.minutes) throw new ApiError(400, 'تاریخ و مدت الزامی است')
     // v1.6.0 (phase 1 stage 3): explicit date-only contract (YYYY-MM-DD or marker ISO)
@@ -84,7 +84,7 @@ export async function DELETE(req: NextRequest) {
     const id = req.nextUrl.searchParams.get('id') || ''
     const item = await db.overtimeRequest.findUnique({ where: { id } })
     if (!item) throw new ApiError(404, 'یافت نشد')
-    if (!hasRole(user, 'ADMIN') && user.personnelId !== item.personId) throw new ApiError(403, 'اجازه حذف ندارید')
+    if (!hasRole(user, 'ADMIN') && user.personId !== item.personId) throw new ApiError(403, 'اجازه حذف ندارید')
     await db.overtimeRequest.delete({ where: { id } })
     // Phase 2 S3: a deleted request no longer contributes approved minutes —
     // recompute the workday so payableOvertimeMinutes stays truthful.

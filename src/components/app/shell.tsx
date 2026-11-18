@@ -175,7 +175,8 @@ export function AppShell({ user, onLogout }: { user: SessionUser; onLogout: () =
     return true
   })
 
-  const viewProps = { user, boot, reloadBoot: loadBoot }
+  // views render only inside the `!boot ? loading : …` branch — the cast documents that guard
+  const viewProps = { user, boot: boot as Bootstrap, reloadBoot: loadBoot }
 
   return (
     <div className="min-h-screen flex bg-background" dir="rtl">

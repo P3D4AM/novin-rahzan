@@ -34,17 +34,24 @@ export async function zkTest(ip: string, port: number, protocol: 'TCP' | 'UDP' =
   const zk = new ZKLib(ip, port, 8000, 4000, protocol)
   try {
     await withTimeout(zk.createSocket(), 12000, 'اتصال به دستگاه')
-    const info = await withTimeout(zk.getInfo(), 10000, 'دریافت اطلاعات')
+    // node-zklib types its payloads as {}; the runtime shape is what the cast documents
+    const info = (await withTimeout(zk.getInfo(), 10000, 'دریافت اطلاعات')) as {
+      fwVersion?: string
+      deviceName?: string
+      serialNumber?: string
+      userCounts?: number
+      logCounts?: number
+    }
     const time = await withTimeout(zk.getTime(), 10000, 'دریافت زمان')
     await zk.disconnect().catch(() => {})
     return {
       ok: true,
       info: {
         firmware: info.fwVersion ?? '',
-        deviceName: (info as { deviceName?: string }).deviceName ?? '',
+        deviceName: info.deviceName ?? '',
         serialNumber: info.serialNumber ?? '',
-        userCounts: (info as { userCounts?: number }).userCounts ?? 0,
-        logCounts: (info as { logCounts?: number }).logCounts ?? 0,
+        userCounts: info.userCounts ?? 0,
+        logCounts: info.logCounts ?? 0,
       },
       deviceTime: time,
     }
@@ -59,7 +66,8 @@ export async function zkGetUsers(ip: string, port: number, protocol: 'TCP' | 'UD
   const zk = new ZKLib(ip, port, 8000, 5000, protocol)
   await withTimeout(zk.createSocket(), 12000, 'اتصال به دستگاه')
   try {
-    const users = await withTimeout(zk.getUsers(), 15000, 'دریافت کاربران')
+    // node-zklib types its payloads as {}; the runtime shape is what the cast documents
+    const users = (await withTimeout(zk.getUsers(), 15000, 'دریافت کاربران')) as { data?: ZkUser[] } | null
     return (users?.data ?? []) as ZkUser[]
   } finally {
     try { await zk.disconnect() } catch { /* noop */ }
@@ -71,7 +79,8 @@ export async function zkGetLogs(ip: string, port: number, protocol: 'TCP' | 'UDP
   const zk = new ZKLib(ip, port, 8000, 5000, protocol)
   await withTimeout(zk.createSocket(), 12000, 'اتصال به دستگاه')
   try {
-    const logs = await withTimeout(zk.getAttendances(), 45000, 'دریافت ترددها')
+    // node-zklib types its payloads as {}; the runtime shape is what the cast documents
+    const logs = (await withTimeout(zk.getAttendances(), 45000, 'دریافت ترددها')) as { data?: Array<Record<string, unknown>> } | null
     const list = (logs?.data ?? []) as Array<Record<string, unknown>>
     return list.map((l) => {
       const t = (l.recordTime ?? l.time ?? l.timestamp) as Date | string | undefined
@@ -91,10 +100,11 @@ export async function zkGetLogs(ip: string, port: number, protocol: 'TCP' | 'UDP
 export async function importDeviceLogs(deviceId: string) {
   const device = await db.device.findUnique({ where: { id: deviceId } })
   if (!device) throw new Error('دستگاه یافت نشد')
-  if (!device.ipAddress) throw new Error('آدرس IP دستگاه تنظیم نشده است')
+  const ip = device.ipAddress
+  if (!ip) throw new Error('آدرس IP دستگاه تنظیم نشده است')
 
   try {
-    return await importDeviceLogsInner(device)
+    return await importDeviceLogsInner({ ...device, ipAddress: ip })
   } catch (err) {
     // readable Persian error + mark device offline
     await db.device.update({ where: { id: deviceId }, data: { status: 'OFFLINE' } }).catch(() => {})

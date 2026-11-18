@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import type { Personnel } from '@prisma/client'
 import { db } from '@/lib/db'
 import { fail } from '@/lib/api'
 import { onPunchRecorded } from '@/lib/notify'
@@ -9,7 +10,7 @@ import { tehranTodayMarker, addDaysMarker } from '@/lib/time'
 export async function POST(req: NextRequest) {
   try {
     const b = await req.json()
-    let person = null
+    let person: Personnel | null = null
     if (b.mode === 'pin') {
       if (!b.code || !b.pin) return NextResponse.json({ error: 'کد پرسنلی و پین الزامی است' }, { status: 400 })
       person = await db.personnel.findFirst({ where: { personnelCode: String(b.code).trim(), pin: String(b.pin).trim() } })
