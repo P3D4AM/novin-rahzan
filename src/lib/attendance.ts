@@ -90,10 +90,41 @@ const OT_THRESHOLD_SETTING_ID = 'ot_threshold_minutes'
  * the approved decision; anything missing/malformed/negative falls back to the
  * documented default 30 — an invalid value never silently enters calculations
  * as a wrong threshold.
+ *
+ * Phase 2 S3 review fix 4 — STRICT string validation: `Number(value)` coerced
+ * null/''/'  ' to 0 (a legal non-negative integer!) and hijacked the threshold.
+ * Only a string of digits (optionally surrounded by whitespace) is valid;
+ * '0' stays the legal zero; every other shape (null, undefined, empty,
+ * whitespace-only, decimal, negative, non-numeric text, non-string) → 30.
  */
 export function parseOtThresholdMinutes(value: string | null | undefined): number {
-  const n = Number(value)
-  return Number.isInteger(n) && n >= 0 ? n : DEFAULT_OT_THRESHOLD_MINUTES
+  if (typeof value !== 'string') return DEFAULT_OT_THRESHOLD_MINUTES
+  const raw = value.trim()
+  if (!/^\d+$/.test(raw)) return DEFAULT_OT_THRESHOLD_MINUTES
+  const n = Number(raw)
+  if (!Number.isFinite(n) || !Number.isInteger(n) || n < 0) return DEFAULT_OT_THRESHOLD_MINUTES
+  return n
+}
+
+/**
+ * Phase 2 S3 review fix 5 — the shared POST/PUT contract for OvertimeRequest
+ * `minutes`: a POSITIVE integer (number, or digit-string possibly wrapped in
+ * whitespace). Returns the validated minute count, or null when the value must
+ * be rejected with 400 (negative, zero, decimal, NaN, non-numeric text,
+ * missing). Zero is intentionally invalid — an overtime REQUEST of 0 minutes
+ * is meaningless; a request must state a positive duration.
+ */
+export function parsePositiveRequestMinutes(value: unknown): number | null {
+  if (typeof value === 'number') {
+    return Number.isInteger(value) && value > 0 ? value : null
+  }
+  if (typeof value === 'string') {
+    const raw = value.trim()
+    if (!/^\d+$/.test(raw)) return null
+    const n = Number(raw)
+    return Number.isInteger(n) && n > 0 ? n : null
+  }
+  return null
 }
 
 async function readOtThresholdMinutes(): Promise<number> {
@@ -191,12 +222,18 @@ export function computeDaily(input: {
   const leaveUnion = subtractIntervals(leaveUnionRaw, missionUnion) // a minute is never both leave and mission
   const leaveCovered = intersectIntervals(leaveUnion, coverage)
   const leaveMinutes = Math.min(totalMinutes(leaveCovered), 1440)
-  // deterministic leaveTypeId: the latest-ending span that actually contributes
+  // deterministic leaveTypeId (Phase 2 S3 review fix 6): only a leave that
+  // ACTUALLY contributes to leaveMinutes after the mission subtraction and the
+  // coverage clipping — a leave whose every covered minute was removed by an
+  // overlapping mission (leaveMinutes 0) must not be referenced. Among
+  // contributing leaves the latest-ending span wins (ties → later start).
   let leaveTypeId: string | null = null
   const sortedSpans = [...leaveSpans].sort((a, b) => a.end.getTime() - b.end.getTime() || a.start.getTime() - b.start.getTime())
   for (const span of sortedSpans) {
     const iv = spanToInterval(span)
-    if (iv && intersectIntervals([iv], coverage).length) leaveTypeId = span.leaveTypeId
+    if (!iv) continue
+    const share = intersectIntervals(subtractIntervals([iv], missionUnion), coverage)
+    if (share.length) leaveTypeId = span.leaveTypeId
   }
 
   // ---- final worked: valid attendance + credited mission time (policy) ----
@@ -393,13 +430,17 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
   // overtime threshold (Setting ot_threshold_minutes; default 30)
   const otThresholdMinutes = await readOtThresholdMinutes()
 
-  // approved overtime minutes per (person, workday) — PENDING/REJECTED excluded
+  // approved overtime minutes per (person, workday) — PENDING/REJECTED excluded.
+  // Phase 2 S3 review fix 5 guard: only POSITIVE minutes accumulate — a legacy
+  // negative row (creatable before the validation fix) must never REDUCE the
+  // approved sum of the day's other requests. The API now rejects such values.
   const otReqs = await db.overtimeRequest.findMany({
     where: { personId: { in: personIds }, status: 'APPROVED', date: { gte: dayStart, lte: dayEnd } },
     select: { personId: true, date: true, minutes: true },
   })
   const otApproved = new Map<string, number>()
   for (const o of otReqs) {
+    if (!(o.minutes > 0)) continue
     const k = `${o.personId}|${markerKey(o.date)}`
     otApproved.set(k, (otApproved.get(k) ?? 0) + o.minutes)
   }

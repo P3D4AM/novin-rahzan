@@ -39,7 +39,7 @@
 import * as assert from 'node:assert/strict'
 
 import { pairPunches, anomalySummary, type PairingAnomaly, type PairingResult } from '../src/lib/pairing'
-import { computeDaily, parseOtThresholdMinutes, type ShiftLite } from '../src/lib/attendance'
+import { computeDaily, parseOtThresholdMinutes, parsePositiveRequestMinutes, type ShiftLite } from '../src/lib/attendance'
 import {
   attributePunchWorkday,
   coverageWindowsByDay,
@@ -1111,6 +1111,63 @@ section('31. S3 interval math: union/subtract/intersect totals', () => {
   })
 })
 
+// [32] S3 review fix 4 — strict threshold parsing ------------------------------
+section('32. S3 review fix 4: parseOtThresholdMinutes strict matrix (no coercion to 0)', () => {
+  check("valid digit strings parse: '45'→45, '0'→0 (legal zero), ' 60 '→60 (whitespace-wrapped digits)", () => {
+    assert.equal(parseOtThresholdMinutes('45'), 45)
+    assert.equal(parseOtThresholdMinutes('0'), 0)
+    assert.equal(parseOtThresholdMinutes(' 60 '), 60)
+  })
+  check('null / undefined / non-string → 30 (Number(null)===0 coercion must NOT hijack the threshold)', () => {
+    assert.equal(parseOtThresholdMinutes(null), 30)
+    assert.equal(parseOtThresholdMinutes(undefined), 30)
+    assert.equal(parseOtThresholdMinutes(45 as unknown as string), 30) // type violation → default, never guessed
+  })
+  check("empty / whitespace-only strings → 30 ('' and '   ' must not become 0)", () => {
+    assert.equal(parseOtThresholdMinutes(''), 30)
+    assert.equal(parseOtThresholdMinutes('   '), 30)
+  })
+  check("decimal / negative / non-numeric / exponent / hex strings → 30", () => {
+    assert.equal(parseOtThresholdMinutes('2.5'), 30)
+    assert.equal(parseOtThresholdMinutes('-5'), 30)
+    assert.equal(parseOtThresholdMinutes('abc'), 30)
+    assert.equal(parseOtThresholdMinutes('1e2'), 30)
+    assert.equal(parseOtThresholdMinutes('0x10'), 30)
+    assert.equal(parseOtThresholdMinutes('45abc'), 30)
+    assert.equal(parseOtThresholdMinutes('4 5'), 30)
+  })
+})
+
+// [33] S3 review fix 5 — request-minute validation (shared POST/PUT contract) ---
+section('33. S3 review fix 5: parsePositiveRequestMinutes — one contract for POST and PUT', () => {
+  check('number and digit-string inputs parse: 90, "90", " 75 "', () => {
+    assert.equal(parsePositiveRequestMinutes(90), 90)
+    assert.equal(parsePositiveRequestMinutes('90'), 90)
+    assert.equal(parsePositiveRequestMinutes(' 75 '), 75)
+  })
+  check('zero and negative are REJECTED (null): 0, "0", -5, "-5"', () => {
+    assert.equal(parsePositiveRequestMinutes(0), null)
+    assert.equal(parsePositiveRequestMinutes('0'), null)
+    assert.equal(parsePositiveRequestMinutes(-5), null)
+    assert.equal(parsePositiveRequestMinutes('-5'), null)
+  })
+  check('decimal and NaN are REJECTED (null): 2.5, "2.5", NaN, "1e2"', () => {
+    assert.equal(parsePositiveRequestMinutes(2.5), null)
+    assert.equal(parsePositiveRequestMinutes('2.5'), null)
+    assert.equal(parsePositiveRequestMinutes(NaN), null)
+    assert.equal(parsePositiveRequestMinutes('1e2'), null)
+  })
+  check('missing / non-numeric / other types are REJECTED (null): undefined, null, "", "   ", "abc", true, {}', () => {
+    assert.equal(parsePositiveRequestMinutes(undefined), null)
+    assert.equal(parsePositiveRequestMinutes(null), null)
+    assert.equal(parsePositiveRequestMinutes(''), null)
+    assert.equal(parsePositiveRequestMinutes('   '), null)
+    assert.equal(parsePositiveRequestMinutes('abc'), null)
+    assert.equal(parsePositiveRequestMinutes(true), null)
+    assert.equal(parsePositiveRequestMinutes({}), null)
+  })
+})
+
 // [34] S3 review fix 3 — direction-aware window END boundary --------------------
 section('34. S3 review fix 3: direction-aware night-shift end boundary (OUT closes, IN opens)', () => {
   const nightResolver = (day: Date) => (markerKey(day) === '2026-11-14' ? NIGHT_SHIFT_CTX : null)
@@ -1162,6 +1219,55 @@ section('34. S3 review fix 3: direction-aware night-shift end boundary (OUT clos
     assert.equal(attributePunchWorkday(tehranInstant(2026, 11, 17, 10, 0), () => null).reason, 'NO_SHIFT')
     assert.equal(attributePunchWorkday(tehranInstant(2026, 11, 17, 10, 0), () => ({ segments: [{ startMin: 2000, endMin: 100 }] })).reason, 'INVALID_SHIFT')
     assert.equal(attributePunchWorkday(tehranInstant(2026, 11, 17, 2, 30), () => DAY_SHIFT_CTX).reason, 'OUT_OF_WINDOW')
+  })
+})
+
+// [35] S3 review fix 6 — leaveTypeId only from leaves with a real share ---------
+section('35. S3 review fix 6: leaveTypeId references only leaves that contribute to leaveMinutes', () => {
+  check('leave fully covered by an overlapping mission → leaveMinutes 0 AND leaveTypeId null (no zero-share reference)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      missionSpans: [{ start: T(8), end: T(16) }],
+      leaveSpans: [{ start: T(9), end: T(15), leaveTypeId: 'lt-zero-share' }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.leaveMinutes, 0)
+    assert.equal(d.leaveTypeId, null)
+    assert.equal(d.missionMinutes, 480)
+  })
+  check('two leaves — one fully mission-subtracted, one partially covered → id from the CONTRIBUTING leave only', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      missionSpans: [{ start: T(8), end: T(14) }],
+      leaveSpans: [
+        { start: T(9), end: T(12), leaveTypeId: 'lt-swallowed' },   // fully inside the mission
+        { start: T(13), end: T(17), leaveTypeId: 'lt-real' },        // 14:00–17:00 survives
+      ],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.leaveMinutes, 180) // 14:00–17:00 only
+    assert.equal(d.leaveTypeId, 'lt-real')
+  })
+  check('deterministic pick among several contributing leaves: the latest-ending contributor wins (ties → later start)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      leaveSpans: [
+        { start: T(8), end: T(10), leaveTypeId: 'lt-a' },
+        { start: T(11), end: T(13), leaveTypeId: 'lt-b' },
+      ],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.leaveMinutes, 240)
+    assert.equal(d.leaveTypeId, 'lt-b') // latest-ending contributor
+  })
+  check('leave outside the day coverage contributes nothing → leaveTypeId null even though the span exists', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      leaveSpans: [{ start: T(8, 0, 18), end: T(12, 0, 18), leaveTypeId: 'lt-other-day' }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.leaveMinutes, 0)
+    assert.equal(d.leaveTypeId, null)
   })
 })
 

@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { requireRole, ApiError, hasRole } from '@/lib/auth'
 import { fail } from '@/lib/api'
 import { parseDayParam } from '@/lib/time'
-import { recalcRange } from '@/lib/attendance'
+import { recalcRange, parsePositiveRequestMinutes } from '@/lib/attendance'
 
 /** Phase 2 S3 (min_excess): recompute the workday after an overtime request
  * decision so payableOvertimeMinutes reflects the change immediately. */
@@ -38,13 +38,19 @@ export async function POST(req: NextRequest) {
     const b = await req.json()
     const personId = hasRole(user, 'ADMIN') && b.personId ? b.personId : user.personId
     if (!personId) throw new ApiError(400, 'کاربر به پرسنلی متصل نیست')
-    if (!b.date || !b.minutes) throw new ApiError(400, 'تاریخ و مدت الزامی است')
+    if (!b.date) throw new ApiError(400, 'تاریخ الزامی است')
+    // Phase 2 S3 review fix 5: POST and PUT share ONE contract — minutes must
+    // be a POSITIVE integer (number or digit-string); negative, zero, decimal,
+    // NaN and non-numeric values are rejected BEFORE any row is written, so a
+    // bogus request can never poison the day's approved-overtime sum.
+    const minutes = parsePositiveRequestMinutes(b.minutes)
+    if (minutes === null) throw new ApiError(400, 'دقیقه‌های درخواست باید عدد صحیح مثبت باشد')
     // v1.6.0 (phase 1 stage 3): explicit date-only contract (YYYY-MM-DD or marker ISO)
     // — parsed as a UTC-midnight marker, never timezone-shifted
     const day = parseDayParam(String(b.date))
     if (!day) throw new ApiError(400, 'تاریخ نامعتبر است')
     const item = await db.overtimeRequest.create({
-      data: { personId, date: day, minutes: Number(b.minutes), reason: b.reason || null, status: 'PENDING' },
+      data: { personId, date: day, minutes, reason: b.reason || null, status: 'PENDING' },
     })
     return NextResponse.json({ item })
   } catch (err) {
@@ -60,10 +66,12 @@ export async function PUT(req: NextRequest) {
     // Phase 2 S3: optional minutes edit — the request amount is part of the
     // payable calculation (min(actual, approved)), so a value change must be
     // validated server-side and followed by a recalc of that workday.
+    // Phase 2 S3 review fix 5: same shared contract as POST (positive integer;
+    // the route-level check and parsePositiveRequestMinutes are one rule).
     const data: Record<string, unknown> = { status: b.status, approverId: user.id, decidedAt: new Date() }
     if (b.minutes !== undefined) {
-      const minutes = Number(b.minutes)
-      if (!Number.isInteger(minutes) || minutes <= 0) throw new ApiError(400, 'دقیقه‌های درخواست باید عدد صحیح مثبت باشد')
+      const minutes = parsePositiveRequestMinutes(b.minutes)
+      if (minutes === null) throw new ApiError(400, 'دقیقه‌های درخواست باید عدد صحیح مثبت باشد')
       data.minutes = minutes
     }
     const item = await db.overtimeRequest.update({

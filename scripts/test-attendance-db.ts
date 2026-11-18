@@ -23,7 +23,8 @@
  *   [E] mission: approved mission LeaveType (isMission) + APPROVED request
  *       without punches → MISSION status with exact credited minutes; with
  *       overlapping attendance → overlap subtracted; PENDING/REJECTED mission
- *       → no credit, no MISSION status.
+ *       → no credit, no MISSION status. E6 (review fix 6): a leave fully
+ *       swallowed by a mission → leaveMinutes 0 and NO leaveTypeId reference.
  *   [F] idempotency: recalc rerun → identical DailyAttendance rows.
  *   [G] PunchRecord rows are byte-identical before/after recalc (no mutation,
  *       no deletion — raw punches untouched by the engine).
@@ -43,6 +44,8 @@
  *       OUT 06:00 closes the night (Saturday) while the IN 06:00 opens the
  *       day shift (Sunday): independent, deterministic, each punch in
  *       exactly ONE row.
+ *   [K] S3 review fix 5 — a legacy NEGATIVE approved OvertimeRequest never
+ *       reduces the day's approved sum (payable = min(actual, 100) not 50).
  *
  * Run: npx tsx scripts/test-attendance-db.ts   (own temp DB; no external env)
  */
@@ -323,6 +326,13 @@ async function main() {
       const sat21 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: person.id, date: MK(2026, 11, 21) } } })
       check('leave 10–16 minus mission overlap 12–16 → leaveMinutes 120; mission credit 12–18 → 360; status MISSION', sat21 !== null && sat21.leaveMinutes === 120 && sat21.missionMinutes === 360 && sat21.status === 'MISSION' && sat21.leaveTypeId === normalType.id)
 
+      // E6 (S3 review fix 6): a leave whose every covered minute is removed by
+      // the overlapping mission → leaveMinutes 0 and NO leaveTypeId reference.
+      await db.leaveRequest.create({ data: { personId: person.id, leaveTypeId: normalType.id, kind: 'HOURLY', startDateTime: TEHRAN(2026, 11, 22, 9, 0), endDateTime: TEHRAN(2026, 11, 22, 15, 0), durationMinutes: 360, status: 'APPROVED' } })
+      await db.leaveRequest.create({ data: { personId: person.id, leaveTypeId: missionType.id, kind: 'HOURLY', startDateTime: TEHRAN(2026, 11, 22, 8, 0), endDateTime: TEHRAN(2026, 11, 22, 16, 0), durationMinutes: 480, status: 'APPROVED' } })
+      await recalcRange([person.id], MK(2026, 11, 22), MK(2026, 11, 22))
+      const sun22 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: person.id, date: MK(2026, 11, 22) } } })
+      check('leave 09–15 fully swallowed by mission 08–16 → leaveMinutes 0 AND leaveTypeId NULL (no zero-share reference)', sun22 !== null && sun22.leaveMinutes === 0 && sun22.leaveTypeId === null && sun22.missionMinutes === 480)
     })
 
     // ------------------------------------------------------------------
@@ -482,6 +492,20 @@ async function main() {
       const inCountR = (t: Date) => rowsR.filter((r) => r.firstIn?.getTime() === t.getTime()).length
       const outCountR = (t: Date) => rowsR.filter((r) => r.lastOut?.getTime() === t.getTime()).length
       check('J3: every real punch is computed in exactly ONE row (IN Sat 22:00; OUT 06:00 → Saturday lastOut; IN 06:00 → Sunday firstIn; OUT 14:00) — two punches at the SAME instant land on two DIFFERENT rows by direction', inCountR(TEHRAN(2026, 11, 28, 22, 0)) === 1 && outCountR(TEHRAN(2026, 11, 29, 6, 0)) === 1 && inCountR(TEHRAN(2026, 11, 29, 6, 0)) === 1 && outCountR(TEHRAN(2026, 11, 29, 14, 0)) === 1 && rowsR.filter((r) => r.workedMinutes === 480).length === 2)
+    })
+
+    // ------------------------------------------------------------------
+    // [K] S3 review fix 5 — overtime sum guard against legacy negative rows
+    // ------------------------------------------------------------------
+    await section('K. overtime: a legacy NEGATIVE approved request never reduces the day approved sum', async () => {
+      // Tuesday 11-17 already has worked 631 → actual OT 151 (section B fixture)
+      // an approved +100 plus a legacy NEGATIVE -50 (creatable before the API fix)
+      await db.overtimeRequest.create({ data: { personId: person.id, date: MK(2026, 11, 17), minutes: 100, status: 'APPROVED' } })
+      await db.overtimeRequest.create({ data: { personId: person.id, date: MK(2026, 11, 17), minutes: -50, status: 'APPROVED' } })
+      await recalcRange([person.id], MK(2026, 11, 17), MK(2026, 11, 17))
+      const tue = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: person.id, date: MK(2026, 11, 17) } } })
+      check('approved 100 + legacy -50 → payable min(151, 100) = 100 (the negative row never subtracts from the sum)', tue !== null && tue.payableOvertimeMinutes === 100 && tue.overtimeMinutes === 151)
+      await db.overtimeRequest.deleteMany({ where: { personId: person.id, date: MK(2026, 11, 17), minutes: -50 } })
     })
 
     // ------------------------------------------------------------------
