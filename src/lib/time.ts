@@ -483,6 +483,57 @@ export interface ShiftCtx {
   segments: ShiftSegmentCtx[]
 }
 
+/**
+ * Phase 2 S3 — additive export (protected module: ADDED ONLY, existing exports
+ * and resolveWorkday's body are untouched).
+ *
+ * The wall-clock instants of the shift window STARTING at `startDay`:
+ * [startDay + min(startMin), startDay + max effective endMin). Cross-midnight
+ * segments (endMin <= startMin) wrap with +1440 exactly like the engine's
+ * shiftWindow/resolveWorkday. Returns null for a malformed/empty shift
+ * (same validation as resolveWorkday).
+ */
+export function shiftWindowInstants(
+  startDay: DayMarker,
+  shift: ShiftCtx | null | undefined,
+): { startInstant: Date; endInstant: Date } | null {
+  if (!shift || !Array.isArray(shift.segments) || shift.segments.length === 0) return null
+  let startMin = Number.POSITIVE_INFINITY
+  let endEff = Number.NEGATIVE_INFINITY
+  for (const s of shift.segments) {
+    if (
+      !Number.isFinite(s.startMin) ||
+      !Number.isFinite(s.endMin) ||
+      s.startMin < 0 ||
+      s.startMin >= 1440 ||
+      s.endMin < 0 ||
+      s.endMin >= 1440
+    ) {
+      return null // malformed segment — same rule as resolveWorkday
+    }
+    startMin = Math.min(startMin, s.startMin)
+    endEff = Math.max(endEff, s.endMin > s.startMin ? s.endMin : s.endMin + 1440)
+  }
+  const startInstant = tehranInstant(
+    startDay.getUTCFullYear(),
+    startDay.getUTCMonth() + 1,
+    startDay.getUTCDate(),
+    Math.floor(startMin / 60),
+    startMin % 60,
+  )
+  const endDay = addDaysMarker(startDay, Math.floor(endEff / 1440))
+  const rem = endEff % 1440
+  const endInstant = tehranInstant(
+    endDay.getUTCFullYear(),
+    endDay.getUTCMonth() + 1,
+    endDay.getUTCDate(),
+    Math.floor(rem / 60),
+    rem % 60,
+  )
+  if (!(endInstant.getTime() > startInstant.getTime())) return null // non-positive window — treat as malformed
+  return { startInstant, endInstant }
+}
+
 export type WorkdayReason =
   | 'SHIFT_WINDOW' // punch inside the shift window of a concrete start day → that day
   | 'NO_SHIFT' // no applicable shift → Tehran calendar day (documented fallback)

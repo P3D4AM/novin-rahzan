@@ -101,7 +101,7 @@ async function main() {
     db.leaveType.create({ data: { name: 'استحقاقی', paid: true, color: '#10b981', countsTowardsBalance: true } }),
     db.leaveType.create({ data: { name: 'استعلاجی', paid: true, color: '#ef4444', countsTowardsBalance: false } }),
     db.leaveType.create({ data: { name: 'بدون حقوق', paid: false, color: '#6b7280', countsTowardsBalance: false } }),
-    db.leaveType.create({ data: { name: 'مأموریت', paid: true, color: '#3b82f6', countsTowardsBalance: false } }),
+    db.leaveType.create({ data: { name: 'مأموریت', paid: true, color: '#3b82f6', countsTowardsBalance: false, isMission: true } }),
   ])
 
   const today = new Date()
@@ -209,6 +209,9 @@ async function main() {
       { id: 'ot_rate_normal', value: '1.4' },
       { id: 'ot_rate_friday', value: '1.6' },
       { id: 'ot_rate_holiday', value: '2.0' },
+      // Phase 2 S3 (min_excess): overtime activation threshold in minutes —
+      // gates activation, never subtracted; validated integer ≥ 0, default 30.
+      { id: 'ot_threshold_minutes', value: '30' },
       { id: 'sms_provider', value: 'kavenegar' },
       { id: 'sms_api_key', value: '' },
       { id: 'sms_sender', value: '' },

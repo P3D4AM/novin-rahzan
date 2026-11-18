@@ -183,6 +183,15 @@ model DailyAttendance {
   overtimeMinutes   Int      @default(0)
   leaveTypeId       String?
   leaveMinutes      Int      @default(0)
+  // Phase 2 S3 (overtime_policy = min_excess): payable = min(actual, approved).
+  // overtimeMinutes KEEPS its existing meaning (actual overtime); this new
+  // additive column is the payable value only. Default 0 = additive, backward
+  // compatible (old rows read as "no payable OT approved").
+  payableOvertimeMinutes Int  @default(0)
+  // Phase 2 S3 (mission_policy = approved_credit): approved mission time
+  // credited as valid work time AFTER subtracting actual attendance overlap.
+  // workedMinutes = attendance pairs + this value (the policy's final worked).
+  missionMinutes   Int      @default(0)
   note              String?
   shift             Shift?     @relation(fields: [shiftId], references: [id], onDelete: SetNull)
   leaveType         LeaveType? @relation(fields: [leaveTypeId], references: [id], onDelete: SetNull)
@@ -199,6 +208,10 @@ model LeaveType {
   requiresApproval Boolean @default(true)
   color            String  @default("#f59e0b")
   countsTowardsBalance Boolean @default(true)
+  // Phase 2 S3 (mission_policy = approved_credit): explicit machine flag — a
+  // mission is a LeaveType with isMission=true. NEVER detected by Persian
+  // name matching. Additive, default false: existing rows keep their meaning.
+  isMission        Boolean @default(false)
   requests         LeaveRequest[]
   dailyRecords     DailyAttendance[]
 }
