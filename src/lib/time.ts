@@ -148,19 +148,50 @@ export function tehranWallClockToInstant(msSinceEpochWallAsUtc: number): Date {
   )
 }
 
-/** Parse a "YYYY-MM-DD HH:MM[:SS]" Tehran wall-clock string → UTC instant (null when invalid). Mirrors fkattend.ts:fkWallClockToUTC semantics; lenient on 1–2 digit fields and '/' separators for CSV imports. Gregorian year must be 1900–2199 — Jalali-year strings like "1405/08/26 02:30" are rejected (never silently reinterpreted). */
+/** Days in a Gregorian month (leap-aware) — shared by the strict validators below. */
+function gregorianMonthDays(y: number, m: number): number {
+  if (m === 2) return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 29 : 28
+  return m === 4 || m === 6 || m === 9 || m === 11 ? 30 : 31
+}
+
+/**
+ * Parse a "YYYY-MM-DD HH:MM[:SS]" Tehran wall-clock string → UTC instant (null when invalid). Mirrors fkattend.ts:fkWallClockToUTC semantics; lenient on 1–2 digit fields and '/' separators for CSV imports. Gregorian year must be 1900–2199 — Jalali-year strings like "1405/08/26 02:30" are rejected (never silently reinterpreted).
+ *
+ * STRICT validation (v1.6.0 review fix 1): every component is range-checked against
+ * the real Gregorian calendar — month 1–12, day valid for that month AND leap year,
+ * hour 0–23, minute/second 0–59. Impossible values are rejected, NEVER normalized:
+ * `Date.UTC` would silently roll "2026-02-31 08:30" to March 3 and "25:00" to the
+ * next day's 01:00 — that must never yield a wrong-but-plausible instant here.
+ *
+ * DST determinism (real Asia/Tehran tz database — DST existed until 2022):
+ *   - NONEXISTENT wall-clock times (the spring-forward gap hour, e.g. Tehran
+ *     2021-03-22 00:00–00:59) → null: the gap hour has no instant at all.
+ *   - AMBIGUOUS wall-clock times (the fall-back repeated hour, e.g. Tehran
+ *     2021-09-21 23:00–23:59) → the LATER occurrence (the instant AFTER the
+ *     offset change, standard time) — a deterministic documented choice.
+ *   - The resolved instant is round-trip-verified: `tehranParts(instant)` must
+ *     equal the requested components exactly, otherwise the input is rejected —
+ *     a different wall-clock time is never silently returned.
+ */
 export function tehranWallClockStringToInstant(s: string): Date | null {
   const m = /^((?:1[9]|2[01])\d{2})[-/](\d{1,2})[-/](\d{1,2}) (\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/.exec(String(s ?? '').trim())
   if (!m) return null
-  const d = tehranInstant(
-    Number(m[1]),
-    Number(m[2]),
-    Number(m[3]),
-    Number(m[4]),
-    Number(m[5]),
-    m[6] ? Number(m[6]) : 0,
-  )
-  return Number.isFinite(d.getTime()) ? d : null
+  const y = Number(m[1])
+  const mo = Number(m[2])
+  const d = Number(m[3])
+  const hh = Number(m[4])
+  const mi = Number(m[5])
+  const ss = m[6] === undefined ? 0 : Number(m[6])
+  if (mo < 1 || mo > 12) return null
+  if (d < 1 || d > gregorianMonthDays(y, mo)) return null
+  if (hh > 23 || mi > 59 || ss > 59) return null
+  const instant = tehranInstant(y, mo, d, hh, mi, ss)
+  if (!Number.isFinite(instant.getTime())) return null
+  // round-trip verification — catches the DST gap hour (resolves to a DIFFERENT
+  // wall time) and pins ambiguous times to the deterministic occurrence
+  const p = tehranParts(instant)
+  if (p.y !== y || p.m !== mo || p.d !== d || p.hh !== hh || p.mi !== mi || p.ss !== ss) return null
+  return instant
 }
 
 // ---------------------------------------------------------------------------
@@ -224,18 +255,56 @@ export function parseDateOnly(s: string): DayMarker | null {
 // ---------------------------------------------------------------------------
 
 /**
- * Parse an API "day" parameter into a marker. Accepts:
- *   - "YYYY-MM-DD" (date-only — parsed as UTC midnight per the ES spec, NO tz shift)
- *   - a full ISO instant (floored to its UTC day — the legacy startOfUTCDay behavior)
+ * Parse an API "day" parameter into a marker. Accepts ONLY (v1.6.0 review fix 2):
+ *   - "YYYY-MM-DD" date-only strings — parsed as UTC midnight per the ES spec,
+ *     NO timezone shift (the API date-only contract; 1–2 digit month/day and
+ *     '/' separators remain accepted for legacy callers)
+ *   - full ISO timestamps WITH an explicit timezone — `Z` or `±HH:MM` — with
+ *     strict component ranges (real calendar day incl. leap years, hour ≤ 23,
+ *     minute/second ≤ 59, offset hour ≤ 23 / minute ≤ 59, year ≥ 0100 so
+ *     two-digit years are never silently mapped to 19xx); the instant is
+ *     computed from components and floored to its UTC day (the legacy
+ *     startOfUTCDay behavior). No `new Date(string)` guessing — the host
+ *     timezone can never leak into the result.
+ *
+ * REJECTED (previously silently host-timezone-dependent or engine-lenient):
+ * timezone-less datetimes ("2026-11-17T00:30" — ECMA-262 treats those as
+ * host-LOCAL time, so the floored day silently shifted with the server's
+ * timezone), basic-format offsets ("+0330"), space-separated datetimes,
+ * non-ISO forms ("March 5, 2026") and every malformed string.
  * Returns null for absent/invalid input (routes decide their own 400 handling).
  */
 export function parseDayParam(s: string | null | undefined): DayMarker | null {
   if (!s) return null
-  const direct = parseDateOnly(String(s))
+  const raw = String(s)
+  const direct = parseDateOnly(raw)
   if (direct) return direct
-  const d = new Date(String(s))
-  if (!Number.isFinite(d.getTime())) return null
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
+  const m =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?(Z|[+-]\d{2}:\d{2})$/.exec(
+      raw.trim(),
+    )
+  if (!m) return null
+  const y = Number(m[1])
+  const mo = Number(m[2])
+  const d = Number(m[3])
+  const hh = Number(m[4])
+  const mi = Number(m[5])
+  const ss = m[6] === undefined ? 0 : Number(m[6])
+  const ms = m[7] === undefined ? 0 : Math.floor(Number(`0.${m[7]}`) * 1000)
+  if (y < 100) return null // years 0–99: Date.UTC maps them to 1900+ — never silently
+  if (mo < 1 || mo > 12) return null
+  if (d < 1 || d > gregorianMonthDays(y, mo)) return null
+  if (hh > 23 || mi > 59 || ss > 59) return null
+  let offMin = 0
+  if (m[8] !== 'Z') {
+    const oh = Number(m[8].slice(1, 3))
+    const om = Number(m[8].slice(4, 6))
+    if (oh > 23 || om > 59) return null
+    offMin = (m[8].charCodeAt(0) === 45 ? -1 : 1) * (oh * 60 + om) // 45 = '-', otherwise '+'
+  }
+  const instant = new Date(Date.UTC(y, mo - 1, d, hh, mi, ss, ms) - offMin * 60000)
+  if (!Number.isFinite(instant.getTime())) return null
+  return new Date(Date.UTC(instant.getUTCFullYear(), instant.getUTCMonth(), instant.getUTCDate()))
 }
 
 /**

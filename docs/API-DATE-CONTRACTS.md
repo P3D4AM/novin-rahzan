@@ -12,9 +12,17 @@ in `scripts/test-time.ts` (sections 14 & 16).
 | **business day (marker)** | one Tehran calendar day | `YYYY-MM-DD` **date-only** or marker ISO (`…T00:00:00.000Z`) | parsed by `parseDayParam` → UTC-midnight marker; **never timezone-shifted** |
 | **Jalali string** | display-only Jalali text | `1405/08/26` | validated by `parseJalaliInput` (Persian errors); stored as text |
 
-**`parseDayParam` contract:** date-only strings parse as UTC midnight (ES spec —
-no accidental UTC conversion, no browser-local shift); full ISO instants are
-floored to their UTC day (legacy-compatible); anything else → clean 400.
+**`parseDayParam` contract (v1.6.0 review fix 2 — strict):** date-only strings
+parse as UTC midnight (ES spec — no accidental UTC conversion, no
+browser-local shift); full ISO timestamps **with an explicit timezone** (`Z`
+or `±HH:MM`, strict component ranges, leap-aware calendar) are floored to
+their UTC day (legacy-compatible); **timezone-less datetimes
+(`2026-11-17T00:30`) are REJECTED** — ECMA-262 treats them as host-LOCAL
+time, which silently shifted the parsed day with the server's timezone —
+and so are basic-format offsets (`+0330`), space-separated datetimes and
+every non-ISO form; anything rejected → clean 400. Verified identical under
+TZ=UTC / America/New_York / Asia/Tehran / Pacific/Kiritimati
+(`scripts/test-time.ts` section 19).
 
 ## Per-endpoint contract
 
@@ -31,7 +39,7 @@ floored to their UTC day (legacy-compatible); anything else → clean 400.
 | `GET /api/me`, `POST /api/me` | — | server computes "today" itself via `tehranTodayMarker()` (Asia/Tehran, server-tz independent) |
 | `GET /api/bootstrap` | response `today` | Tehran Jalali today via the central module (server-tz independent) |
 | `POST /api/kiosk` | — | direction window = Tehran-day marker window `[marker, marker+1)` — same convention as `/api/me` POST |
-| `POST /api/import` (CSV) | `datetime` / `date`+`time` columns | full ISO (`…T…`) → instant passthrough; naive `YYYY-MM-DD HH:MM[:SS]` → **Tehran wall-clock** (device-consistent; identical on a Tehran-tz server, correct elsewhere); unparseable rows are skipped, never fabricated |
+| `POST /api/import` (CSV) | `datetime` / `date`+`time` columns | full ISO (`…T…`) → instant passthrough; naive `YYYY-MM-DD HH:MM[:SS]` → **Tehran wall-clock** (device-consistent; identical on a Tehran-tz server, correct elsewhere); **strictly validated** (v1.6.0 review fix 1) — impossible dates/times and the historical DST gap hour are rejected, so unparseable rows are skipped, never normalized into a wrong-but-plausible day; ambiguous DST times resolve deterministically to the later occurrence |
 
 ## Intentional, documented behavior changes (stage 3)
 

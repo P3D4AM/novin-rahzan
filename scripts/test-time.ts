@@ -12,6 +12,11 @@
  *   [5]  Gregorian/Jalali round trips          [13] server-timezone independence (TZ child probes)
  *   [6]  UTC→Tehran conversion                [14] API date-range boundaries (date-only parsing)
  *   [7]  Tehran→UTC conversion (incl. DST)    [15] device import regression (sbxpc/legacy parity)
+ *   [16] API day-param & CSV-timestamp contracts (stage 3)
+ *   [17] strict wall-clock validation — impossible dates/times rejected, DST gap
+ *        hour rejected, DST ambiguity → deterministic later occurrence (review fix 1)
+ *   [18] strict API day-param parsing — ISO-with-timezone only (review fix 2)
+ *   [19] day-param & wall-clock TZ-independence under 4 host timezones
  *
  * DST behavior uses the REAL Asia/Tehran tz database (DST existed until
  * 2022-09; +04:30 summers before that, fixed +03:30 since) — never an
@@ -56,7 +61,7 @@ import * as legacy from '../src/lib/jalali'
 
 const ROOT = path.resolve(__dirname, '..')
 
-// --- probe mode (used by the TZ-independence section): fixed instants only ---
+// --- probe mode (used by the TZ-independence sections): fixed instants only ---
 // (never `new Date()` — deterministic under any host timezone)
 if (process.argv[2] === '--probe') {
   const punch = tehranInstant(2026, 11, 15, 2, 30) // fixed: Sunday 02:30 Tehran
@@ -71,6 +76,40 @@ if (process.argv[2] === '--probe') {
       windowStart: r.window ? r.window.startInstant.toISOString() : null,
     }),
   )
+  process.exit(0)
+}
+
+// --- day-param probe (fix 2 TZ-independence): parseDayParam + wall-clock parser ---
+// under any host timezone (UTC / New York / Tehran / Kiritimati must agree)
+if (process.argv[2] === '--probe-day') {
+  const inputs: Array<[string, string]> = [
+    ['date-only', '2026-11-17'],
+    ['date-only-1d', '2026-11-7'],
+    ['iso-Z', '2026-11-17T22:30:00Z'],
+    ['iso-Z-ms', '2026-11-17T00:00:00.000Z'],
+    ['iso-offset-neg', '2026-11-16T22:30:00-05:00'],
+    ['iso-offset-pos14', '2026-11-17T00:30:00+14:00'],
+    ['tz-less', '2026-11-17T00:30'],
+    ['tz-less-sec', '2026-11-17T00:30:00'],
+    ['junk', 'garbage'],
+  ]
+  const dayParams = inputs.map(([k, s]) => {
+    const marker = parseDayParam(s)
+    return { k, day: marker ? markerKey(marker) : null }
+  })
+  const wallInputs = [
+    '2026-11-17 02:30',
+    '2021-06-15 12:00',
+    '2021-03-22 00:30',
+    '2021-09-21 23:30',
+    '2026-02-31 08:30',
+    '2026-11-17 25:00',
+  ]
+  const wallClock = wallInputs.map((s) => {
+    const d = tehranWallClockStringToInstant(s)
+    return { s, iso: d ? d.toISOString() : null }
+  })
+  console.log(JSON.stringify({ dayParams, wallClock }))
   process.exit(0)
 }
 
@@ -502,6 +541,172 @@ section('16. API day-param & CSV-timestamp contracts (stage 3)', () => {
     assert.equal(iso(ts!), '2026-11-17T05:00:00.000Z') // 08:30 Tehran = 05:00Z
     // DST-era naive string → +04:30
     assert.equal(iso(tehranWallClockStringToInstant('2021-06-15 12:00')!), '2021-06-15T07:30:00.000Z')
+  })
+})
+
+// [17] Strict wall-clock validation (v1.6.0 review fix 1) ----------------------
+// DST facts used below come from the REAL Asia/Tehran tz database:
+//   2021 spring-forward at 2021-03-21T20:30Z: wall jumped 2021-03-21 23:59 →
+//   2021-03-22 01:00, so 2021-03-22 00:00–00:59 NEVER existed.
+//   2021 fall-back at 2021-09-21T19:30Z: wall went 23:59 back to 23:00, so
+//   2021-09-21 23:00–23:59 happened twice (+04:30 then +03:30).
+//   (Same pattern in 2020: gap 2020-03-21 00:xx; 2022: gap 2022-03-22 00:xx,
+//   ambiguous 2022-09-21 23:xx — the last DST year.)
+section('17. Strict wall-clock validation (reject, never normalize)', () => {
+  check('impossible Gregorian dates rejected (not silently normalized)', () => {
+    assert.equal(tehranWallClockStringToInstant('2026-02-31 08:30'), null) // Feb 2026 has 28 days
+    assert.equal(tehranWallClockStringToInstant('2026-04-31 08:30'), null) // Apr has 30
+    assert.equal(tehranWallClockStringToInstant('2026-13-01 08:30'), null) // month 13
+    assert.equal(tehranWallClockStringToInstant('2026-00-15 08:30'), null) // month 0
+    assert.equal(tehranWallClockStringToInstant('2027-02-29 08:30'), null) // 2027 is not a leap year
+    assert.equal(tehranWallClockStringToInstant('2026-11-00 08:30'), null) // day 0
+    assert.equal(tehranWallClockStringToInstant('2026-11-32 08:30'), null) // day 32
+  })
+  check('impossible time components rejected (25:00 / 08:60 / 08:30:60)', () => {
+    assert.equal(tehranWallClockStringToInstant('2026-11-17 25:00'), null)
+    assert.equal(tehranWallClockStringToInstant('2026-11-17 08:60'), null)
+    assert.equal(tehranWallClockStringToInstant('2026-11-17 08:30:60'), null)
+    assert.equal(tehranWallClockStringToInstant('2026-11-17 24:00'), null)
+  })
+  check('valid day-for-month accepted incl. leap 2028-02-29 and month ends', () => {
+    assert.equal(iso(tehranWallClockStringToInstant('2028-02-29 12:00')!), '2028-02-29T08:30:00.000Z')
+    assert.equal(iso(tehranWallClockStringToInstant('2026-04-30 12:00')!), '2026-04-30T08:30:00.000Z')
+    assert.equal(iso(tehranWallClockStringToInstant('2026-02-28 12:00')!), '2026-02-28T08:30:00.000Z')
+  })
+  check('Esfand 29/30 wall-clock equivalents convert and round-trip exactly', () => {
+    // Esfand 30 1403 (leap year) = Gregorian 2025-03-20 — the rare existing 30th
+    const e30 = jalaliToMarker(1403, 12, 30)
+    assert.equal(markerKey(e30), '2025-03-20')
+    const inst = tehranWallClockStringToInstant('2025-03-20 09:15')!
+    assert.equal(iso(inst), '2025-03-20T05:45:00.000Z')
+    const p = tehranParts(inst)
+    assert.deepEqual([p.y, p.m, p.d, p.hh, p.mi, p.ss], [2025, 3, 20, 9, 15, 0])
+    // Esfand 29 1404 (non-leap, last day of the year) = Gregorian 2026-03-20
+    const e29 = jalaliToMarker(1404, 12, 29)
+    assert.equal(markerKey(e29), '2026-03-20')
+    const inst2 = tehranWallClockStringToInstant('2026-03-20 23:59')!
+    assert.equal(iso(inst2), '2026-03-20T20:29:00.000Z')
+    assert.equal(markerKey(addDaysMarker(e29, 1)), markerKey(jalaliToMarker(1405, 1, 1)))
+    // the Gregorian day that WOULD be Esfand 30 1404 does not exist — 2026-03-21 is Farvardin 1
+    assert.equal(tryJalaliToMarker(1404, 12, 30), null)
+    assert.equal(markerKey(jalaliToMarker(1405, 1, 1)), '2026-03-21')
+  })
+  check('valid historical DST conversions preserved (device/CSV compatible)', () => {
+    assert.equal(iso(tehranWallClockStringToInstant('2021-06-15 12:00')!), '2021-06-15T07:30:00.000Z') // DST +04:30
+    assert.equal(iso(tehranWallClockStringToInstant('2021-01-15 08:00')!), '2021-01-15T04:30:00.000Z') // winter +03:30
+    assert.equal(iso(tehranWallClockStringToInstant('2021-03-21 23:30')!), '2021-03-21T20:00:00.000Z') // last +03:30 minute
+    assert.equal(iso(tehranWallClockStringToInstant('2021-03-22 01:30')!), '2021-03-21T21:00:00.000Z') // first +04:30 hour
+    assert.equal(iso(tehranWallClockStringToInstant('2026/11/17 2:30')!), '2026-11-16T23:00:00.000Z') // lenient CSV grammar
+  })
+  check('NONEXISTENT DST wall-clock times rejected (spring-forward gap)', () => {
+    assert.equal(tehranWallClockStringToInstant('2021-03-22 00:00'), null)
+    assert.equal(tehranWallClockStringToInstant('2021-03-22 00:30'), null)
+    assert.equal(tehranWallClockStringToInstant('2021-03-22 00:59'), null)
+    assert.equal(tehranWallClockStringToInstant('2020-03-21 00:30'), null) // 2020 gap
+    assert.equal(tehranWallClockStringToInstant('2022-03-22 00:30'), null) // 2022 gap (last DST year)
+    // the first existing instant of the new offset stays valid
+    assert.equal(iso(tehranWallClockStringToInstant('2021-03-22 01:00')!), '2021-03-21T20:30:00.000Z')
+  })
+  check('AMBIGUOUS DST wall-clock times → deterministic LATER occurrence (documented)', () => {
+    const inst = tehranWallClockStringToInstant('2021-09-21 23:30')!
+    assert.equal(iso(inst), '2021-09-21T20:00:00.000Z') // post-fallback +03:30 occurrence
+    const p = tehranParts(inst)
+    assert.deepEqual([p.y, p.m, p.d, p.hh, p.mi, p.ss], [2021, 9, 21, 23, 30, 0]) // round-trip exact
+    assert.equal(iso(tehranWallClockStringToInstant('2021-09-21 23:00')!), '2021-09-21T19:30:00.000Z') // the transition instant
+    assert.equal(iso(tehranWallClockStringToInstant('2022-09-21 23:30')!), '2022-09-21T20:00:00.000Z') // 2022 fallback
+    assert.equal(iso(tehranWallClockStringToInstant('2020-09-20 23:30')!), '2020-09-20T20:00:00.000Z') // 2020 fallback
+  })
+  check('valid post-2022 (no-DST era) conversions unchanged (regression)', () => {
+    assert.equal(iso(tehranWallClockStringToInstant('2026-11-17 02:30:00')!), '2026-11-16T23:00:00.000Z')
+    assert.equal(tehranWallClockStringToInstant('2026-11-17 2:5')!.getTime(), tehranWallClockStringToInstant('2026-11-17 02:05')!.getTime())
+  })
+})
+
+// [18] Strict API day-param parsing (v1.6.0 review fix 2) ----------------------
+section('18. Strict API day-param parsing (ISO-with-timezone only)', () => {
+  check('date-only strings still accepted (existing API contract, no tz shift)', () => {
+    assert.equal(markerKey(parseDayParam('2026-11-17')!), '2026-11-17')
+    assert.equal(markerKey(parseDayParam('2026-11-7')!), '2026-11-07')
+    assert.equal(markerKey(parseDayParam('2026/11/17')!), '2026-11-17')
+    assert.equal(parseDayParam('2026-11-17')!.toISOString(), '2026-11-17T00:00:00.000Z')
+  })
+  check('full ISO WITH explicit timezone accepted; UTC-day flooring preserved', () => {
+    assert.equal(markerKey(parseDayParam('2026-11-17T00:00:00.000Z')!), '2026-11-17')
+    assert.equal(markerKey(parseDayParam('2026-11-17T22:30:00Z')!), '2026-11-17')
+    assert.equal(markerKey(parseDayParam('2026-11-17T23:59:59.999Z')!), '2026-11-17')
+    assert.equal(markerKey(parseDayParam('2026-11-17T22:30:00+00:00')!), '2026-11-17')
+    assert.equal(markerKey(parseDayParam('2026-11-17T22:30Z')!), '2026-11-17') // seconds optional (ISO short form)
+    // negative offset: 2026-11-16T22:30-05:00 = 2026-11-17T03:30Z
+    assert.equal(markerKey(parseDayParam('2026-11-16T22:30:00-05:00')!), '2026-11-17')
+    // +14:00 (Kiritimati): 2026-11-17T00:30+14:00 = 2026-11-16T10:30Z
+    assert.equal(markerKey(parseDayParam('2026-11-17T00:30:00+14:00')!), '2026-11-16')
+    // leap day in a full ISO form
+    assert.equal(markerKey(parseDayParam('2028-02-29T12:00:00Z')!), '2028-02-29')
+  })
+  check('timezone-less datetimes REJECTED (were silently host-TZ-dependent)', () => {
+    assert.equal(parseDayParam('2026-11-17T00:30'), null)
+    assert.equal(parseDayParam('2026-11-17T00:30:00'), null)
+    assert.equal(parseDayParam('2026-11-17T00:30:00.000'), null)
+    assert.equal(parseDayParam('2026-11-17 00:30'), null) // space-separated, no offset
+  })
+  check('malformed/arbitrary strings REJECTED (no Date-engine leniency)', () => {
+    assert.equal(parseDayParam('garbage'), null)
+    assert.equal(parseDayParam(null), null)
+    assert.equal(parseDayParam(''), null)
+    assert.equal(parseDayParam('March 5, 2026'), null)
+    assert.equal(parseDayParam('17/11/2026'), null)
+    assert.equal(parseDayParam('2026'), null) // year-only junk
+    assert.equal(parseDayParam('2026-11-17T22:30:00+0330'), null) // basic-format offset — not ISO-extended
+    assert.equal(parseDayParam('2026-11-17T25:00:00Z'), null) // hour 25
+    assert.equal(parseDayParam('2026-11-17T10:61:00+03:30'), null) // minute 61
+    assert.equal(parseDayParam('2026-11-17T10:00:99Z'), null) // second 99
+    assert.equal(parseDayParam('2026-11-17T10:00:00+24:00'), null) // offset hour 24
+    assert.equal(parseDayParam('2026-02-30T10:00:00Z'), null) // Feb 30
+    assert.equal(parseDayParam('2026-13-01T10:00:00Z'), null) // month 13
+    assert.equal(parseDayParam('2027-02-29T12:00:00Z'), null) // non-leap Feb 29
+  })
+})
+
+// [19] Day-param & wall-clock TZ-independence — same input behavior under 4 TZs --
+section('19. Day-param & wall-clock TZ-independence (child probes under 4 TZs)', () => {
+  const self = path.join('scripts', 'test-time.ts')
+  const tsxCli = path.join(ROOT, 'node_modules', 'tsx', 'dist', 'cli.mjs')
+  const outputs: Record<string, string> = {}
+  for (const tz of ['UTC', 'America/New_York', 'Asia/Tehran', 'Pacific/Kiritimati']) {
+    const res = spawnSync(process.execPath, [tsxCli, self, '--probe-day'], {
+      cwd: ROOT,
+      env: { ...process.env, TZ: tz },
+      encoding: 'utf8',
+    })
+    assert.equal(res.status, 0, `probe-day failed under TZ=${tz}: ${res.stderr?.slice(0, 400)}`)
+    outputs[tz] = res.stdout.trim()
+    assert.ok(res.stdout.includes('"dayParams"'), `probe-day produced no JSON under TZ=${tz}`)
+  }
+  check('all four TZs produce IDENTICAL parseDayParam & wall-clock results', () => {
+    const base = outputs['UTC']
+    for (const [tz, out] of Object.entries(outputs)) {
+      assert.equal(out, base, `TZ=${tz} diverged`)
+    }
+  })
+  check('expected values: strict rejects everywhere, flooring identical everywhere', () => {
+    const data = JSON.parse(outputs['UTC'])
+    const days = Object.fromEntries(data.dayParams.map((x: { k: string; day: string | null }) => [x.k, x.day]))
+    assert.equal(days['date-only'], '2026-11-17')
+    assert.equal(days['date-only-1d'], '2026-11-07')
+    assert.equal(days['iso-Z'], '2026-11-17')
+    assert.equal(days['iso-Z-ms'], '2026-11-17')
+    assert.equal(days['iso-offset-neg'], '2026-11-17')
+    assert.equal(days['iso-offset-pos14'], '2026-11-16')
+    assert.equal(days['tz-less'], null)
+    assert.equal(days['tz-less-sec'], null)
+    assert.equal(days['junk'], null)
+    const wall = Object.fromEntries(data.wallClock.map((x: { s: string; iso: string | null }) => [x.s, x.iso]))
+    assert.equal(wall['2026-11-17 02:30'], '2026-11-16T23:00:00.000Z')
+    assert.equal(wall['2021-06-15 12:00'], '2021-06-15T07:30:00.000Z')
+    assert.equal(wall['2021-03-22 00:30'], null) // DST gap — rejected under every TZ
+    assert.equal(wall['2021-09-21 23:30'], '2021-09-21T20:00:00.000Z') // ambiguous — deterministic
+    assert.equal(wall['2026-02-31 08:30'], null) // impossible date — rejected under every TZ
+    assert.equal(wall['2026-11-17 25:00'], null) // impossible time — rejected under every TZ
   })
 })
 
