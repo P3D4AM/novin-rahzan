@@ -52,14 +52,39 @@ export interface WorkdayAttribution {
 
 /**
  * Attribute one attendance instant to its business workday.
- * Deterministic; depends only on (instant, shiftForDay).
+ * Deterministic; depends only on (instant, shiftForDay, direction).
+ *
+ * Phase 2 S3 review fix 3 — direction-aware window END boundary:
+ *   - an OUT punch closes a session, so it matches the window CLOSED at the
+ *     end ([start, end]) and a punch at EXACTLY the end instant is attributed
+ *     to that shift's START DAY (an OUT at Sunday 06:00 that closes the Sat
+ *     22:00→Sun 06:00 night shift belongs to SATURDAY — a valid pair is never
+ *     split into two workdays just because the interval is half-open).
+ *     When several windows contain the instant, a CLOSING match (t == end)
+ *     beats a merely-containing match: if the next day's shift starts exactly
+ *     at the same boundary instant, its window also contains t, but an OUT at
+ *     the start of that shift is an orphan for it — the tie-break is
+ *     deterministic and independent of the IN rule.
+ *   - an IN punch opens a session, so it matches the half-open [start, end)
+ *     window (unchanged): an IN at exactly 06:00 starts the NEXT shift's day.
+ *   - direction-unknown punches (AUTO/UNKNOWN/missing) keep the half-open
+ *     rule too — attributing them to a closing session would be a guess.
+ * IN and OUT decisions at the same instant are thus independent and
+ * deterministic: IN 06:00 → the day shift starting 06:00; OUT 06:00 → the
+ * night shift ending 06:00.
  */
-export function attributePunchWorkday(instant: Date, shiftForDay: ShiftForDay): WorkdayAttribution {
+export function attributePunchWorkday(
+  instant: Date,
+  shiftForDay: ShiftForDay,
+  direction?: string | null,
+): WorkdayAttribution {
+  const isOut = direction === 'OUT'
   const punchDay = dayMarkerOf(instant)
   let sawShift = false
   let sawInvalid = false
   let sawValidWindow = false
   let best: { marker: DayMarker; startInstant: Date; endInstant: Date } | null = null
+  let bestClosing: { marker: DayMarker; startInstant: Date; endInstant: Date } | null = null
   let matches = 0
 
   // candidate start days, oldest first; LATEST matching start wins below
@@ -74,13 +99,24 @@ export function attributePunchWorkday(instant: Date, shiftForDay: ShiftForDay): 
       continue
     }
     sawValidWindow = true
-    if (instant.getTime() >= win.startInstant.getTime() && instant.getTime() < win.endInstant.getTime()) {
+    const s = win.startInstant.getTime()
+    const e = win.endInstant.getTime()
+    const t = instant.getTime()
+    const contains = isOut ? t >= s && t <= e : t >= s && t < e
+    if (contains) {
       matches++
-      if (!best || win.startInstant.getTime() > best.startInstant.getTime()) {
+      const closing = isOut && t === e
+      if (closing && (!bestClosing || s > bestClosing.startInstant.getTime())) {
+        bestClosing = { marker: day, startInstant: win.startInstant, endInstant: win.endInstant }
+      }
+      if (!best || s > best.startInstant.getTime()) {
         best = { marker: day, startInstant: win.startInstant, endInstant: win.endInstant }
       }
     }
   }
+
+  // an OUT exactly closing a shift window wins over a merely-containing window
+  best = bestClosing ?? best
 
   if (!best) {
     // no shift at all → NO_SHIFT; only malformed shifts seen → INVALID_SHIFT;

@@ -1111,6 +1111,60 @@ section('31. S3 interval math: union/subtract/intersect totals', () => {
   })
 })
 
+// [34] S3 review fix 3 — direction-aware window END boundary --------------------
+section('34. S3 review fix 3: direction-aware night-shift end boundary (OUT closes, IN opens)', () => {
+  const nightResolver = (day: Date) => (markerKey(day) === '2026-11-14' ? NIGHT_SHIFT_CTX : null)
+  check('mandated case 1 — Sat 22:00 IN + Sun 06:00 OUT: the OUT at EXACTLY the end stays on SATURDAY (valid pair never split)', () => {
+    const inPunch = tehranInstant(2026, 11, 14, 22, 0)
+    const outPunch = tehranInstant(2026, 11, 15, 6, 0)
+    const rIn = attributePunchWorkday(inPunch, nightResolver, 'IN')
+    const rOut = attributePunchWorkday(outPunch, nightResolver, 'OUT')
+    assert.equal(markerKey(rIn.workday), '2026-11-14')
+    assert.equal(rIn.reason, 'SHIFT_WINDOW')
+    assert.equal(markerKey(rOut.workday), '2026-11-14') // SAME workday — the pair survives
+    assert.equal(rOut.reason, 'SHIFT_WINDOW')
+    assert.equal(rOut.viaShift, true)
+  })
+  check('an IN at EXACTLY 06:00 is OUTSIDE the half-open night window → Tehran day fallback (Sunday) with OUT_OF_WINDOW', () => {
+    const r = attributePunchWorkday(tehranInstant(2026, 11, 15, 6, 0), nightResolver, 'IN')
+    assert.equal(markerKey(r.workday), '2026-11-15')
+    assert.equal(r.reason, 'OUT_OF_WINDOW')
+    assert.equal(r.viaShift, false)
+  })
+  check('mandated case 2 — OUT at 06:01 (strictly past the window) → OUT_OF_WINDOW fallback to Sunday (documented fallback, no fabricated attribution)', () => {
+    const r = attributePunchWorkday(tehranInstant(2026, 11, 15, 6, 1), nightResolver, 'OUT')
+    assert.equal(markerKey(r.workday), '2026-11-15')
+    assert.equal(r.reason, 'OUT_OF_WINDOW')
+    assert.equal(r.viaShift, false)
+  })
+  check('direction-unknown punch (AUTO) at EXACTLY 06:00 keeps the half-open rule → OUT_OF_WINDOW Sunday (no guessing a closing session)', () => {
+    const rAuto = attributePunchWorkday(tehranInstant(2026, 11, 15, 6, 0), nightResolver)
+    const rWild = attributePunchWorkday(tehranInstant(2026, 11, 15, 6, 0), nightResolver, 'AUTO')
+    assert.equal(markerKey(rAuto.workday), '2026-11-15')
+    assert.equal(rAuto.reason, 'OUT_OF_WINDOW')
+    assert.equal(markerKey(rWild.workday), '2026-11-15')
+    assert.equal(rWild.reason, 'OUT_OF_WINDOW')
+  })
+  check('mandated case 3 — abutting next-day shift starting exactly at the boundary: OUT 06:00 → SATURDAY (closes the night), IN 06:00 → SUNDAY (opens the day shift); independent & deterministic', () => {
+    const boundaryDayCtx = { segments: [{ startMin: 6 * 60, endMin: 14 * 60 }] } // Sunday 06:00→14:00 — starts EXACTLY at the night end
+    const bothResolver = (day: Date) =>
+      markerKey(day) === '2026-11-14' ? NIGHT_SHIFT_CTX : markerKey(day) === '2026-11-15' ? boundaryDayCtx : null
+    const t = tehranInstant(2026, 11, 15, 6, 0)
+    const rOut = attributePunchWorkday(t, bothResolver, 'OUT')
+    const rIn = attributePunchWorkday(t, bothResolver, 'IN')
+    assert.equal(markerKey(rOut.workday), '2026-11-14') // the shift the punch CLOSES
+    assert.equal(rOut.reason, 'AMBIGUOUS_LATEST') // two definitions matched the instant — deterministic pick
+    assert.equal(rOut.viaShift, true)
+    assert.equal(markerKey(rIn.workday), '2026-11-15') // the shift the punch OPENS
+    assert.equal(rIn.reason, 'SHIFT_WINDOW')
+  })
+  check('reason codes preserved: NO_SHIFT / INVALID_SHIFT / OUT_OF_WINDOW unchanged for the direction-less API', () => {
+    assert.equal(attributePunchWorkday(tehranInstant(2026, 11, 17, 10, 0), () => null).reason, 'NO_SHIFT')
+    assert.equal(attributePunchWorkday(tehranInstant(2026, 11, 17, 10, 0), () => ({ segments: [{ startMin: 2000, endMin: 100 }] })).reason, 'INVALID_SHIFT')
+    assert.equal(attributePunchWorkday(tehranInstant(2026, 11, 17, 2, 30), () => DAY_SHIFT_CTX).reason, 'OUT_OF_WINDOW')
+  })
+})
+
 console.log(`\n== Attendance assertions: ${assertionsPassed} passed / ${assertionsFailed} failed ==`)
 console.log(`== Attendance sections: ${sectionsPassed} passed / ${sectionsFailed} failed ==`)
 if (assertionsFailed > 0 || sectionsFailed > 0) process.exitCode = 1

@@ -58,7 +58,7 @@ export async function onPunchRecorded(input: {
   if (inRule && inRule.scope === 'ALL') {
     // thresholdMin = minutes to consider "late notification"
     const today = tehranDayOf(timestamp)
-    await recalcDayForPerson(personId, timestamp)
+    await recalcDayForPerson(personId, timestamp, input.direction)
     const daily = await db.dailyAttendance.findUnique({
       where: { personId_date: { personId, date: today } },
     })

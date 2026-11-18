@@ -264,7 +264,7 @@ async function handleTimeLog(g: Gateway, msg: ParsedMsg, deviceId: string): Prom
   g.status.punches++
   try {
     await db.device.update({ where: { id: deviceId }, data: { lastSyncAt: new Date(), lastSyncCount: { increment: 1 }, status: 'ONLINE' } })
-    await recalcDayForPerson(person.id, timestamp)
+    await recalcDayForPerson(person.id, timestamp, direction)
     await emitRealtime('punch', {
       personId: person.id, personName: person.name,
       timestamp: timestamp.toISOString(), direction, source: 'DEVICE',

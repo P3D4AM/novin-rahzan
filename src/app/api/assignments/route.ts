@@ -36,6 +36,13 @@ export async function POST(req: NextRequest) {
     const to = parseDayParam(String(b.to))
     if (!from || !to || to < from) throw new ApiError(400, 'بازه تاریخ نامعتبر')
     const weekdays: number[] | null = b.weekdays?.length ? b.weekdays : null
+    // Phase 2 S3 review fix 2: isActive=false gates NEW assignment selection —
+    // an inactive shift stays resolvable for HISTORY but cannot be assigned to
+    // new days anymore.
+    if (b.shiftId) {
+      const shift = await db.shift.findUnique({ where: { id: b.shiftId }, select: { isActive: true } })
+      if (!shift || !shift.isActive) throw new ApiError(400, 'شیفت غیرفعال را نمی‌توان برای تخصیص جدید انتخاب کرد')
+    }
     let count = 0
     for (const d of datesBetween(from, to)) {
       if (weekdays && !weekdays.includes(d.getUTCDay())) continue

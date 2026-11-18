@@ -100,6 +100,9 @@ async function main() {
   // Phase 2 S3: the policy columns join the chain (the suite's sync path
   // triggers recalcDayForPerson → the engine reads/writes the new columns)
   sh('node', ['scripts/migrate-v1.7.0-phase2-s3.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  // Phase 2 S3 review fix 1: the dated default-shift history table joins the
+  // chain too (recalcDayForPerson reads it on every run)
+  sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
 
   /* ---- users + personnel ---- */
   const { hashPassword } = await import('../src/lib/auth')

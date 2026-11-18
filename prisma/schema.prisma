@@ -90,6 +90,7 @@ model Personnel {
   leaveRequests    LeaveRequest[]
   overtimeRequests OvertimeRequest[]
   assignments      ShiftAssignment[]
+  shiftHistory     DefaultShiftHistory[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 }
@@ -137,6 +138,30 @@ model ShiftAssignment {
   shift    Shift?    @relation(fields: [shiftId], references: [id], onDelete: SetNull)
 
   @@unique([personId, date])
+}
+
+// Phase 2 S3 review fix 1: dated history of the personnel DEFAULT shift.
+// `Personnel.defaultShiftId` stays the CURRENT value (new assignments / UI);
+// the calculation engine resolves the default AS OF each day from these rows.
+// Additive table — ShiftAssignment (per-day EXPLICIT assignments) is untouched:
+// encoding default-change history into it would need a fabricated explicit
+// row per day (destroying the explicit-vs-default distinction and clashing
+// with real explicit rows via @@unique(personId,date)), so a dedicated
+// history table is the only non-destructive structure. Rows are written ONLY
+// for dates when a change was actually observed (personnel creation, an API
+// change, or the v1.7.0-s3r2 migration snapshot) — no back-dated rows are
+// ever invented; the pre-history era is covered by the documented
+// backward-extension rule (see src/lib/default-shift.ts + docs/TIME-POLICIES.md).
+model DefaultShiftHistory {
+  id            String    @id @default(cuid())
+  personId      String
+  effectiveFrom DateTime  // Tehran-day marker (UTC midnight) the default becomes effective
+  shiftId       String? // null => no default shift from this date on
+  note          String?
+  createdAt     DateTime  @default(now())
+  person        Personnel @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, effectiveFrom])
 }
 
 model Holiday {

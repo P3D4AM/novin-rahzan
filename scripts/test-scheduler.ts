@@ -76,6 +76,9 @@ async function main() {
   // Phase 2 S3: the attendance-engine policy columns join the chain (the
   // scheduler's device loop triggers recalcDayForPerson → the engine needs them)
   sh('node', ['scripts/migrate-v1.7.0-phase2-s3.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  // Phase 2 S3 review fix 1: the dated default-shift history table joins the
+  // chain too (recalcDayForPerson reads it on every run)
+  sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
 
   const p1 = await db.personnel.create({ data: { personnelCode: '1001', firstName: 'علی', lastName: 'محمدی', pin: '1001', deviceUserId: 1001 } })
   const device = await db.device.create({

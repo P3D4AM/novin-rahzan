@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     const punch = await db.punchRecord.create({
       data: { personId: user.personId, timestamp: now, direction, source: 'WEB', latitude: b.latitude || null, longitude: b.longitude || null },
     })
-    await recalcDayForPerson(user.personId, now)
+    await recalcDayForPerson(user.personId, now, direction)
     await onPunchRecorded({ personId: user.personId, personName: user.fullName, timestamp: now, direction, source: 'WEB' })
     return NextResponse.json({ punch, direction })
   } catch (err) {

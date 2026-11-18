@@ -27,6 +27,22 @@
  *   [F] idempotency: recalc rerun → identical DailyAttendance rows.
  *   [G] PunchRecord rows are byte-identical before/after recalc (no mutation,
  *       no deletion — raw punches untouched by the engine).
+ *   [H] S3 review fix 1 — dated default-shift history end-to-end: baseline +
+ *       dated change via recordDefaultShiftChange (the personnel API's write
+ *       path); days BEFORE the effective date keep the OLD shift; days AFTER
+ *       take the NEW one; explicit ShiftAssignment unaffected; pre-baseline
+ *       day resolves via the documented backward extension; recalc rerun
+ *       changes neither rows nor the history table.
+ *   [I] S3 review fix 2 — a deactivated shift still computes its own past
+ *       days (isActive=false never degrades history to NO_SHIFT/fallback).
+ *   [J] S3 review fix 3 — the night-shift end boundary through the REAL
+ *       engine: J1 Sat 22:00 IN + Sun 06:00 OUT (exact end) = ONE row, one
+ *       valid pair, 480 worked; J2 Sat 22:00 IN + Sun 06:01 OUT = documented
+ *       fallback split (IN_WITHOUT_OUT / OUT_WITHOUT_IN + OUT_OF_WINDOW, no
+ *       fabricated pair); J3 next-day shift starting EXACTLY at 06:00 — the
+ *       OUT 06:00 closes the night (Saturday) while the IN 06:00 opens the
+ *       day shift (Sunday): independent, deterministic, each punch in
+ *       exactly ONE row.
  *
  * Run: npx tsx scripts/test-attendance-db.ts   (own temp DB; no external env)
  */
@@ -306,6 +322,166 @@ async function main() {
       await recalcRange([person.id], MK(2026, 11, 21), MK(2026, 11, 21))
       const sat21 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: person.id, date: MK(2026, 11, 21) } } })
       check('leave 10–16 minus mission overlap 12–16 → leaveMinutes 120; mission credit 12–18 → 360; status MISSION', sat21 !== null && sat21.leaveMinutes === 120 && sat21.missionMinutes === 360 && sat21.status === 'MISSION' && sat21.leaveTypeId === normalType.id)
+
+    })
+
+    // ------------------------------------------------------------------
+    // [H] S3 review fix 1 — dated default-shift history end-to-end (real DB)
+    // ------------------------------------------------------------------
+    await section('H. dated defaultShift history: change effective date never moves earlier days (real recalcRange)', async () => {
+      // the same write path the personnel API uses (recordDefaultShiftChange)
+      const { recordDefaultShiftChange } = await import('../src/lib/default-shift')
+      const p2 = await db.personnel.create({ data: { personnelCode: 'S3-HIST', pin: '9103', firstName: 'تاریخچه', lastName: 'شیفت', defaultShiftId: dayShift.id } })
+
+      // baseline: day shift effective 2026-11-16 (a punch the day BEFORE it proves backward extension)
+      await recordDefaultShiftChange({ personId: p2.id, shiftId: dayShift.id, effectiveFrom: MK(2026, 11, 16), note: 'baseline', previousShiftId: null })
+      await db.punchRecord.createMany({ data: [
+        { personId: p2.id, timestamp: TEHRAN(2026, 11, 15, 8, 0), direction: 'IN', source: 'KIOSK' },   // BEFORE the baseline (backward extension)
+        { personId: p2.id, timestamp: TEHRAN(2026, 11, 15, 16, 0), direction: 'OUT', source: 'KIOSK' },
+        { personId: p2.id, timestamp: TEHRAN(2026, 11, 17, 8, 0), direction: 'IN', source: 'KIOSK' },    // day-shift era
+        { personId: p2.id, timestamp: TEHRAN(2026, 11, 17, 16, 30), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      // an EXPLICIT assignment (day shift on 11-19) that must never feel the default change
+      await db.shiftAssignment.create({ data: { personId: p2.id, date: MK(2026, 11, 19), shiftId: dayShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: p2.id, timestamp: TEHRAN(2026, 11, 19, 8, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: p2.id, timestamp: TEHRAN(2026, 11, 19, 16, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+
+      await recalcRange([p2.id], MK(2026, 11, 15), MK(2026, 11, 19))
+      const before = {} as Record<string, { workedMinutes: number; shiftId: string | null; status: string } | undefined>
+      for (const d of [15, 17, 19]) {
+        const r = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: p2.id, date: MK(2026, 11, d) } } })
+        before[d] = r ? { workedMinutes: r.workedMinutes, shiftId: r.shiftId, status: r.status } : undefined
+      }
+      check('day-shift era rows before the change: 11-15 worked 480 (backward extension), 11-17 worked 510, both with the DAY shift id', before[15]?.workedMinutes === 480 && before[15]?.shiftId === dayShift.id && before[17]?.workedMinutes === 510 && before[17]?.shiftId === dayShift.id)
+      check('explicit ShiftAssignment day 11-19: worked 480 with the DAY shift (explicit always wins)', before[19]?.workedMinutes === 480 && before[19]?.shiftId === dayShift.id)
+
+      // the change: default → night shift, effective 2026-11-20 (dated, via the real write path)
+      const change = await recordDefaultShiftChange({ personId: p2.id, shiftId: nightShift.id, effectiveFrom: MK(2026, 11, 20), note: 'switch to nights', previousShiftId: dayShift.id })
+      check('recordDefaultShiftChange wrote the dated entry (changed=true, effective 2026-11-20)', change.changed === true && change.effectiveFrom.getTime() === MK(2026, 11, 20).getTime() && change.shiftId === nightShift.id)
+      const p2row = await db.personnel.findUnique({ where: { id: p2.id }, select: { defaultShiftId: true } })
+      check('Personnel.defaultShiftId updated to the new current value (night)', p2row?.defaultShiftId === nightShift.id)
+      const history = await db.defaultShiftHistory.findMany({ where: { personId: p2.id }, orderBy: { effectiveFrom: 'asc' } })
+      check('exactly TWO history rows (baseline day 11-16 + change 11-20) — no fabricated rows', history.length === 2 && history[0].shiftId === dayShift.id && history[1].shiftId === nightShift.id)
+
+      // night-era punches: Sat 21 22:00 → Sun 22 05:00 (attributed to 11-21, the shift start day)
+      await db.punchRecord.createMany({ data: [
+        { personId: p2.id, timestamp: TEHRAN(2026, 11, 21, 22, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: p2.id, timestamp: TEHRAN(2026, 11, 22, 5, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([p2.id], MK(2026, 11, 15), MK(2026, 11, 22))
+
+      const after = {} as Record<string, { workedMinutes: number; shiftId: string | null; status: string; firstIn: Date | null; lastOut: Date | null } | undefined>
+      for (const d of [15, 17, 19, 21, 22]) {
+        const r = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: p2.id, date: MK(2026, 11, d) } } })
+        after[d] = r ? { workedMinutes: r.workedMinutes, shiftId: r.shiftId, status: r.status, firstIn: r.firstIn, lastOut: r.lastOut } : undefined
+      }
+      check('days BEFORE the effective date are UNCHANGED (11-15: 480 day, 11-17: 510 day, 11-19 explicit: 480 day)', after[15]?.workedMinutes === 480 && after[15]?.shiftId === dayShift.id && after[17]?.workedMinutes === 510 && after[17]?.shiftId === dayShift.id && after[19]?.workedMinutes === 480 && after[19]?.shiftId === dayShift.id)
+      check('days AFTER the effective date take the NEW default: Sat 21-21 night row worked 420 with the NIGHT shift id', after[21]?.workedMinutes === 420 && after[21]?.shiftId === nightShift.id && after[21]?.status === 'PRESENT')
+      check('the Sunday 05:00 punch landed on SATURDAY (shift-start day), not Sunday — Sunday row has NO punch instants', after[22]?.firstIn === null && after[22]?.lastOut === null && after[21]?.lastOut?.getTime() === TEHRAN(2026, 11, 22, 5, 0).getTime())
+
+      // mandated stability: re-running recalc must NOT change history or rows
+      const rowsBeforeRerun = await db.dailyAttendance.findMany({ where: { personId: p2.id }, orderBy: { date: 'asc' } })
+      await recalcRange([p2.id], MK(2026, 11, 15), MK(2026, 11, 22))
+      const rowsAfterRerun = await db.dailyAttendance.findMany({ where: { personId: p2.id }, orderBy: { date: 'asc' } })
+      const identical = rowsBeforeRerun.length === rowsAfterRerun.length && rowsBeforeRerun.every((r, i) =>
+        r.date.getTime() === rowsAfterRerun[i].date.getTime() &&
+        r.workedMinutes === rowsAfterRerun[i].workedMinutes &&
+        r.shiftId === rowsAfterRerun[i].shiftId &&
+        r.status === rowsAfterRerun[i].status &&
+        r.firstIn?.getTime() === rowsAfterRerun[i].firstIn?.getTime() &&
+        r.lastOut?.getTime() === rowsAfterRerun[i].lastOut?.getTime())
+      check('recalc rerun leaves every row identical (the engine never writes history)', identical)
+      const historyAfter = await db.defaultShiftHistory.findMany({ where: { personId: p2.id } })
+      check('the history table itself is untouched by recalc (still exactly 2 rows)', historyAfter.length === 2)
+    })
+
+    // ------------------------------------------------------------------
+    // [I] S3 review fix 2 — inactive shifts stay resolvable for history
+    // ------------------------------------------------------------------
+    await section('I. inactive shift: a deactivated shift still computes its own historical days', async () => {
+      const oldShift = await db.shift.create({ data: { name: 'شیفت قدیمی', lateGraceMin: 10, earlyGraceMin: 10, overtimeEligible: true } })
+      await db.shiftSegment.create({ data: { shiftId: oldShift.id, order: 0, startMin: 8 * 60, endMin: 16 * 60, breakMin: 0 } })
+      const p3 = await db.personnel.create({ data: { personnelCode: 'S3-INACT', pin: '9104', firstName: 'غیرفعال', lastName: 'شیفت' } })
+      // explicit assignment of the (still active) shift to a past date
+      await db.shiftAssignment.create({ data: { personId: p3.id, date: MK(2026, 11, 23), shiftId: oldShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: p3.id, timestamp: TEHRAN(2026, 11, 23, 8, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: p3.id, timestamp: TEHRAN(2026, 11, 23, 16, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([p3.id], MK(2026, 11, 23), MK(2026, 11, 23))
+      const rowBefore = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: p3.id, date: MK(2026, 11, 23) } } })
+      check('with the shift ACTIVE: day 11-23 computes PRESENT 480 with that shift id, no attribution fallback in note', rowBefore !== null && rowBefore.status === 'PRESENT' && rowBefore.workedMinutes === 480 && rowBefore.shiftId === oldShift.id && rowBefore.note === null)
+
+      // deactivate the shift — the past day must keep computing with it
+      await db.shift.update({ where: { id: oldShift.id }, data: { isActive: false } })
+      await recalcRange([p3.id], MK(2026, 11, 23), MK(2026, 11, 23))
+      const rowAfter = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: p3.id, date: MK(2026, 11, 23) } } })
+      check('after isActive=false the SAME past day still computes with the SAME shift (no NO_SHIFT / no fallback note)', rowAfter !== null && rowAfter.status === 'PRESENT' && rowAfter.workedMinutes === 480 && rowAfter.shiftId === oldShift.id && rowAfter.note === null)
+
+      // the deactivated shift is still loaded by the calculation shift map
+      const stillIn = await db.shift.findUnique({ where: { id: oldShift.id }, select: { isActive: true } })
+      check('fixture sanity: the shift row is indeed isActive=false now (history resolved anyway)', stillIn !== null && stillIn.isActive === false)
+    })
+
+    // ------------------------------------------------------------------
+    // [J] S3 review fix 3 — night-shift end boundary through the REAL engine
+    // ------------------------------------------------------------------
+    await section('J. night-shift end boundary: exact 06:00 OUT closes the shift-start day (real recalcRange)', async () => {
+      // J1 (mandated): Sat 22:00 IN + Sun 06:00 OUT — one row, one valid pair
+      const pJ = await db.personnel.create({ data: { personnelCode: 'S3-BOUND', pin: '9105', firstName: 'مرز', lastName: 'شیفت' } })
+      await db.shiftAssignment.create({ data: { personId: pJ.id, date: MK(2026, 11, 28), shiftId: nightShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: pJ.id, timestamp: TEHRAN(2026, 11, 28, 22, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: pJ.id, timestamp: TEHRAN(2026, 11, 29, 6, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([pJ.id], MK(2026, 11, 28), MK(2026, 11, 29))
+      const satJ = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pJ.id, date: MK(2026, 11, 28) } } })
+      const sunJ = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pJ.id, date: MK(2026, 11, 29) } } })
+      check('J1: SATURDAY row holds the WHOLE pair — PRESENT, worked 480 (22:00→06:00), firstIn 22:00 / lastOut 06:00, no anomaly note', satJ !== null && satJ.status === 'PRESENT' && satJ.workedMinutes === 480 && satJ.firstIn?.getTime() === TEHRAN(2026, 11, 28, 22, 0).getTime() && satJ.lastOut?.getTime() === TEHRAN(2026, 11, 29, 6, 0).getTime() && satJ.note === null)
+      check('J1: SUNDAY row gets NO punch from the night pair (no split, no double count)', sunJ !== null && sunJ.firstIn === null && sunJ.lastOut === null && sunJ.workedMinutes === 0)
+
+      // each real punch is computed in EXACTLY one DailyAttendance row
+      const rowsJ = await db.dailyAttendance.findMany({ where: { personId: pJ.id } })
+      const punchCount = (t: Date) => rowsJ.filter((r) => r.firstIn?.getTime() === t.getTime() || r.lastOut?.getTime() === t.getTime()).length
+      check('J1: each punch (Sat 22:00 IN, Sun 06:00 OUT) appears in exactly ONE row', punchCount(TEHRAN(2026, 11, 28, 22, 0)) === 1 && punchCount(TEHRAN(2026, 11, 29, 6, 0)) === 1)
+
+      // J2 (mandated): Sat 22:00 IN + Sun 06:01 OUT — the 06:01 OUT is genuinely out of window
+      const pQ = await db.personnel.create({ data: { personnelCode: 'S3-BOUND2', pin: '9106', firstName: 'مرز', lastName: 'دوم' } })
+      await db.shiftAssignment.create({ data: { personId: pQ.id, date: MK(2026, 11, 28), shiftId: nightShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: pQ.id, timestamp: TEHRAN(2026, 11, 28, 22, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: pQ.id, timestamp: TEHRAN(2026, 11, 29, 6, 1), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([pQ.id], MK(2026, 11, 28), MK(2026, 11, 29))
+      const satQ = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pQ.id, date: MK(2026, 11, 28) } } })
+      const sunQ = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pQ.id, date: MK(2026, 11, 29) } } })
+      check('J2: SATURDAY keeps the open session — INCOMPLETE with IN_WITHOUT_OUT (no fabricated pair)', satQ !== null && satQ.status === 'INCOMPLETE' && satQ.workedMinutes === 0 && satQ.note === 'IN_WITHOUT_OUT:1')
+      check('J2: SUNDAY receives the 06:01 OUT via the documented fallback — INCOMPLETE with OUT_WITHOUT_IN + OUT_OF_WINDOW reasons (an orphan OUT is reported, never fabricated into a pair)', sunQ !== null && sunQ.status === 'INCOMPLETE' && sunQ.firstIn === null && sunQ.note !== null && sunQ.note.includes('OUT_WITHOUT_IN') && sunQ.note.includes('OUT_OF_WINDOW'))
+
+      // J3 (mandated): next-day shift starting EXACTLY at the boundary — IN and OUT independent
+      const boundaryShift = await db.shift.create({ data: { name: 'شیفت مرزی', lateGraceMin: 10, earlyGraceMin: 10, overtimeEligible: true } })
+      await db.shiftSegment.create({ data: { shiftId: boundaryShift.id, order: 0, startMin: 6 * 60, endMin: 14 * 60, breakMin: 0 } })
+      const pR = await db.personnel.create({ data: { personnelCode: 'S3-BOUND3', pin: '9107', firstName: 'مرز', lastName: 'سوم' } })
+      await db.shiftAssignment.create({ data: { personId: pR.id, date: MK(2026, 11, 28), shiftId: nightShift.id } })
+      await db.shiftAssignment.create({ data: { personId: pR.id, date: MK(2026, 11, 29), shiftId: boundaryShift.id } })
+      // four punches — the OUT 06:00 (closes the night) and the IN 06:00 (opens the day shift) share ONE instant
+      await db.punchRecord.createMany({ data: [
+        { personId: pR.id, timestamp: TEHRAN(2026, 11, 28, 22, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: pR.id, timestamp: TEHRAN(2026, 11, 29, 6, 0), direction: 'OUT', source: 'KIOSK' },
+        { personId: pR.id, timestamp: TEHRAN(2026, 11, 29, 6, 0), direction: 'IN', source: 'WEB' },
+        { personId: pR.id, timestamp: TEHRAN(2026, 11, 29, 14, 0), direction: 'OUT', source: 'WEB' },
+      ] })
+      await recalcRange([pR.id], MK(2026, 11, 28), MK(2026, 11, 29))
+      const satR = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pR.id, date: MK(2026, 11, 28) } } })
+      const sunR = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pR.id, date: MK(2026, 11, 29) } } })
+      check('J3: SATURDAY = the OUT 06:00 that CLOSES the night — pair 22:00→06:00, worked 480, PRESENT', satR !== null && satR.status === 'PRESENT' && satR.workedMinutes === 480 && satR.firstIn?.getTime() === TEHRAN(2026, 11, 28, 22, 0).getTime() && satR.lastOut?.getTime() === TEHRAN(2026, 11, 29, 6, 0).getTime() && satR.shiftId === nightShift.id)
+      check('J3: SUNDAY = the IN 06:00 that OPENS the boundary day shift — pair 06:00→14:00, worked 480, PRESENT (same instant, other workday)', sunR !== null && sunR.status === 'PRESENT' && sunR.workedMinutes === 480 && sunR.firstIn?.getTime() === TEHRAN(2026, 11, 29, 6, 0).getTime() && sunR.lastOut?.getTime() === TEHRAN(2026, 11, 29, 14, 0).getTime() && sunR.shiftId === boundaryShift.id)
+      const rowsR = await db.dailyAttendance.findMany({ where: { personId: pR.id } })
+      const inCountR = (t: Date) => rowsR.filter((r) => r.firstIn?.getTime() === t.getTime()).length
+      const outCountR = (t: Date) => rowsR.filter((r) => r.lastOut?.getTime() === t.getTime()).length
+      check('J3: every real punch is computed in exactly ONE row (IN Sat 22:00; OUT 06:00 → Saturday lastOut; IN 06:00 → Sunday firstIn; OUT 14:00) — two punches at the SAME instant land on two DIFFERENT rows by direction', inCountR(TEHRAN(2026, 11, 28, 22, 0)) === 1 && outCountR(TEHRAN(2026, 11, 29, 6, 0)) === 1 && inCountR(TEHRAN(2026, 11, 29, 6, 0)) === 1 && outCountR(TEHRAN(2026, 11, 29, 14, 0)) === 1 && rowsR.filter((r) => r.workedMinutes === 480).length === 2)
     })
 
     // ------------------------------------------------------------------
@@ -349,6 +525,58 @@ async function main() {
           punchesAfter[i].source === punchesBefore[i].source
       }
       check(`raw PunchRecord rows byte-identical after all recalcs (${punchesAfter.length} rows — never mutated, never deleted)`, punchesSame)
+    })
+
+    // ------------------------------------------------------------------
+    // [L] S3 review fix 1 — the migration script itself (pre-fix schema →
+    //     dated default-shift history), additive & backward compatible
+    // ------------------------------------------------------------------
+    await section('L. migration migrate-v1.7.0-phase2-s3r2.mjs: table + snapshot, idempotent, data preserved', async () => {
+      const MIG2_URL = sqliteUrl(generateTestDatabasePath(TMP))
+      // baseline: the CURRENT HEAD schema (2223ac75 — S3 columns, NO DefaultShiftHistory)
+      const old = sh('git', ['show', '2223ac75:prisma/schema.prisma'], {})
+      check('pre-S3r2 baseline schema resolves from git (2223ac75)', old.status === 0 && old.stdout.length > 1000)
+      const OLD2_SCHEMA = path.join(TMP, 'old-schema-s3r2.prisma')
+      writeFileSync(OLD2_SCHEMA, old.stdout)
+      tmpFiles.push(OLD2_SCHEMA)
+      const pushOld2 = sh('npx', ['prisma', 'db', 'push', '--schema', OLD2_SCHEMA, '--skip-generate'], { DATABASE_URL: MIG2_URL })
+      check('pre-S3r2 database created (db push, pinned old schema)', pushOld2.status === 0, (pushOld2.stderr || '').slice(-200))
+
+      // real rows: a person WITH a default, one WITHOUT, a shift, a punch, a DailyAttendance row
+      const seed2 = sh('node', ['scripts/test-db-raw.mjs',
+        `INSERT INTO "Shift" ("id","name","lateGraceMin","earlyGraceMin","overtimeEligible","isActive","type","color") VALUES ('sh-m2','موروثی',10,10,1,1,'FIXED','#10b981')`,
+        `INSERT INTO "Personnel" ("id","personnelCode","firstName","lastName","pin","qrToken","createdAt","updatedAt","defaultShiftId") VALUES ('p-m2','MIG2-A','قدیمی','الف','2001','q-m2','2026-01-01T00:00:00.000Z','2026-01-01T00:00:00.000Z','sh-m2')`,
+        `INSERT INTO "Personnel" ("id","personnelCode","firstName","lastName","pin","qrToken","createdAt","updatedAt") VALUES ('p-m3','MIG2-B','قدیمی','ب','2002','q-m3','2026-01-01T00:00:00.000Z','2026-01-01T00:00:00.000Z')`,
+        `INSERT INTO "PunchRecord" ("id","personId","timestamp","createdAt") VALUES ('pr-m2','p-m2','2026-11-17T04:30:00.000Z','2026-11-17T04:30:00.000Z')`,
+        `INSERT INTO "DailyAttendance" ("id","personId","date","status","workedMinutes","lateMinutes","earlyLeaveMinutes","overtimeMinutes","leaveMinutes") VALUES ('da-m2','p-m2','2026-11-17T00:00:00.000Z','PRESENT',480,0,0,0,0)`,
+      ], { DATABASE_URL: MIG2_URL })
+      check('pre-S3r2 rows seeded (shift/person-with-default/person-without/punch/daily)', seed2.status === 0, (seed2.stderr || '').slice(-300))
+
+      const up = sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs'], { DATABASE_URL: MIG2_URL })
+      check('migration up exits 0 (table + index + snapshot)', up.status === 0, (up.stderr || up.stdout || '').slice(-300))
+      const up2 = sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs'], { DATABASE_URL: MIG2_URL })
+      check('migration up is IDEMPOTENT (second run exits 0, 0 new snapshot rows)', up2.status === 0 && (up2.stdout || '').includes('snapshot rows written (persons with a default, no history yet): 0'))
+
+      const dbL = new PrismaClient({ datasources: { db: { url: MIG2_URL } } })
+      try {
+        const hist = await dbL.defaultShiftHistory.findMany()
+        // Tehran "today" marker, computed the same way the migration script does
+        const parts = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit',
+        }).format(new Date()).split('-').map(Number)
+        const tehranToday = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]))
+        check('exactly ONE snapshot row — the person WITH a default (the default-less person needs none), shift = the current default, effective TODAY (Tehran day marker)', hist.length === 1 && hist[0].personId === 'p-m2' && hist[0].shiftId === 'sh-m2' && hist[0].effectiveFrom.getTime() === tehranToday.getTime())
+        const punch = await dbL.punchRecord.findUnique({ where: { id: 'pr-m2' } })
+        const daily = await dbL.dailyAttendance.findUnique({ where: { id: 'da-m2' } })
+        const personNoDefault = await dbL.personnel.findUnique({ where: { id: 'p-m3' } })
+        check('all pre-existing rows survive untouched (punch timestamp, daily worked 480, second person)', punch !== null && punch.timestamp.toISOString() === '2026-11-17T04:30:00.000Z' && daily !== null && daily.workedMinutes === 480 && personNoDefault !== null)
+      } finally {
+        await dbL.$disconnect()
+      }
+
+      // the CURRENT schema converges on the migrated database (no drift — INSTALL.bat path)
+      const pushNow2 = sh('npx', ['prisma', 'db', 'push', '--skip-generate'], { DATABASE_URL: MIG2_URL })
+      check('prisma db push from the CURRENT schema converges (no drift after the migration)', pushNow2.status === 0, (pushNow2.stderr || '').slice(-300))
     })
 
     await db.$disconnect()

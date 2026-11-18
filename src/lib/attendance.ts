@@ -19,6 +19,11 @@ import {
   type WorkdayAttribution,
 } from '@/lib/workday'
 import { addDays, faWeekday, startOfUTCDay, tehranMinutes } from '@/lib/jalali'
+import {
+  loadDatedDefaultShiftEntries,
+  resolveDatedDefaultShiftId,
+  type DatedDefaultShiftEntry,
+} from '@/lib/default-shift'
 
 export interface ShiftSegmentLite {
   startMin: number
@@ -278,9 +283,23 @@ export function computeDaily(input: {
   }
 }
 
-/** Load active shifts as engine Lite objects (segments ordered). */
-async function loadActiveShiftMap(): Promise<Map<string, ShiftLite>> {
-  const shifts = await db.shift.findMany({ where: { isActive: true }, include: { segments: true } })
+/**
+ * Load ALL shifts as engine Lite objects (segments ordered).
+ *
+ * Phase 2 S3 review fix 2: no `isActive` filter on the CALCULATION path — a
+ * shift once assigned to a past date stays resolvable for that date even
+ * after being deactivated (its historical rows keep computing with it and
+ * never degrade to NO_SHIFT/fallback). `isActive=false` gates NEW assignment
+ * selection only (assignments API/UI), never history resolution.
+ *
+ * NOTE (documented limitation, docs/TIME-POLICIES.md): EDITING a shift's
+ * segment definition retroactively changes every historical day that used
+ * it — the engine resolves by reference, it does not version definitions.
+ * Recommended operator practice: deactivate the shift and create a new one
+ * instead of editing an in-use definition.
+ */
+async function loadShiftMap(): Promise<Map<string, ShiftLite>> {
+  const shifts = await db.shift.findMany({ include: { segments: true } })
   return new Map<string, ShiftLite>(
     shifts.map((s) => [
       s.id,
@@ -301,19 +320,23 @@ async function loadActiveShiftMap(): Promise<Map<string, ShiftLite>> {
 /**
  * Assignment-history-aware resolver: the shift applicable ON a given day —
  * ShiftAssignment for that day (explicit OFF → null), else the person's
- * defaultShift. Today's shift is never applied to other days. Used for
- * ATTRIBUTION (no holiday/Friday suppression: attribution is data-driven;
- * off-ness is a per-row calculation flag, not an attribution input).
+ * DATED default shift for that day (Phase 2 S3 review fix 1: the latest
+ * DefaultShiftHistory entry with effectiveFrom <= that day; days before the
+ * earliest entry take the earliest entry's shift — the documented
+ * backward-extension of the legacy era, never a fabricated row). Today's
+ * default is never applied to other days. Used for ATTRIBUTION (no
+ * holiday/Friday suppression: attribution is data-driven; off-ness is a
+ * per-row calculation flag, not an attribution input).
  */
 function buildShiftResolver(
   personId: string,
-  defaultShiftId: string | null,
+  defaultEntries: DatedDefaultShiftEntry[],
   assignMap: Map<string, { shiftId: string | null }>,
   shiftMap: Map<string, ShiftLite>,
 ): (day: Date) => ShiftCtx | null {
   return (day: Date) => {
     const assign = assignMap.get(`${personId}|${markerKey(day)}`)
-    const shiftId = assign ? assign.shiftId : defaultShiftId
+    const shiftId = assign ? assign.shiftId : resolveDatedDefaultShiftId(defaultEntries, day)
     if (!shiftId) return null
     const shift = shiftMap.get(shiftId)
     if (!shift) return null
@@ -345,7 +368,16 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
     include: { defaultShift: { include: { segments: true } } },
   })
 
-  const shiftMap = await loadActiveShiftMap()
+  const shiftMap = await loadShiftMap()
+
+  // Phase 2 S3 review fix 1: dated default-shift history (entries per person;
+  // persons with a default but no history rows yet fall back to the current
+  // default over the whole timeline — in-memory legacy fallback, never stored).
+  const currentDefaults = new Map(persons.map((p) => [p.id, p.defaultShiftId]))
+  const defaultEntries = await loadDatedDefaultShiftEntries(
+    persons.map((p) => p.id),
+    currentDefaults,
+  )
 
   const holidays = await db.holiday.findMany({ where: { date: { gte: dayStart, lte: dayEnd } } })
   const holidayKeys = new Set(holidays.map((h) => h.date.toISOString().slice(0, 10)))
@@ -398,7 +430,8 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
 
   let count = 0
   for (const p of persons) {
-    const shiftOf = buildShiftResolver(p.id, p.defaultShiftId, assignMap, shiftMap)
+    const entriesOfP = defaultEntries.get(p.id) ?? []
+    const shiftOf = buildShiftResolver(p.id, entriesOfP, assignMap, shiftMap)
 
     // effective coverage partition over the range (claim-subtracted)
     const coverage = coverageWindowsByDay(dayStart, dayEnd, shiftOf)
@@ -410,7 +443,7 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
     })
     const byWorkday = new Map<string, { punches: PairingPunchInput[]; attributions: WorkdayAttribution[] }>()
     for (const pu of punches) {
-      const attr = attributePunchWorkday(pu.timestamp, shiftOf)
+      const attr = attributePunchWorkday(pu.timestamp, shiftOf, pu.direction)
       const k = markerKey(attr.workday)
       const bucket = byWorkday.get(k) ?? { punches: [], attributions: [] }
       bucket.punches.push(pu)
@@ -437,15 +470,19 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
       if (assign) {
         if (assign.shiftId) shift = shiftMap.get(assign.shiftId) ?? null
         else isOff = true // explicit off day
-      } else if (p.defaultShiftId) {
-        if (isHoliday || isFriday) {
-          isOff = true
-        } else {
-          shift = p.defaultShiftId ? shiftMap.get(p.defaultShiftId) ?? null : null
-        }
       } else {
-        // no default shift: weekend off; otherwise compute from punches only
-        isOff = isFriday || isHoliday
+        // dated default for THIS day (review fix 1) — never the current value
+        const defId = resolveDatedDefaultShiftId(entriesOfP, d)
+        if (defId) {
+          if (isHoliday || isFriday) {
+            isOff = true
+          } else {
+            shift = shiftMap.get(defId) ?? null
+          }
+        } else {
+          // no default shift (as of this day): weekend off; otherwise compute from punches only
+          isOff = isFriday || isHoliday
+        }
       }
 
       const bucket = byWorkday.get(key)
@@ -505,7 +542,7 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
  * day — so a night-shift punch after midnight recomputes the SHIFT-START day,
  * and a moved/deleted punch recomputes the row that previously contained it.
  */
-export async function recalcDayForPerson(personId: string, ts: Date) {
+export async function recalcDayForPerson(personId: string, ts: Date, direction?: string | null) {
   const person = await db.personnel.findUnique({
     where: { id: personId },
     include: { defaultShift: { include: { segments: true } } },
@@ -519,18 +556,21 @@ export async function recalcDayForPerson(personId: string, ts: Date) {
   const assignMap = new Map<string, { shiftId: string | null }>()
   for (const a of assigns) assignMap.set(`${a.personId}|${a.date.toISOString().slice(0, 10)}`, { shiftId: a.shiftId })
 
-  const shiftMap = await loadActiveShiftMap()
-  const shiftOf = buildShiftResolver(personId, person.defaultShiftId, assignMap, shiftMap)
+  const shiftMap = await loadShiftMap()
+  // dated default-shift history (review fix 1) — same resolution as recalcRange
+  const defaultEntries = await loadDatedDefaultShiftEntries([personId], new Map([[personId, person.defaultShiftId]]))
+  const entriesOfP = defaultEntries.get(personId) ?? []
+  const shiftOf = buildShiftResolver(personId, entriesOfP, assignMap, shiftMap)
 
   const workdays = new Set<string>() // markerKey strings — UTC-midnight markers
-  workdays.add(markerKey(attributePunchWorkday(ts, shiftOf).workday))
+  workdays.add(markerKey(attributePunchWorkday(ts, shiftOf, direction).workday))
   const dayWin = tehranDayWindowOfMarker(day)
   const dayPunches = await db.punchRecord.findMany({
     where: { personId, timestamp: { gte: dayWin.start, lt: dayWin.end } },
-    select: { timestamp: true },
+    select: { timestamp: true, direction: true },
   })
   for (const pu of dayPunches) {
-    workdays.add(markerKey(attributePunchWorkday(pu.timestamp, shiftOf).workday))
+    workdays.add(markerKey(attributePunchWorkday(pu.timestamp, shiftOf, pu.direction).workday))
   }
 
   const markers = [...workdays].sort()

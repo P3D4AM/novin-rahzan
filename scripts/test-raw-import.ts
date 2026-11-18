@@ -230,6 +230,12 @@ async function main() {
   // install → v1.3.0 → v1.3.1 → v1.4.0 → v1.5.0 → v1.7.0 → current engine)
   const up17 = sh('node', ['scripts/migrate-v1.7.0-phase2-s3.mjs', 'up'], { DATABASE_URL: MIG_URL })
   check('v1.7.0 migration up applied (isMission + payable/mission minutes columns)', up17.status === 0 && /LeaveType\.isMission = present/.test(up17.stdout) && /DailyAttendance\.missionMinutes = present/.test(up17.stdout), (up17.stderr || up17.stdout || '').slice(-200))
+  // Phase 2 S3 review fix 1: the dated default-shift history migration joins
+  // the chain too (the current engine reads DefaultShiftHistory on every recalc)
+  const up17r2 = sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs', 'up'], { DATABASE_URL: MIG_URL })
+  check('v1.7.0-s3r2 migration up applied (DefaultShiftHistory table)', up17r2.status === 0 && /DefaultShiftHistory = present/.test(up17r2.stdout), (up17r2.stderr || up17r2.stdout || '').slice(-200))
+  const up17r2b = sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs', 'up'], { DATABASE_URL: MIG_URL })
+  check('v1.7.0-s3r2 migration up is idempotent (2nd run: 0 new snapshot rows)', up17r2b.status === 0 && /snapshot rows written \(persons with a default, no history yet\): 0/.test(up17r2b.stdout))
 
   const verifySeed = sh('node', ['scripts/test-db-raw.mjs', '--json',
     'SELECT COUNT(*) AS n FROM "Personnel" WHERE id=\'pmig1\'',
@@ -288,7 +294,7 @@ async function main() {
    * ================================================================ */
   const pushMainOld = sh('npx', ['prisma', 'db', 'push', '--schema', OLD_SCHEMA, '--skip-generate'], { DATABASE_URL: MAIN_DB_URL })
   if (pushMainOld.status !== 0) throw new Error('main db old-schema push failed: ' + (pushMainOld.stderr || '').slice(-300))
-  for (const m of ['migrate-v1.3.0-phase1.mjs', 'migrate-v1.4.0-phase2.mjs', 'migrate-v1.3.1-phase1-fixes.mjs', 'migrate-v1.5.0-bridge-internal.mjs', 'migrate-v1.7.0-phase2-s3.mjs']) {
+  for (const m of ['migrate-v1.3.0-phase1.mjs', 'migrate-v1.4.0-phase2.mjs', 'migrate-v1.3.1-phase1-fixes.mjs', 'migrate-v1.5.0-bridge-internal.mjs', 'migrate-v1.7.0-phase2-s3.mjs', 'migrate-v1.7.0-phase2-s3r2.mjs']) {
     const r = sh('node', [`scripts/${m}`, 'up'], { DATABASE_URL: MAIN_DB_URL })
     if (r.status !== 0) throw new Error(`main db migration failed (${m}): ` + (r.stderr || '').slice(-300))
   }

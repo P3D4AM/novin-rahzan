@@ -3,6 +3,8 @@ import { db } from '@/lib/db'
 import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
 import { rematchRawPunches } from '@/lib/raw-import'
+import { recordDefaultShiftChange } from '@/lib/default-shift'
+import { parseDayParam, tehranTodayMarker } from '@/lib/time'
 
 export async function GET(req: NextRequest) {
   try {
@@ -58,8 +60,15 @@ export async function POST(req: NextRequest) {
     if (!b.personnelCode || !b.firstName || !b.lastName) throw new ApiError(400, 'کد پرسنلی، نام و نام خانوادگی الزامی است')
     const dup = await db.personnel.findFirst({ where: { OR: [{ personnelCode: b.personnelCode }, ...(b.pin ? [{ pin: b.pin }] : [])] } })
     if (dup) throw new ApiError(400, 'کد پرسنلی یا پین تکراری است')
-    const { id, createdAt, updatedAt, ...rest } = b
+    const { id, createdAt, updatedAt, defaultShiftEffectiveFrom, ...rest } = b
     const p = await db.personnel.create({ data: { ...rest } })
+    // Phase 2 S3 review fix 1: the initial default shift gets a DATED history
+    // row (baseline) — effective today, or the explicitly passed day marker —
+    // so later changes never move the pre-effective-date past.
+    if (p.defaultShiftId) {
+      const effectiveFrom = parseDayParam(defaultShiftEffectiveFrom) ?? tehranTodayMarker()
+      await recordDefaultShiftChange({ personId: p.id, shiftId: p.defaultShiftId, effectiveFrom, note: 'ایجاد پرسنل', previousShiftId: null })
+    }
     // v1.3.0 (Phase 1): a new personnel member may match previously UNMATCHED
     // device punches (deviceUserId / personnelCode) — rematch them now.
     // v1.3.1 (fix 3): the acting admin is recorded in the AuditLog rows; a

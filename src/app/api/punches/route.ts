@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       },
     })
     await db.auditLog.create({ data: { userId: user.id, action: 'PUNCH_CREATE', entity: 'PunchRecord', entityId: punch.id, details: b.reason || '' } })
-    await recalcDayForPerson(b.personId, new Date(b.timestamp))
+    await recalcDayForPerson(b.personId, new Date(b.timestamp), punch.direction)
     return NextResponse.json({ punch })
   } catch (err) {
     return fail(err)
@@ -90,8 +90,8 @@ export async function PUT(req: NextRequest) {
       data: { timestamp: new Date(b.timestamp), direction: b.direction || old.direction, edited: true, editReason: b.reason || 'ویرایش دستی' },
     })
     await db.auditLog.create({ data: { userId: user.id, action: 'PUNCH_EDIT', entity: 'PunchRecord', entityId: b.id, details: `${old.timestamp.toISOString()} -> ${b.timestamp}` } })
-    await recalcDayForPerson(old.personId, old.timestamp)
-    await recalcDayForPerson(punch.personId, punch.timestamp)
+    await recalcDayForPerson(old.personId, old.timestamp, old.direction)
+    await recalcDayForPerson(punch.personId, punch.timestamp, punch.direction)
     return NextResponse.json({ punch })
   } catch (err) {
     return fail(err)
@@ -106,7 +106,7 @@ export async function DELETE(req: NextRequest) {
     if (!punch) throw new ApiError(404, 'تردد یافت نشد')
     await db.punchRecord.delete({ where: { id } })
     await db.auditLog.create({ data: { userId: user.id, action: 'PUNCH_DELETE', entity: 'PunchRecord', entityId: id } })
-    await recalcDayForPerson(punch.personId, punch.timestamp)
+    await recalcDayForPerson(punch.personId, punch.timestamp, punch.direction)
     return NextResponse.json({ ok: true })
   } catch (err) {
     return fail(err)
