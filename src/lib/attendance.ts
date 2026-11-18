@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { anomalySummary, pairPunches, type PairingPunchInput } from '@/lib/pairing'
 import { addDays, faWeekday, startOfUTCDay, tehranDayOf, tehranMinutes } from '@/lib/jalali'
 
 export interface ShiftSegmentLite {
@@ -77,24 +78,12 @@ async function leaveForDay(personId: string, day: Date): Promise<LeaveSpan | nul
   return { leaveTypeId: typeId!, minutesCovered: Math.min(minutes, 1440) }
 }
 
-function pairPunches(punches: { timestamp: Date }[]): { firstIn: Date | null; lastOut: Date | null; worked: number } {
-  if (!punches.length) return { firstIn: null, lastOut: null, worked: 0 }
-  const sorted = [...punches].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
-  const firstIn = sorted[0].timestamp
-  const lastOut = sorted.length > 1 ? sorted[sorted.length - 1].timestamp : null
-  let worked = 0
-  for (let i = 0; i + 1 < sorted.length; i += 2) {
-    worked += Math.round((sorted[i + 1].timestamp.getTime() - sorted[i].timestamp.getTime()) / 60000)
-  }
-  return { firstIn, lastOut, worked }
-}
-
 /** Compute daily attendance for one person on one day */
 export function computeDaily(input: {
   personId: string
   day: Date
   shift: ShiftLite | null
-  punches: { timestamp: Date }[]
+  punches: PairingPunchInput[]
   leave: LeaveSpan | null
   isHoliday: boolean
   isOff: boolean // explicit off assignment or weekend without shift
@@ -102,7 +91,14 @@ export function computeDaily(input: {
 }): DailyComputation {
   const { personId, day, shift, punches, leave, isHoliday, isOff, now } = input
   const dayEnd = addDays(day, 1)
-  const { firstIn, lastOut, worked } = pairPunches(punches)
+  // Phase 2 S2: direction-aware deterministic pairing (src/lib/pairing.ts).
+  // workedMinutes counts ONLY direction-valid closed pairs; duplicate/orphan/
+  // simultaneous/open punches are reported as anomalies in `note`, never
+  // silently absorbed and never fabricated into pairs.
+  const pairing = pairPunches(punches)
+  const firstIn = pairing.firstIn
+  const lastOut = pairing.lastOut
+  const worked = pairing.workedMinutes
 
   const win = shiftWindow(shift)
   const grace = shift?.lateGraceMin ?? 10
@@ -146,8 +142,13 @@ export function computeDaily(input: {
     status = dayEnd.getTime() - 6 * 3600000 <= now.getTime() ? 'ABSENT' : 'PENDING'
   } else if (punches.length === 1) {
     status = 'INCOMPLETE'
-  } else {
+  } else if (pairing.pairs.length > 0) {
+    // At least one direction-valid closed pair — presence is proven.
+    // (Malformed days with punches but zero valid pairs fall through to
+    // INCOMPLETE below instead of being fabricated as PRESENT.)
     status = 'PRESENT'
+  } else {
+    status = 'INCOMPLETE'
   }
 
   return {
@@ -163,7 +164,7 @@ export function computeDaily(input: {
     overtimeMinutes,
     leaveTypeId: leave?.leaveTypeId ?? null,
     leaveMinutes,
-    note: null,
+    note: pairing.anomalies.length ? anomalySummary(pairing.anomalies) : null,
   }
 }
 
@@ -234,7 +235,7 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
           personId: p.id,
           timestamp: { gte: d, lt: addDays(d, 1) },
         },
-        select: { timestamp: true },
+        select: { timestamp: true, direction: true, source: true },
       })
       const leave = await leaveForDay(p.id, d)
 
@@ -263,6 +264,7 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
           overtimeMinutes: result.overtimeMinutes,
           leaveTypeId: result.leaveTypeId,
           leaveMinutes: result.leaveMinutes,
+          note: result.note,
         },
       })
       count++
