@@ -113,29 +113,38 @@ if (process.argv[2] === '--probe-day') {
   process.exit(0)
 }
 
-let passed = 0
-let failed = 0
+// Accounting (final-review fix 3): assertions and sections are counted SEPARATELY.
+// A section summary is NOT an independent assertion: the aggregate assertion count
+// counts only check() calls. A section fails if any of its checks failed OR if its
+// body threw an uncaught error (the latter previously — wrongly — counted as passed).
+let assertionsPassed = 0
+let assertionsFailed = 0
+let sectionsPassed = 0
+let sectionsFailed = 0
 function section(name: string, fn: () => void) {
-  const before = failed
+  const before = assertionsFailed
+  let crashed = false
   try {
     fn()
     console.log(`  ✔ ${name}`)
   } catch (err) {
+    crashed = true
     console.log(`  ✘ ${name}`)
     console.log(`    ${(err as Error)?.message ?? err}`)
   } finally {
-    console.log(`— ${name}: ${failed === before ? 'OK' : 'FAILED'}`)
-    if (failed === before) passed++
-    else failed++
+    const ok = !crashed && assertionsFailed === before
+    console.log(`— ${name}: ${ok ? 'OK' : 'FAILED'}`)
+    if (ok) sectionsPassed++
+    else sectionsFailed++
   }
 }
 function check(name: string, fn: () => void) {
   try {
     fn()
-    passed++
+    assertionsPassed++
     console.log(`  ✔ ${name}`)
   } catch (err) {
-    failed++
+    assertionsFailed++
     console.log(`  ✘ ${name} — ${(err as Error)?.message ?? err}`)
   }
 }
@@ -710,5 +719,6 @@ section('19. Day-param & wall-clock TZ-independence (child probes under 4 TZs)',
   })
 })
 
-console.log(`\n== ${passed} passed, ${failed} failed ==`)
-if (failed > 0) process.exitCode = 1
+console.log(`\n== Time assertions: ${assertionsPassed} passed / ${assertionsFailed} failed ==`)
+console.log(`== Time sections: ${sectionsPassed} passed / ${sectionsFailed} failed ==`)
+if (assertionsFailed > 0 || sectionsFailed > 0) process.exitCode = 1
