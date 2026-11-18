@@ -97,6 +97,9 @@ async function main() {
   sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   sh('node', ['scripts/migrate-v1.3.1-phase1-fixes.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   sh('node', ['scripts/migrate-v1.5.0-bridge-internal.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  // Phase 2 S3: the policy columns join the chain (the suite's sync path
+  // triggers recalcDayForPerson → the engine reads/writes the new columns)
+  sh('node', ['scripts/migrate-v1.7.0-phase2-s3.mjs', 'up'], { DATABASE_URL: MAIN_DB })
 
   /* ---- users + personnel ---- */
   const { hashPassword } = await import('../src/lib/auth')

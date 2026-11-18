@@ -39,7 +39,16 @@
 import * as assert from 'node:assert/strict'
 
 import { pairPunches, anomalySummary, type PairingAnomaly, type PairingResult } from '../src/lib/pairing'
-import { computeDaily, type ShiftLite } from '../src/lib/attendance'
+import { computeDaily, parseOtThresholdMinutes, type ShiftLite } from '../src/lib/attendance'
+import {
+  attributePunchWorkday,
+  coverageWindowsByDay,
+  mergeIntervals,
+  subtractIntervals,
+  intersectIntervals,
+  totalMinutes,
+} from '../src/lib/workday'
+import { tehranInstant, markerKey } from '../src/lib/time'
 
 // --- accounting (separate assertions vs sections — repo convention) ---
 let assertionsPassed = 0
@@ -101,7 +110,6 @@ function daily(punches: Array<{ timestamp: Date; direction?: string; source?: st
     day: new Date(Date.UTC(2026, 10, 17, 0, 0)),
     shift,
     punches,
-    leave: null,
     isHoliday: false,
     isOff: false,
     now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
@@ -568,7 +576,6 @@ section('12. computeDaily integration: statuses, note provenance, unchanged late
       day: new Date(Date.UTC(2026, 10, 17, 0, 0)),
       shift: dayShift,
       punches: [],
-      leave: null,
       isHoliday: false,
       isOff: false,
       now: new Date(Date.UTC(2026, 10, 16, 0, 0)),
@@ -650,7 +657,6 @@ section('14. policy non-interference: OT / holiday / leave math untouched by S2'
         { timestamp: T(8), direction: 'IN' },
         { timestamp: T(12), direction: 'OUT' },
       ],
-      leave: null,
       isHoliday: true,
       isOff: false,
       now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
@@ -664,7 +670,7 @@ section('14. policy non-interference: OT / holiday / leave math untouched by S2'
       day: new Date(Date.UTC(2026, 10, 17, 0, 0)),
       shift: dayShift,
       punches: [],
-      leave: { leaveTypeId: 'lt1', minutesCovered: 480 },
+      leaveSpans: [{ start: T(8), end: T(16), leaveTypeId: 'lt1' }],
       isHoliday: false,
       isOff: false,
       now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
@@ -672,6 +678,436 @@ section('14. policy non-interference: OT / holiday / leave math untouched by S2'
     assert.equal(d.status, 'LEAVE')
     assert.equal(d.leaveMinutes, 480)
     assert.equal(d.note, null) // leave path untouched: no punch anomalies involved
+  })
+})
+
+// ===========================================================================
+// Phase 2 Stage S3 — approved policies (workday/shift, overtime/min_excess,
+// mission/approved_credit) — pure-function sections.
+// ===========================================================================
+
+const DAY_SHIFT_CTX = { segments: [{ startMin: 8 * 60, endMin: 16 * 60 }] }
+const NIGHT_SHIFT_CTX = { segments: [{ startMin: 22 * 60, endMin: 6 * 60 }] }
+
+/** marker of Tehran day Y-M-D */
+const M = (y: number, m: number, d: number) => new Date(Date.UTC(y, m - 1, d))
+const MIN = 60000
+
+console.log('== Phase 2 S3 policies (workday / overtime / mission) ==\n')
+
+// [15] Workday attribution ---------------------------------------------------
+section('15. S3 workday: normal day shift attribution', () => {
+  check('day-shift punch 08:30 on its assigned day → that day, SHIFT_WINDOW', () => {
+    const punch = tehranInstant(2026, 11, 17, 8, 30) // Tuesday
+    const r = attributePunchWorkday(punch, (day) => (markerKey(day) === '2026-11-17' ? DAY_SHIFT_CTX : null))
+    assert.equal(markerKey(r.workday), '2026-11-17')
+    assert.equal(r.viaShift, true)
+    assert.equal(r.reason, 'SHIFT_WINDOW')
+  })
+})
+
+section('16. S3 workday: night shift 22→06, after-midnight punch → shift START day', () => {
+  check('Sat-assigned night shift; Sunday 02:30 punch → SATURDAY workday (the policy example)', () => {
+    const punch = tehranInstant(2026, 11, 15, 2, 30) // Sunday 02:30 Tehran
+    const r = attributePunchWorkday(punch, (day) => (markerKey(day) === '2026-11-14' ? NIGHT_SHIFT_CTX : null)) // Saturday assignment
+    assert.equal(markerKey(r.workday), '2026-11-14') // Saturday
+    assert.equal(r.viaShift, true)
+    assert.equal(r.reason, 'SHIFT_WINDOW')
+  })
+  check('the 22:00 IN and a 05:59 OUT both land on Saturday; the window is half-open — an OUT at EXACTLY 06:00 falls back to Sunday', () => {
+    const resolver = (day: Date) => (markerKey(day) === '2026-11-14' ? NIGHT_SHIFT_CTX : null)
+    const inPunch = tehranInstant(2026, 11, 14, 22, 0)
+    assert.equal(markerKey(attributePunchWorkday(inPunch, resolver).workday), '2026-11-14')
+  })
+  check('OUT at 05:59 (strictly inside [22:00, 06:00)) → Saturday; OUT at exactly 06:00 → OUT_OF_WINDOW fallback to Sunday', () => {
+    const resolver = (day: Date) => (markerKey(day) === '2026-11-14' ? NIGHT_SHIFT_CTX : null)
+    const outBefore = tehranInstant(2026, 11, 15, 5, 59)
+    assert.equal(markerKey(attributePunchWorkday(outBefore, resolver).workday), '2026-11-14')
+    const outExact = tehranInstant(2026, 11, 15, 6, 0)
+    const r = attributePunchWorkday(outExact, resolver)
+    assert.equal(markerKey(r.workday), '2026-11-15') // half-open window: [start, end)
+    assert.equal(r.reason, 'OUT_OF_WINDOW')
+  })
+})
+
+section('17. S3 workday: out-of-window punch and no-shift fallback (with reason)', () => {
+  check('stray 02:30 Tehran punch with only a day shift → OUT_OF_WINDOW fallback to Tehran day', () => {
+    const punch = tehranInstant(2026, 11, 17, 2, 30)
+    const r = attributePunchWorkday(punch, () => DAY_SHIFT_CTX)
+    assert.equal(markerKey(r.workday), '2026-11-17')
+    assert.equal(r.viaShift, false)
+    assert.equal(r.reason, 'OUT_OF_WINDOW')
+  })
+  check('no shift at all → NO_SHIFT fallback to Tehran day', () => {
+    const punch = tehranInstant(2026, 11, 17, 10, 0)
+    const r = attributePunchWorkday(punch, () => null)
+    assert.equal(markerKey(r.workday), '2026-11-17')
+    assert.equal(r.reason, 'NO_SHIFT')
+  })
+  check('malformed shift (startMin out of range) → INVALID_SHIFT fallback', () => {
+    const punch = tehranInstant(2026, 11, 17, 10, 0)
+    const r = attributePunchWorkday(punch, () => ({ segments: [{ startMin: 2000, endMin: 100 }] }))
+    assert.equal(markerKey(r.workday), '2026-11-17')
+    assert.equal(r.reason, 'INVALID_SHIFT')
+  })
+})
+
+section('18. S3 workday: different assignments on adjacent days (no bleed-through)', () => {
+  check('Sat=night, Sun=day: Sunday 02:30 → SATURDAY (via Sat window), Sunday 08:30 → Sunday (via Sun window)', () => {
+    const resolver = (day: Date) =>
+      markerKey(day) === '2026-11-14' ? NIGHT_SHIFT_CTX : markerKey(day) === '2026-11-15' ? DAY_SHIFT_CTX : null
+    const early = tehranInstant(2026, 11, 15, 2, 30)
+    const normal = tehranInstant(2026, 11, 15, 8, 30)
+    assert.equal(markerKey(attributePunchWorkday(early, resolver).workday), '2026-11-14')
+    assert.equal(markerKey(attributePunchWorkday(normal, resolver).workday), '2026-11-15')
+  })
+  check("today's shift is never applied to old records: Monday-only night shift cannot capture Sunday's 02:30 punch", () => {
+    // Sunday 02:30 can only belong to a shift STARTING Fri/Sat/Sun (the candidate
+    // span); a shift assigned only on Monday is never even consulted → NO_SHIFT.
+    const resolver = (day: Date) => (markerKey(day) === '2026-11-16' ? NIGHT_SHIFT_CTX : null) // Monday
+    const punch = tehranInstant(2026, 11, 15, 2, 30) // Sunday early morning
+    const r = attributePunchWorkday(punch, resolver)
+    assert.equal(markerKey(r.workday), '2026-11-15') // fallback Tehran day — NOT Monday
+    assert.equal(r.reason, 'NO_SHIFT') // Monday is outside the candidate span entirely
+  })
+})
+
+section('19. S3 workday: Jalali month & year boundaries (Esfand→Farvardin, leap)', () => {
+  check('night shift starting Esfand 29 1404 (2026-03-20): Farvardin 1 02:30 punch (2026-03-21) → Esfand 29 workday', () => {
+    const resolver = (day: Date) => (markerKey(day) === '2026-03-20' ? NIGHT_SHIFT_CTX : null)
+    const punch = tehranInstant(2026, 3, 21, 2, 30)
+    assert.equal(markerKey(attributePunchWorkday(punch, resolver).workday), '2026-03-20')
+  })
+  check('night shift starting Esfand 30 1403 (2025-03-20, leap year): next-day punch → Esfand 30 workday; Farvardin 1 = 2025-03-21', () => {
+    const resolver = (day: Date) => (markerKey(day) === '2025-03-20' ? NIGHT_SHIFT_CTX : null)
+    const punch = tehranInstant(2025, 3, 21, 3, 0)
+    assert.equal(markerKey(attributePunchWorkday(punch, resolver).workday), '2025-03-20')
+  })
+})
+
+section('20. S3 workday: coverage partition (no leave/mission minute in two workdays)', () => {
+  check('night Saturday: [00:00 Sat, 06:00 Sun) claimed by Saturday; Sunday coverage = [06:00 Sun, 00:00 Mon)', () => {
+    const resolver = (day: Date) => (markerKey(day) === '2026-11-14' ? NIGHT_SHIFT_CTX : null)
+    const cov = coverageWindowsByDay(M(2026, 11, 14), M(2026, 11, 15), resolver)
+    const sat = cov.get('2026-11-14')!
+    const sun = cov.get('2026-11-15')!
+    assert.equal(sat.length, 1)
+    assert.equal(new Date(sat[0].start).toISOString(), '2026-11-13T20:30:00.000Z') // Tehran midnight Sat
+    assert.equal(new Date(sat[0].end).toISOString(), '2026-11-15T02:30:00.000Z') // + night window end Sun 06:00
+    // Sunday: Tehran day minus Saturday's claim → [Sun 06:00, Mon 00:00 Tehran)
+    assert.equal(sun.length, 1)
+    assert.equal(new Date(sun[0].start).toISOString(), '2026-11-15T02:30:00.000Z')
+    assert.equal(new Date(sun[0].end).toISOString(), '2026-11-15T20:30:00.000Z') // Mon 00:00 Tehran = Sun 20:30Z
+    // partition check: no overlap, no gap between the two
+    assert.equal(sat[0].end, sun[0].start)
+  })
+  check('two consecutive night shifts: Sunday coverage is exactly [06:00 Sun, 06:00 Mon)', () => {
+    const resolver = (day: Date) => (markerKey(day) === '2026-11-14' || markerKey(day) === '2026-11-15' ? NIGHT_SHIFT_CTX : null)
+    const cov = coverageWindowsByDay(M(2026, 11, 14), M(2026, 11, 16), resolver)
+    const sun = cov.get('2026-11-15')!
+    assert.equal(new Date(sun[0].start).toISOString(), '2026-11-15T02:30:00.000Z') // 06:00 Tehran Sun
+    assert.equal(new Date(sun[0].end).toISOString(), '2026-11-16T02:30:00.000Z') // 06:00 Tehran Mon
+  })
+})
+
+// [21] Overtime (min_excess) --------------------------------------------------
+section('21. S3 overtime: threshold gating below/at/above (whole minutes, no rounding added)', () => {
+  check('worked below threshold → actual 0, payable 0', () => {
+    const d = daily([{ timestamp: T(8), direction: 'IN' }, { timestamp: T(16, 29), direction: 'OUT' }])
+    assert.equal(d.workedMinutes, 509) // standard 480 + 29 < +30
+    assert.equal(d.overtimeMinutes, 0)
+    assert.equal(d.payableOvertimeMinutes, 0)
+  })
+  check('worked EXACTLY standard+30 → still zero (boundary preserved)', () => {
+    const d = daily([{ timestamp: T(8), direction: 'IN' }, { timestamp: T(16, 30), direction: 'OUT' }])
+    assert.equal(d.workedMinutes, 510)
+    assert.equal(d.overtimeMinutes, 0) // 510 is NOT > 480+30
+    assert.equal(d.payableOvertimeMinutes, 0)
+  })
+  check('one minute above threshold → the WHOLE excess is actual OT (threshold gates, never subtracts)', () => {
+    const d = daily([{ timestamp: T(8), direction: 'IN' }, { timestamp: T(16, 31), direction: 'OUT' }])
+    assert.equal(d.workedMinutes, 511)
+    assert.equal(d.overtimeMinutes, 31) // 511-480 — NOT 511-480-30
+    assert.equal(d.payableOvertimeMinutes, 0) // no approved request
+  })
+})
+
+section('22. S3 overtime: threshold from Setting (custom & default)', () => {
+  check('custom threshold 60: worked 525 → 0 (below 480+60); worked 541 → 61 actual', () => {
+    const mk = (outH: number, outM: number) =>
+      computeDaily({
+        personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift,
+        punches: [{ timestamp: T(8), direction: 'IN' }, { timestamp: T(outH, outM), direction: 'OUT' }],
+        otThresholdMinutes: 60, isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+      })
+    assert.equal(mk(16, 45).overtimeMinutes, 0) // 525 < 540
+    assert.equal(mk(17, 1).overtimeMinutes, 61) // 541 > 540 → 541-480
+  })
+  check('parseOtThresholdMinutes: valid "45" → 45; missing → 30; "abc"/"-5"/"2.5" → 30 (invalid never enters silently)', () => {
+    assert.equal(parseOtThresholdMinutes('45'), 45)
+    assert.equal(parseOtThresholdMinutes(undefined), 30)
+    assert.equal(parseOtThresholdMinutes('abc'), 30)
+    assert.equal(parseOtThresholdMinutes('-5'), 30)
+    assert.equal(parseOtThresholdMinutes('2.5'), 30)
+    assert.equal(parseOtThresholdMinutes('0'), 0) // zero is a legal non-negative integer
+  })
+})
+
+section('23. S3 overtime: payable = min(actual, approved) with request statuses', () => {
+  const ot = (workedH: number, workedM: number, approved: number) =>
+    computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift,
+      punches: [{ timestamp: T(8), direction: 'IN' }, { timestamp: T(workedH, workedM), direction: 'OUT' }],
+      approvedOvertimeMinutes: approved,
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+  check('PENDING / REJECTED requests contribute nothing: caller passes 0 → payable 0 while actual stays visible', () => {
+    const d = ot(18, 31, 0) // worked 631 → actual 151
+    assert.equal(d.overtimeMinutes, 151)
+    assert.equal(d.payableOvertimeMinutes, 0)
+  })
+  check('approved LESS than actual → payable = approved; actual excess stays visible', () => {
+    const d = ot(18, 31, 60)
+    assert.equal(d.overtimeMinutes, 151)
+    assert.equal(d.payableOvertimeMinutes, 60)
+  })
+  check('approved MORE than actual → payable = actual (never exceeds actual)', () => {
+    const d = ot(18, 31, 500)
+    assert.equal(d.payableOvertimeMinutes, 151)
+  })
+  check('approved equals actual → payable = actual', () => {
+    const d = ot(18, 31, 151)
+    assert.equal(d.payableOvertimeMinutes, 151)
+  })
+  check('multiple approved requests are summed by the caller-side preload (map sum) — sum 90+61=151 → payable 151', () => {
+    const d = ot(18, 31, 90 + 61)
+    assert.equal(d.payableOvertimeMinutes, 151)
+  })
+  check('no actual OT → payable 0 even with approvals (min(actual, approved) with actual=0)', () => {
+    const d = ot(16, 30, 200)
+    assert.equal(d.overtimeMinutes, 0)
+    assert.equal(d.payableOvertimeMinutes, 0)
+  })
+})
+
+section('24. S3 overtime: holiday/off-day actual OT unchanged; payable still min(actual, approved)', () => {
+  check('holiday with 240 worked → actual 240; no approval → payable 0; approved 100 → payable 100', () => {
+    const mk = (approved: number) =>
+      computeDaily({
+        personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift,
+        punches: [{ timestamp: T(8), direction: 'IN' }, { timestamp: T(12), direction: 'OUT' }],
+        approvedOvertimeMinutes: approved, isHoliday: true, isOff: false,
+        now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+      })
+    assert.equal(mk(0).overtimeMinutes, 240)
+    assert.equal(mk(0).payableOvertimeMinutes, 0)
+    assert.equal(mk(100).payableOvertimeMinutes, 100)
+    assert.equal(mk(999).payableOvertimeMinutes, 240)
+  })
+})
+
+// [25] Mission (approved_credit) -----------------------------------------------
+const nightShiftLite: ShiftLite = {
+  id: 'shift-night', name: 'شیفت شب', lateGraceMin: 10, earlyGraceMin: 10, overtimeEligible: true,
+  segments: [{ startMin: 22 * 60, endMin: 6 * 60, breakMin: 0 }],
+}
+
+section('25. S3 mission: unapproved/rejected → zero credit, zero status effect', () => {
+  check('PENDING/REJECTED mission spans are simply not passed in (caller filters APPROVED) — passing none gives 0', () => {
+    const d = daily([{ timestamp: T(8), direction: 'IN' }, { timestamp: T(16), direction: 'OUT' }])
+    assert.equal(d.missionMinutes, 0)
+    assert.equal(d.status, 'PRESENT')
+  })
+  check('a mission span on ANOTHER day (zero overlap with this workday coverage) → credit 0, status untouched', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      missionSpans: [{ start: T(8, 0, 18), end: T(12, 0, 18) }], // Nov 18 08:00-12:00 — different Tehran day
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 17, 12, 0)), // before day end − 6h → PENDING
+    })
+    assert.equal(d.missionMinutes, 0)
+    assert.equal(d.status, 'PENDING')
+  })
+})
+
+section('26. S3 mission: approved mission without punches → MISSION status with exact credited minutes', () => {
+  check('full-day mission 08:00–16:00 → missionMinutes 480, status MISSION, firstIn/lastOut null (no fabricated punches)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      missionSpans: [{ start: T(8), end: T(16) }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.missionMinutes, 480)
+    assert.equal(d.status, 'MISSION')
+    assert.equal(d.firstIn, null)
+    assert.equal(d.lastOut, null)
+    assert.equal(d.workedMinutes, 480) // policy: final worked = attendance + mission credit
+  })
+  check('hourly mission 10:00–13:00 → 180 credited, MISSION status', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      missionSpans: [{ start: T(10), end: T(13) }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.missionMinutes, 180)
+    assert.equal(d.status, 'MISSION')
+  })
+})
+
+section('27. S3 mission: mission + real attendance — overlap subtracted, no double count', () => {
+  check('attendance 08:00–16:00 + mission 14:00–18:00 → credit only 16:00–18:00 (120); worked 480+120=600; status PRESENT', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift,
+      punches: [{ timestamp: T(8), direction: 'IN' }, { timestamp: T(16), direction: 'OUT' }],
+      missionSpans: [{ start: T(14), end: T(18) }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.missionMinutes, 120)
+    assert.equal(d.workedMinutes, 600)
+    assert.equal(d.status, 'PRESENT')
+    assert.equal(iso(d.firstIn), iso(T(8))) // real punches only
+    assert.equal(iso(d.lastOut), iso(T(16)))
+  })
+  check('mission fully inside attendance 08:00–16:00 ⊆ mission 08:00–17:00 → credit 60 (17:00−16:00)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift,
+      punches: [{ timestamp: T(8), direction: 'IN' }, { timestamp: T(16), direction: 'OUT' }],
+      missionSpans: [{ start: T(8), end: T(17) }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.missionMinutes, 60)
+    assert.equal(d.workedMinutes, 540)
+  })
+  check('incomplete punch day keeps INCOMPLETE (mission never hides bad punches); credit still computed', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift,
+      punches: [{ timestamp: T(8), direction: 'IN' }], // missing OUT
+      missionSpans: [{ start: T(10), end: T(14) }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.status, 'INCOMPLETE')
+    assert.equal(d.missionMinutes, 240)
+    assert.equal(d.workedMinutes, 240)
+    assert.equal(d.note, 'IN_WITHOUT_OUT:1')
+  })
+})
+
+section('28. S3 mission: night mission attributes to shift-start workday via coverage', () => {
+  check('night shift workday Sat (window 22:00→06:00): mission Sat 22:00→Sun 06:00 → 480 credited on SATURDAY row', () => {
+    // coverage intervals of Sat = [Sat 00:00, Sun 06:00) per the partition (section 20)
+    const satCoverage = [{ start: Date.UTC(2026, 10, 13, 20, 30), end: Date.UTC(2026, 10, 15, 2, 30) }]
+    const d = computeDaily({
+      personId: 'p1', day: M(2026, 11, 14), shift: nightShiftLite, punches: [],
+      missionSpans: [{ start: tehranInstant(2026, 11, 14, 22, 0), end: tehranInstant(2026, 11, 15, 6, 0) }],
+      coverageIntervals: satCoverage,
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 11, 16, 12, 0)),
+    })
+    assert.equal(d.missionMinutes, 480)
+    assert.equal(d.status, 'MISSION')
+  })
+  check('same night mission credited 0 on the SUNDAY row (its coverage starts Sun 06:00)', () => {
+    const sunCoverage = [{ start: Date.UTC(2026, 10, 15, 2, 30), end: Date.UTC(2026, 10, 16, 20, 30) }]
+    const d = computeDaily({
+      personId: 'p1', day: M(2026, 11, 15), shift: dayShift, punches: [],
+      missionSpans: [{ start: tehranInstant(2026, 11, 14, 22, 0), end: tehranInstant(2026, 11, 15, 6, 0) }],
+      coverageIntervals: sunCoverage,
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 11, 16, 12, 0)),
+    })
+    assert.equal(d.missionMinutes, 0)
+  })
+})
+
+section('29. S3 mission: overlapping missions — union, never double', () => {
+  check('two overlapping missions 08:00–14:00 and 10:00–16:00 → union 08:00–16:00 = 480 credited once', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      missionSpans: [
+        { start: T(8), end: T(14) },
+        { start: T(10), end: T(16) },
+      ],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.missionMinutes, 480)
+    assert.equal(d.status, 'MISSION')
+  })
+  check('two disjoint missions 08:00–10:00 and 14:00–16:00 → 120+120 = 240', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      missionSpans: [
+        { start: T(8), end: T(10) },
+        { start: T(14), end: T(16) },
+      ],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.missionMinutes, 240)
+  })
+})
+
+section('30. S3 mission × leave × attendance: no interval counted twice', () => {
+  check('mission 10:00–14:00 + sick leave 12:00–16:00: mission credit 240; leaveMinutes only 14:00–16:00=120 (overlap removed)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      missionSpans: [{ start: T(10), end: T(14) }],
+      leaveSpans: [{ start: T(12), end: T(16), leaveTypeId: 'lt-sick' }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.missionMinutes, 240)
+    assert.equal(d.leaveMinutes, 120) // 12:00–16:00 minus mission overlap 12:00–14:00
+    assert.equal(d.status, 'MISSION') // leave 120 < 480 → mission status
+    assert.equal(d.leaveTypeId, 'lt-sick')
+  })
+  check('attendance 08:00–12:00 + mission 10:00–14:00 + leave 15:00–17:00 → worked 240+120=360; mission 120; leave 120', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift,
+      punches: [{ timestamp: T(8), direction: 'IN' }, { timestamp: T(12), direction: 'OUT' }],
+      missionSpans: [{ start: T(10), end: T(14) }],
+      leaveSpans: [{ start: T(15), end: T(17), leaveTypeId: 'lt2' }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d.missionMinutes, 120) // 10:00–14:00 minus attendance 10:00–12:00
+    assert.equal(d.workedMinutes, 360) // 240 attendance + 120 mission
+    assert.equal(d.leaveMinutes, 120)
+    assert.equal(d.status, 'PRESENT')
+  })
+  check('full-day LEAVE takes status precedence over MISSION when no punches', () => {
+    const d = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      missionSpans: [{ start: T(14), end: T(18) }],
+      leaveSpans: [{ start: T(8), end: T(16), leaveTypeId: 'lt3' }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    // leave 08–16 minus mission 14–18 ∩ = 08–14 = 360 < 480 → MISSION status wins here
+    assert.equal(d.leaveMinutes, 360)
+    assert.equal(d.missionMinutes, 240)
+    assert.equal(d.status, 'MISSION')
+    // true full-day leave (480, no mission overlap) → LEAVE:
+    const d2 = computeDaily({
+      personId: 'p1', day: new Date(Date.UTC(2026, 10, 17, 0, 0)), shift: dayShift, punches: [],
+      missionSpans: [{ start: T(17), end: T(19) }],
+      leaveSpans: [{ start: T(8), end: T(16), leaveTypeId: 'lt3' }],
+      isHoliday: false, isOff: false, now: new Date(Date.UTC(2026, 10, 18, 12, 0)),
+    })
+    assert.equal(d2.leaveMinutes, 480)
+    assert.equal(d2.status, 'LEAVE')
+  })
+})
+
+// [31] interval helpers sanity ------------------------------------------------
+section('31. S3 interval math: union/subtract/intersect totals', () => {
+  check('union of overlapping [0,4)+[3,7) minutes = [0,7) → 7 total minutes', () => {
+    const u = mergeIntervals([{ start: 0, end: 4 * MIN }, { start: 3 * MIN, end: 7 * MIN }])
+    assert.deepEqual(u, [{ start: 0, end: 7 * MIN }])
+    assert.equal(totalMinutes(u), 7)
+  })
+  check('subtract removes the covered part exactly', () => {
+    const d = subtractIntervals([{ start: 0, end: 10 * MIN }], [{ start: 3 * MIN, end: 5 * MIN }])
+    assert.deepEqual(d, [{ start: 0, end: 3 * MIN }, { start: 5 * MIN, end: 10 * MIN }])
+  })
+  check('intersect clips to the window', () => {
+    const i = intersectIntervals(
+      [{ start: 2 * MIN, end: 8 * MIN }],
+      [{ start: 0, end: 4 * MIN }, { start: 6 * MIN, end: 12 * MIN }],
+    )
+    assert.deepEqual(i, [{ start: 2 * MIN, end: 4 * MIN }, { start: 6 * MIN, end: 8 * MIN }])
   })
 })
 

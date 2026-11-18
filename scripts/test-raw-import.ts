@@ -226,6 +226,10 @@ async function main() {
   )
   const up131b = sh('node', ['scripts/migrate-v1.3.1-phase1-fixes.mjs', 'up'], { DATABASE_URL: MIG_URL })
   check('v1.3.1 migration up is idempotent (2nd run ok)', up131b.status === 0 && /RejectedRecord table: present/.test(up131b.stdout))
+  // Phase 2 S3: the policy-column migration joins the upgrade chain (old
+  // install → v1.3.0 → v1.3.1 → v1.4.0 → v1.5.0 → v1.7.0 → current engine)
+  const up17 = sh('node', ['scripts/migrate-v1.7.0-phase2-s3.mjs', 'up'], { DATABASE_URL: MIG_URL })
+  check('v1.7.0 migration up applied (isMission + payable/mission minutes columns)', up17.status === 0 && /LeaveType\.isMission = present/.test(up17.stdout) && /DailyAttendance\.missionMinutes = present/.test(up17.stdout), (up17.stderr || up17.stdout || '').slice(-200))
 
   const verifySeed = sh('node', ['scripts/test-db-raw.mjs', '--json',
     'SELECT COUNT(*) AS n FROM "Personnel" WHERE id=\'pmig1\'',
@@ -284,7 +288,7 @@ async function main() {
    * ================================================================ */
   const pushMainOld = sh('npx', ['prisma', 'db', 'push', '--schema', OLD_SCHEMA, '--skip-generate'], { DATABASE_URL: MAIN_DB_URL })
   if (pushMainOld.status !== 0) throw new Error('main db old-schema push failed: ' + (pushMainOld.stderr || '').slice(-300))
-  for (const m of ['migrate-v1.3.0-phase1.mjs', 'migrate-v1.4.0-phase2.mjs', 'migrate-v1.3.1-phase1-fixes.mjs', 'migrate-v1.5.0-bridge-internal.mjs']) {
+  for (const m of ['migrate-v1.3.0-phase1.mjs', 'migrate-v1.4.0-phase2.mjs', 'migrate-v1.3.1-phase1-fixes.mjs', 'migrate-v1.5.0-bridge-internal.mjs', 'migrate-v1.7.0-phase2-s3.mjs']) {
     const r = sh('node', [`scripts/${m}`, 'up'], { DATABASE_URL: MAIN_DB_URL })
     if (r.status !== 0) throw new Error(`main db migration failed (${m}): ` + (r.stderr || '').slice(-300))
   }

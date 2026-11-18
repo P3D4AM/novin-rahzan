@@ -20,7 +20,8 @@
     "db:reset": "prisma migrate reset",
     "test:bridge": "tsx scripts/test-bridge-supervisor.ts",
     "test:time": "tsx scripts/test-time.ts",
-    "test:attendance": "tsx scripts/test-attendance.ts"
+    "test:attendance": "tsx scripts/test-attendance.ts",
+    "test:attendance:db": "tsx scripts/test-attendance-db.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
