@@ -21,6 +21,17 @@ export async function PUT(req: NextRequest) {
     const b = await req.json()
     if (!b.settings || typeof b.settings !== 'object') throw new ApiError(400, 'داده نامعتبر')
     for (const [id, value] of Object.entries(b.settings)) {
+      // Phase 2 S3 (min_excess): the overtime threshold Setting is consumed by
+      // the calculation engine — an invalid value must be REJECTED here, never
+      // silently stored (the engine also re-validates on read and falls back
+      // to the documented default 30).
+      if (id === 'ot_threshold_minutes') {
+        const raw = String(value).trim()
+        const n = Number(raw)
+        if (!/^\d+$/.test(raw) || !Number.isInteger(n) || n < 0) {
+          throw new ApiError(400, 'آستانه اضافه‌کاری باید عدد صحیح و نامنفی (دقیقه) باشد')
+        }
+      }
       await db.setting.upsert({ where: { id }, create: { id, value: String(value) }, update: { value: String(value) } })
     }
     return NextResponse.json({ ok: true })

@@ -4,7 +4,18 @@ import { requireRole, ApiError, hasRole } from '@/lib/auth'
 import { fail } from '@/lib/api'
 import { onLeaveRequest, notifyUser } from '@/lib/notify'
 import { recalcRange } from '@/lib/attendance'
-import { startOfUTCDay, addDays } from '@/lib/jalali'
+import { dayMarkerOf, addDaysMarker } from '@/lib/time'
+
+/** Phase 2 S3: the workdays a leave/mission span can affect are
+ * [Tehran day of start − 1, Tehran day of end] (a night mission's tail
+ * attributes to the shift-start workday; coverage windows reach one day
+ * back). recalcRange fetches its own assignment context for that span. */
+function affectedWorkdayRange(startDateTime: Date, endDateTime: Date): { from: Date; to: Date } {
+  return {
+    from: addDaysMarker(dayMarkerOf(startDateTime), -1),
+    to: dayMarkerOf(endDateTime),
+  }
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -63,7 +74,8 @@ export async function POST(req: NextRequest) {
     })
     await onLeaveRequest(item.id)
     if (item.status === 'APPROVED') {
-      await recalcRange([personId], startOfUTCDay(start), startOfUTCDay(end))
+      const span = affectedWorkdayRange(start, end)
+      await recalcRange([personId], span.from, span.to)
     }
     return NextResponse.json({ item })
   } catch (err) {
@@ -89,7 +101,8 @@ export async function PUT(req: NextRequest) {
       const msg = b.status === 'APPROVED' ? 'درخواست مرخصی شما تأیید شد' : b.status === 'REJECTED' ? 'درخواست مرخصی شما رد شد' : 'درخواست مرخصی شما لغو شد'
       await notifyUser(req2.id, 'نتیجه درخواست مرخصی', msg, b.status)
     }
-    await recalcRange([req0.personId], startOfUTCDay(req0.startDateTime), startOfUTCDay(addDays(req0.endDateTime, 1)))
+    const span = affectedWorkdayRange(req0.startDateTime, req0.endDateTime)
+    await recalcRange([req0.personId], span.from, span.to)
     return NextResponse.json({ item })
   } catch (err) {
     return fail(err)
@@ -105,7 +118,8 @@ export async function DELETE(req: NextRequest) {
     const canDelete = hasRole(user, 'ADMIN') || (user.personnelId === item.personId && item.status === 'PENDING')
     if (!canDelete) throw new ApiError(403, 'اجازه حذف ندارید')
     await db.leaveRequest.delete({ where: { id } })
-    await recalcRange([item.personId], startOfUTCDay(item.startDateTime), startOfUTCDay(item.endDateTime))
+    const span = affectedWorkdayRange(item.startDateTime, item.endDateTime)
+    await recalcRange([item.personId], span.from, span.to)
     return NextResponse.json({ ok: true })
   } catch (err) {
     return fail(err)

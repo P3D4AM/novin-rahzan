@@ -18,7 +18,9 @@ export async function POST(req: NextRequest) {
     await requireRole('ADMIN')
     const b = await req.json()
     if (!b.name) throw new ApiError(400, 'نام الزامی است')
-    const item = await db.leaveType.create({ data: { name: b.name, paid: !!b.paid, color: b.color || '#f59e0b', requiresApproval: b.requiresApproval ?? true, countsTowardsBalance: b.countsTowardsBalance ?? false } })
+    // Phase 2 S3 (approved_credit): mission is an EXPLICIT flag on the type —
+    // never inferred from the Persian name.
+    const item = await db.leaveType.create({ data: { name: b.name, paid: !!b.paid, color: b.color || '#f59e0b', requiresApproval: b.requiresApproval ?? true, countsTowardsBalance: b.countsTowardsBalance ?? false, isMission: !!b.isMission } })
     return NextResponse.json({ item })
   } catch (err) {
     return fail(err)
@@ -30,7 +32,11 @@ export async function PUT(req: NextRequest) {
     await requireRole('ADMIN')
     const b = await req.json()
     if (!b.id) throw new ApiError(400, 'شناسه لازم است')
-    const item = await db.leaveType.update({ where: { id: b.id }, data: { name: b.name, paid: !!b.paid, color: b.color, requiresApproval: b.requiresApproval, countsTowardsBalance: b.countsTowardsBalance } })
+    // Phase 2 S3: isMission is optional on edit — omitted keeps the current
+    // value (Prisma undefined = no change); explicit false/true sets it.
+    const data: Record<string, unknown> = { name: b.name, paid: !!b.paid, color: b.color, requiresApproval: b.requiresApproval, countsTowardsBalance: b.countsTowardsBalance }
+    if (b.isMission !== undefined) data.isMission = !!b.isMission
+    const item = await db.leaveType.update({ where: { id: b.id }, data })
     return NextResponse.json({ item })
   } catch (err) {
     return fail(err)

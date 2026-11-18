@@ -50,6 +50,9 @@ function GeneralTab({ boot, reloadBoot }: { boot: Bootstrap; reloadBoot: () => v
     ot_rate_normal: boot.settings?.ot_rate_normal ?? '1.4',
     ot_rate_friday: boot.settings?.ot_rate_friday ?? '1.6',
     ot_rate_holiday: boot.settings?.ot_rate_holiday ?? '2',
+    // Phase 2 S3 (min_excess): overtime activation threshold (minutes) — gates
+    // activation, never subtracted from the excess; server validates integer ≥ 0.
+    ot_threshold_minutes: boot.settings?.ot_threshold_minutes ?? '30',
     sms_api_key: boot.settings?.sms_api_key ?? '',
     sms_sender: boot.settings?.sms_sender ?? '',
   })
@@ -87,10 +90,17 @@ function GeneralTab({ boot, reloadBoot }: { boot: Bootstrap; reloadBoot: () => v
 
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Percent className="h-4 w-4 text-primary" /> ضرایب اضافه‌کاری</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-3 gap-3">
-          <div className="space-y-1.5"><Label className="text-xs">عادی</Label><Input dir="ltr" type="number" step="0.1" value={form.ot_rate_normal} onChange={(e) => setForm({ ...form, ot_rate_normal: e.target.value })} /></div>
-          <div className="space-y-1.5"><Label className="text-xs">جمعه</Label><Input dir="ltr" type="number" step="0.1" value={form.ot_rate_friday} onChange={(e) => setForm({ ...form, ot_rate_friday: e.target.value })} /></div>
-          <div className="space-y-1.5"><Label className="text-xs">تعطیل رسمی</Label><Input dir="ltr" type="number" step="0.1" value={form.ot_rate_holiday} onChange={(e) => setForm({ ...form, ot_rate_holiday: e.target.value })} /></div>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5"><Label className="text-xs">عادی</Label><Input dir="ltr" type="number" step="0.1" value={form.ot_rate_normal} onChange={(e) => setForm({ ...form, ot_rate_normal: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label className="text-xs">جمعه</Label><Input dir="ltr" type="number" step="0.1" value={form.ot_rate_friday} onChange={(e) => setForm({ ...form, ot_rate_friday: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label className="text-xs">تعطیل رسمی</Label><Input dir="ltr" type="number" step="0.1" value={form.ot_rate_holiday} onChange={(e) => setForm({ ...form, ot_rate_holiday: e.target.value })} /></div>
+          </div>
+          <div className="space-y-1.5 border-t pt-3">
+            <Label className="text-xs">آستانه فعال‌شدن اضافه‌کاری (دقیقه)</Label>
+            <Input dir="ltr" type="number" step="1" min="0" value={form.ot_threshold_minutes} onChange={(e) => setForm({ ...form, ot_threshold_minutes: e.target.value })} />
+            <p className="text-[10px] text-muted-foreground">مازاد کارکرد فقط پس از عبور از این آستانه، اضافه‌کاری واقعی می‌شود؛ آستانه از مازاد کم نمی‌شود (پیش‌فرض ۳۰ دقیقه).</p>
+          </div>
         </CardContent>
       </Card>
 

@@ -73,6 +73,8 @@ export interface DailyRecordT {
   lateMinutes: number
   earlyLeaveMinutes: number
   overtimeMinutes: number
+  payableOvertimeMinutes?: number
+  missionMinutes?: number
   leaveTypeId?: string | null
   leaveMinutes: number
   person?: { id: string; firstName: string; lastName: string; personnelCode: string; department?: { name: string } | null; jobTitle?: { name: string } | null }
@@ -169,7 +171,7 @@ export interface Bootstrap {
   employmentTypes: { id: string; name: string }[]
   shifts: ShiftT[]
   rotations: { id: string; name: string; pattern: string; isActive: boolean }[]
-  leaveTypes: { id: string; name: string; paid: boolean; color: string; requiresApproval: boolean; countsTowardsBalance: boolean }[]
+  leaveTypes: { id: string; name: string; paid: boolean; color: string; requiresApproval: boolean; countsTowardsBalance: boolean; isMission: boolean }[]
   devices: DeviceT[]
   users: { id: string; username: string; role: string; fullName: string; active: boolean; personnelId: string | null }[]
   rules: { id: string; type: string; enabled: boolean; thresholdMin: number; notifyRole: string }[]
