@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { SessionUser, Bootstrap, api, DeviceT } from './types'
 import { faDigits, faTime } from './jalali-ui'
 import { useToast } from '@/hooks/use-toast'
+import { newDeviceFormDefaults, harmonizeTypeSelection, harmonizeProtocolSelection, serverPayloadFamilyFor, isNpProtocolFamily } from '@/lib/device-form-defaults'
 import { Plus, Trash2, Pencil, Loader2, Plug, RefreshCw, Users, Upload, Fingerprint, Wifi, WifiOff, RadioTower, Activity, Download } from 'lucide-react'
 
 interface Props { user: SessionUser; boot: Bootstrap; reloadBoot: () => void }
@@ -54,8 +55,17 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
   const [syncDays, setSyncDays] = useState<Record<string, string>>({})
   const { toast } = useToast()
 
-  const blank = { name: '', type: 'NOVIN_NP', protocolFamily: 'SBXPC', ipAddress: '', port: 5005, protocol: 'TCP', location: '', enabled: true, autoSync: false, syncIntervalMin: 5, serialNumber: '', password: '', connTimeoutMs: 5000, machineNumber: 1, sdkLicense: 1261, rtEnabled: false, rtPollSec: 30 }
-  const [form, setForm] = useState({ ...blank })
+  // device-form fix: new NP devices default to the approved FKATTEND/4238 path —
+  // the trio (type/protocolFamily/port) comes from ONE pure, tested module.
+  // The form state keeps stringly types (device rows/API are stringly typed);
+  // the pure module narrows on every harmonization call.
+  type DeviceFormState = {
+    name: string; type: string; protocolFamily: string; ipAddress: string; port: number; protocol: string;
+    location: string; enabled: boolean; autoSync: boolean; syncIntervalMin: number; serialNumber: string;
+    password: string; connTimeoutMs: number; machineNumber: number; sdkLicense: number; rtEnabled: boolean; rtPollSec: number
+  }
+  const blank: DeviceFormState = { name: '', ...newDeviceFormDefaults(), ipAddress: '', location: '', enabled: true, autoSync: false, syncIntervalMin: 5, serialNumber: '', password: '', connTimeoutMs: 5000, machineNumber: 1, sdkLicense: 1261, rtEnabled: false, rtPollSec: 30 }
+  const [form, setForm] = useState<DeviceFormState>({ ...blank })
 
   const [syncRuns, setSyncRuns] = useState<Array<{ id: string; deviceId?: string | null; status: string; mode: string; sourceProtocol: string; startedAt: string; recordsNew: number; recordsDuplicate: number; recordsUnmatched: number; retries: number; error?: string | null }>>([])
   const loadLogs = async () => {
@@ -86,7 +96,10 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
   const openEdit = (d: DeviceT) => {
     setEditing(d)
     // v1.3.0: the API never returns the password anymore — the edit form starts
-    // empty and an empty field means "keep the stored secret" (PUT: no password key)
+    // empty and an empty field means "keep the stored secret" (PUT: no password key).
+    // device-form fix: NO migration of existing devices — the stored family/port
+    // are loaded verbatim; a legacy row without protocolFamily keeps the SBXPC
+    // fallback exactly as before.
     setForm({
       name: d.name, type: d.type, protocolFamily: d.protocolFamily ?? 'SBXPC',
       ipAddress: d.ipAddress ?? '', port: d.port, protocol: d.protocol, location: d.location ?? '',
@@ -108,9 +121,12 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
       // v1.3.0: send a password only when the admin typed one — empty field keeps
       // the stored secret on edit (PUT: undefined) and means "none" on create.
       // v1.5.0: bridge settings no longer exist in the payload (internal service).
+      // device-form fix: the family in the payload is harmonized by the shared pure
+      // module — a ZK device never carries a contradictory NP family to the server.
       const payload: Record<string, unknown> = { ...form }
       delete payload.autoSync
       payload.syncIntervalMin = form.autoSync ? form.syncIntervalMin : 0
+      payload.protocolFamily = serverPayloadFamilyFor(form.type === 'ZKTECO' ? 'ZKTECO' : 'NOVIN_NP', form.protocolFamily)
       if (String(form.password).trim() === '') delete payload.password
       if (editing) await api('/api/devices', { method: 'PUT', body: JSON.stringify({ id: editing.id, ...payload }) })
       else await api('/api/devices', { method: 'POST', body: JSON.stringify(payload) })
@@ -213,7 +229,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
               <div className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> در حال دریافت وضعیت…</div>
             )}
             <div className="text-xs leading-6 border-t pt-2">
-              دستگاه‌های سری NP (مثل NP756+) خودشان به این سرور وصل می‌شوند: در منوی دستگاه ← تنظیمات ← ارتباط، «آدرس سرور» را IP همین سیستم و پورت را {faDigits(gateway?.port ?? 5005)} قرار دهید.
+              دستگاه‌های سری NP با پروتکل SBXPC خودشان به این سرور وصل می‌شوند (دستگاه‌های FKAttend از این مسیر استفاده نمی‌کنند): در منوی دستگاه ← تنظیمات ← ارتباط، «آدرس سرور» را IP همین سیستم و پورت را {faDigits(gateway?.port ?? 5005)} قرار دهید.
               در ویندوز فایروال اگر پرسید، <b>Allow access</b> را بزنید.
             </div>
           </CardContent>
@@ -394,7 +410,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
         <Card>
           <CardContent className="text-sm text-muted-foreground leading-7 p-4">
             <div className="font-semibold text-foreground mb-1">راهنمای اتصال دستگاه‌ها:</div>
-            <div>• <b>دستگاه‌های نوین پرداز (NP756+، NP756، NP746، NP770 و…):</b> روی «دستگاه جدید» نوع را «نوین پرداز NP» بگذارید و <b>شماره سریال دستگاه</b> را (مثل 7561202505176 — پشت دستگاه/باگ گزارش اطلاعات) وارد کنید و در قسمت IP هم آدرس دستگاه را بنویسید. سپس: <b>تست اتصال</b> را بزنید تا مطمئن شوید ارتباط برقرار است؛ با <b>دانلود ترددها</b> می‌توانید اطلاعات قبلیِ حافظه دستگاه را (تا چند روز قبل، به انتخاب خودتان) بگیرید؛ دفعات بعدی خودکار از همان‌جا ادامه می‌دهد. علاوه بر آن، ترددهای جدید به‌صورت لحظه‌ای هم دریافت می‌شوند: در منوی دستگاه ← تنظیمات ← ارتباط: آدرس سرور = IP سیستمِ نرم‌افزار و پورت 5005.</div>
+            <div>• <b>دستگاه‌های نوین پرداز (NP756+، NP756، NP746، NP770 و…):</b> روی «دستگاه جدید» نوع را «نوین پرداز NP» بگذارید — پیش‌فرض FKAttend (SDK رسمی، پورت ۴۲۳۸) مسیر تأییدشدهٔ NP756+ است. <b>شماره سریال دستگاه</b> و <b>IP دستگاه</b> را وارد کنید، با <b>تست اتصال</b> ارتباط را بررسی کنید و با <b>دانلود ترددها</b> حافظهٔ دستگاه را بگیرید (دفعات بعدی خودکار از همان‌جا ادامه می‌یابد). اگر پروتکل SBXPC را انتخاب کنید، علاوه بر دانلود مستقیم، ترددها به‌صورت لحظه‌ای (پوش) هم دریافت می‌شوند: در منوی دستگاه ← تنظیمات ← ارتباط: آدرس سرور = IP همین سیستم و پورت ۵۰۰۵.</div>
             <div>• <b>ZKTeco و سازگارها:</b> IP و پورت ۴۳۷۰ دستگاه را وارد کنید و «تست اتصال» بزنید؛ ترددها با «همگام‌سازی» دریافت می‌شوند.</div>
             <div>• <b>سایر برندها (FK، SBX، Hysoon و…):</b> از خروجی Excel/CSV دستگاه استفاده کنید و از تب «ورود داده از فایل» بارگذاری کنید.</div>
             <div>• برای مطابقت خودکار، «شناسه روی دستگاه» هر پرسنلی را در پرونده‌اش ثبت کنید یا کد پرسنلی را با شماره کارت/شناسه دستگاه یکی نگه دارید.</div>
@@ -449,14 +465,21 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
       </TabsContent>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent dir="rtl" className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        {/* device-form fix: wider dialog, FIXED header/footer, ONLY the body scrolls
+            (grid-rows auto/minmax(0,1fr)/auto + min-h-0). Height never exceeds the
+            viewport; width fills up to 4xl on desktop and stays inside the screen
+            on mobile (base max-w-[calc(100%-2rem)]). */}
+        <DialogContent
+          dir="rtl"
+          className="p-0 gap-0 grid-rows-[auto_minmax(0,1fr)_auto] max-h-[calc(100dvh-4rem)] sm:max-w-[min(48rem,calc(100vw-2rem))] lg:max-w-[min(56rem,calc(100vw-2rem))]"
+        >
+          <DialogHeader className="px-5 pt-4 pb-3 border-b text-right sm:text-right shrink-0">
             <DialogTitle>{editing ? 'ویرایش دستگاه' : 'ثبت دستگاه جدید'}</DialogTitle>
-            <p className="text-xs font-normal text-muted-foreground leading-5 -mt-2">
+            <p className="text-xs font-normal text-muted-foreground leading-5">
               {editing ? 'واقعیت‌های دستگاه و تنظیمات دریافت — سرویس‌ها و فایل‌ها را خود نرم‌افزار مدیریت می‌کند.' : 'فقط واقعیت‌های خودِ دستگاه را وارد می‌کنید؛ سرویس‌ها، فایل‌ها و توکن‌ها را خود نرم‌افزار مدیریت می‌کند.'}
             </p>
           </DialogHeader>
-          <div className="space-y-5">
+          <div className="px-5 py-4 min-h-0 overflow-y-auto overscroll-contain space-y-5">
 
             {/* ─── بخش ۱: شناسنامهٔ دستگاه ─── */}
             <section className="space-y-3">
@@ -464,11 +487,14 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label>نوع دستگاه *</Label>
-                  <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v, port: v === 'NOVIN_NP' ? 5005 : 4370 })}>
+                  {/* device-form fix: type/protocolFamily/port are harmonized by ONE
+                      pure module — the old handler changed the port without syncing
+                      the family (NP+FKATTEND could end up on port 5005). */}
+                  <Select value={form.type} onValueChange={(v) => setForm({ ...form, ...harmonizeTypeSelection(v === 'ZKTECO' ? 'ZKTECO' : 'NOVIN_NP', form.protocolFamily) })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="NOVIN_NP">نوین پرداز NP (NP756+، NP746 و…) — اتصال دستگاه به نرم‌افزار</SelectItem>
-                      <SelectItem value="ZKTECO">ZKTeco و سازگارها — اتصال نرم‌افزار به دستگاه</SelectItem>
+                      <SelectItem value="NOVIN_NP">نوین پرداز NP (NP756+، NP746 و…) — SDK رسمی یا پوش</SelectItem>
+                      <SelectItem value="ZKTECO">ZKTeco و سازگارها — اتصال نرم‌افزار به دستگاه (TCP/UDP)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -491,27 +517,33 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                 <SectionTitle>اتصال به دستگاه</SectionTitle>
                 <div className="space-y-1.5">
                   <Label>پروتکل ارتباطی (SDK) *</Label>
-                  <Select value={form.protocolFamily} onValueChange={(v) => setForm({ ...form, protocolFamily: v, port: v === 'FKATTEND' ? 4238 : 5005 })}>
+                  <Select value={form.protocolFamily} onValueChange={(v) => setForm({ ...form, ...harmonizeProtocolSelection(isNpProtocolFamily(v) ? v : 'FKATTEND') })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="FKATTEND">FKAttend — SDK رسمی FK623 نوین‌پرداز · پورت پیش‌فرض ۴۲۳۸ · مسیر تأییدشدهٔ NP756+ (توصیه‌شده)</SelectItem>
-                      <SelectItem value="SBXPC">SBXPC — پروتکل باینری مستقیم · پورت پیش‌فرض ۵۰۰۵ (مسیر قدیمی، حفظ شده)</SelectItem>
+                      <SelectItem value="FKATTEND">FKAttend — SDK رسمی FK623 نوین‌پرداز · مسیر تأییدشدهٔ NP756+ (پیشنهادی)</SelectItem>
+                      <SelectItem value="SBXPC">SBXPC — پروتکل باینری مستقیم · مسیر قدیمی، کاملاً پشتیبانی‌شده</SelectItem>
                     </SelectContent>
                   </Select>
-                  <div className="text-xs text-muted-foreground leading-5">پروتکل را <b>صریح</b> انتخاب می‌کنید و از روی پورت حدس زده نمی‌شود؛ پورت فقط پیشنهاد اولیه است و آزادانه قابل تغییر است. تنظیمات اینجا <b>هیچ چیزی را روی خود دستگاه عوض نمی‌کند</b>.</div>
+                  <div className="text-xs text-muted-foreground leading-5">پروتکل را صریح انتخاب می‌کنید (از روی پورت حدس زده نمی‌شود)؛ با تغییر آن پورت فقط پیشنهاد می‌شود و آزادانه قابل تغییر است. این انتخاب چیزی روی خود دستگاه عوض نمی‌کند.</div>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1.5 col-span-2"><Label>IP دستگاه (برای تست/دانلود)</Label><Input dir="ltr" value={form.ipAddress} onChange={(e) => setForm({ ...form, ipAddress: e.target.value })} placeholder="192.168.1.201" /></div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="space-y-1.5 sm:col-span-2"><Label>IP دستگاه</Label><Input dir="ltr" value={form.ipAddress} onChange={(e) => setForm({ ...form, ipAddress: e.target.value })} placeholder="192.168.1.201" /></div>
                   <div className="space-y-1.5"><Label>پورت</Label><Input type="number" dir="ltr" value={form.port} onChange={(e) => setForm({ ...form, port: Number(e.target.value) })} placeholder="4238" /></div>
                 </div>
+                <div className="text-xs text-muted-foreground leading-5">IP همان آدرس دستگاه در شبکهٔ شماست و فقط برای «تست اتصال» و «دانلود مستقیم ترددها» لازم است. پورت باید با پورتِ «ارتباط» در منوی تنظیمات دستگاه یکی باشد: <b>۴۲۳۸</b> برای FKAttend و <b>۵۰۰۵</b> برای SBXPC.</div>
                 <div className="space-y-1.5">
                   <Label>رمز شبکه (اختیاری)</Label>
                   <Input type="number" dir="ltr" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder={editing ? 'خالی = بدون تغییر (رمز ذخیره‌شده حفظ می‌شود)' : 'خالی = رمزهای رایج خودکار امتحان می‌شود'} />
-                  <div className="text-xs text-muted-foreground leading-5">مدل‌های جدید NP (مثل NP756+) فرمان‌ها را فقط <b>رمزشده</b> می‌پذیرند؛ کلید رمز از همین «رمز شبکه» ساخته می‌شود (منوی دستگاه ← تنظیمات ← ارتباط ← رمز شبکه). اگر خالی بگذارید، نرم‌افزار هنگام «تست اتصال» رمزهای رایج (۰، ۱۲۳۴۵۶ و…) را خودکار امتحان می‌کند و رمز درست را به یاد می‌سپارد. <b>مقدار رمز هرگز نمایش داده یا در لاگ‌ها ثبت نمی‌شود.</b></div>
+                  <div className="text-xs text-muted-foreground leading-5">مدل‌های جدید NP فقط فرمان‌های رمزشده می‌پذیرند؛ کلید رمز از همین مقدار ساخته می‌شود (منوی دستگاه ← تنظیمات ← ارتباط ← رمز شبکه). اگر خالی بگذارید، «تست اتصال» رمزهای رایج را خودکار امتحان می‌کند. مقدار رمز هرگز نمایش داده یا در لاگ‌ها ثبت نمی‌شود.</div>
                 </div>
                 {form.protocolFamily === 'FKATTEND' && (
                   <div className="text-xs leading-6 rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-2.5 text-emerald-800 dark:text-emerald-300">
-                    SDK لازم (FK623Attend.dll و ۶ DLL همراه) <b>همراه خود بستهٔ نصب</b> در <span dir="ltr" className="font-mono">tools\fkattend-bridge\bin</span> نصب می‌شود — هیچ فایلی را دستی کپی نمی‌کنید.
+                    <b>FKAttend — مسیر تأییدشدهٔ NP756+:</b> ترددها مستقیم از حافظهٔ دستگاه روی پورت ۴۲۳۸ دانلود می‌شود. سرویس ارتباط (SDK رسمی FK623) را خود نرم‌افزار پنهان اجرا و در صورت نیاز راه‌اندازی مجدد می‌کند — DLLها همراه بستهٔ نصب در <span dir="ltr" className="font-mono">tools\fkattend-bridge\bin</span> است و هیچ فایل یا توکنی را دستی وارد نمی‌کنید. دریافت لحظه‌ای (Push) در این مسیر وجود ندارد؛ برای نزدیک‌شدن به لحظه‌ای، «دریافت شبه‌بی‌درنگ» (Polling) را در بخش پایین فعال کنید.
+                  </div>
+                )}
+                {form.protocolFamily === 'SBXPC' && (
+                  <div className="text-xs leading-6 rounded-lg bg-muted/60 p-2.5 text-muted-foreground">
+                    <b>SBXPC — مسیر قدیمی، حفظ‌شده:</b> دریافت به دو روش کار می‌کند: <b>پوش لحظه‌ای</b> — دستگاه خودش به سرور وصل می‌شود؛ در منوی دستگاه ← تنظیمات ← ارتباط، «آدرس سرور» را IP همین سیستم و پورت را ۵۰۰۵ بگذارید. و <b>دانلود مستقیم</b> — با IP و پورت همین فرم، ترددهای ذخیره‌شدهٔ حافظهٔ دستگاه دریافت می‌شود (دفات بعدی از همان‌جا ادامه می‌یابد).
                   </div>
                 )}
                 {form.protocolFamily === 'FKATTEND' && (
@@ -521,35 +553,31 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                       <span className="text-[10px]">نمایش / پنهان</span>
                     </CollapsibleTrigger>
                     <CollapsibleContent className="p-3 pt-0 space-y-2">
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         <div className="space-y-1.5"><Label>مهلت اتصال (ms)</Label><Input type="number" dir="ltr" value={form.connTimeoutMs} onChange={(e) => setForm({ ...form, connTimeoutMs: Number(e.target.value) })} /></div>
                         <div className="space-y-1.5"><Label>شمارهٔ دستگاه SDK</Label><Input type="number" dir="ltr" value={form.machineNumber} onChange={(e) => setForm({ ...form, machineNumber: Number(e.target.value) })} /></div>
-                        <div className="space-y-1.5"><Label>License SDK</Label><Input type="number" dir="ltr" value={form.sdkLicense} onChange={(e) => setForm({ ...form, sdkLicense: Number(e.target.value) })} /></div>
+                        <div className="space-y-1.5 col-span-2 sm:col-span-1"><Label>License SDK</Label><Input type="number" dir="ltr" value={form.sdkLicense} onChange={(e) => setForm({ ...form, sdkLicense: Number(e.target.value) })} /></div>
                       </div>
-                      <div className="text-[10px] text-muted-foreground leading-4">سرویس ارتباط دستگاه به‌صورت خودکار و پنهان توسط خود نرم‌افزار اجرا و مدیریت می‌شود — هیچ فایل، پنجره، آدرس یا توکنی را وارد یا اجرا نمی‌کنید. روی دستگاه فقط عملیات خواندن انجام می‌شود.</div>
+                      <div className="text-[10px] text-muted-foreground leading-4">سرویس ارتباط دستگاه به‌صورت خودکار و پنهان توسط خود نرم‌افزار اجرا و مدیریت می‌شود — روی دستگاه فقط عملیات خواندن انجام می‌شود.</div>
                     </CollapsibleContent>
                   </Collapsible>
                 )}
-                <div className="text-xs rounded-lg bg-muted/60 p-3 leading-6 text-muted-foreground">
-                  {form.protocolFamily === 'FKATTEND'
-                    ? <>دریافت ترددها مستقیم از حافظهٔ دستگاه دانلود می‌شود (مسیر تأییدشده روی پورت ۴۲۳۸)؛ سرویس ارتباط داخلی خودش پنهان اجرا و در صورت نیاز راه‌اندازی مجدد می‌شود و دفعات بعدی از همان‌جا ادامه می‌دهد. ترددهای لحظه‌ای با «دریافت شبه‌بی‌درنگ» در بخش پایین فعال می‌شوند (Polling — نه پوش واقعی).</>
-                    : <>دریافت ترددها به دو روش کار می‌کند: <b>لحظه‌ای (پوش)</b> — دستگاه خودش به سرور وصل می‌شود؛ در منوی دستگاه ← تنظیمات ← ارتباط، آدرس سرور را IP همین سیستم و پورت را 5005 بگذارید. و <b>دانلود مستقیم</b> — با IP دستگاه بالا، ترددهای ذخیره‌شده در حافظه دستگاه دریافت می‌شود (همان روش نرم‌افزار اصلی).</>}
-                </div>
               </section>
             ) : (
               <section className="space-y-3">
                 <SectionTitle>اتصال به دستگاه</SectionTitle>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1.5"><Label>IP</Label><Input dir="ltr" value={form.ipAddress} onChange={(e) => setForm({ ...form, ipAddress: e.target.value })} placeholder="192.168.1.201" /></div>
-                  <div className="space-y-1.5"><Label>پورت</Label><Input type="number" dir="ltr" value={form.port} onChange={(e) => setForm({ ...form, port: Number(e.target.value) })} /></div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="space-y-1.5 sm:col-span-1"><Label>IP</Label><Input dir="ltr" value={form.ipAddress} onChange={(e) => setForm({ ...form, ipAddress: e.target.value })} placeholder="192.168.1.201" /></div>
+                  <div className="space-y-1.5"><Label>پورت</Label><Input type="number" dir="ltr" value={form.port} onChange={(e) => setForm({ ...form, port: Number(e.target.value) })} placeholder="4370" /></div>
                   <div className="space-y-1.5">
                     <Label>پروتکل</Label>
                     <Select value={form.protocol} onValueChange={(v) => setForm({ ...form, protocol: v })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent><SelectItem value="TCP">TCP</SelectItem><SelectItem value="UDP">UDP</SelectItem></SelectContent>
+                      <SelectContent><SelectItem value="TCP">TCP (پیش‌فرض)</SelectItem><SelectItem value="UDP">UDP</SelectItem></SelectContent>
                     </Select>
                   </div>
                 </div>
+                <div className="text-xs text-muted-foreground leading-5">ZKTeco به‌صورت پیش‌فرض روی پورت ۴۳۷۰ و با TCP پاسخ می‌دهد؛ «تست اتصال» را بزنید تا از ارتباط مطمئن شوید.</div>
               </section>
             )}
 
@@ -579,7 +607,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
               <div className="text-[10px] text-muted-foreground leading-4">خاموش کردن دریافت خودکار هیچ داده‌ای حذف نمی‌کند و «دانلود ترددها» دستی همیشه کار می‌کند.</div>
             </section>
           </div>
-          <DialogFooter>
+          <DialogFooter className="px-5 py-3 border-t bg-muted/30 shrink-0">
             <Button variant="outline" onClick={() => setOpen(false)}>انصراف</Button>
             <Button onClick={save}>{editing ? 'ذخیرهٔ تغییرات' : 'ثبت دستگاه'}</Button>
           </DialogFooter>

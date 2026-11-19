@@ -19,6 +19,7 @@
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
     "test:bridge": "tsx scripts/test-bridge-supervisor.ts",
+    "test:device-config": "tsx scripts/test-device-config.ts",
     "test:time": "tsx scripts/test-time.ts",
     "test:attendance": "tsx scripts/test-attendance.ts",
     "test:attendance:db": "tsx scripts/test-attendance-db.ts"

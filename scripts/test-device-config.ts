@@ -11,6 +11,11 @@
  *                protocol family is EXPLICIT (never derived from port),
  *                interval/timeout/poll ranges, localhost-only bridge URL,
  *                password/bridge-token keep semantics
+ *   [form]       pure UI defaults module: new NP device → FKATTEND/4238,
+ *                SBXPC → 5005, FKATTEND → 4238, ZKTeco → 4370, type-change
+ *                harmonization (family/port always in sync), ZK payload never
+ *                carries a contradictory NP family, legacy edit keeps stored
+ *                family/port verbatim (SBXPC fallback preserved)
  *   [secrets]    bridgeToken never leaves sanitizeDeviceForApi
  *   [fk e2e]     full import through the mock bridge → RawPunch (UNKNOWN
  *                direction, punchTimeRaw preserved, unmatched kept),
@@ -30,6 +35,12 @@ import { generateTestDatabasePath, assertTestOwnedDatabasePath, sqliteUrl } from
 import { validateDeviceSettings } from '../src/lib/device-validation'
 import { sanitizeDeviceForApi } from '../src/lib/device-secrets'
 import { fkWallClockToUTC } from '../src/lib/fkattend'
+// device-form fix: the UI defaults/harmonization live in ONE pure module
+import {
+  newDeviceFormDefaults, harmonizeTypeSelection, harmonizeProtocolSelection,
+  serverPayloadFamilyFor, suggestedPortForNpFamily, isNpProtocolFamily,
+  NP_DEFAULT_FAMILY, DEFAULT_PORT_FKATTEND, DEFAULT_PORT_SBXPC, DEFAULT_PORT_ZKTECO,
+} from '../src/lib/device-form-defaults'
 
 // v1.3.1 (Phase 1 review fix 5): the suite AUTO-GENERATES its own unique
 // temporary database under the test directory — an external DATABASE_URL is
@@ -149,6 +160,61 @@ async function main() {
   )
   check('edit without family keeps the stored family', v14.ok && v14.data.protocolFamily === 'SBXPC')
 
+  // device-form fix: editing a legacy device never migrates it — the stored
+  // family/port are preserved verbatim; the SBXPC fallback for rows without
+  // protocolFamily stays EXACTLY as before (backend fallback untouched).
+  const v15 = validateDeviceSettings(
+    { name: 'x', type: 'NOVIN_NP', serialNumber: SERIAL, protocolFamily: 'SBXPC', port: 6100 },
+    { isCreate: false, existing: { protocolFamily: null, port: 6100 } },
+  )
+  check('edit of a legacy device keeps a custom port (6100) verbatim — no default rewrite', v15.ok && v15.data.port === 6100)
+  const v16 = validateDeviceSettings(
+    { name: 'x', type: 'NOVIN_NP', serialNumber: SERIAL, protocolFamily: 'SBXPC', port: 5005 },
+    { isCreate: false, existing: { protocolFamily: null, port: null } },
+  )
+  check('legacy row without family/port → SBXPC/5005 (historical fallback preserved)', v16.ok && v16.data.protocolFamily === 'SBXPC' && v16.data.port === 5005)
+
+  /* ================================================================
+   * 1b) DEVICE FORM DEFAULTS & HARMONIZATION — pure UI-layer module
+   * ================================================================ */
+  section('FORM DEFAULTS — new-device trio, type/protocol/port harmonization')
+
+  const nd = newDeviceFormDefaults()
+  check('new-device default: NP + FKATTEND + port 4238 (approved NP756+ path)', nd.type === 'NOVIN_NP' && nd.protocolFamily === 'FKATTEND' && nd.port === 4238)
+  check('new-device default transport is TCP', nd.protocol === 'TCP')
+  check('NP_DEFAULT_FAMILY is FKATTEND and SBXPC remains a first-class choice', NP_DEFAULT_FAMILY === 'FKATTEND' && isNpProtocolFamily('SBXPC') && isNpProtocolFamily('FKATTEND'))
+  check('suggested ports: FKATTEND 4238 / SBXPC 5005 / ZKTeco 4370', suggestedPortForNpFamily('FKATTEND') === 4238 && suggestedPortForNpFamily('SBXPC') === 5005 && DEFAULT_PORT_ZKTECO === 4370 && DEFAULT_PORT_FKATTEND === 4238 && DEFAULT_PORT_SBXPC === 5005)
+
+  // protocol selection → suggested port (still freely editable afterwards)
+  const hSbx = harmonizeProtocolSelection('SBXPC')
+  check('selecting SBXPC suggests port 5005', hSbx.protocolFamily === 'SBXPC' && hSbx.port === 5005)
+  const hFk = harmonizeProtocolSelection('FKATTEND')
+  check('selecting FKATTEND suggests port 4238', hFk.protocolFamily === 'FKATTEND' && hFk.port === 4238)
+
+  // type-change harmonization — the OLD bug reproduced NP+FKATTEND on port 5005
+  const tNpFk = harmonizeTypeSelection('NOVIN_NP', 'FKATTEND')
+  check('type → NP with prior FKATTEND keeps FKATTEND and suggests 4238 (old handler said 5005 — regression)', tNpFk.port === 4238 && tNpFk.protocolFamily === 'FKATTEND')
+  const tNpSbx = harmonizeTypeSelection('NOVIN_NP', 'SBXPC')
+  check('type → NP with prior SBXPC keeps the explicit choice and suggests 5005', tNpSbx.protocolFamily === 'SBXPC' && tNpSbx.port === 5005)
+  const tNpInvalid = harmonizeTypeSelection('NOVIN_NP', 'whatever')
+  check('type → NP with NO valid prior selection falls back to FKATTEND/4238', tNpInvalid.protocolFamily === 'FKATTEND' && tNpInvalid.port === 4238)
+  const tZk = harmonizeTypeSelection('ZKTECO', 'FKATTEND')
+  check('type → ZKTeco suggests port 4370 (protocolFamily kept as inert NP memory)', tZk.port === 4370 && tZk.protocolFamily === 'FKATTEND')
+  // ZK → NP round-trip: the user's NP protocol choice survives
+  const roundTrip = harmonizeTypeSelection('NOVIN_NP', harmonizeTypeSelection('ZKTECO', 'SBXPC').protocolFamily)
+  check('NP → ZK → NP round-trip preserves an explicit SBXPC selection (port 5005 again)', roundTrip.protocolFamily === 'SBXPC' && roundTrip.port === 5005)
+
+  // the module NEVER clamps or validates the port — after any selection the
+  // user can type any port (the backend validator already proved 4238→4240 OK)
+  check('harmonization results are plain suggestions — no port validation in the UI module', !('errors' in hFk) && typeof hFk.port === 'number' && typeof tZk.port === 'number')
+
+  // payload sanitization — contradictory selections never reach the server
+  check('ZK payload always carries the inert legacy family SBXPC (no ZK+FKATTEND contradiction)', serverPayloadFamilyFor('ZKTECO', 'FKATTEND') === 'SBXPC' && serverPayloadFamilyFor('ZKTECO', 'SBXPC') === 'SBXPC')
+  check('NP payload carries the selected family (defensively normalized)', serverPayloadFamilyFor('NOVIN_NP', 'SBXPC') === 'SBXPC' && serverPayloadFamilyFor('NOVIN_NP', 'FKATTEND') === 'FKATTEND' && serverPayloadFamilyFor('NOVIN_NP', 'garbage') === 'FKATTEND')
+  // only a type/protocol SELECTION may touch the port — the module exposes no
+  // other port mutator, so unrelated form edits (name/IP/location/…) cannot
+  // rewrite a custom port; the port-keep on edit is proven by v15 above.
+
   /* ---- secrets ---- */
   section('SECRETS — device row hygiene (v1.5.0: no stored bridge token at all)')
   const safe = sanitizeDeviceForApi({
@@ -192,6 +258,18 @@ async function main() {
   check('v1.5.0 migration up drops Device.bridgeUrl/bridgeToken', up15.status === 0 && /dropped Device\.(bridgeUrl|bridgeToken)/.test(up15.stdout))
   const up15b = sh('node', ['scripts/migrate-v1.5.0-bridge-internal.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   check('v1.5.0 migration idempotent', up15b.status === 0 && /already absent/.test(up15b.stdout))
+  // Phase 2 (S3) columns + dated default-shift history are part of the real
+  // user chain since 2223ac75/068a90a1 — the parity check below compares
+  // against the CURRENT schema, so the chain must include them (pre-existing
+  // red at the handover HEAD otherwise: the suite pinned the chain at v1.5.0).
+  const upS3 = sh('node', ['scripts/migrate-v1.7.0-phase2-s3.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  check('v1.7.0 phase2 S3 migration up (isMission + payable/mission minutes)', upS3.status === 0 && /added .*(isMission|payableOvertimeMinutes|missionMinutes)|already present/.test(upS3.stdout))
+  const upS3b = sh('node', ['scripts/migrate-v1.7.0-phase2-s3.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  check('v1.7.0 S3 migration idempotent', upS3b.status === 0 && /already present/.test(upS3b.stdout))
+  const upS3r2 = sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  check('v1.7.0 phase2 S3r2 migration up (DefaultShiftHistory)', upS3r2.status === 0 && /created table DefaultShiftHistory|already present/.test(upS3r2.stdout))
+  const upS3r2b = sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  check('v1.7.0 S3r2 migration idempotent', upS3r2b.status === 0 && /already present/.test(upS3r2b.stdout))
   const parity = sh('npx', ['prisma', 'db', 'push', '--skip-generate'], { DATABASE_URL: MAIN_DB })
   const parityOut = (parity.stdout || '') + (parity.stderr || '')
   check('prisma db push sees no drift (INSTALL.bat parity)', parity.status === 0 && /already in sync/i.test(parityOut))
