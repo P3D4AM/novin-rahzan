@@ -45,6 +45,12 @@
  *   [46] breakMin effect DOCUMENTED (A5 kept: standard only, never worked)
  *   [47] provenance — EDITED_PUNCHES note code, deterministic order
  *   [48] status precedence LEAVE > MISSION; MISSION never hides punch truth
+ *   [49] S4 hotfix — stray pairs before/after the shift window never hide
+ *         the real Late/Early (window-related pair anchors): A stray 02:30
+ *         pair + real 15:30 pair → late 20; B genuine early arrival 14:30 →
+ *         late 0; C lone IN 23:59 after window end → late 529 (contract kept);
+ *         D stray 23:35 pair after the end does not hide the real 200-min
+ *         early departure; E regression = sections 1–48 all green.
  *
  * Accounting follows the corrected convention (commit 41c958ad): assertions
  * (check() calls) and sections are counted separately; a section whose body
@@ -1847,6 +1853,133 @@ section('48. S4 status precedence: LEAVE > MISSION > HOLIDAY/OFF; MISSION never 
     const produced = new Set(['PRESENT', 'ABSENT', 'LEAVE', 'MISSION', 'HOLIDAY', 'OFF', 'INCOMPLETE', 'PENDING'])
     // every branch in computeDaily's status ladder lands inside this set
     assert.ok(produced.has('PRESENT') && !produced.has('IGNORED'))
+  })
+})
+
+section('49. S4 hotfix: stray pairs never hide the real Late/Early (window-related anchors)', () => {
+  // Test A (mandate): shift 15:00–23:30, grace 10; stray pair 02:30–02:50
+  // (unrelated visit); real pair 15:30–23:30 → lateMinutes === 20. Before the
+  // fix the stray pair was pairs[0], so firstIn=02:30 collapsed late to 0.
+  // workedMinutes keeps counting the stray minutes (500) and the raw firstIn
+  // column keeps the honest 02:30 — punch truth is never faked or removed.
+  check('A: stray 02:30–02:50 + real 15:30–23:30 → late 20 (was 0 before the fix), early 0, worked 500', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(2, 30), direction: 'IN' },
+        { timestamp: T(2, 50), direction: 'OUT' },
+        { timestamp: T(15, 30), direction: 'IN' },
+        { timestamp: T(23, 30), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 20)
+    assert.equal(d.earlyLeaveMinutes, 0)
+    assert.equal(d.workedMinutes, 20 + 8 * 60) // stray minutes still counted (unchanged)
+    assert.equal(iso(d.firstIn), iso(T(2, 30))) // raw punch truth kept verbatim
+    assert.equal(iso(d.lastOut), iso(T(23, 30)))
+  })
+  // Test B (mandate): genuine early arrival — IN 14:30 (BEFORE the 15:00
+  // start) whose pair runs into the window → the pair is window-related and
+  // stays the anchor → late 0. Early arrivals are never deleted.
+  check('B: real early arrival IN 14:30 (pair reaching into the window) → late 0', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(14, 30), direction: 'IN' },
+        { timestamp: T(23, 30), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.earlyLeaveMinutes, 0)
+    assert.equal(d.status, 'PRESENT')
+    assert.equal(d.workedMinutes, 9 * 60)
+  })
+  // A+B combined: the early-arrival pair is the late anchor even when a stray
+  // pair exists earlier in the day.
+  check('A+B: stray 02:30–02:50 + real early 14:30–23:30 → late 0 measured on the REAL pair', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(2, 30), direction: 'IN' },
+        { timestamp: T(2, 50), direction: 'OUT' },
+        { timestamp: T(14, 30), direction: 'IN' },
+        { timestamp: T(23, 30), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.workedMinutes, 20 + 9 * 60)
+  })
+  // Test C (mandate): the existing after-window-end arrival contract is kept
+  // EXACTLY — a lone IN 23:59 (no pairs, open session) → late 529.
+  check('C: lone IN 23:59 after the window end → late 529 unchanged (existing contract)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(23, 59), direction: 'IN' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 8 * 60 + 59 - 10)
+    assert.equal(d.lateMinutes, 529)
+    assert.equal(d.status, 'INCOMPLETE')
+  })
+  // Test D (mandate): a stray pair AFTER the window end must not hide a real
+  // early departure. Expected value per the engine's CURRENT policy:
+  //   earlyLeaveMinutes = max(0, winEnd − latestRelatedOut − earlyGrace)
+  //                    = 23:30 − 20:00 − 10 = 200  (the real pair; the
+  //   23:35–23:55 stray is not window-related and never moves the anchor).
+  check('D: real 15:00–20:00 + stray 23:35–23:55 after the window end → early 200 (was 0), late 0', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(15, 0), direction: 'IN' },
+        { timestamp: T(20, 0), direction: 'OUT' },
+        { timestamp: T(23, 35), direction: 'IN' },
+        { timestamp: T(23, 55), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.earlyLeaveMinutes, 200)
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.workedMinutes, 300 + 20)
+    assert.equal(iso(d.lastOut), iso(T(23, 55))) // raw column keeps the honest last punch
+  })
+  // multi-pair day with strays on BOTH sides: late is measured from the
+  // earliest related IN, early from the latest related OUT.
+  check('multi-pair: late from the FIRST related IN, early from the LAST related OUT (strays on both sides)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(2, 30), direction: 'IN' },
+        { timestamp: T(2, 50), direction: 'OUT' },
+        { timestamp: T(15, 30), direction: 'IN' },
+        { timestamp: T(19, 0), direction: 'OUT' },
+        { timestamp: T(19, 30), direction: 'IN' },
+        { timestamp: T(23, 0), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 20)        // 15:30 (first related IN), not the 02:30 stray
+    assert.equal(d.earlyLeaveMinutes, 20)   // 23:00 vs the 23:30 end − grace 10
+  })
+  // stray-only day: no related pair at all → the previous S4 fallback
+  // contract applies verbatim (late 0, early 0, PRESENT, worked 20).
+  check('stray-only day (no related pair) keeps the S4 fallback contract: late 0, early 0, PRESENT, worked 20', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(2, 30), direction: 'IN' },
+        { timestamp: T(2, 50), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.earlyLeaveMinutes, 0)
+    assert.equal(d.workedMinutes, 20)
+    assert.equal(d.status, 'PRESENT')
+  })
+  // night shift (pure-layer robustness): a post-window stray pair must not
+  // hide the real early departure there either.
+  check('night shift: stray 06:30–06:50 after the 06:00 end does not hide the real 05:00 departure (early 50)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: nightShift, punches: [
+        { timestamp: T(22, 0), direction: 'IN' },
+        { timestamp: T(5, 0, 18), direction: 'OUT' },
+        { timestamp: T(6, 30, 18), direction: 'IN' },
+        { timestamp: T(6, 50, 18), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.earlyLeaveMinutes, 50) // 06:00 − 05:00 − 10 grace, measured on the real OUT
+    assert.equal(d.lateMinutes, 0)
   })
 })
 

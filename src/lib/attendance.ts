@@ -274,23 +274,54 @@ export function computeDaily(input: {
   const grace = shift?.lateGraceMin ?? 10
   const earlyGrace = shift?.earlyGraceMin ?? 10
 
+  // ---- S4 hotfix: late/early anchors come from shift-window-RELATED pairs ----
+  // `pairing.pairs` may contain stray sessions unrelated to the shift window
+  // (a 02:30–02:50 visit on a 15:00–23:30 shift). The previous code took the
+  // late/early anchors from pairs[0]/pairs[last] unconditionally, so a stray
+  // pair BEFORE the window hid the real shift entry (late collapsed to 0) and
+  // a stray pair AFTER the window end hid a real early departure. A pair is
+  // window-related iff its session span STRICTLY overlaps the shift window
+  // [winStart, winEnd) — an IN before the window whose pair reaches into it
+  // stays the anchor (genuine early arrival → late 0, never deleted); a pair
+  // entirely before/after the window is a stray for late/early ONLY: its
+  // worked minutes are still counted and the raw firstIn/lastOut columns and
+  // anomaly notes stay exactly what the punches say. When NO pair overlaps the
+  // window, the previous contract is kept verbatim (first pair's IN / open
+  // session / last pair's OUT), which preserves the documented after-window
+  // arrival behavior (a lone IN 23:59 → late 529) and stray-only days.
+  let lateFirstIn = firstIn
+  let earlyLastOut = lastOut
+  if (winI && pairing.pairs.length > 0) {
+    const ws = winI.startInstant.getTime()
+    const we = winI.endInstant.getTime()
+    const related = pairing.pairs.filter(
+      (p) => p.inAt.getTime() < we && p.outAt.getTime() > ws,
+    )
+    if (related.length > 0) {
+      // pairs are chronological by construction — the first/last of the
+      // filtered subset are the earliest related IN and the latest related OUT.
+      lateFirstIn = related[0].inAt
+      earlyLastOut = related[related.length - 1].outAt
+    }
+  }
+
   let lateMinutes = 0
   let earlyLeaveMinutes = 0
-  if (shift && winI && firstIn) {
+  if (shift && winI && lateFirstIn) {
     const winStart = winI.startInstant.getTime()
     const winEnd = winI.endInstant.getTime()
     let lateDeadline = winStart
     for (const iv of leaveCovered) {
       if (iv.start <= winStart && iv.end > winStart) lateDeadline = Math.max(lateDeadline, iv.end)
     }
-    lateMinutes = Math.max(0, Math.round((firstIn.getTime() - lateDeadline - grace * 60000) / 60000))
-    if (lastOut) {
+    lateMinutes = Math.max(0, Math.round((lateFirstIn.getTime() - lateDeadline - grace * 60000) / 60000))
+    if (earlyLastOut) {
       let earlyDeadline = winEnd
       for (const iv of leaveCovered) {
         if (iv.start < winEnd && iv.end >= winEnd) earlyDeadline = Math.min(earlyDeadline, iv.start)
       }
-      if (lastOut.getTime() >= winStart) {
-        earlyLeaveMinutes = Math.max(0, Math.round((earlyDeadline - lastOut.getTime() - earlyGrace * 60000) / 60000))
+      if (earlyLastOut.getTime() >= winStart) {
+        earlyLeaveMinutes = Math.max(0, Math.round((earlyDeadline - earlyLastOut.getTime() - earlyGrace * 60000) / 60000))
       }
       // else: the last punch lies entirely BEFORE the shift window — an
       // out-of-window stray; no shift session existed to leave early.

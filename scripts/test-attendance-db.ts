@@ -53,7 +53,11 @@
  *   [N] S4 late/early on real instants end-to-end: night-shift lateness
  *       (IN 23:00 → late 50) on the shift-start workday; the D13 stray-02:30
  *       regression through the real engine (late 0 AND early 0, honest
- *       OUT_OF_WINDOW note).
+ *       OUT_OF_WINDOW note); N3/N4 — the S4 hotfix through the real engine:
+ *       stray pair before the window + real pair → lateMinutes 20 (the stray
+ *       no longer zeroes the real lateness); real early departure + stray
+ *       pair after the window end → earlyLeaveMinutes 200 (the stray no
+ *       longer hides the real early departure).
  *   [O] S4 ABSENT timing through the real engine (past shift day → ABSENT at
  *       the real window end; future day → PENDING; no-shift day → Tehran
  *       calendar-day end; the exact boundary instant is pinned in the pure
@@ -696,6 +700,36 @@ async function main() {
       const n2 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pE.id, date: MK(2026, 12, 7) } } })
       check('stray 02:30 pair: PRESENT worked 20, lateMinutes 0 AND earlyLeaveMinutes 0 (old engine fabricated ~11h/~21h)', n2 !== null && n2.status === 'PRESENT' && n2.workedMinutes === 20 && n2.lateMinutes === 0 && n2.earlyLeaveMinutes === 0, JSON.stringify({ late: n2?.lateMinutes, early: n2?.earlyLeaveMinutes, worked: n2?.workedMinutes }))
       check('the stray punches are honestly reported: note carries OUT_OF_WINDOW:2 (attribution provenance)', n2 !== null && n2.note === 'OUT_OF_WINDOW:2')
+
+      // N3: the S4 hotfix through the REAL engine — stray pair BEFORE the
+      // window + the real shift pair: the stray must not zero the lateness
+      // (the mandate reproduction: expected lateMinutes 20, worked 500).
+      const pJ = await db.personnel.create({ data: { personnelCode: 'S4-J', pin: '9419', firstName: 'آرش', lastName: 'کاوه', defaultShiftId: eveningShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: pJ.id, timestamp: TEHRAN(2026, 12, 12, 2, 30), direction: 'IN', source: 'KIOSK' },
+        { personId: pJ.id, timestamp: TEHRAN(2026, 12, 12, 2, 50), direction: 'OUT', source: 'KIOSK' },
+        { personId: pJ.id, timestamp: TEHRAN(2026, 12, 12, 15, 30), direction: 'IN', source: 'KIOSK' },
+        { personId: pJ.id, timestamp: TEHRAN(2026, 12, 12, 23, 30), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([pJ.id], MK(2026, 12, 12), MK(2026, 12, 12))
+      const n3 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pJ.id, date: MK(2026, 12, 12) } } })
+      check('S4 hotfix A (real engine): stray 02:30–02:50 + real 15:30–23:30 → lateMinutes 20 (was 0), early 0, worked 500', n3 !== null && n3.lateMinutes === 20 && n3.earlyLeaveMinutes === 0 && n3.workedMinutes === 500, JSON.stringify({ late: n3?.lateMinutes, early: n3?.earlyLeaveMinutes, worked: n3?.workedMinutes }))
+      check('S4 hotfix (real engine): punch truth intact — note OUT_OF_WINDOW:2, raw firstIn the 02:30 stray, lastOut the real 23:30', n3 !== null && n3.note === 'OUT_OF_WINDOW:2' && n3.firstIn?.getTime() === TEHRAN(2026, 12, 12, 2, 30).getTime() && n3.lastOut?.getTime() === TEHRAN(2026, 12, 12, 23, 30).getTime())
+
+      // N4: stray pair AFTER the window end must not hide a real early
+      // departure: real 15:00–20:00 (policy: 23:30 − 20:00 − 10 grace = 200),
+      // stray 23:35–23:55 (OUT_OF_WINDOW on the same Tehran day).
+      const pK = await db.personnel.create({ data: { personnelCode: 'S4-K', pin: '9420', firstName: 'بردیا', lastName: 'فره', defaultShiftId: eveningShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: pK.id, timestamp: TEHRAN(2026, 12, 13, 15, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: pK.id, timestamp: TEHRAN(2026, 12, 13, 20, 0), direction: 'OUT', source: 'KIOSK' },
+        { personId: pK.id, timestamp: TEHRAN(2026, 12, 13, 23, 35), direction: 'IN', source: 'KIOSK' },
+        { personId: pK.id, timestamp: TEHRAN(2026, 12, 13, 23, 55), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([pK.id], MK(2026, 12, 13), MK(2026, 12, 13))
+      const n4 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pK.id, date: MK(2026, 12, 13) } } })
+      check('S4 hotfix D (real engine): real 15:00–20:00 + stray 23:35–23:55 → earlyLeaveMinutes 200 (was 0), late 0', n4 !== null && n4.earlyLeaveMinutes === 200 && n4.lateMinutes === 0, JSON.stringify({ late: n4?.lateMinutes, early: n4?.earlyLeaveMinutes }))
+      check('S4 hotfix D (real engine): worked 320 (real 300 + stray 20, stray minutes still counted), note OUT_OF_WINDOW:2', n4 !== null && n4.workedMinutes === 320 && n4.note === 'OUT_OF_WINDOW:2', JSON.stringify({ worked: n4?.workedMinutes, note: n4?.note }))
     })
 
     // ------------------------------------------------------------------
