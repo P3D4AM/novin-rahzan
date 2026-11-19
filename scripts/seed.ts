@@ -1,7 +1,13 @@
 /* Seed: Persian demo data for حضور+ attendance system */
 import { PrismaClient, type Personnel } from '@prisma/client'
 import { randomBytes, scryptSync } from 'crypto'
-import { addDays, faWeekday, tehranDate, toJalali, jalaaliMonthLength, toGregorianObject } from '../src/lib/jalali'
+import { addDays, faWeekday, tehranDate, jalaaliMonthLength, toGregorianObject } from '../src/lib/jalali'
+// Phase 2 S5 (host-tz independence): the seed's "today" is the TEHRAN day of
+// now via the central module — the old new Date() + legacy toJalali read the
+// HOST-LOCAL date, so the demo month/holidays/punch days shifted a day on
+// hosts whose local date differs from the Tehran date (docs/PHASE2-S5-AUDIT.md
+// item S5-A2).
+import { tehranTodayMarker, jalaliOfMarker } from '../src/lib/time'
 
 const db = new PrismaClient()
 
@@ -104,8 +110,8 @@ async function main() {
     db.leaveType.create({ data: { name: 'مأموریت', paid: true, color: '#3b82f6', countsTowardsBalance: false, isMission: true } }),
   ])
 
-  const today = new Date()
-  const { jy, jm } = toJalali(today)
+  const today = tehranTodayMarker()
+  const { jy, jm } = jalaliOfMarker(today)
   const monthLen = jalaaliMonthLength(jy, jm)
   for (const d of [3, 12, 22]) {
     if (d <= monthLen && d >= 1) {
@@ -228,7 +234,8 @@ async function main() {
 
   let punchCount = 0
   for (let back = 30; back >= 0; back--) {
-    const day = addDays(new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())), -back)
+    // today is already the UTC-midnight marker of the Tehran day — S5
+    const day = addDays(today, -back)
     const dow = faWeekday(day)
     for (const [idx, p] of persons.entries()) {
       const shiftCode = peopleSpec[idx][5]

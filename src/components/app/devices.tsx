@@ -599,7 +599,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                     <div className="space-y-1.5">
                       <Label>فاصلهٔ Polling (ثانیه)</Label>
                       <Input type="number" dir="ltr" value={form.rtPollSec} onChange={(e) => setForm({ ...form, rtPollSec: Number(e.target.value) })} placeholder="۳۰ (پیشنهادی)" />
-                      <div className="text-xs text-muted-foreground leading-5">هر بارِ Poll کل حافظهٔ دستگاه خوانده و فقط رکوردهای جدید (idempotent) ذخیره می‌شود — با تکرار دریافت، هیچ رکوردی دوباره ثبت نمی‌شود. این حالت <b>شبه‌بی‌درنگ</b> است (تأخیر تا حد فاصلهٔ Polling) نه Real-Time واقعی؛ بازهٔ مجاز: ۱۵ تا ۶۰۰ ثانیه. برای دستگاه هم‌زمان با Scheduler معمولی تداخل ایجاد نمی‌کند (قفل هر دستگاه).</div>
+                      <div className="text-xs text-muted-foreground leading-5">هر بارِ Poll کل حافظهٔ دستگاه خوانده و فقط رکوردهای جدید (idempotent) ذخیره می‌شود — با تکرار دریافت، هیچ رکوردی دوباره ثبت نمی‌شود. این حالت <b>شبه‌بی‌درنگ</b> است (تأخیر تا حد فاصلهٔ Polling) — Polling است، نه Real Push واقعی؛ بازهٔ مجاز: ۱۵ تا ۶۰۰ ثانیه. برای دستگاه هم‌زمان با Scheduler معمولی تداخل ایجاد نمی‌کند (قفل هر دستگاه).</div>
                     </div>
                   )}
                 </div>

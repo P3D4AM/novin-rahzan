@@ -10,9 +10,20 @@ export const FA_MONTHS = [
 export const FA_WEEKDAYS = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه']
 export const FA_WEEKDAYS_SHORT = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
 
-/** 0=شنبه ... 6=جمعه  (JS getDay: 0=Sunday) */
+/**
+ * 0=شنبه ... 6=جمعه  (JS getDay: 0=Sunday)
+ *
+ * Phase 2 S5 (host-tz independence): uses the UTC getter — the value is the
+ * weekday of the Date's own UTC date, identical to the old local-getter
+ * result on every host whose local date equals the UTC date (Tehran/UTC
+ * deployments), and CORRECT (was one day off) on hosts west of UTC. The
+ * engine calls this with UTC-midnight day markers only; callers with
+ * arbitrary instants must convert to the Tehran day first (central
+ * `dayMarkerOf`). Matches src/components/app/jalali-ui.tsx's own
+ * `(getUTCDay()+1)%7`.
+ */
 export function faWeekday(d: Date): number {
-  return (d.getDay() + 1) % 7
+  return (d.getUTCDay() + 1) % 7
 }
 
 export function toJalali(d: Date): { jy: number; jm: number; jd: number } {

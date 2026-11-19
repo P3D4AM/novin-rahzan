@@ -3,6 +3,7 @@ import { anomalySummary, pairPunches, type PairingPunchInput } from '@/lib/pairi
 import {
   addDaysMarker,
   dayMarkerOf,
+  faWeekdayOfMarker,
   markerKey,
   shiftWindowInstants,
   tehranDayWindowOfMarker,
@@ -19,7 +20,7 @@ import {
   type Interval,
   type WorkdayAttribution,
 } from '@/lib/workday'
-import { addDays, faWeekday, startOfUTCDay } from '@/lib/jalali'
+import { addDays, startOfUTCDay } from '@/lib/jalali'
 import {
   loadDatedDefaultShiftEntries,
   resolveDatedDefaultShiftId,
@@ -588,7 +589,12 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
     for (let d = new Date(dayStart); d <= dayEnd; d = addDays(d, 1)) {
       const key = markerKey(d)
       const assign = assignMap.get(`${p.id}|${key}`)
-      const isFriday = faWeekday(d) === 6
+      // Phase 2 S5 (host-tz independence): the Iranian weekend is detected from
+      // the MARKER's own date (faWeekdayOfMarker — UTC getter), never from the
+      // host machine's calendar (the legacy local-getter faWeekday was one day
+      // off on hosts west of UTC and moved the Friday/weekend suppression to
+      // the wrong days; docs/PHASE2-S5-AUDIT.md item S5-A1).
+      const isFriday = faWeekdayOfMarker(d) === 6
       const isHoliday = holidayKeys.has(key)
 
       let shift: ShiftLite | null = null

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
-import { datesBetween, faWeekday } from '@/lib/jalali'
+import { datesBetween } from '@/lib/jalali'
 import { parseDayParam } from '@/lib/time'
 import { recalcRange } from '@/lib/attendance'
 
@@ -85,5 +85,3 @@ export async function DELETE(req: NextRequest) {
     return fail(err)
   }
 }
-
-void faWeekday

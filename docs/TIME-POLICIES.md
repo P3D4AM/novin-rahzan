@@ -1,4 +1,4 @@
-# HozorPlus — Time & Business Policies (Phase 1, v1.6.0)
+# HozorPlus — Time & Business Policies (v1.7.0, incl. Phase 2 S5)
 
 This document is the single source of truth for the approved business policies
 and the time conventions of HozorPlus. The policies below are **approved
@@ -103,17 +103,50 @@ and attendance time in the same interval).
   display-only.
 - Real timestamps are never replaced by Jalali date strings.
 
+## Phase 2 Stage S5 — host-timezone independence (binding conventions)
+
+S5 mandate: the computation engine and the API routes never depend on the host
+machine's timezone. Audited in `docs/PHASE2-S5-AUDIT.md`; enforced by
+`scripts/test-time.ts` sections 20–24 and the four-TZ regression matrix
+(`scripts/tz-matrix.sh` — UTC / Asia/Tehran / Europe/Vienna /
+America/New_York, all suites green and byte-identical where deterministic).
+
+1. **Weekday of a business day** always comes from the marker's own UTC date
+   (`faWeekdayOfMarker` / the UTC-getter `jalali.ts:faWeekday`):
+   شنبه=0 … جمعه=6, the Iranian weekend is FRIDAY (6) and Saturday is a
+   workday. The old local-getter value was one day off on hosts west of UTC
+   and moved the engine's weekend suppression to the wrong days (S5-A1).
+2. **Read paths and the engine share ONE day-window convention**:
+   `GET /api/punches` from/to filters use the same Tehran-midnight instant
+   window the engine fetches punches over (`tehranDayRangeInstantWindow`,
+   S5-A7). Audit defect **D1 is retired** — its premise ("the engine still
+   uses UTC-midnight windows") expired when S3/S4 moved the engine to
+   workday attribution + Tehran-midnight fetch windows.
+3. **Kiosk/me "today" windows** are the TRUE Tehran day of now
+   (`tehranTodayWindow` — [Tehran midnight, next Tehran midnight), S5-A6):
+   Tehran 00:00–03:29 punches count for the CURRENT Tehran day's direction
+   flip and today's list; the next day's early punches do not.
+4. **Write-path timestamps are strict instants** (`parseInstantParam`,
+   S5-A3/A4/A5): full ISO with an explicit timezone; timezone-less datetimes
+   are rejected (400) or skipped (CSV row) — never parsed host-locally.
+5. **AI tool dates** go through the strict `parseDayParam` (S5-A9).
+6. The legacy `jalali.ts` Date-based display helpers (`toJalali`, `jFormat`,
+   `jFormatFull`, `faDateTime`) remain frozen with **zero live callers** —
+   their host-local behavior is recorded in the S5 audit so it never
+   re-enters a live path (S5-A2).
+
 ## Where the layers live
 
 | Layer | File | Role |
 | --- | --- | --- |
-| Central authoritative module | `src/lib/time.ts` | Tehran parts/instants/windows, markers, Jalali conversion & validation, `resolveWorkday`, formatting |
-| Legacy compat (frozen) | `src/lib/jalali.ts` | fixed-offset helpers still consumed by the attendance engine & raw device pipeline (protected subsystems — unchanged in Phase 1) |
+| Central authoritative module | `src/lib/time.ts` | Tehran parts/instants/windows, markers, Jalali conversion & validation, `resolveWorkday`, strict day/instant parsing, day-window derivation (S5), formatting |
+| Legacy compat (frozen) | `src/lib/jalali.ts` | fixed-offset helpers still consumed by the attendance engine & raw device pipeline (`faWeekday` now UTC-getter based — S5-A1) |
 | UI wrappers | `src/components/app/jalali-ui.tsx` | client-side Jalali controls; delegates to the central module |
 
-The attendance engine's own day windows (UTC-midnight instant windows) are a
-known, deliberately preserved limitation (audit defect D1) until a dedicated
-engine phase — read paths must stay consistent with the engine in the meantime.
+The attendance engine's punch fetch and day attribution have used TRUE
+Tehran-midnight windows since S3/S4 (`tehranDayWindowOfMarker` +
+`attributePunchWorkday`); the D1 read-path exception is retired (S5) — read
+paths, kiosk/me windows and the engine now share the same convention.
 
 ## Phase 2 Stage S4 — calculation completeness (binding conventions)
 

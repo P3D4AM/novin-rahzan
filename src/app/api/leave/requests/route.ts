@@ -4,7 +4,7 @@ import { requireRole, ApiError, hasRole } from '@/lib/auth'
 import { fail } from '@/lib/api'
 import { onLeaveRequest, notifyUser } from '@/lib/notify'
 import { recalcRange } from '@/lib/attendance'
-import { dayMarkerOf, addDaysMarker } from '@/lib/time'
+import { dayMarkerOf, addDaysMarker, parseInstantParam } from '@/lib/time'
 
 /** Phase 2 S3: the workdays a leave/mission span can affect are
  * [Tehran day of start − 1, Tehran day of end] (a night mission's tail
@@ -50,8 +50,14 @@ export async function POST(req: NextRequest) {
     const personId = hasRole(user, 'ADMIN') && b.personId ? b.personId : user.personId
     if (!personId) throw new ApiError(400, 'کاربر به پرسنلی متصل نیست')
     if (!b.leaveTypeId || !b.startDateTime || !b.endDateTime) throw new ApiError(400, 'نوع مرخصی و بازه زمانی الزامی است')
-    const start = new Date(b.startDateTime)
-    const end = new Date(b.endDateTime)
+    // Phase 2 S5 (host-tz independence): leave spans are INSTANTS and must carry
+    // an explicit timezone (full ISO with Z/±HH:MM). Timezone-less datetimes
+    // parsed host-locally before, silently shifting the whole leave span with
+    // the server's timezone (docs/API-DATE-CONTRACTS.md, docs/PHASE2-S5-AUDIT.md
+    // item S5-A4).
+    const start = parseInstantParam(String(b.startDateTime))
+    const end = parseInstantParam(String(b.endDateTime))
+    if (!start || !end) throw new ApiError(400, 'قالب زمان نامعتبر — شروع/پایان باید ISO کامل با منطقهٔ زمانی باشد (مثال: 2026-11-17T08:00:00+03:30)')
     if (end <= start) throw new ApiError(400, 'پایان مرخصی باید بعد از شروع باشد')
     const durationMinutes = Math.round((end.getTime() - start.getTime()) / 60000)
     const type = await db.leaveType.findUnique({ where: { id: b.leaveTypeId } })

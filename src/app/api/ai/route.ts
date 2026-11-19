@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { requireRole } from '@/lib/auth'
 import { fail } from '@/lib/api'
 import { durationText, faDigits } from '@/lib/jalali'
-import { tehranTodayMarker, addDaysMarker, dayMarkerOf, formatJalaliMarker } from '@/lib/time'
+import { tehranTodayMarker, addDaysMarker, formatJalaliMarker, parseDayParam } from '@/lib/time'
 
 interface ToolResult {
   action: string
@@ -17,9 +17,20 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
   const yesterday = addDaysMarker(today, -1)
   // jFormat(day, {fa}) equivalents on markers (legacy signature kept for instants is untouched)
   const jFa = (marker: Date) => formatJalaliMarker(marker, { fa: true })
+  // Phase 2 S5 (host-tz independence): tool dates go through the STRICT central
+  // day parser (date-only or full ISO WITH an explicit timezone → marker). The
+  // old new Date(String(...)) read timezone-less datetimes as HOST-LOCAL and
+  // turned junk into a NaN marker (Prisma 500) — an invalid tool date now
+  // returns a Persian error summary instead of a wrong day (docs/PHASE2-S5-AUDIT.md
+  // item S5-A9).
+  const dayArg = (fallback: Date): Date | null => {
+    if (!args.date) return fallback
+    return parseDayParam(String(args.date))
+  }
 
   if (name === 'absent_list') {
-    const day = args.date ? dayMarkerOf(new Date(String(args.date))) : yesterday
+    const day = dayArg(yesterday)
+    if (!day) return { action: 'absent_list', summary: 'قالب تاریخ نامعتبر است — YYYY-MM-DD یا ISO کامل با منطقهٔ زمانی' }
     const records = await db.dailyAttendance.findMany({
       where: { date: day, status: 'ABSENT' },
       include: { person: { select: { firstName: true, lastName: true } } },
@@ -59,7 +70,8 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
     })
     if (!persons.length) return { action: 'person_report', summary: `شخصی به نام «${q}» پیدا نشد` }
     const p = persons[0]
-    const day = args.date ? dayMarkerOf(new Date(String(args.date))) : yesterday
+    const day = dayArg(yesterday)
+    if (!day) return { action: 'person_report', summary: 'قالب تاریخ نامعتبر است — YYYY-MM-DD یا ISO کامل با منطقهٔ زمانی' }
     const rec = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: p.id, date: day } } })
     if (!rec) return { action: 'person_report', summary: `برای ${p.firstName} ${p.lastName} در ${jFa(day)} رکوردی نیست` }
     const statusFa: Record<string, string> = { PRESENT: 'حاضر', ABSENT: 'غایب', LEAVE: 'مرخصی', MISSION: 'مأموریت', HOLIDAY: 'تعطیل', OFF: 'تعطیلی', INCOMPLETE: 'ناقص', PENDING: 'در انتظار' }
@@ -80,7 +92,8 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
     const lt = await db.leaveType.findFirst({ where: { name: { contains: 'استحقاقی' } } })
     if (!lt) return { action: 'leave_register', summary: 'نوع مرخصی استحقاقی تعریف نشده است' }
     const days = Number(args.days || 1)
-    const startDay = args.date ? dayMarkerOf(new Date(String(args.date))) : addDaysMarker(today, 1)
+    const startDay = dayArg(addDaysMarker(today, 1))
+    if (!startDay) return { action: 'leave_register', summary: 'قالب تاریخ نامعتبر است — YYYY-MM-DD یا ISO کامل با منطقهٔ زمانی' }
     const end = new Date(startDay.getTime() + days * 86400000 - 3600000)
     const req = await db.leaveRequest.create({
       data: {
@@ -95,7 +108,8 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
   }
 
   if (name === 'overtime_report') {
-    const day = args.date ? dayMarkerOf(new Date(String(args.date))) : yesterday
+    const day = dayArg(yesterday)
+    if (!day) return { action: 'overtime_report', summary: 'قالب تاریخ نامعتبر است — YYYY-MM-DD یا ISO کامل با منطقهٔ زمانی' }
     const records = await db.dailyAttendance.findMany({
       where: { date: day, overtimeMinutes: { gt: 0 } },
       include: { person: { select: { firstName: true, lastName: true } } },
@@ -107,7 +121,8 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
   }
 
   if (name === 'late_report') {
-    const day = args.date ? dayMarkerOf(new Date(String(args.date))) : yesterday
+    const day = dayArg(yesterday)
+    if (!day) return { action: 'late_report', summary: 'قالب تاریخ نامعتبر است — YYYY-MM-DD یا ISO کامل با منطقهٔ زمانی' }
     const records = await db.dailyAttendance.findMany({
       where: { date: day, lateMinutes: { gt: 0 } },
       include: { person: { select: { firstName: true, lastName: true } } },

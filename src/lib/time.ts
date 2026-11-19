@@ -308,6 +308,49 @@ export function parseDayParam(s: string | null | undefined): DayMarker | null {
 }
 
 /**
+ * Phase 2 S5 — additive export. STRICT instant parser for API timestamps
+ * (the single write-path contract for punches POST/PUT, leave request spans
+ * and the CSV `datetime` T-form): accepts ONLY a full ISO 8601 datetime WITH
+ * an explicit timezone (`Z` or `±HH:MM`, strict component ranges incl. the
+ * real calendar — same grammar as `parseDayParam`'s ISO branch) and returns
+ * the true UTC instant. Returns null for everything else — in particular
+ * timezone-less datetimes ("2026-11-17T00:30"), which ECMA-262 treats as
+ * HOST-LOCAL time and which therefore silently depended on the server's
+ * timezone (docs/PHASE2-S5-AUDIT.md items S5-A3/S5-A4/S5-A5). Routes decide
+ * their own 400 handling; the instant is never day-floored.
+ */
+export function parseInstantParam(s: string | null | undefined): Date | null {
+  if (!s) return null
+  const raw = String(s).trim()
+  const m =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?(Z|[+-]\d{2}:\d{2})$/.exec(
+      raw,
+    )
+  if (!m) return null
+  const y = Number(m[1])
+  const mo = Number(m[2])
+  const d = Number(m[3])
+  const hh = Number(m[4])
+  const mi = Number(m[5])
+  const ss = m[6] === undefined ? 0 : Number(m[6])
+  const ms = m[7] === undefined ? 0 : Math.floor(Number(`0.${m[7]}`) * 1000)
+  if (y < 100) return null
+  if (mo < 1 || mo > 12) return null
+  if (d < 1 || d > gregorianMonthDays(y, mo)) return null
+  if (hh > 23 || mi > 59 || ss > 59) return null
+  let offMin = 0
+  if (m[8] !== 'Z') {
+    const oh = Number(m[8].slice(1, 3))
+    const om = Number(m[8].slice(4, 6))
+    if (oh > 23 || om > 59) return null
+    offMin = (m[8].charCodeAt(0) === 45 ? -1 : 1) * (oh * 60 + om) // 45 = '-', otherwise '+'
+  }
+  const instant = new Date(Date.UTC(y, mo - 1, d, hh, mi, ss, ms) - offMin * 60000)
+  if (!Number.isFinite(instant.getTime())) return null
+  return instant
+}
+
+/**
  * Instant window for a [from, to] marker range as consumed by punch-instant
  * filters: [from-marker, (to+1)-marker) — UTC-midnight semantics, consistent
  * with the attendance engine's day-attribution convention (see
@@ -339,6 +382,40 @@ export function tehranDayWindowOfMarker(marker: DayMarker): { start: Date; end: 
     next.getUTCDate(),
   )
   return { start, end }
+}
+
+/**
+ * Phase 2 S5 — additive export (protected module: ADDED ONLY, existing exports
+ * and resolveWorkday's body are untouched).
+ *
+ * Instant window of TODAY'S Tehran calendar day (true Tehran midnight
+ * boundaries): [Tehran midnight, next Tehran midnight). Used by the kiosk/me
+ * "today's punches" windows so the direction flip and the day list follow the
+ * SAME Tehran-day convention the engine attributes fallback punches with
+ * (was the UTC calendar day of the Tehran date — displaced +3:30 from Tehran
+ * midnight; see docs/PHASE2-S5-AUDIT.md item S5-A6).
+ */
+export function tehranTodayWindow(): { start: Date; end: Date } {
+  return tehranDayWindowOfMarker(tehranTodayMarker())
+}
+
+/**
+ * Phase 2 S5 — additive export. Instant window for a [from, to] marker range
+ * as consumed by punch-instant READ filters: [Tehran midnight of `from`,
+ * Tehran midnight of `to`+1) — the exact same window the attendance engine
+ * fetches punches over (recalcRange's [punchFrom, punchTo)). Retires audit
+ * defect D1: read paths and the engine now share ONE day-window convention
+ * (the old markerRangeInstantWindow kept a UTC-midnight instant window that
+ * the engine stopped using in S3/S4).
+ */
+export function tehranDayRangeInstantWindow(fromMarker: DayMarker, toMarker: DayMarker): {
+  gte: Date
+  lt: Date
+} {
+  return {
+    gte: tehranDayWindowOfMarker(fromMarker).start,
+    lt: tehranDayWindowOfMarker(addDaysMarker(toMarker, 1)).start,
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -398,6 +475,18 @@ export const FA_MONTHS = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
   'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند',
 ]
+
+/**
+ * Phase 2 S5 — additive export. Persian weekday (0=شنبه … 6=جمعه) of the
+ * Tehran calendar day named by a marker, computed from the marker's own UTC
+ * date — HOST-TIMEZONE INDEPENDENT (the legacy jalali.ts:faWeekday used the
+ * local `getDay()`, so on hosts west of UTC every marker's weekday was one
+ * day off and the engine's Friday/weekend logic ran on the wrong days; see
+ * docs/PHASE2-S5-AUDIT.md item S5-A1).
+ */
+export function faWeekdayOfMarker(marker: DayMarker): number {
+  return (marker.getUTCDay() + 1) % 7
+}
 
 // ---------------------------------------------------------------------------
 // Jalali input validation (user-facing, Persian errors)

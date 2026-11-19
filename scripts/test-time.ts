@@ -17,6 +17,16 @@
  *        hour rejected, DST ambiguity → deterministic later occurrence (review fix 1)
  *   [18] strict API day-param parsing — ISO-with-timezone only (review fix 2)
  *   [19] day-param & wall-clock TZ-independence under 4 host timezones
+ *   [20] Persian weekday of markers (S5) — faWeekdayOfMarker + legacy parity
+ *   [21] strict INSTANT parsing (S5) — parseInstantParam: full ISO with explicit
+ *        timezone only (timezone-less datetimes REJECTED — they parse host-locally)
+ *   [22] Tehran day windows (S5) — tehranTodayWindow + tehranDayRangeInstantWindow
+ *        (kiosk/me direction window + the D1-retired read-path punch filter)
+ *   [23] engine core S5 scenarios on fixed instants (night/multi-segment/stray/
+ *        Jalali boundary/leave deadline/mission) — exact expected values
+ *   [24] S5 host-timezone independence — the whole S5 surface (parsers, weekday,
+ *        windows, engine, attribution) byte-identical under
+ *        UTC / Asia/Tehran / Europe/Vienna / America/New_York child probes
  *
  * DST behavior uses the REAL Asia/Tehran tz database (DST existed until
  * 2022-09; +04:30 summers before that, fixed +03:30 since) — never an
@@ -40,8 +50,12 @@ import {
   markerKey,
   parseDateOnly,
   parseDayParam,
+  parseInstantParam,
   markerRangeInstantWindow,
   tehranDayWindowOfMarker,
+  tehranTodayWindow,
+  tehranDayRangeInstantWindow,
+  faWeekdayOfMarker,
   jalaliOfMarker,
   jalaliOfInstant,
   tryJalaliToMarker,
@@ -58,6 +72,10 @@ import {
 import { tehranWallClockToUTC } from '../src/lib/sbxpc'
 // legacy fixed-offset layer (engine + raw pipeline still consume it — must stay compatible)
 import * as legacy from '../src/lib/jalali'
+// Phase 2 S5: the pure engine core (computeDaily never touches the DB — the
+// PrismaClient in @/lib/db is constructed lazily, same as test-attendance.ts)
+import { computeDaily, type ShiftLite } from '../src/lib/attendance'
+import { attributePunchWorkday } from '../src/lib/workday'
 
 const ROOT = path.resolve(__dirname, '..')
 
@@ -110,6 +128,174 @@ if (process.argv[2] === '--probe-day') {
     return { s, iso: d ? d.toISOString() : null }
   })
   console.log(JSON.stringify({ dayParams, wallClock }))
+  process.exit(0)
+}
+
+// --- S5 probe: the whole S5 surface on FIXED inputs (deterministic under any
+// host timezone; compared byte-for-byte across UTC/Tehran/Vienna/New_York by
+// section 24). NEVER uses new Date() for anything except the todayWindow
+// internal-consistency boolean (its printed VALUE stays true under every TZ). --
+if (process.argv[2] === '--probe-s5') {
+  // [1] strict instant parsing — the S5 write-path contract
+  const instantInputs: Array<[string, string]> = [
+    ['iso-Z', '2026-11-17T08:30:00Z'],
+    ['iso-Z-ms', '2026-11-17T08:30:00.123Z'],
+    ['iso-pos330', '2026-11-17T08:30:00+03:30'],
+    ['iso-neg5', '2026-11-17T08:30:00-05:00'],
+    ['tz-less', '2026-11-17T00:30'],
+    ['tz-less-sec', '2026-11-17T00:30:00'],
+    ['date-only', '2026-11-17'],
+    ['basic-offset', '2026-11-17T22:30:00+0330'],
+    ['hour25', '2026-11-17T25:00:00Z'],
+    ['feb30', '2026-02-30T10:00:00Z'],
+    ['junk', 'garbage'],
+  ]
+  const instants = instantInputs.map(([k, s]) => ({
+    k,
+    iso: parseInstantParam(s) ? parseInstantParam(s)!.toISOString() : null,
+  }))
+
+  // [2] marker weekday — central + legacy (the engine's Friday detection)
+  const weekdays = [
+    '2026-11-13', // جمعه (Friday)
+    '2026-11-14', // شنبه (Saturday)
+    '2026-11-15', // یکشنبه
+    '2026-11-16', // دوشنبه
+    '2026-11-17', // سه‌شنبه
+    '2026-11-18', // چهارشنبه
+    '2026-11-19', // پنجشنبه
+  ].map((k) => {
+    const m = parseDateOnly(k)!
+    return { k, central: faWeekdayOfMarker(m), legacy: legacy.faWeekday(m) }
+  })
+
+  // [3] Tehran day windows — kiosk/me direction window + the read-path filter
+  const win = tehranDayWindowOfMarker(markerOfTehranDate(2026, 11, 17))
+  const range = tehranDayRangeInstantWindow(markerOfTehranDate(2026, 11, 14), markerOfTehranDate(2026, 11, 17))
+  const windows = {
+    dayStart: win.start.toISOString(),
+    dayEnd: win.end.toISOString(),
+    rangeGte: range.gte.toISOString(),
+    rangeLt: range.lt.toISOString(),
+  }
+
+  // [4] todayWindow internal consistency (the printed VALUE is TZ-independent):
+  // start <= now < end and the window's day == the Tehran day of now
+  const now = new Date()
+  const tw = tehranTodayWindow()
+  const todayOk =
+    tw.start.getTime() <= now.getTime() &&
+    now.getTime() < tw.end.getTime() &&
+    markerKey(dayMarkerOf(tw.start)) === markerKey(dayMarkerOf(now))
+
+  // [5] engine core on fixed instants — computeDaily scenarios (pure, no DB)
+  const mkShift = (id: string, segs: Array<{ startMin: number; endMin: number; breakMin?: number }>, graces = 10): ShiftLite => ({
+    id, name: id, lateGraceMin: graces, earlyGraceMin: graces, overtimeEligible: true,
+    segments: segs.map((s) => ({ startMin: s.startMin, endMin: s.endMin, breakMin: s.breakMin ?? 0 })),
+  })
+  const dayShift = mkShift('day', [{ startMin: 8 * 60, endMin: 16 * 60 }])
+  const eveningShift = mkShift('evening', [{ startMin: 15 * 60, endMin: 23 * 60 + 30 }])
+  const nightShift = mkShift('night', [{ startMin: 22 * 60, endMin: 6 * 60 }])
+  const splitShift = mkShift('split', [
+    { startMin: 8 * 60, endMin: 12 * 60 },
+    { startMin: 13 * 60, endMin: 17 * 60 },
+  ], 0)
+  const run = (
+    k: string,
+    day: Date,
+    shift: ShiftLite | null,
+    punches: Array<{ timestamp: Date; direction?: string }>,
+    extra?: { missionSpans?: Array<{ start: Date; end: Date }>; leaveSpans?: Array<{ start: Date; end: Date; leaveTypeId: string }>; isHoliday?: boolean; isOff?: boolean },
+  ) => {
+    const d = computeDaily({
+      personId: 'p1',
+      day,
+      shift,
+      punches,
+      missionSpans: extra?.missionSpans ?? [],
+      leaveSpans: extra?.leaveSpans ?? [],
+      isHoliday: extra?.isHoliday ?? false,
+      isOff: extra?.isOff ?? false,
+      now: new Date(Date.UTC(2026, 11, 1, 12, 0)),
+    })
+    return {
+      k,
+      status: d.status,
+      worked: d.workedMinutes,
+      late: d.lateMinutes,
+      early: d.earlyLeaveMinutes,
+      ot: d.overtimeMinutes,
+      payable: d.payableOvertimeMinutes,
+      leave: d.leaveMinutes,
+      mission: d.missionMinutes,
+      note: d.note,
+      firstIn: d.firstIn ? d.firstIn.toISOString() : null,
+      lastOut: d.lastOut ? d.lastOut.toISOString() : null,
+    }
+  }
+  const T = (y: number, mo: number, d: number, h: number, mi = 0) => tehranInstant(y, mo, d, h, mi)
+  const engine = [
+    // E1: day shift Tuesday 2026-11-17 (a regular workday marker)
+    run('E1-day-0820-1530', markerOfTehranDate(2026, 11, 17), dayShift, [
+      { timestamp: T(2026, 11, 17, 8, 20), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 15, 30), direction: 'OUT' },
+    ]),
+    // E2: night shift Saturday 2026-11-14 22:00→Sunday 06:00 (cross-midnight, the policy example)
+    run('E2-night-sat', markerOfTehranDate(2026, 11, 14), nightShift, [
+      { timestamp: T(2026, 11, 14, 22, 0), direction: 'IN' },
+      { timestamp: T(2026, 11, 15, 6, 0), direction: 'OUT' },
+    ]),
+    // E3: S4 hotfix parity — stray 02:30–02:50 pair + real 15:30–20:00 on a 15:00–23:30 evening shift
+    run('E3-stray-pair', markerOfTehranDate(2026, 11, 17), eveningShift, [
+      { timestamp: T(2026, 11, 17, 2, 30), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 2, 50), direction: 'OUT' },
+      { timestamp: T(2026, 11, 17, 15, 30), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 20, 0), direction: 'OUT' },
+    ]),
+    // E4: Jalali year boundary — night shift 1404-12-29 (2026-03-20) 22:00 → 1405-01-01 (2026-03-21) 06:00
+    run('E4-esfand-farvardin', markerOfTehranDate(2026, 3, 20), nightShift, [
+      { timestamp: T(2026, 3, 20, 22, 0), direction: 'IN' },
+      { timestamp: T(2026, 3, 21, 6, 0), direction: 'OUT' },
+    ]),
+    // E5: approved leave attached to the window start excuses lateness (08:00–10:00, IN 09:30)
+    run('E5-leave-start', markerOfTehranDate(2026, 11, 17), dayShift, [
+      { timestamp: T(2026, 11, 17, 9, 30), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 16, 0), direction: 'OUT' },
+    ], { leaveSpans: [{ start: T(2026, 11, 17, 8, 0), end: T(2026, 11, 17, 10, 0), leaveTypeId: 'lt1' }] }),
+    // E6: approved mission, no punches → MISSION 480
+    run('E6-mission', markerOfTehranDate(2026, 11, 17), dayShift, [], {
+      missionSpans: [{ start: T(2026, 11, 17, 8, 0), end: T(2026, 11, 17, 16, 0) }],
+    }),
+    // E7: multi-segment shift (08–12 + 13–17, graces 0): IN 08:01 → late 1, OUT 16:40 → early 20
+    run('E7-split', markerOfTehranDate(2026, 11, 17), splitShift, [
+      { timestamp: T(2026, 11, 17, 8, 1), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 16, 40), direction: 'OUT' },
+    ]),
+    // E8: no punches, shift day, determination window passed → ABSENT
+    run('E8-absent', markerOfTehranDate(2026, 11, 17), dayShift, []),
+    // E9: holiday with all-day work → actual OT (A4: no minimum/permission gate)
+    run('E9-holiday-ot', markerOfTehranDate(2026, 11, 17), dayShift, [
+      { timestamp: T(2026, 11, 17, 8, 0), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 16, 0), direction: 'OUT' },
+    ], { isHoliday: true }),
+  ]
+
+  // [6] workday attribution on fixed instants (the S3/S4 engine convention)
+  const night = nightShift
+  const shiftOf = (day: Date) => (markerKey(day) === '2026-11-14' ? night : null)
+  const attr = (k: string, instant: Date, direction: string | null) => {
+    const r = attributePunchWorkday(instant, shiftOf, direction)
+    return { k, workday: markerKey(r.workday), reason: r.reason }
+  }
+  const attribution = [
+    attr('sun-0230-in', T(2026, 11, 15, 2, 30), 'IN'),
+    attr('sun-0600-out', T(2026, 11, 15, 6, 0), 'OUT'),
+    attr('sun-0600-in', T(2026, 11, 15, 6, 0), 'IN'),
+    attr('sun-1000-auto', T(2026, 11, 15, 10, 0), null),
+    attr('sat-2300-in', T(2026, 11, 14, 23, 0), 'IN'),
+  ]
+
+  console.log(JSON.stringify({ todayOk, instants, weekdays, windows, engine, attribution }))
   process.exit(0)
 }
 
@@ -716,6 +902,316 @@ section('19. Day-param & wall-clock TZ-independence (child probes under 4 TZs)',
     assert.equal(wall['2021-09-21 23:30'], '2021-09-21T20:00:00.000Z') // ambiguous — deterministic
     assert.equal(wall['2026-02-31 08:30'], null) // impossible date — rejected under every TZ
     assert.equal(wall['2026-11-17 25:00'], null) // impossible time — rejected under every TZ
+  })
+})
+
+// [20] Persian weekday of markers (S5-A1) -----------------------------------
+section('20. Persian weekday of markers (S5): faWeekdayOfMarker + legacy parity', () => {
+  // 2026-11-13 is a Friday (جمعه), 11-14 Saturday (شنبه), … 11-19 پنجشنبه
+  const cases: Array<[string, number]> = [
+    ['2026-11-13', 6],
+    ['2026-11-14', 0],
+    ['2026-11-15', 1],
+    ['2026-11-16', 2],
+    ['2026-11-17', 3],
+    ['2026-11-18', 4],
+    ['2026-11-19', 5],
+  ]
+  for (const [k, want] of cases) {
+    check(`weekday of ${k} = ${want} (faWeekdayOfMarker, UTC getter)`, () => {
+      assert.equal(faWeekdayOfMarker(parseDateOnly(k)!), want)
+    })
+  }
+  check('legacy faWeekday === faWeekdayOfMarker on markers (engine values byte-identical on Tehran/UTC hosts)', () => {
+    for (const [k] of cases) {
+      assert.equal(legacy.faWeekday(parseDateOnly(k)!), faWeekdayOfMarker(parseDateOnly(k)!))
+    }
+  })
+  check('engine weekend detection: 2026-11-13 is Friday (6) — the Iranian weekend marker', () => {
+    assert.equal(faWeekdayOfMarker(g(2026, 11, 13)), 6)
+    assert.equal(faWeekdayOfMarker(g(2026, 11, 14)), 0) // Saturday is a WORKDAY marker
+  })
+})
+
+// [21] Strict instant parsing (S5-A3/A4/A5) ---------------------------------
+section('21. Strict instant parsing (S5): full ISO with explicit timezone only', () => {
+  check('valid: Z / ±HH:MM / fractional seconds → the exact UTC instant', () => {
+    assert.equal(iso(parseInstantParam('2026-11-17T08:30:00Z')!), '2026-11-17T08:30:00.000Z')
+    assert.equal(iso(parseInstantParam('2026-11-17T08:30:00+03:30')!), '2026-11-17T05:00:00.000Z')
+    assert.equal(iso(parseInstantParam('2026-11-17T08:30:00.123-05:00')!), '2026-11-17T13:30:00.123Z')
+  })
+  check('REJECTED: timezone-less datetimes (ECMA-262 reads them HOST-LOCAL — the S5 trap)', () => {
+    assert.equal(parseInstantParam('2026-11-17T00:30'), null)
+    assert.equal(parseInstantParam('2026-11-17T00:30:00'), null)
+    assert.equal(parseInstantParam('2026-11-17 00:30'), null) // space form — never guessed
+  })
+  check('REJECTED: date-only strings (a DAY, not an instant), junk, basic offsets, impossible components', () => {
+    assert.equal(parseInstantParam('2026-11-17'), null)
+    assert.equal(parseInstantParam('garbage'), null)
+    assert.equal(parseInstantParam('2026-11-17T22:30:00+0330'), null)
+    assert.equal(parseInstantParam('2026-11-17T25:00:00Z'), null)
+    assert.equal(parseInstantParam('2026-02-30T10:00:00Z'), null)
+    assert.equal(parseInstantParam('2026-11-17T10:00:00+24:00'), null)
+    assert.equal(parseInstantParam(''), null)
+    assert.equal(parseInstantParam(null), null)
+    assert.equal(parseInstantParam(undefined), null)
+  })
+})
+
+// [22] Tehran day windows (S5-A6/A7) ----------------------------------------
+section('22. Tehran day windows (S5): today window + read-path range window', () => {
+  check('tehranTodayWindow brackets now and carries the Tehran day of now (kiosk/me window)', () => {
+    const now = new Date()
+    const w = tehranTodayWindow()
+    assert.ok(w.start.getTime() <= now.getTime() && now.getTime() < w.end.getTime())
+    assert.equal(markerKey(dayMarkerOf(w.start)), markerKey(dayMarkerOf(now)))
+    assert.equal(markerKey(dayMarkerOf(w.end)), markerKey(addDaysMarker(dayMarkerOf(now), 1)))
+  })
+  check('day window boundaries are true Tehran midnights (20:30Z, no-DST era)', () => {
+    const w = tehranDayWindowOfMarker(g(2026, 11, 17))
+    assert.equal(w.start.toISOString(), '2026-11-16T20:30:00.000Z')
+    assert.equal(w.end.toISOString(), '2026-11-17T20:30:00.000Z')
+  })
+  check('tehranDayRangeInstantWindow(from,to) = [Tehran midnight of from, Tehran midnight of to+1) — the engine fetch window (D1 retired)', () => {
+    const w = tehranDayRangeInstantWindow(g(2026, 11, 14), g(2026, 11, 17))
+    assert.equal(w.gte.toISOString(), '2026-11-13T20:30:00.000Z')
+    assert.equal(w.lt.toISOString(), '2026-11-17T20:30:00.000Z')
+    // identical to the engine's own recalcRange fetch span construction
+    const engineFrom = tehranDayWindowOfMarker(g(2026, 11, 14)).start
+    const engineTo = tehranDayWindowOfMarker(addDaysMarker(g(2026, 11, 17), 1)).start
+    assert.equal(w.gte.getTime(), engineFrom.getTime())
+    assert.equal(w.lt.getTime(), engineTo.getTime())
+  })
+  check('DST-era day windows stay exact (+04:30 summers, real tz database)', () => {
+    const w = tehranDayWindowOfMarker(g(2021, 6, 21))
+    assert.equal(w.start.toISOString(), '2021-06-20T19:30:00.000Z')
+    assert.equal(w.end.toISOString(), '2021-06-21T19:30:00.000Z')
+  })
+  check('kiosk/me direction semantics: Tehran 00:30 of day D inside, 00:30 of day D+1 outside', () => {
+    const w = tehranDayWindowOfMarker(g(2026, 11, 17))
+    const earlyToday = tehranInstant(2026, 11, 17, 0, 30)
+    const earlyNext = tehranInstant(2026, 11, 18, 0, 30)
+    assert.ok(earlyToday.getTime() >= w.start.getTime() && earlyToday.getTime() < w.end.getTime())
+    assert.ok(earlyNext.getTime() >= w.end.getTime())
+  })
+})
+
+// [23] Engine core S5 scenarios on fixed instants ----------------------------
+section('23. Engine core S5 scenarios (fixed instants): night / multi-segment / stray / Jalali boundary / Late & Early / mission', () => {
+  const T = (y: number, mo: number, d: number, h: number, mi = 0) => tehranInstant(y, mo, d, h, mi)
+  const mkShift = (
+    id: string,
+    segs: Array<{ startMin: number; endMin: number }>,
+    graces = 10,
+  ): ShiftLite => ({
+    id,
+    name: id,
+    lateGraceMin: graces,
+    earlyGraceMin: graces,
+    overtimeEligible: true,
+    segments: segs.map((s) => ({ startMin: s.startMin, endMin: s.endMin, breakMin: 0 })),
+  })
+  const dayShift = mkShift('day', [{ startMin: 8 * 60, endMin: 16 * 60 }])
+  const eveningShift = mkShift('evening', [{ startMin: 15 * 60, endMin: 23 * 60 + 30 }])
+  const nightShift = mkShift('night', [{ startMin: 22 * 60, endMin: 6 * 60 }])
+  const splitShift = mkShift('split', [{ startMin: 8 * 60, endMin: 12 * 60 }, { startMin: 13 * 60, endMin: 17 * 60 }], 0)
+  const run = (
+    day: Date,
+    shift: ShiftLite | null,
+    punches: Array<{ timestamp: Date; direction?: string }>,
+    extra?: { missionSpans?: Array<{ start: Date; end: Date }>; leaveSpans?: Array<{ start: Date; end: Date; leaveTypeId: string }>; isHoliday?: boolean },
+  ) =>
+    computeDaily({
+      personId: 'p1',
+      day,
+      shift,
+      punches,
+      missionSpans: extra?.missionSpans ?? [],
+      leaveSpans: extra?.leaveSpans ?? [],
+      isHoliday: extra?.isHoliday ?? false,
+      isOff: false,
+      now: new Date(Date.UTC(2026, 11, 1, 12, 0)),
+    })
+
+  check('E1 day shift: 08:20 IN / 15:30 OUT → PRESENT, late 10, early 20 (graces 10)', () => {
+    const d = run(g(2026, 11, 17), dayShift, [
+      { timestamp: T(2026, 11, 17, 8, 20), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 15, 30), direction: 'OUT' },
+    ])
+    assert.equal(d.status, 'PRESENT')
+    assert.equal(d.lateMinutes, 10)
+    assert.equal(d.earlyLeaveMinutes, 20)
+    assert.equal(d.workedMinutes, 430)
+  })
+  check('E2 night shift Sat 22:00→Sun 06:00 on SATURDAY\'s row: worked 480, window exact across midnight', () => {
+    const d = run(g(2026, 11, 14), nightShift, [
+      { timestamp: T(2026, 11, 14, 22, 0), direction: 'IN' },
+      { timestamp: T(2026, 11, 15, 6, 0), direction: 'OUT' },
+    ])
+    assert.equal(d.status, 'PRESENT')
+    assert.equal(d.workedMinutes, 480)
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.earlyLeaveMinutes, 0)
+  })
+  check('E3 S4 hotfix parity: stray 02:30–02:50 pair + real 15:30–20:00 on a 15:00–23:30 shift → late 20, early 200', () => {
+    const d = run(g(2026, 11, 17), eveningShift, [
+      { timestamp: T(2026, 11, 17, 2, 30), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 2, 50), direction: 'OUT' },
+      { timestamp: T(2026, 11, 17, 15, 30), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 20, 0), direction: 'OUT' },
+    ])
+    assert.equal(d.lateMinutes, 20)
+    assert.equal(d.earlyLeaveMinutes, 200)
+  })
+  check('E4 Jalali year boundary: night 1404/12/29 22:00 → 1405/01/01 06:00 on Esfand-29\'s row, worked 480', () => {
+    const d = run(g(2026, 3, 20), nightShift, [
+      { timestamp: T(2026, 3, 20, 22, 0), direction: 'IN' },
+      { timestamp: T(2026, 3, 21, 6, 0), direction: 'OUT' },
+    ])
+    assert.equal(d.workedMinutes, 480)
+    assert.equal(d.status, 'PRESENT')
+    // the boundary markers themselves: 2026-03-20 = 1404/12/29, 2026-03-21 = 1405/01/01
+    const a = jalaliOfMarker(g(2026, 3, 20))
+    const b = jalaliOfMarker(g(2026, 3, 21))
+    assert.deepEqual([a.jy, a.jm, a.jd], [1404, 12, 29])
+    assert.deepEqual([b.jy, b.jm, b.jd], [1405, 1, 1])
+  })
+  check('E5 leave attached to the window start (08:00–10:00) excuses lateness: IN 09:30 → late 0', () => {
+    const d = run(g(2026, 11, 17), dayShift, [
+      { timestamp: T(2026, 11, 17, 9, 30), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 16, 0), direction: 'OUT' },
+    ], { leaveSpans: [{ start: T(2026, 11, 17, 8, 0), end: T(2026, 11, 17, 10, 0), leaveTypeId: 'lt1' }] })
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.leaveMinutes, 120)
+  })
+  check('E6 approved mission without punches → MISSION status, 480 credited', () => {
+    const d = run(g(2026, 11, 17), dayShift, [], {
+      missionSpans: [{ start: T(2026, 11, 17, 8, 0), end: T(2026, 11, 17, 16, 0) }],
+    })
+    assert.equal(d.status, 'MISSION')
+    assert.equal(d.missionMinutes, 480)
+  })
+  check('E7 multi-segment shift (08–12 + 13–17, graces 0): anchors at first-segment start / last-segment end', () => {
+    const d = run(g(2026, 11, 17), splitShift, [
+      { timestamp: T(2026, 11, 17, 8, 1), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 16, 40), direction: 'OUT' },
+    ])
+    assert.equal(d.lateMinutes, 1)
+    assert.equal(d.earlyLeaveMinutes, 20)
+  })
+  check('E8 no punches after the determination window → ABSENT', () => {
+    const d = run(g(2026, 11, 17), dayShift, [])
+    assert.equal(d.status, 'ABSENT')
+  })
+  check('E9 holiday work: all valid time counts as actual OT (A4 — no gate), payable 0 without approval', () => {
+    const d = run(g(2026, 11, 17), dayShift, [
+      { timestamp: T(2026, 11, 17, 8, 0), direction: 'IN' },
+      { timestamp: T(2026, 11, 17, 16, 0), direction: 'OUT' },
+    ], { isHoliday: true })
+    assert.equal(d.overtimeMinutes, 480)
+    assert.equal(d.payableOvertimeMinutes, 0)
+  })
+})
+
+// [24] The S5 TZ matrix — REAL child runs under the four mandated host TZs ----
+section('24. S5 host-timezone independence: UTC / Asia/Tehran / Europe/Vienna / America/New_York', () => {
+  const self = path.join('scripts', 'test-time.ts')
+  const tsxCli = path.join(ROOT, 'node_modules', 'tsx', 'dist', 'cli.mjs')
+  const outputs: Record<string, string> = {}
+  for (const tz of ['UTC', 'Asia/Tehran', 'Europe/Vienna', 'America/New_York']) {
+    const res = spawnSync(process.execPath, [tsxCli, self, '--probe-s5'], {
+      cwd: ROOT,
+      env: { ...process.env, TZ: tz },
+      encoding: 'utf8',
+    })
+    assert.equal(res.status, 0, `probe-s5 failed under TZ=${tz}: ${res.stderr?.slice(0, 400)}`)
+    outputs[tz] = res.stdout.trim()
+    assert.ok(res.stdout.includes('"engine"'), `probe-s5 produced no engine JSON under TZ=${tz}`)
+  }
+  check('ALL FOUR host TZs produce BYTE-IDENTICAL S5 output (parsers, weekday, windows, engine, attribution)', () => {
+    const base = outputs['UTC']
+    for (const [tz, out] of Object.entries(outputs)) {
+      assert.equal(out, base, `TZ=${tz} diverged from UTC`)
+    }
+  })
+  check('todayWindow internal consistency holds under every host TZ', () => {
+    for (const [tz, out] of Object.entries(outputs)) {
+      assert.equal(JSON.parse(out).todayOk, true, `todayOk failed under TZ=${tz}`)
+    }
+  })
+  check('strict instant parser: identical accepts/rejects under every host TZ', () => {
+    for (const out of Object.values(outputs)) {
+      const data = JSON.parse(out)
+      const inst = Object.fromEntries(data.instants.map((x: { k: string; iso: string | null }) => [x.k, x.iso]))
+      assert.equal(inst['iso-Z'], '2026-11-17T08:30:00.000Z')
+      assert.equal(inst['iso-Z-ms'], '2026-11-17T08:30:00.123Z')
+      assert.equal(inst['iso-pos330'], '2026-11-17T05:00:00.000Z')
+      assert.equal(inst['iso-neg5'], '2026-11-17T13:30:00.000Z')
+      assert.equal(inst['tz-less'], null)
+      assert.equal(inst['tz-less-sec'], null)
+      assert.equal(inst['date-only'], null)
+      assert.equal(inst['basic-offset'], null)
+      assert.equal(inst['hour25'], null)
+      assert.equal(inst['feb30'], null)
+      assert.equal(inst['junk'], null)
+    }
+  })
+  check('marker weekday: identical values under every host TZ (legacy parity incl.)', () => {
+    for (const out of Object.values(outputs)) {
+      const data = JSON.parse(out)
+      const wd = Object.fromEntries(data.weekdays.map((x: { k: string; central: number; legacy: number }) => [x.k, x.legacy === x.central ? `${x.central}` : 'DIVERGED']))
+      assert.equal(wd['2026-11-13'], '6')
+      assert.equal(wd['2026-11-14'], '0')
+      assert.equal(wd['2026-11-15'], '1')
+      assert.equal(wd['2026-11-16'], '2')
+      assert.equal(wd['2026-11-17'], '3')
+      assert.equal(wd['2026-11-18'], '4')
+      assert.equal(wd['2026-11-19'], '5')
+    }
+  })
+  check('day windows & read-path range: identical Tehran-midnight instants under every host TZ', () => {
+    for (const out of Object.values(outputs)) {
+      const w = JSON.parse(out).windows
+      assert.equal(w.dayStart, '2026-11-16T20:30:00.000Z')
+      assert.equal(w.dayEnd, '2026-11-17T20:30:00.000Z')
+      assert.equal(w.rangeGte, '2026-11-13T20:30:00.000Z')
+      assert.equal(w.rangeLt, '2026-11-17T20:30:00.000Z')
+    }
+  })
+  check('engine scenarios: identical statuses/minutes under every host TZ', () => {
+    for (const out of Object.values(outputs)) {
+      const e = Object.fromEntries(JSON.parse(out).engine.map((x: { k: string }) => [x.k, x]))
+      assert.equal(e['E1-day-0820-1530'].status, 'PRESENT')
+      assert.equal(e['E1-day-0820-1530'].late, 10)
+      assert.equal(e['E1-day-0820-1530'].early, 20)
+      assert.equal(e['E2-night-sat'].worked, 480)
+      assert.equal(e['E3-stray-pair'].late, 20)
+      assert.equal(e['E3-stray-pair'].early, 200)
+      assert.equal(e['E4-esfand-farvardin'].worked, 480)
+      assert.equal(e['E5-leave-start'].late, 0)
+      assert.equal(e['E5-leave-start'].leave, 120)
+      assert.equal(e['E6-mission'].status, 'MISSION')
+      assert.equal(e['E6-mission'].mission, 480)
+      assert.equal(e['E7-split'].late, 1)
+      assert.equal(e['E7-split'].early, 20)
+      assert.equal(e['E8-absent'].status, 'ABSENT')
+      assert.equal(e['E9-holiday-ot'].ot, 480)
+    }
+  })
+  check('workday attribution: identical workdays/reasons under every host TZ (night-shift policy)', () => {
+    for (const out of Object.values(outputs)) {
+      const a = Object.fromEntries(JSON.parse(out).attribution.map((x: { k: string }) => [x.k, x]))
+      assert.equal(a['sun-0230-in'].workday, '2026-11-14') // the S3 policy example — Sunday 02:30 → SATURDAY
+      assert.equal(a['sun-0230-in'].reason, 'SHIFT_WINDOW')
+      assert.equal(a['sun-0600-out'].workday, '2026-11-14') // direction-aware window end
+      assert.equal(a['sun-0600-out'].reason, 'SHIFT_WINDOW')
+      assert.equal(a['sun-0600-in'].workday, '2026-11-15') // IN at the boundary opens the next day — the Sat night window is half-open for IN; no Sunday shift, a valid Sat window simply does not contain it → documented OUT_OF_WINDOW fallback to the Tehran day
+      assert.equal(a['sun-0600-in'].reason, 'OUT_OF_WINDOW')
+      assert.equal(a['sun-1000-auto'].workday, '2026-11-15')
+      assert.equal(a['sun-1000-auto'].reason, 'OUT_OF_WINDOW')
+      assert.equal(a['sat-2300-in'].workday, '2026-11-14')
+      assert.equal(a['sat-2300-in'].reason, 'SHIFT_WINDOW')
+    }
   })
 })
 

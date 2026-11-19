@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
-import { parseDayParam, markerRangeInstantWindow } from '@/lib/time'
+import { parseDayParam, parseInstantParam, tehranDayRangeInstantWindow } from '@/lib/time'
 import { recalcDayForPerson } from '@/lib/attendance'
 
 export async function GET(req: NextRequest) {
@@ -10,9 +10,13 @@ export async function GET(req: NextRequest) {
     await requireRole('EMPLOYEE')
     const sp = req.nextUrl.searchParams
     // v1.6.0 (phase 1 stage 3): from/to are DATE-ONLY business days ('YYYY-MM-DD'
-    // or marker ISO) → UTC-midnight marker window [from, to+1) — the SAME
-    // instant-window convention the attendance engine uses for day attribution
-    // (see docs/API-DATE-CONTRACTS.md; junk now yields a clean 400 instead of a 500).
+    // or marker ISO) → markers.
+    // Phase 2 S5 (D1 retired): the punch-instant window is now the TRUE
+    // Tehran-day range [Tehran midnight of from, Tehran midnight of to+1) —
+    // the SAME window the attendance engine fetches punches over. The old
+    // UTC-midnight marker window desynced reads from the engine by the +3:30
+    // offset (Tehran 00:00–03:29 punches landed under the previous day's
+    // filter; docs/API-DATE-CONTRACTS.md, docs/PHASE2-S5-AUDIT.md S5-A7).
     const from = parseDayParam(sp.get('from'))
     const to = parseDayParam(sp.get('to'))
     if ((sp.get('from') && !from) || (sp.get('to') && !to)) throw new ApiError(400, 'بازه تاریخ نامعتبر')
@@ -33,7 +37,7 @@ export async function GET(req: NextRequest) {
     }
 
     const where: Record<string, unknown> = {
-      ...(from && to ? { timestamp: markerRangeInstantWindow(from, to) } : {}),
+      ...(from && to ? { timestamp: tehranDayRangeInstantWindow(from, to) } : {}),
       ...(personId ? { personId } : {}),
       ...(personIds ? { personId: { in: personIds } } : {}),
       ...(source ? { source } : {}),
@@ -59,10 +63,16 @@ export async function POST(req: NextRequest) {
     const user = await requireRole('ADMIN')
     const b = await req.json()
     if (!b.personId || !b.timestamp) throw new ApiError(400, 'پرسنل و زمان الزامی است')
+    // Phase 2 S5 (host-tz independence): timestamps are INSTANTS and must carry
+    // an explicit timezone (full ISO with Z/±HH:MM) — timezone-less datetimes
+    // parsed host-locally before, silently shifting the punch with the server's
+    // timezone (docs/API-DATE-CONTRACTS.md, docs/PHASE2-S5-AUDIT.md S5-A3).
+    const ts = parseInstantParam(String(b.timestamp))
+    if (!ts) throw new ApiError(400, 'قالب زمان نامعتبر — زمان باید ISO کامل با منطقهٔ زمانی باشد (مثال: 2026-11-17T08:30:00+03:30)')
     const punch = await db.punchRecord.create({
       data: {
         personId: b.personId,
-        timestamp: new Date(b.timestamp),
+        timestamp: ts,
         direction: b.direction || 'AUTO',
         source: 'MANUAL',
         editReason: b.reason || null,
@@ -71,7 +81,7 @@ export async function POST(req: NextRequest) {
       },
     })
     await db.auditLog.create({ data: { userId: user.id, action: 'PUNCH_CREATE', entity: 'PunchRecord', entityId: punch.id, details: b.reason || '' } })
-    await recalcDayForPerson(b.personId, new Date(b.timestamp), punch.direction)
+    await recalcDayForPerson(b.personId, ts, punch.direction)
     return NextResponse.json({ punch })
   } catch (err) {
     return fail(err)
@@ -85,11 +95,15 @@ export async function PUT(req: NextRequest) {
     if (!b.id || !b.timestamp) throw new ApiError(400, 'شناسه و زمان الزامی است')
     const old = await db.punchRecord.findUnique({ where: { id: b.id } })
     if (!old) throw new ApiError(404, 'تردد یافت نشد')
+    // Phase 2 S5: same strict instant contract as POST (full ISO with an
+    // explicit timezone — never a host-local guess; see S5-A3).
+    const ts = parseInstantParam(String(b.timestamp))
+    if (!ts) throw new ApiError(400, 'قالب زمان نامعتبر — زمان باید ISO کامل با منطقهٔ زمانی باشد (مثال: 2026-11-17T08:30:00+03:30)')
     const punch = await db.punchRecord.update({
       where: { id: b.id },
-      data: { timestamp: new Date(b.timestamp), direction: b.direction || old.direction, edited: true, editReason: b.reason || 'ویرایش دستی' },
+      data: { timestamp: ts, direction: b.direction || old.direction, edited: true, editReason: b.reason || 'ویرایش دستی' },
     })
-    await db.auditLog.create({ data: { userId: user.id, action: 'PUNCH_EDIT', entity: 'PunchRecord', entityId: b.id, details: `${old.timestamp.toISOString()} -> ${b.timestamp}` } })
+    await db.auditLog.create({ data: { userId: user.id, action: 'PUNCH_EDIT', entity: 'PunchRecord', entityId: b.id, details: `${old.timestamp.toISOString()} -> ${ts.toISOString()}` } })
     await recalcDayForPerson(old.personId, old.timestamp, old.direction)
     await recalcDayForPerson(punch.personId, punch.timestamp, punch.direction)
     return NextResponse.json({ punch })

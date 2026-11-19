@@ -4,7 +4,7 @@ import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
 import { recalcRange } from '@/lib/attendance'
 import { startOfUTCDay, addDays } from '@/lib/jalali'
-import { tehranWallClockStringToInstant } from '@/lib/time'
+import { tehranWallClockStringToInstant, parseInstantParam } from '@/lib/time'
 
 /** POST multipart: file + mode=punches|personnel + mapping JSON */
 export async function POST(req: NextRequest) {
@@ -76,12 +76,18 @@ export async function POST(req: NextRequest) {
       //   * naive "YYYY-MM-DD HH:MM[:SS]" → TEHRAN wall-clock (matches device
       //     semantics; identical result on a Tehran-tz server, correct on any other).
       // Unparseable rows are skipped exactly as before — never fabricated.
+      // Phase 2 S5 (host-tz independence): the T-form now REQUIRES an explicit
+      // timezone (Z/±HH:MM) via the central strict instant parser — a
+      // timezone-less "2026-11-17T00:30" previously fell into new Date() and
+      // was read as HOST-LOCAL time, silently shifting the punch with the
+      // server's timezone; such rows are now skipped like every other
+      // unparseable row (docs/API-DATE-CONTRACTS.md, docs/PHASE2-S5-AUDIT.md
+      // item S5-A5).
       let ts: Date | null = null
       try {
         if (dtRaw) {
           if (/^\d{4}-\d{2}-\d{2}T/.test(dtRaw)) {
-            const d = new Date(dtRaw)
-            ts = isNaN(d.getTime()) ? null : d
+            ts = parseInstantParam(dtRaw)
           } else {
             ts = tehranWallClockStringToInstant(dtRaw)
           }

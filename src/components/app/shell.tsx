@@ -325,7 +325,7 @@ export function AppShell({ user, onLogout }: { user: SessionUser; onLogout: () =
         </main>
 
         <footer className="mt-auto border-t py-3 px-6 text-center text-xs text-muted-foreground no-print">
-          حضور+ · سامانه شخصی حضور و غیاب · نسخه ۱٫۰
+          حضور+ · سامانه شخصی حضور و غیاب · نسخه ۱٫۷٫۰
         </footer>
       </div>
 

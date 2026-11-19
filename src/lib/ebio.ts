@@ -24,6 +24,7 @@ import * as net from 'net'
 import { db } from '@/lib/db'
 import { recalcDayForPerson } from '@/lib/attendance'
 import { emitRealtime } from '@/lib/notify'
+import { tehranParts } from '@/lib/time'
 
 const DEFAULT_PORT = Number(process.env.EBIO_PORT || 5005)
 const MAX_BUFFER = 256 * 1024
@@ -204,7 +205,12 @@ function parseMessage(xml: string): ParsedMsg | null {
 
 async function handleTimeLog(g: Gateway, msg: ParsedMsg, deviceId: string): Promise<string | null> {
   const num = (t: string) => { const n = Number(fixDigits(t)); return Number.isNaN(n) ? null : n }
-  const y = num(el(msg.raw, 'Year') ?? '') ?? new Date().getFullYear()
+  // Phase 2 S5 (host-tz independence): when a TimeLog omits Year, the fallback
+  // year is the TEHRAN year of now (the device wall clock is Tehran time) —
+  // new Date().getFullYear() read the HOST-LOCAL year, which is wrong between
+  // UTC Dec 31 20:30 and Tehran Jan 1 03:30 and on any negative-offset host
+  // (docs/PHASE2-S5-AUDIT.md item S5-A8).
+  const y = num(el(msg.raw, 'Year') ?? '') ?? tehranParts(new Date()).y
   const mo = num(el(msg.raw, 'Month') ?? '') ?? 1
   const d = num(el(msg.raw, 'Day') ?? '') ?? 1
   const h = num(el(msg.raw, 'Hour') ?? '') ?? 0
