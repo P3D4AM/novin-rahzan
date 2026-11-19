@@ -46,6 +46,22 @@
  *       exactly ONE row.
  *   [K] S3 review fix 5 — a legacy NEGATIVE approved OvertimeRequest never
  *       reduces the day's approved sum (payable = min(actual, 100) not 50).
+ *   [M] S4 leave×work overlap end-to-end: approved hourly leave overlapping
+ *       real attendance → worked carved (interval math, no double count),
+ *       attached-leave lateness excused, PENDING leave contributes nothing,
+ *       full rerun identical.
+ *   [N] S4 late/early on real instants end-to-end: night-shift lateness
+ *       (IN 23:00 → late 50) on the shift-start workday; the D13 stray-02:30
+ *       regression through the real engine (late 0 AND early 0, honest
+ *       OUT_OF_WINDOW note).
+ *   [O] S4 ABSENT timing through the real engine (past shift day → ABSENT at
+ *       the real window end; future day → PENDING; no-shift day → Tehran
+ *       calendar-day end; the exact boundary instant is pinned in the pure
+ *       suite with an injected `now`).
+ *   [P] S4 provenance end-to-end: EDITED_PUNCHES:n in the note for days
+ *       computed from manually corrected punches (no free text in the note,
+ *       deterministic composition pairing|provenance|attribution, rerun
+ *       identical, clean days stay null).
  *
  * Run: npx tsx scripts/test-attendance-db.ts   (own temp DB; no external env)
  */
@@ -601,6 +617,141 @@ async function main() {
       // the CURRENT schema converges on the migrated database (no drift — INSTALL.bat path)
       const pushNow2 = sh('npx', ['prisma', 'db', 'push', '--skip-generate'], { DATABASE_URL: MIG2_URL })
       check('prisma db push from the CURRENT schema converges (no drift after the migration)', pushNow2.status === 0, (pushNow2.stderr || '').slice(-300))
+    })
+
+    // ------------------------------------------------------------------
+    // [M] S4 — approved leave × worked overlap carved end-to-end (real recalcRange)
+    // ------------------------------------------------------------------
+    await section('M. S4 leave×work overlap: approved hourly leave overlapping attendance counted ONCE', async () => {
+      const normalType = await db.leaveType.create({ data: { name: 'استحقاقی S4', paid: true, countsTowardsBalance: true } })
+      const pA = await db.personnel.create({ data: { personnelCode: 'S4-A', pin: '9410', firstName: 'گارا', lastName: 'کارو', defaultShiftId: dayShift.id } })
+      const dayA = MK(2026, 12, 1)
+      // approved hourly leave 10:00–12:00 overlapping real attendance 08:00–16:00
+      await db.punchRecord.createMany({ data: [
+        { personId: pA.id, timestamp: TEHRAN(2026, 12, 1, 8, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: pA.id, timestamp: TEHRAN(2026, 12, 1, 16, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await db.leaveRequest.create({ data: { personId: pA.id, leaveTypeId: normalType.id, kind: 'HOURLY', startDateTime: TEHRAN(2026, 12, 1, 10, 0), endDateTime: TEHRAN(2026, 12, 1, 12, 0), durationMinutes: 120, status: 'APPROVED' } })
+      await recalcRange([pA.id], dayA, dayA)
+      const a = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pA.id, date: dayA } } })
+      check('worked 360 (480 attendance − 120 leave overlap), leaveMinutes 120, PRESENT, leaveTypeId set', a !== null && a.workedMinutes === 360 && a.leaveMinutes === 120 && a.status === 'PRESENT' && a.leaveTypeId === normalType.id, JSON.stringify({ worked: a?.workedMinutes, leave: a?.leaveMinutes }))
+      check('real punches never faked: firstIn 08:00 / lastOut 16:00 (Tehran) stay verbatim', a !== null && a.firstIn?.toISOString() === TEHRAN(2026, 12, 1, 8, 0).toISOString() && a.lastOut?.toISOString() === TEHRAN(2026, 12, 1, 16, 0).toISOString())
+      check('late 0: leave attached to the 08:00 start also covers the (on-time) arrival deadline; early 0', a !== null && a.lateMinutes === 0 && a.earlyLeaveMinutes === 0)
+      // attached-leave lateness excused end-to-end: arrival 10:00 with leave 08:00–10:00 → late 0
+      const pB = await db.personnel.create({ data: { personnelCode: 'S4-B', pin: '9411', firstName: 'برنا', lastName: 'کیا', defaultShiftId: dayShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: pB.id, timestamp: TEHRAN(2026, 12, 2, 10, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: pB.id, timestamp: TEHRAN(2026, 12, 2, 16, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await db.leaveRequest.create({ data: { personId: pB.id, leaveTypeId: normalType.id, kind: 'HOURLY', startDateTime: TEHRAN(2026, 12, 2, 8, 0), endDateTime: TEHRAN(2026, 12, 2, 10, 0), durationMinutes: 120, status: 'APPROVED' } })
+      await recalcRange([pB.id], MK(2026, 12, 2), MK(2026, 12, 2))
+      const b = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pB.id, date: MK(2026, 12, 2) } } })
+      check('arrival 10:00 excused by the attached 08:00–10:00 leave → lateMinutes 0 (was 110 before S4); worked 360', b !== null && b.lateMinutes === 0 && b.workedMinutes === 360 && b.leaveMinutes === 120, JSON.stringify({ late: b?.lateMinutes, worked: b?.workedMinutes }))
+      // PENDING leave never carves (only APPROVED reaches the engine)
+      const pC = await db.personnel.create({ data: { personnelCode: 'S4-C', pin: '9412', firstName: 'پند', lastName: 'آرا', defaultShiftId: dayShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: pC.id, timestamp: TEHRAN(2026, 12, 3, 8, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: pC.id, timestamp: TEHRAN(2026, 12, 3, 16, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await db.leaveRequest.create({ data: { personId: pC.id, leaveTypeId: normalType.id, kind: 'HOURLY', startDateTime: TEHRAN(2026, 12, 3, 10, 0), endDateTime: TEHRAN(2026, 12, 3, 12, 0), durationMinutes: 120, status: 'PENDING' } })
+      await recalcRange([pC.id], MK(2026, 12, 3), MK(2026, 12, 3))
+      const c = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pC.id, date: MK(2026, 12, 3) } } })
+      check('PENDING leave contributes nothing: worked 480, leaveMinutes 0, leaveTypeId null', c !== null && c.workedMinutes === 480 && c.leaveMinutes === 0 && c.leaveTypeId === null)
+      // rerun determinism for the whole M fixture set
+      const before = await db.dailyAttendance.findMany({ where: { personId: { in: [pA.id, pB.id, pC.id] } }, orderBy: [{ personId: 'asc' }, { date: 'asc' }] })
+      await recalcRange([pA.id], dayA, dayA)
+      await recalcRange([pB.id], MK(2026, 12, 2), MK(2026, 12, 2))
+      await recalcRange([pC.id], MK(2026, 12, 3), MK(2026, 12, 3))
+      const after = await db.dailyAttendance.findMany({ where: { personId: { in: [pA.id, pB.id, pC.id] } }, orderBy: [{ personId: 'asc' }, { date: 'asc' }] })
+      check('S4 leave-carve rows are IDENTICAL after a full rerun (idempotent)', JSON.stringify(before) === JSON.stringify(after))
+    })
+
+    // ------------------------------------------------------------------
+    // [N] S4 — late/early on real instants end-to-end (night shift + D13 stray)
+    // ------------------------------------------------------------------
+    await section('N. S4 late/early real instants: night-shift lateness and the stray 02:30 regression', async () => {
+      // N1: night shift Sat 2026-12-05 22:00, IN 23:00 (grace 10) → late 50; OUT 06:00 → early 0
+      const pD = await db.personnel.create({ data: { personnelCode: 'S4-D', pin: '9413', firstName: 'دارا', lastName: 'نور', defaultShiftId: nightShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: pD.id, timestamp: TEHRAN(2026, 12, 5, 23, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: pD.id, timestamp: TEHRAN(2026, 12, 6, 6, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([pD.id], MK(2026, 12, 5), MK(2026, 12, 6))
+      const n1 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pD.id, date: MK(2026, 12, 5) } } })
+      check('night shift: IN 23:00 → lateMinutes 50 (1h − 10 grace), earlyMinutes 0 (OUT at window end)', n1 !== null && n1.lateMinutes === 50 && n1.earlyLeaveMinutes === 0 && n1.workedMinutes === 420, JSON.stringify({ late: n1?.lateMinutes, early: n1?.earlyLeaveMinutes, worked: n1?.workedMinutes }))
+      check('night-shift after-midnight pair fully on the shift-START workday (no split, no double count)', n1 !== null && n1.firstIn?.toISOString() === TEHRAN(2026, 12, 5, 23, 0).toISOString() && n1.lastOut?.toISOString() === TEHRAN(2026, 12, 6, 6, 0).toISOString())
+      const n1sun = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pD.id, date: MK(2026, 12, 6) } } })
+      check('SUNDAY row carries no trace of the night pair', n1sun !== null && n1sun.firstIn === null && n1sun.workedMinutes === 0)
+
+      // N2: the D13 regression through the real engine — evening shift 15:00–23:30
+      // with a stray 02:30 punch (OUT_OF_WINDOW fallback on the same Tehran day)
+      const eveningShift = await db.shift.create({ data: { name: 'عصر S4', lateGraceMin: 10, earlyGraceMin: 10, overtimeEligible: true } })
+      await db.shiftSegment.create({ data: { shiftId: eveningShift.id, order: 0, startMin: 15 * 60, endMin: 23 * 60 + 30, breakMin: 0 } })
+      const pE = await db.personnel.create({ data: { personnelCode: 'S4-E', pin: '9414', firstName: 'امی', lastName: 'رد', defaultShiftId: eveningShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: pE.id, timestamp: TEHRAN(2026, 12, 7, 2, 30), direction: 'IN', source: 'KIOSK' },
+        { personId: pE.id, timestamp: TEHRAN(2026, 12, 7, 2, 50), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([pE.id], MK(2026, 12, 7), MK(2026, 12, 7))
+      const n2 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pE.id, date: MK(2026, 12, 7) } } })
+      check('stray 02:30 pair: PRESENT worked 20, lateMinutes 0 AND earlyLeaveMinutes 0 (old engine fabricated ~11h/~21h)', n2 !== null && n2.status === 'PRESENT' && n2.workedMinutes === 20 && n2.lateMinutes === 0 && n2.earlyLeaveMinutes === 0, JSON.stringify({ late: n2?.lateMinutes, early: n2?.earlyLeaveMinutes, worked: n2?.workedMinutes }))
+      check('the stray punches are honestly reported: note carries OUT_OF_WINDOW:2 (attribution provenance)', n2 !== null && n2.note === 'OUT_OF_WINDOW:2')
+    })
+
+    // ------------------------------------------------------------------
+    // [O] S4 — ABSENT timing through the real engine (wiring)
+    // ------------------------------------------------------------------
+    await section('O. S4 ABSENT timing: past shift day → ABSENT, future shift day → PENDING (boundary exactness in the pure suite)', async () => {
+      const pF = await db.personnel.create({ data: { personnelCode: 'S4-F', pin: '9415', firstName: 'فره', lastName: 'داد', defaultShiftId: dayShift.id } })
+      // a PAST day: the 08:00–16:00 window has fully passed → ABSENT
+      await recalcRange([pF.id], MK(2026, 11, 16), MK(2026, 11, 16))
+      const past = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pF.id, date: MK(2026, 11, 16) } } })
+      check('past shift day, no punches → ABSENT (determined at the real window end, no −6h buffer)', past !== null && past.status === 'ABSENT')
+      // a FUTURE day: window not started → PENDING
+      await recalcRange([pF.id], MK(2026, 12, 20), MK(2026, 12, 20))
+      const future = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pF.id, date: MK(2026, 12, 20) } } })
+      check('future shift day, no punches → PENDING', future !== null && future.status === 'PENDING')
+      // a past day with NO default shift at all (person without default): Tehran-day end basis
+      const pG = await db.personnel.create({ data: { personnelCode: 'S4-G', pin: '9416', firstName: 'گر', lastName: 'شاد' } })
+      await recalcRange([pG.id], MK(2026, 11, 16), MK(2026, 11, 16))
+      const noShift = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pG.id, date: MK(2026, 11, 16) } } })
+      check('past no-shift day, no punches → ABSENT at the Tehran calendar-day end', noShift !== null && noShift.status === 'ABSENT')
+    })
+
+    // ------------------------------------------------------------------
+    // [P] S4 — provenance: EDITED_PUNCHES note code through the real engine
+    // ------------------------------------------------------------------
+    await section('P. S4 provenance: a day computed from edited punches carries EDITED_PUNCHES in note', async () => {
+      const pH = await db.personnel.create({ data: { personnelCode: 'S4-H', pin: '9417', firstName: 'هما', lastName: 'رد', defaultShiftId: dayShift.id } })
+      const dayH = MK(2026, 12, 8)
+      // one EDITED punch (as the punches API edit path marks rows) + one clean punch
+      await db.punchRecord.createMany({ data: [
+        { personId: pH.id, timestamp: TEHRAN(2026, 12, 8, 8, 0), direction: 'IN', source: 'MANUAL', edited: true, editReason: 'اصلاح ساعت ورود' },
+        { personId: pH.id, timestamp: TEHRAN(2026, 12, 8, 16, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([pH.id], dayH, dayH)
+      const h1 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pH.id, date: dayH } } })
+      check('note = EDITED_PUNCHES:1 (day computed from a manually corrected punch); worked 480', h1 !== null && h1.note === 'EDITED_PUNCHES:1' && h1.workedMinutes === 480, JSON.stringify({ note: h1?.note }))
+      // a second edited punch + a pairing anomaly: deterministic composition order
+      await db.punchRecord.create({ data: { personId: pH.id, timestamp: TEHRAN(2026, 12, 8, 17, 0), direction: 'OUT', source: 'MANUAL', edited: true, editReason: 'اصلاح' } })
+      await recalcRange([pH.id], dayH, dayH)
+      const h2 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pH.id, date: dayH } } })
+      check('note = DUPLICATE_OUT:1|EDITED_PUNCHES:2|OUT_OF_WINDOW:1 — pairing, provenance, attribution in the documented order', h2 !== null && h2.note === 'DUPLICATE_OUT:1|EDITED_PUNCHES:2|OUT_OF_WINDOW:1', JSON.stringify({ note: h2?.note }))
+      // the edit REASON (free text) never leaks into the note
+      check('editReason free text is NOT copied into the note (audit detail stays in AuditLog/PunchRecord)', h2 !== null && (h2.note ?? '').includes('اصلاح') === false)
+      // clean day → no provenance code (in-window punches, no anomalies)
+      const pI = await db.personnel.create({ data: { personnelCode: 'S4-I', pin: '9418', firstName: 'ایلی', lastName: 'نا', defaultShiftId: dayShift.id } })
+      await db.punchRecord.createMany({ data: [
+        { personId: pI.id, timestamp: TEHRAN(2026, 12, 9, 8, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: pI.id, timestamp: TEHRAN(2026, 12, 9, 12, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([pI.id], MK(2026, 12, 9), MK(2026, 12, 9))
+      const i1 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pI.id, date: MK(2026, 12, 9) } } })
+      check('a clean day keeps note null (no false provenance)', i1 !== null && i1.note === null)
+      // rerun → identical note (deterministic)
+      await recalcRange([pH.id], dayH, dayH)
+      const h3 = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pH.id, date: dayH } } })
+      check('provenance note is identical after a rerun (deterministic)', h2 !== null && h3 !== null && h3.note === h2.note)
     })
 
     await db.$disconnect()

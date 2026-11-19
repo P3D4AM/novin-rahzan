@@ -4,6 +4,7 @@ import {
   addDaysMarker,
   dayMarkerOf,
   markerKey,
+  shiftWindowInstants,
   tehranDayWindowOfMarker,
   type ShiftCtx,
 } from '@/lib/time'
@@ -18,7 +19,7 @@ import {
   type Interval,
   type WorkdayAttribution,
 } from '@/lib/workday'
-import { addDays, faWeekday, startOfUTCDay, tehranMinutes } from '@/lib/jalali'
+import { addDays, faWeekday, startOfUTCDay } from '@/lib/jalali'
 import {
   loadDatedDefaultShiftEntries,
   resolveDatedDefaultShiftId,
@@ -170,6 +171,10 @@ export function computeDaily(input: {
   approvedOvertimeMinutes?: number
   /** validated OT threshold (Setting ot_threshold_minutes; default 30) */
   otThresholdMinutes?: number
+  /** Phase 2 S4 (provenance): how many of this workday's input punches carry
+   *  PunchRecord.edited=true — surfaced as the stable note code EDITED_PUNCHES:n
+   *  so a day computed from manually-corrected punches is traceable. */
+  editedPunchCount?: number
   isHoliday: boolean
   isOff: boolean // explicit off assignment or weekend without shift
   now: Date
@@ -184,11 +189,11 @@ export function computeDaily(input: {
     coverageIntervals,
     approvedOvertimeMinutes = 0,
     otThresholdMinutes = DEFAULT_OT_THRESHOLD_MINUTES,
+    editedPunchCount = 0,
     isHoliday,
     isOff,
     now,
   } = input
-  const dayEnd = addDays(day, 1)
   // Phase 2 S2: direction-aware deterministic pairing (src/lib/pairing.ts).
   // workedMinutes counts ONLY direction-valid closed pairs; duplicate/orphan/
   // simultaneous/open punches are reported as anomalies in `note`, never
@@ -236,25 +241,59 @@ export function computeDaily(input: {
     if (share.length) leaveTypeId = span.leaveTypeId
   }
 
-  // ---- final worked: valid attendance + credited mission time (policy) ----
-  const worked = attendanceWorked + missionMinutes
+  // ---- final worked: valid attendance + credited mission − leave overlap ----
+  // Phase 2 S4 (leave×work overlap, D8): an approved normal-leave minute that
+  // overlaps actual attendance is counted ONCE — as leave. workedMinutes
+  // therefore reports attendance minutes NOT covered by approved normal
+  // leave (worked + leaveMinutes are never double-exposed for one interval).
+  // The real punch data itself is never faked or removed: firstIn/lastOut/
+  // pairs stay exactly what the punches say. Overlapping leaves were already
+  // unioned (no double count among leaves); mission and leave are disjoint.
+  const leaveOverlapMinutes = totalMinutes(intersectIntervals(attendanceUnion, leaveCovered))
+  const worked = Math.max(0, attendanceWorked + missionMinutes - leaveOverlapMinutes)
 
-  const win = shiftWindow(shift)
+  // ---- late / early (Phase 2 S4: REAL shift-window instants, D13) ----
+  // The ±1440 minutes-of-day wrap heuristics are GONE: both sides are true
+  // UTC instants of THIS workday's shift window (shiftWindowInstants — night
+  // shifts, multi-segment and Jalali month/year boundaries are exact).
+  //   * a punch BEFORE the window start is simply early → late 0 (the old
+  //     wrap fabricated ~11h fake lateness for a 02:30 stray on a 15:00–23:30
+  //     shift);
+  //   * a punch entirely BEFORE the window can never fabricate early-leave
+  //     (there was no shift session to leave early — old wrap made ~21h);
+  //   * graces (lateGraceMin/earlyGraceMin) keep their exact meaning.
+  // Approved normal leave ATTACHED to the window start/end moves the
+  // respective deadline (the audited business expectation): a leave covering
+  // the shift start excuses lateness for its duration; one covering the
+  // shift end excuses early departure from its start. Mid-shift leave has NO
+  // documented late/early effect and keeps the current behavior (none) —
+  // recorded as an open ambiguity, not invented here. A mission attached to
+  // the start does NOT excuse lateness either (mission time is credited as
+  // work time by its own policy — no documented late-exemption exists).
+  const winI = shift ? shiftWindowInstants(day, shift) : null
   const grace = shift?.lateGraceMin ?? 10
   const earlyGrace = shift?.earlyGraceMin ?? 10
 
   let lateMinutes = 0
   let earlyLeaveMinutes = 0
-  if (shift && win && firstIn) {
-    const inMin = tehranMinutes(firstIn)
-    // shift may start before midnight of this day
-    const dayStartMin = win.start
-    const effectiveIn = inMin < win.end && inMin < dayStartMin && win.start > 720 ? inMin + 1440 : inMin
-    lateMinutes = Math.max(0, effectiveIn - dayStartMin - grace)
+  if (shift && winI && firstIn) {
+    const winStart = winI.startInstant.getTime()
+    const winEnd = winI.endInstant.getTime()
+    let lateDeadline = winStart
+    for (const iv of leaveCovered) {
+      if (iv.start <= winStart && iv.end > winStart) lateDeadline = Math.max(lateDeadline, iv.end)
+    }
+    lateMinutes = Math.max(0, Math.round((firstIn.getTime() - lateDeadline - grace * 60000) / 60000))
     if (lastOut) {
-      const outMin = tehranMinutes(lastOut)
-      const effectiveOut = outMin < win.start && win.end > 1440 ? outMin + 1440 : outMin
-      earlyLeaveMinutes = Math.max(0, win.end - effectiveOut - earlyGrace)
+      let earlyDeadline = winEnd
+      for (const iv of leaveCovered) {
+        if (iv.start < winEnd && iv.end >= winEnd) earlyDeadline = Math.min(earlyDeadline, iv.start)
+      }
+      if (lastOut.getTime() >= winStart) {
+        earlyLeaveMinutes = Math.max(0, Math.round((earlyDeadline - lastOut.getTime() - earlyGrace * 60000) / 60000))
+      }
+      // else: the last punch lies entirely BEFORE the shift window — an
+      // out-of-window stray; no shift session existed to leave early.
     }
   }
 
@@ -288,8 +327,12 @@ export function computeDaily(input: {
   } else if (isOff && !punches.length && !shift) {
     status = 'OFF'
   } else if (!punches.length) {
-    // no punches: absent if the day window has fully passed
-    status = dayEnd.getTime() - 6 * 3600000 <= now.getTime() ? 'ABSENT' : 'PENDING'
+    // Phase 2 S4 (D11): absence is determinable once the day's REAL
+    // determination window has fully passed — the shift window END on a
+    // shift day, the Tehran calendar-day end otherwise. The undocumented
+    // hardcoded −6h buffer is gone; holiday/off keep their precedence above.
+    const absentFrom = winI ? winI.endInstant.getTime() : dayWin.end.getTime()
+    status = absentFrom <= now.getTime() ? 'ABSENT' : 'PENDING'
   } else if (punches.length === 1) {
     status = 'INCOMPLETE'
   } else if (pairing.pairs.length > 0) {
@@ -316,7 +359,14 @@ export function computeDaily(input: {
     leaveTypeId,
     leaveMinutes,
     missionMinutes,
-    note: pairing.anomalies.length ? anomalySummary(pairing.anomalies) : null,
+    // Phase 2 S4 (provenance, D15): deterministic note = pairing anomaly
+    // codes, then the EDITED_PUNCHES code (n = edited punches among THIS
+    // workday's input punches — audit-grade traceability without free text;
+    // the edit reason itself stays in AuditLog, never in this note).
+    // recalcRange appends the attribution codes AFTER these.
+    note: [pairing.anomalies.length ? anomalySummary(pairing.anomalies) : '', editedPunchCount > 0 ? `EDITED_PUNCHES:${editedPunchCount}` : '']
+      .filter(Boolean)
+      .join('|') || null,
   }
 }
 
@@ -477,18 +527,22 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
     // effective coverage partition over the range (claim-subtracted)
     const coverage = coverageWindowsByDay(dayStart, dayEnd, shiftOf)
 
-    // fetch the person's punches once, attribute each to its workday
+    // fetch the person's punches once, attribute each to its workday.
+    // Phase 2 S4: `edited` is selected too — provenance (EDITED_PUNCHES note
+    // code) needs to know whether this day was computed from manually
+    // corrected punches. No raw punch is ever mutated by this (read-only).
     const punches = await db.punchRecord.findMany({
       where: { personId: p.id, timestamp: { gte: punchFrom, lt: punchTo } },
-      select: { timestamp: true, direction: true, source: true },
+      select: { timestamp: true, direction: true, source: true, edited: true },
     })
-    const byWorkday = new Map<string, { punches: PairingPunchInput[]; attributions: WorkdayAttribution[] }>()
+    const byWorkday = new Map<string, { punches: PairingPunchInput[]; attributions: WorkdayAttribution[]; editedCount: number }>()
     for (const pu of punches) {
       const attr = attributePunchWorkday(pu.timestamp, shiftOf, pu.direction)
       const k = markerKey(attr.workday)
-      const bucket = byWorkday.get(k) ?? { punches: [], attributions: [] }
+      const bucket = byWorkday.get(k) ?? { punches: [], attributions: [], editedCount: 0 }
       bucket.punches.push(pu)
       bucket.attributions.push(attr)
+      if (pu.edited) bucket.editedCount++
       byWorkday.set(k, bucket)
     }
 
@@ -540,6 +594,7 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
         coverageIntervals: coverage.get(key) ?? [],
         approvedOvertimeMinutes: otApproved.get(`${p.id}|${key}`) ?? 0,
         otThresholdMinutes,
+        editedPunchCount: bucket?.editedCount ?? 0,
         isHoliday,
         isOff: isOff && !shift,
         now,

@@ -114,3 +114,71 @@ and attendance time in the same interval).
 The attendance engine's own day windows (UTC-midnight instant windows) are a
 known, deliberately preserved limitation (audit defect D1) until a dedicated
 engine phase — read paths must stay consistent with the engine in the meantime.
+
+## Phase 2 Stage S4 — calculation completeness (binding conventions)
+
+Implemented in `src/lib/attendance.ts` (`computeDaily`); every rule below is
+pinned by `scripts/test-attendance.ts` sections 36–48 and
+`scripts/test-attendance-db.ts` sections M–P.
+
+### Late / Early — real shift-window instants
+
+Late/early compare **true UTC instants** against this workday's shift window
+(`shiftWindowInstants`): night shifts, multi-segment shifts (first-segment
+start / last-segment end) and Jalali month/year boundaries are exact; the old
+±1440 minutes-of-day wrap heuristics are gone. A punch before the window
+start is simply early (late 0); a punch entirely before the window can never
+fabricate early-leave. `lateGraceMin`/`earlyGraceMin` keep their meaning.
+
+### Approved leave attached to the shift window
+
+A **normal approved leave covering the window start** moves the arrival
+deadline to the leave's end (lateness is excused for the leave's duration);
+one **covering the window end** moves the departure deadline to the leave's
+start. A leave ending exactly at the start (or starting exactly at the end)
+does not excuse anything. This is the audited expectation (PHASE2-STAGE1-AUDIT
+§3 row 18, D8) — not a newly invented rule.
+
+### Leave × work overlap (no double counting)
+
+An approved **normal-leave minute that overlaps actual attendance is counted
+exactly once — as leave**: `workedMinutes` reports attendance minutes NOT
+covered by approved leave (`worked + leaveMinutes` are never double-exposed
+for one interval). Real punch data is never faked or removed (firstIn/lastOut/
+pairs stay verbatim); overlapping leaves are unioned; mission and leave stay
+disjoint; OT feeds the carved worked value.
+
+### Absence determination timing
+
+Absence becomes determinable when the day's **real determination window** has
+fully passed: the shift window END on a shift day, the Tehran calendar-day
+end otherwise. The previously hardcoded undocumented −6h buffer is removed.
+HOLIDAY/OFF/LEAVE/MISSION keep their precedence over ABSENT.
+
+### Provenance
+
+A day computed from **edited punches** carries the stable note code
+`EDITED_PUNCHES:n` (n = edited punches among that workday's attributed
+inputs) after the pairing anomaly codes and before the attribution codes; no
+free text from `editReason` ever enters the note (audit detail stays in
+AuditLog/PunchRecord).
+
+### Statuses
+
+The never-implemented `IGNORED` placeholder was removed from the schema
+comment (no producer or consumer existed anywhere). `MISSION` never hides
+punch truth (punch-based statuses win whenever punches exist); true full-day
+LEAVE keeps precedence over MISSION.
+
+### Deliberately NOT changed (open business ambiguities — decisions still required)
+
+- **A4 (holiday/off-day OT):** ALL valid work time on holiday/off days stays
+  actual OT (no minimum/permission gate added); `payable` still = min(actual,
+  approved).
+- **A5 (break accounting):** `breakMin` keeps reducing the shift STANDARD
+  only — real worked time from punch pairs is never reduced by it.
+- **Mid-shift leave late/early effect:** none (no documented rule exists;
+  the current behavior is pinned by test and left untouched).
+- **Mission attached to the shift start and lateness:** a mission does NOT
+  excuse lateness (mission time is credited as work time by its own policy;
+  no documented late-exemption exists — recorded as an open question).

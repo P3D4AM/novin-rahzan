@@ -198,7 +198,7 @@ model DailyAttendance {
   id                String   @id @default(cuid())
   personId          String
   date              DateTime
-  status            String   @default("PENDING") // PRESENT | ABSENT | LEAVE | MISSION | HOLIDAY | OFF | INCOMPLETE | IGNORED
+  status            String   @default("PENDING") // PRESENT | ABSENT | LEAVE | MISSION | HOLIDAY | OFF | INCOMPLETE | PENDING — Phase 2 S4: the never-implemented IGNORED placeholder was removed from this comment (no code ever produced or consumed it; every real producer/consumer verified)
   shiftId           String?
   firstIn           DateTime?
   lastOut           DateTime?

@@ -62,7 +62,7 @@ async function runAction(name: string, args: Record<string, unknown>, userName: 
     const day = args.date ? dayMarkerOf(new Date(String(args.date))) : yesterday
     const rec = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: p.id, date: day } } })
     if (!rec) return { action: 'person_report', summary: `برای ${p.firstName} ${p.lastName} در ${jFa(day)} رکوردی نیست` }
-    const statusFa: Record<string, string> = { PRESENT: 'حاضر', ABSENT: 'غایب', LEAVE: 'مرخصی', HOLIDAY: 'تعطیل', OFF: 'تعطیلی', INCOMPLETE: 'ناقص', PENDING: 'در انتظار' }
+    const statusFa: Record<string, string> = { PRESENT: 'حاضر', ABSENT: 'غایب', LEAVE: 'مرخصی', MISSION: 'مأموریت', HOLIDAY: 'تعطیل', OFF: 'تعطیلی', INCOMPLETE: 'ناقص', PENDING: 'در انتظار' }
     return {
       action: 'person_report',
       summary: `${p.firstName} ${p.lastName} در ${jFa(day)}: ${statusFa[rec.status] ?? rec.status}${rec.lateMinutes ? `، تأخیر ${durationText(rec.lateMinutes)}` : ''}${rec.workedMinutes ? `، کارکرد ${durationText(rec.workedMinutes)}` : ''}${rec.overtimeMinutes ? `، اضافه‌کاری ${durationText(rec.overtimeMinutes)}` : ''}`,

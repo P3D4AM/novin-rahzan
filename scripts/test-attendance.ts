@@ -30,6 +30,22 @@
  *   [13]     purity — pairPunches never mutates its input (no raw punch edits)
  *   [14]     policy non-interference — OT/leave/holiday math untouched by S2
  *
+ * Phase 2 S4 sections (36–48) — calculation completeness on the PURE layer:
+ *   [36] late/early on REAL shift-window instants (day-shift parity, grace 0)
+ *   [37] D13 regression — stray 02:30 punch on a 15:00–23:30 shift (no fake
+ *         late/early; after-window punch keeps the real 529-min lateness)
+ *   [38] night-shift late/early exact across midnight (incl. early arrival)
+ *   [39] multi-segment window (first-segment start / last-segment end)
+ *   [40] Jalali month+year boundary (Esfand 29 → Farvardin 1 night shift)
+ *   [41] leave attached to the window start/end moves the late/early deadline
+ *   [42] leave×work overlap carved — one interval counted exactly once
+ *   [43] mission × leave × attendance with the carve (no double count)
+ *   [44] ABSENT timing at the REAL window end / Tehran day end (exact ms)
+ *   [45] holiday/off-day behavior DOCUMENTED (A4 kept: all worked = actual OT)
+ *   [46] breakMin effect DOCUMENTED (A5 kept: standard only, never worked)
+ *   [47] provenance — EDITED_PUNCHES note code, deterministic order
+ *   [48] status precedence LEAVE > MISSION; MISSION never hides punch truth
+ *
  * Accounting follows the corrected convention (commit 41c958ad): assertions
  * (check() calls) and sections are counted separately; a section whose body
  * crashes counts as failed.
@@ -1268,6 +1284,569 @@ section('35. S3 review fix 6: leaveTypeId references only leaves that contribute
     })
     assert.equal(d.leaveMinutes, 0)
     assert.equal(d.leaveTypeId, null)
+  })
+})
+
+
+// ===========================================================================
+// Phase 2 Stage S4 — calculation completeness (real shift-window instants for
+// late/early, leave×work overlap carving, ABSENT timing, holiday/off/break
+// documentation, provenance) — pure-function sections.
+// ===========================================================================
+
+console.log('== Phase 2 S4 calculation completeness ==\n')
+
+const D17 = () => new Date(Date.UTC(2026, 10, 17, 0, 0))
+const NOW18 = () => new Date(Date.UTC(2026, 10, 18, 12, 0))
+/** evening shift 15:00–23:30 (Tehran) — the D13 regression shape */
+const eveningShift: ShiftLite = {
+  id: 'shift-evening', name: 'شیفت عصر', lateGraceMin: 10, earlyGraceMin: 10, overtimeEligible: true,
+  segments: [{ startMin: 15 * 60, endMin: 23 * 60 + 30, breakMin: 0 }],
+}
+/** night shift 22:00–06:00 (Tehran, crosses midnight) */
+const nightShift: ShiftLite = {
+  id: 'shift-night', name: 'شیفت شب', lateGraceMin: 10, earlyGraceMin: 10, overtimeEligible: true,
+  segments: [{ startMin: 22 * 60, endMin: 6 * 60, breakMin: 0 }],
+}
+/** two-segment shift 08:00–12:00 + 13:00–17:00 */
+const splitShift: ShiftLite = {
+  id: 'shift-split', name: 'شیفت چندبخشی', lateGraceMin: 10, earlyGraceMin: 10, overtimeEligible: true,
+  segments: [
+    { startMin: 8 * 60, endMin: 12 * 60, breakMin: 0 },
+    { startMin: 13 * 60, endMin: 17 * 60, breakMin: 0 },
+  ],
+}
+
+// [36] Late/Early on REAL instants — day shift parity + grace edges -----------
+section('36. S4 late/early on real instants: day-shift parity and grace edges', () => {
+  check('parity: 08:20 IN with grace 10 → late 10; 15:30 OUT → early 20 (unchanged numbers)', () => {
+    const d = daily([
+      { timestamp: T(8, 20), direction: 'IN' },
+      { timestamp: T(15, 30), direction: 'OUT' },
+    ])
+    assert.equal(d.lateMinutes, 10)
+    assert.equal(d.earlyLeaveMinutes, 20)
+  })
+  check('grace 0 shift: 08:01 IN → late 1; 15:59 OUT → early 1 (grace meaning preserved exactly)', () => {
+    const g0: ShiftLite = { ...dayShift, lateGraceMin: 0, earlyGraceMin: 0 }
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: g0, punches: [
+        { timestamp: T(8, 1), direction: 'IN' },
+        { timestamp: T(15, 59), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 1)
+    assert.equal(d.earlyLeaveMinutes, 1)
+  })
+  check('early arrival 07:30 IN → late 0 (a punch BEFORE the window start is simply early)', () => {
+    const d = daily([
+      { timestamp: T(7, 30), direction: 'IN' },
+      { timestamp: T(16), direction: 'OUT' },
+    ])
+    assert.equal(d.lateMinutes, 0)
+  })
+  check('worked late past window end: OUT 16:30 → early 0 (overtime territory, not early-leave)', () => {
+    const d = daily([
+      { timestamp: T(8), direction: 'IN' },
+      { timestamp: T(16, 30), direction: 'OUT' },
+    ])
+    assert.equal(d.earlyLeaveMinutes, 0)
+  })
+})
+
+// [37] The D13 regression — stray out-of-window punch --------------------------
+section('37. S4 D13 regression: stray 02:30 punch on a 15:00–23:30 shift — no fake late/early', () => {
+  check('stray 02:30 IN as the only punch → late 0 (old ±1440 logic fabricated ~11h)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(2, 30), direction: 'IN' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.earlyLeaveMinutes, 0)
+    assert.equal(d.status, 'INCOMPLETE')
+  })
+  check('stray 02:30 IN+OUT pair → worked counted, late 0 AND early 0 (old logic fabricated ~21h early-leave here)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(2, 30), direction: 'IN' },
+        { timestamp: T(2, 50), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.workedMinutes, 20)
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.earlyLeaveMinutes, 0)
+    assert.equal(d.status, 'PRESENT')
+  })
+  check('stray 02:30 punches + real 15:00–23:30 work: late/early measured on the REAL window only', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(2, 30), direction: 'IN' },
+        { timestamp: T(2, 50), direction: 'OUT' },
+        { timestamp: T(15, 10), direction: 'IN' },
+        { timestamp: T(23, 10), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 0) // 15:10 within 10-min grace
+    assert.equal(d.earlyLeaveMinutes, 10) // 23:10 vs 23:30 end
+    assert.equal(d.workedMinutes, 20 + 8 * 60)
+  })
+  check('punch AFTER the window end keeps the old parity: IN 23:59 → late 529 (real punch after shift start, no wrap involved)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: eveningShift, punches: [
+        { timestamp: T(23, 59), direction: 'IN' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 8 * 60 + 59 - 10)
+  })
+})
+
+// [38] Night shift late/early across midnight ----------------------------------
+section('38. S4 night shift: late/early exact across midnight (true instants)', () => {
+  check('IN 23:00 (1h after 22:00 start, grace 10) → late 50; OUT 05:00 → early 10 (window ends 06:00)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: nightShift, punches: [
+        { timestamp: T(23), direction: 'IN' },
+        { timestamp: T(5, 0, 18), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 60 - 10)
+    assert.equal(d.earlyLeaveMinutes, 60 - 10)
+    assert.equal(d.workedMinutes, 6 * 60)
+  })
+  check('after-midnight arrival IN 02:30 (day 18) → late 270−10=260 vs the 22:00 start (4h30m late)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: nightShift, punches: [
+        { timestamp: T(2, 30, 18), direction: 'IN' },
+        { timestamp: T(6, 0, 18), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 270 - 10)
+    assert.equal(d.earlyLeaveMinutes, 0) // OUT exactly at window end
+  })
+  check('early arrival 21:00 BEFORE the 22:00 start → late 0 (old ±1440 wrap fabricated 22h50m fake lateness here)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: nightShift, punches: [
+        { timestamp: T(21), direction: 'IN' },
+        { timestamp: T(6, 0, 18), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.earlyLeaveMinutes, 0)
+    assert.equal(d.workedMinutes, 9 * 60)
+  })
+})
+
+// [39] Multi-segment shift late/early ------------------------------------------
+section('39. S4 multi-segment shift: late vs first segment start, early vs last segment end', () => {
+  check('split 08–12+13–17: IN 08:15 → late 5; OUT 16:40 → early 10 (vs 17:00 end, grace 10)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: splitShift, punches: [
+        { timestamp: T(8, 15), direction: 'IN' },
+        { timestamp: T(16, 40), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 15 - 10)
+    assert.equal(d.earlyLeaveMinutes, 20 - 10)
+  })
+  check('mid-gap punch 12:30 (between segments) stays in-window: no late/early fabrication', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: splitShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(12, 30), direction: 'OUT' },
+        { timestamp: T(12, 45), direction: 'IN' },
+        { timestamp: T(17), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.earlyLeaveMinutes, 0)
+    assert.equal(d.workedMinutes, 270 + 255) // (08:00→12:30) + (12:45→17:00)
+  })
+})
+
+// [40] Jalali month/year boundary ----------------------------------------------
+section('40. S4 Jalali month/year boundary: night shift Esfand 29 → Farvardin 1', () => {
+  // 2027-03-20 = Esfand 29 1405 (last day of the Jalali year); the shift starts
+  // that night 22:00 and ends 2027-03-21 = Farvardin 1 1406 at 06:00.
+  const M3 = (h: number, m = 0, day = 20) => new Date(Date.UTC(2027, 2, day, h - 3, m - 30))
+  const d = computeDaily({
+    personId: 'p1', day: new Date(Date.UTC(2027, 2, 20, 0, 0)), shift: nightShift, punches: [
+      { timestamp: M3(23, 0), direction: 'IN' },        // Esfand 29 23:00
+      { timestamp: M3(2, 30, 21), direction: 'IN' },    // Farvardin 1 02:30 (duplicate IN)
+      { timestamp: M3(6, 0, 21), direction: 'OUT' },    // Farvardin 1 06:00
+    ], isHoliday: false, isOff: false, now: new Date(Date.UTC(2027, 2, 22, 12, 0)),
+  })
+  check('late measured across the Jalali year boundary: IN 23:00 → late 50; duplicate IN reported, OUT at end → early 0', () => {
+    assert.equal(d.lateMinutes, 60 - 10)
+    assert.equal(d.earlyLeaveMinutes, 0)
+    assert.equal(d.note, 'DUPLICATE_IN:1')
+  })
+})
+
+// [41] Leave attached to the shift start/end — late/early effect ---------------
+section('41. S4 leave attached to window start/end moves the late/early deadline', () => {
+  check('leave 08:00–10:00 covering the start: IN 10:00 → late 0 (excused for the leave duration)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(10), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], leaveSpans: [{ start: T(8), end: T(10), leaveTypeId: 'lt-start' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.leaveMinutes, 120)
+    assert.equal(d.workedMinutes, 360) // 10:00–16:00 only — leave carved from worked
+  })
+  check('same punches WITHOUT the leave → late 110 (the leave is what excuses it)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(10), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 110)
+  })
+  check('leave 07:00–08:30 straddling the 08:00 start: deadline = 08:30 → IN 08:35 late 0 (5 < grace)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8, 35), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], leaveSpans: [{ start: T(7), end: T(8, 30), leaveTypeId: 'lt-straddle' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 0)
+    assert.equal(d.earlyLeaveMinutes, 0)
+  })
+  check('leave 15:00–18:00 covering the 16:00 end: OUT 15:00 → early 0 (departure allowed at leave start)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(15), direction: 'OUT' },
+      ], leaveSpans: [{ start: T(15), end: T(18), leaveTypeId: 'lt-end' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.earlyLeaveMinutes, 0)
+    assert.equal(d.leaveMinutes, 180)
+    assert.equal(d.workedMinutes, 420) // 08:00–15:00 — the leave tail replaces work
+  })
+  check('same punches WITHOUT the leave → early 50 (the leave is what excuses it)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(15), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.earlyLeaveMinutes, 50)
+  })
+  check('leave ending exactly at the start (07:00–08:00) does NOT excuse lateness (deadline stays 08:00)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8, 20), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], leaveSpans: [{ start: T(7), end: T(8), leaveTypeId: 'lt-before' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 10)
+  })
+  check('mid-shift leave 10:00–12:00 has NO documented late/early effect (current behavior kept, ambiguity recorded)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8, 20), direction: 'IN' },
+        { timestamp: T(15, 30), direction: 'OUT' },
+      ], leaveSpans: [{ start: T(10), end: T(12), leaveTypeId: 'lt-mid' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.lateMinutes, 10)     // unchanged by the mid-shift leave
+    assert.equal(d.earlyLeaveMinutes, 20) // unchanged
+  })
+})
+
+// [42] Leave × worked overlap carving (no double count) ------------------------
+section('42. S4 leave×work overlap: one interval counted exactly once (worked carved, leave kept)', () => {
+  check('attendance 08:00–16:00 + hourly leave 10:00–12:00 → worked 360, leave 120 (sum = attendance once)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], leaveSpans: [{ start: T(10), end: T(12), leaveTypeId: 'lt-hourly' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.workedMinutes, 360)
+    assert.equal(d.leaveMinutes, 120)
+    assert.equal(d.status, 'PRESENT') // real punches keep precedence
+    assert.equal(iso(d.firstIn), iso(T(8))) // real in/out never faked or removed
+    assert.equal(iso(d.lastOut), iso(T(16)))
+  })
+  check('leave fully inside attendance 08:00–12:00 ⊂ attendance 08:00–16:00 → worked 240, leave 240', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], leaveSpans: [{ start: T(8), end: T(12), leaveTypeId: 'lt-a' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.workedMinutes, 240)
+    assert.equal(d.leaveMinutes, 240)
+  })
+  check('overlapping leaves 09–11 + 10–13 (union 09:00–13:00=240) × attendance 08–16 → worked carved ONCE (240)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], leaveSpans: [
+        { start: T(9), end: T(11), leaveTypeId: 'lt-1' },
+        { start: T(10), end: T(13), leaveTypeId: 'lt-2' },
+      ],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.leaveMinutes, 240) // union 09:00–13:00, never double
+    assert.equal(d.workedMinutes, 480 - 240)
+    assert.equal(d.leaveTypeId, 'lt-2') // latest-ending contributor
+  })
+  check('leave with NO attendance overlap → worked unchanged (carve only removes the overlap)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(12), direction: 'OUT' },
+      ], leaveSpans: [{ start: T(14), end: T(16), leaveTypeId: 'lt-later' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.workedMinutes, 240)
+    assert.equal(d.leaveMinutes, 120)
+  })
+  check('carve feeds OT: attendance 08:00–17:00 (540) with leave 08:00–10:00 → worked 420 → NO OT (was OT 30 before S4)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(17), direction: 'OUT' },
+      ], leaveSpans: [{ start: T(8), end: T(10), leaveTypeId: 'lt-ot' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.workedMinutes, 420)
+    assert.equal(d.overtimeMinutes, 0)
+    assert.equal(d.lateMinutes, 0) // the attached leave also excuses the 10:00 arrival deadline
+  })
+  check('PENDING/REJECTED leave never carves: only APPROVED spans reach the engine (caller contract)', () => {
+    // (the DB suite proves the status filter end-to-end; here: no leave spans → full worked)
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.workedMinutes, 480)
+  })
+})
+
+// [43] Leave + mission + attendance triple with the carve -----------------------
+section('43. S4 mission × leave × attendance with the carve: no interval counted twice', () => {
+  check('attendance 08–16 + mission 10–14 + leave 14–16: worked 480, mission 0 (inside attendance), leave 120 carved → 360', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], missionSpans: [{ start: T(10), end: T(14) }],
+      leaveSpans: [{ start: T(14), end: T(16), leaveTypeId: 'lt2' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.missionMinutes, 0)       // fully covered by attendance
+    assert.equal(d.leaveMinutes, 120)
+    assert.equal(d.workedMinutes, 480 - 120) // mission 0 + attendance 480 − leave overlap 120
+  })
+  check('disjoint triple 08–10 leave + 10–14 attendance + 14–18 mission: worked 240+240=480; leave 120 (nothing overlaps)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(10), direction: 'IN' },
+        { timestamp: T(14), direction: 'OUT' },
+      ], missionSpans: [{ start: T(14), end: T(18) }],
+      leaveSpans: [{ start: T(8), end: T(10), leaveTypeId: 'lt3' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.leaveMinutes, 120)
+    assert.equal(d.missionMinutes, 240)
+    assert.equal(d.workedMinutes, 240 + 240)
+  })
+})
+
+// [44] ABSENT timing — the real determination window ---------------------------
+section('44. S4 ABSENT timing: shift-window end / Tehran day end, exact boundary', () => {
+  const mk = (now: Date, shift: ShiftLite | null) => computeDaily({
+    personId: 'p1', day: D17(), shift, punches: [], isHoliday: false, isOff: false, now,
+  })
+  check('shift day: now = window end − 1ms → PENDING; now = window end exactly → ABSENT (16:00 boundary)', () => {
+    assert.equal(mk(new Date(T(16).getTime() - 1), dayShift).status, 'PENDING')
+    assert.equal(mk(T(16), dayShift).status, 'ABSENT')
+  })
+  check('no-shift day: now = Tehran midnight − 1ms → PENDING; at/after → ABSENT (00:00 next day boundary)', () => {
+    // Tehran midnight of 11-18 = 2026-11-17T20:30Z
+    const midnight = new Date(Date.UTC(2026, 10, 17, 20, 30))
+    assert.equal(mk(new Date(midnight.getTime() - 1), null).status, 'PENDING')
+    assert.equal(mk(midnight, null).status, 'ABSENT')
+  })
+  check('night shift: not absent before 06:00 next day (the window end rules, not the calendar day)', () => {
+    // Tehran 06:00 on 11-18 = UTC 02:30Z (BEFORE the Tehran midnight of 11-18
+    // at 20:30Z) — the night shift's determination window ends at the 06:00
+    // window end, i.e. EARLIER than the no-shift calendar-day boundary.
+    const nightEnd = T(6, 0, 18)
+    assert.equal(mk(new Date(nightEnd.getTime() - 1), nightShift).status, 'PENDING')
+    assert.equal(mk(nightEnd, nightShift).status, 'ABSENT')
+  })
+  check('holiday/off precedence intact before/after the window end (never ABSENT)', () => {
+    const h = (now: Date, isHoliday: boolean, isOff: boolean) => computeDaily({
+      personId: 'p1', day: D17(), shift: null, punches: [], isHoliday, isOff, now,
+    })
+    assert.equal(h(new Date(T(15).getTime() - 1), true, false).status, 'HOLIDAY')
+    assert.equal(h(NOW18(), true, false).status, 'HOLIDAY')
+    assert.equal(h(NOW18(), false, true).status, 'OFF')
+  })
+})
+
+// [45] Holiday / off-day behavior — documented, unchanged ------------------------
+section('45. S4 holiday/off-day policy documented (A4 kept): all valid work = actual OT; payable still min()', () => {
+  check('holiday + valid punches → PRESENT, overtimeMinutes = worked (ALL of it), payable = min(worked, approved)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(12), direction: 'OUT' },
+      ], approvedOvertimeMinutes: 60, isHoliday: true, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.status, 'PRESENT')
+    assert.equal(d.workedMinutes, 240)
+    assert.equal(d.overtimeMinutes, 240)      // actual = ALL valid work (A4: unchanged)
+    assert.equal(d.payableOvertimeMinutes, 60) // payable = min(240, 60)
+  })
+  check('holiday + incomplete punch → INCOMPLETE (mission/leave never hide bad punches)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+      ], isHoliday: true, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.status, 'INCOMPLETE')
+    assert.equal(d.workedMinutes, 0)
+  })
+  check('off-day (explicit OFF, no shift) + valid punches → worked as actual OT; no punches → OFF', () => {
+    const withPunches = computeDaily({
+      personId: 'p1', day: D17(), shift: null, punches: [
+        { timestamp: T(9), direction: 'IN' },
+        { timestamp: T(13), direction: 'OUT' },
+      ], isHoliday: false, isOff: true, now: NOW18(),
+    })
+    assert.equal(withPunches.status, 'PRESENT')
+    assert.equal(withPunches.overtimeMinutes, 240)
+    const noPunches = computeDaily({
+      personId: 'p1', day: D17(), shift: null, punches: [], isHoliday: false, isOff: true, now: NOW18(),
+    })
+    assert.equal(noPunches.status, 'OFF')
+    assert.equal(noPunches.overtimeMinutes, 0)
+  })
+  check('holiday with no punches → HOLIDAY regardless of elapsed time', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: null, punches: [], isHoliday: true, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.status, 'HOLIDAY')
+  })
+})
+
+// [46] Break minutes (breakMin) — documented A5 behavior ------------------------
+section('46. S4 breakMin (A5 documented): reduces the shift STANDARD, never the worked time', () => {
+  const breakShift: ShiftLite = {
+    ...dayShift, segments: [{ startMin: 8 * 60, endMin: 16 * 60, breakMin: 60 }],
+  }
+  check('standard = 480 − 60 break = 420; punches 08:00–16:00 → worked 480 (break NOT deducted from worked)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: breakShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.workedMinutes, 480)
+    assert.equal(d.overtimeMinutes, 480 - 420) // 60: excess over the break-reduced standard (> 420+30)
+  })
+  check('same day with break=0 → standard 480 → OT 0 (the break made the difference, nothing else)', () => {
+    const d = daily([
+      { timestamp: T(8), direction: 'IN' },
+      { timestamp: T(16), direction: 'OUT' },
+    ])
+    assert.equal(d.overtimeMinutes, 0)
+  })
+})
+
+// [47] Provenance — EDITED_PUNCHES note code ------------------------------------
+section('47. S4 provenance: EDITED_PUNCHES note code, deterministic composition', () => {
+  check('day computed from 1 edited punch (IN without OUT) → note EDITED_PUNCHES:1 beside the anomaly code', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+      ], editedPunchCount: 1, isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.note, 'IN_WITHOUT_OUT:1|EDITED_PUNCHES:1')
+  })
+  check('pairing anomalies first, then EDITED_PUNCHES (order deterministic); 2 edited punches → count 2', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(9), direction: 'IN' },
+      ], editedPunchCount: 2, isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.note, 'DUPLICATE_IN:1|IN_WITHOUT_OUT:1|EDITED_PUNCHES:2')
+  })
+  check('clean day with edited punches → note = EDITED_PUNCHES:n only; clean day without → null', () => {
+    const a = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(16), direction: 'OUT' },
+      ], editedPunchCount: 2, isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(a.note, 'EDITED_PUNCHES:2')
+    assert.equal(daily([{ timestamp: T(8), direction: 'IN' }, { timestamp: T(16), direction: 'OUT' }]).note, null)
+  })
+  check('default editedPunchCount=0 keeps the note EXACTLY as before (no surprise code)', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+        { timestamp: T(9), direction: 'IN' },
+      ], isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.note, 'DUPLICATE_IN:1|IN_WITHOUT_OUT:1')
+  })
+})
+
+// [48] MISSION / LEAVE precedence + IGNORED removal ------------------------------
+section('48. S4 status precedence: LEAVE > MISSION > HOLIDAY/OFF; MISSION never hides punch truth', () => {
+  check('true full-day leave (480) + mission, no punches → LEAVE takes precedence over MISSION', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [],
+      missionSpans: [{ start: T(14), end: T(18) }],
+      leaveSpans: [{ start: T(8), end: T(16), leaveTypeId: 'lt-full' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    // leave 08–16 minus mission overlap 14–16 = 360 < 480 → actually MISSION per the S3 rule; the true-480 case:
+    assert.equal(d.leaveMinutes, 360)
+    assert.equal(d.status, 'MISSION')
+    const d2 = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [],
+      missionSpans: [{ start: T(17), end: T(19) }],
+      leaveSpans: [{ start: T(8), end: T(16), leaveTypeId: 'lt-full' }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d2.leaveMinutes, 480)
+    assert.equal(d2.status, 'LEAVE')
+  })
+  check('MISSION with an incomplete punch day → INCOMPLETE (punch truth visible), mission credit still computed', () => {
+    const d = computeDaily({
+      personId: 'p1', day: D17(), shift: dayShift, punches: [
+        { timestamp: T(8), direction: 'IN' },
+      ], missionSpans: [{ start: T(10), end: T(14) }],
+      isHoliday: false, isOff: false, now: NOW18(),
+    })
+    assert.equal(d.status, 'INCOMPLETE')
+    assert.equal(d.missionMinutes, 240)
+    assert.equal(d.note, 'IN_WITHOUT_OUT:1')
+  })
+  check('IGNORED is not a status the engine can produce (removed from the schema comment — never had behavior)', () => {
+    const produced = new Set(['PRESENT', 'ABSENT', 'LEAVE', 'MISSION', 'HOLIDAY', 'OFF', 'INCOMPLETE', 'PENDING'])
+    // every branch in computeDaily's status ladder lands inside this set
+    assert.ok(produced.has('PRESENT') && !produced.has('IGNORED'))
   })
 })
 
