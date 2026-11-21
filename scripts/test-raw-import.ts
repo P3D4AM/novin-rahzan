@@ -236,6 +236,13 @@ async function main() {
   check('v1.7.0-s3r2 migration up applied (DefaultShiftHistory table)', up17r2.status === 0 && /DefaultShiftHistory = present/.test(up17r2.stdout), (up17r2.stderr || up17r2.stdout || '').slice(-200))
   const up17r2b = sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs', 'up'], { DATABASE_URL: MIG_URL })
   check('v1.7.0-s3r2 migration up is idempotent (2nd run: 0 new snapshot rows)', up17r2b.status === 0 && /snapshot rows written \(persons with a default, no history yet\): 0/.test(up17r2b.stdout))
+  // Phase 3 stage 2: the download-accounting migration joins the chain (the
+  // current runRawSync writes recordsAnnounced / recordsInvalidTimestamps /
+  // abnormalEnd on every DeviceSyncRun row)
+  const up18 = sh('node', ['scripts/migrate-v1.8.0-phase3.mjs', 'up'], { DATABASE_URL: MIG_URL })
+  check('v1.8.0-phase3 migration up applied (DeviceSyncRun accounting columns)', up18.status === 0 && /recordsAnnounced = present/.test(up18.stdout) && /abnormalEnd = present/.test(up18.stdout), (up18.stderr || up18.stdout || '').slice(-200))
+  const up18b = sh('node', ['scripts/migrate-v1.8.0-phase3.mjs', 'up'], { DATABASE_URL: MIG_URL })
+  check('v1.8.0-phase3 migration up is idempotent', up18b.status === 0 && /already present/.test(up18b.stdout))
 
   const verifySeed = sh('node', ['scripts/test-db-raw.mjs', '--json',
     'SELECT COUNT(*) AS n FROM "Personnel" WHERE id=\'pmig1\'',
@@ -294,7 +301,7 @@ async function main() {
    * ================================================================ */
   const pushMainOld = sh('npx', ['prisma', 'db', 'push', '--schema', OLD_SCHEMA, '--skip-generate'], { DATABASE_URL: MAIN_DB_URL })
   if (pushMainOld.status !== 0) throw new Error('main db old-schema push failed: ' + (pushMainOld.stderr || '').slice(-300))
-  for (const m of ['migrate-v1.3.0-phase1.mjs', 'migrate-v1.4.0-phase2.mjs', 'migrate-v1.3.1-phase1-fixes.mjs', 'migrate-v1.5.0-bridge-internal.mjs', 'migrate-v1.7.0-phase2-s3.mjs', 'migrate-v1.7.0-phase2-s3r2.mjs']) {
+  for (const m of ['migrate-v1.3.0-phase1.mjs', 'migrate-v1.4.0-phase2.mjs', 'migrate-v1.3.1-phase1-fixes.mjs', 'migrate-v1.5.0-bridge-internal.mjs', 'migrate-v1.7.0-phase2-s3.mjs', 'migrate-v1.7.0-phase2-s3r2.mjs', 'migrate-v1.8.0-phase3.mjs']) {
     const r = sh('node', [`scripts/${m}`, 'up'], { DATABASE_URL: MAIN_DB_URL })
     if (r.status !== 0) throw new Error(`main db migration failed (${m}): ` + (r.stderr || '').slice(-300))
   }

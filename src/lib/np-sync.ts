@@ -47,6 +47,12 @@ export interface NpSyncResult {
   outOfWindow?: number
   /** v1.3.1 (fix 2): distinct (personId, day) pairs whose recalculation failed — recoverable via retrySyncRunRecalcs */
   recalcFailed?: number
+  /** Phase 3 stage 2: device-side count when the protocol reports one (SBXPC classic/EXT/EXT_SECURE); null on FK623 (no count export) */
+  announced?: number | null
+  /** Phase 3 stage 2: records dropped by the transport pre-delivery (unparseable timestamps) */
+  invalidTimestamps?: number
+  /** Phase 3 stage 2: the transport read ended abnormally → PARTIAL, re-download the same range to recover */
+  abnormalEnd?: boolean
   cutoff: string
   newBookmark: string | null
   deviceSerial?: string
@@ -88,7 +94,11 @@ class SbxpcProvider implements RawPunchProvider {
         records: logs.map(toRawInput),
         deviceSerial: serial,
         deviceTime: time ? time.toISOString() : null,
-        meta: { proto: 'sbxpc', logCount: logs.length },
+        // Phase 3 stage 2: the SBXPC classic/EXT/EXT_SECURE dialects query the
+        // device-side record count BEFORE the data phase — surfaced as the
+        // «announced» counter. A truncated read ALSO reports fewer records
+        // than announced, which the operator can now SEE (announced > seen).
+        meta: { proto: 'sbxpc', logCount: logs.length, announced: c.announcedLogCount ?? undefined },
       }
     } finally {
       await c.enableDevice(true).catch(() => {})
@@ -155,6 +165,9 @@ export async function importNpDeviceLogs(deviceId: string, opts: NpSyncOptions =
       rejected: summary.rejected,
       outOfWindow: summary.outOfWindow,
       recalcFailed: summary.recalcFailed,
+      announced: summary.announced,
+      invalidTimestamps: summary.invalidTimestamps,
+      abnormalEnd: summary.abnormalEnd,
       cutoff: summary.cutoff,
       newBookmark: summary.newBookmark,
       deviceSerial: summary.deviceSerial,

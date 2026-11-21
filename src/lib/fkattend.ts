@@ -193,7 +193,17 @@ class FkAttendBridgeProvider implements RawPunchProvider {
       records: out,
       deviceSerial: res.serialNumber ?? undefined,
       deviceTime: res.deviceTime ?? null,
-      meta: { endCode: res.endCode, endCodeAbnormal: res.endCodeAbnormal ?? false, bridgeLatencyMs: res.latencyMs, invalidTimestamps: invalid, echoed: res.meta },
+      // Phase 3 stage 2: abnormalEnd is surfaced so a TRUNCATED read can never
+      // masquerade as a complete one — runRawSync closes such runs PARTIAL and
+      // the UI warns to re-download the same range (fingerprint dedupe makes
+      // the retry safe). endCode: -7 = normal end, 0 = empty, else abnormal.
+      meta: {
+        endCode: res.endCode,
+        abnormalEnd: res.endCodeAbnormal ?? false,
+        bridgeLatencyMs: res.latencyMs,
+        invalidTimestamps: invalid,
+        echoed: res.meta,
+      },
     }
   }
 }
@@ -301,6 +311,12 @@ export interface FkSyncResult {
   outOfWindow?: number
   /** v1.3.1 (fix 2): distinct (personId, day) pairs whose recalculation failed */
   recalcFailed?: number
+  /** Phase 3 stage 2: FK623Attend.dll has NO count export — an honest null, never fabricated */
+  announced?: number | null
+  /** Phase 3 stage 2: records dropped pre-delivery (unparseable device wall clocks) */
+  invalidTimestamps?: number
+  /** Phase 3 stage 2: the read ended with an UNEXPECTED code → PARTIAL, re-download the same range */
+  abnormalEnd?: boolean
   cutoff: string
   newBookmark: string | null
   deviceSerial?: string
@@ -337,6 +353,9 @@ export async function importFkAttendLogs(deviceId: string, opts: FkSyncOptions =
     rejected: summary.rejected,
     outOfWindow: summary.outOfWindow,
     recalcFailed: summary.recalcFailed,
+    announced: summary.announced,
+    invalidTimestamps: summary.invalidTimestamps,
+    abnormalEnd: summary.abnormalEnd,
     cutoff: summary.cutoff,
     newBookmark: summary.newBookmark,
     deviceSerial: summary.deviceSerial,

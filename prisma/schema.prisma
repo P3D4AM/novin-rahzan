@@ -407,6 +407,14 @@ model DeviceSyncRun {
   // seen = inWindow + rejected + outOfWindow — nothing disappears silently.
   recordsRejected Int       @default(0) // malformed records newly quarantined this run
   recordsOutOfWindow Int    @default(0) // valid records intentionally excluded by the date window
+  // Phase 3 stage 2 (historical download counters): full per-run accounting
+  // columns so the operator can compare what the DEVICE announced vs what the
+  // transport delivered vs what was stored — diagnosing short historical
+  // downloads (e.g. "90 days → ~30 records/person") with REAL numbers
+  // instead of guesses.
+  recordsAnnounced Int? // device-side record count when the protocol can query it (null = not supported, e.g. FK623 SDK has no count export)
+  recordsInvalidTimestamps Int @default(0) // records the transport dropped pre-delivery (unparseable timestamp)
+  abnormalEnd     Boolean  @default(false) // the transport read ended abnormally → history may be truncated (run closes PARTIAL)
   bookmarkAt      DateTime? // cursor position reached after safe storage
   retries         Int       @default(0) // automatic retries used (withRetry)
   error           String? // sanitized error message — device secrets are never written here

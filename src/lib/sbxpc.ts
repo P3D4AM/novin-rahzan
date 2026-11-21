@@ -1266,7 +1266,15 @@ export class SbxpcClient {
   /**
    * cmd 0x107 — read ALL attendance logs stored in the device
    * (vendor ReadAllGLogData flow, adapted per dialect).
+   *
+   * Phase 3 stage 2: `announcedLogCount` exposes the device-side count the
+   * protocol reports BEFORE the data phase (classic + EXT dialects) — the
+   * honest NULL stays for dialects that cannot report one. This is what the
+   * sync counters show as «تعداد اعلام‌شدهٔ دستگاه» so a short historical
+   * download can be attributed to the device memory vs the pipeline.
    */
+  announcedLogCount: number | null = null
+
   async readAllLogs(timeoutMs = 45000): Promise<NpLog[]> {
     if (!this.dialect) await this.probeDialect()
     if (this.dialect === 'HTTP_JSON') {
@@ -1294,6 +1302,7 @@ export class SbxpcClient {
     }
 
     // 1) count
+    this.announcedLogCount = null
     this.write(this.cmdHeader(0x107, 0, 0))
     if (this.dialect === 'CLASSIC') await this.expectClassicAck()
     const r1raw = await this.readN(14, DEFAULT_TIMEOUT)
@@ -1302,6 +1311,7 @@ export class SbxpcClient {
       throw new SbxpcError('دستگاه شمارش ترددها را برنگرداند', `result=${hex(r1raw)}`)
     }
     const count = r1.retCode
+    if (typeof count === 'number' && count >= 0) this.announcedLogCount = count
     if (count === 0) return []
     if (count > 300_000) throw new SbxpcError(`تعداد ترددهای دستگاه غیرمنطقی است (${count})`)
 
@@ -1347,6 +1357,7 @@ export class SbxpcClient {
    */
   private async readAllLogsExt(timeoutMs: number): Promise<NpLog[]> {
     // phase 1 — count (exact 12-byte reads keep the stream in sync)
+    this.announcedLogCount = null
     this.write(this.cmdFrameExt(0x107))
     const d1 = await this.readN(12, DEFAULT_TIMEOUT)
     const ack1 = parseExtAck(d1)
@@ -1358,6 +1369,7 @@ export class SbxpcClient {
     }
     if (ack1.mid !== this.machineId && ack1.mid !== 0xffff) this.machineId = ack1.mid
     const count = ack1.dword
+    if (typeof count === 'number' && count >= 0) this.announcedLogCount = count
     if (count === 0) return []
     if (count > 300_000) throw new SbxpcError(`تعداد ترددهای دستگاه غیرمنطقی است (${count})`)
 
@@ -1410,6 +1422,7 @@ export class SbxpcClient {
     }
     if (ack1.mid !== this.machineId && ack1.mid !== 0xffff) this.machineId = ack1.mid
     const count = ack1.dword
+    if (typeof count === 'number' && count >= 0) this.announcedLogCount = count
     if (count === 0) return []
     if (count > 300_000) throw new SbxpcError(`تعداد ترددهای دستگاه غیرمنطقی است (${count})`)
 

@@ -49,7 +49,21 @@ export interface RawPunchRead {
   /** serial as reported by the source right now (undefined = not reported) */
   deviceSerial?: string
   deviceTime?: string | null
-  /** sanitized transport metadata (dialect, counts…) — never secrets */
+  /** sanitized transport metadata (dialect, counts…) — never secrets.
+   *
+   * Phase 3 stage 2 (historical download counters) — OPTIONAL standardized keys:
+   *   announced          — the device-side record count when the transport can
+   *                        query it (SBXPC classic/EXT read a count first;
+   *                        FK623Attend.dll has NO count export → absent).
+   *   invalidTimestamps  — records the transport dropped BEFORE delivery
+   *                        because their timestamp could not be parsed.
+   *   abnormalEnd / endCode — the transport read ended with an UNEXPECTED
+   *                        code (truncated history, mid-read failure). The
+   *                        delivered records are still stored (never thrown
+   *                        away) but the run is closed PARTIAL and the UI
+   *                        warns: a re-download with the same range re-reads
+   *                        everything safely (fingerprint dedupe).
+   */
   meta?: Record<string, unknown>
 }
 
@@ -108,6 +122,14 @@ export interface RawSyncSummary {
   outOfWindow: number
   /** (personId, day) pairs whose derived-day recalculation failed (fix 2) */
   recalcFailed: number
+  /** device-side record count when the transport could query it (null = the
+   *  protocol reports none — e.g. FK623Attend.dll has no count export) */
+  announced: number | null
+  /** records the transport dropped before delivery (unparseable timestamps) */
+  invalidTimestamps: number
+  /** true when the transport read ended ABRORMALLY (truncated history) — the
+   *  run closes PARTIAL; re-download with the same range is safe (dedupe) */
+  abnormalEnd: boolean
   cutoff: string
   newBookmark: string | null
   deviceTime?: string | null
@@ -236,6 +258,13 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
     inWindowCount = inWindow.length
     outOfWindowCount = outOfWindow
 
+    // ---- 4b) transport-provided counters + abnormal-end accounting --------
+    const meta = (read.meta ?? {}) as Record<string, unknown>
+    const announced = typeof meta.announced === 'number' && Number.isFinite(meta.announced) ? (meta.announced as number) : null
+    const invalidTimestamps = typeof meta.invalidTimestamps === 'number' && Number.isFinite(meta.invalidTimestamps) ? (meta.invalidTimestamps as number) : 0
+    const abnormalEnd = meta.abnormalEnd === true
+    const endCode = typeof meta.endCode === 'number' ? (meta.endCode as number) : null
+
     // ---- 5) quarantine malformed records BEFORE the ingest transaction --
     // (their trace then survives an ingest failure; idempotent by fingerprint
     // so 30-second rt-polls re-reporting the same bad record create no flood)
@@ -275,6 +304,14 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
     // ---- 8) close the run + device + log (sanitised) --------------------
     const newBookmark = ingest.maxPunchTime
     const problems: string[] = []
+    if (abnormalEnd) {
+      problems.push(
+        `خواندن حافظهٔ دستگاه ناقص تمام شد (کد پایانی ${endCode ?? 'نامشخص'}) — رکوردهای رسیده ذخیره شدند اما ممکن است رکوردهایی در حافظهٔ دستگاه باقی مانده باشند؛ همان بازه را یک بار دیگر دانلود کنید (تکراری‌ها بی‌اثرند)`,
+      )
+    }
+    if (invalidTimestamps > 0) {
+      problems.push(`${invalidTimestamps.toLocaleString('fa-IR')} رکورد از سمت پروتکل، مهر زمانی غیرقابل‌خواندن داشت و قبل از تحویل حذف شد (در شمارش قرنطینه نیست — ردی از آن‌ها در سمت دستگاه باقی نمانده)`,)
+    }
     if (rejectedCount > 0) {
       problems.push(`${rejectedCount.toLocaleString('fa-IR')} رکورد نامعتبر (مهر زمانی خراب) قرنطینه شد — رکوردها نگه‌داشته شده‌اند و قابل بررسی‌اند`)
     }
@@ -300,6 +337,9 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
       rejectedDuplicate: quarantine.duplicate,
       outOfWindow,
       recalcFailed: recalcFailures.length,
+      announced,
+      invalidTimestamps,
+      abnormalEnd,
       cutoff: new Date(cutoffMs).toISOString(),
       newBookmark: newBookmark ? newBookmark.toISOString() : null,
       deviceTime: read.deviceTime ?? null,
@@ -332,6 +372,9 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
         recordsUnmatched: summary.unmatched,
         recordsRejected: rejectedCount,
         recordsOutOfWindow: outOfWindow,
+        ...(announced != null ? { recordsAnnounced: announced } : {}),
+        ...(invalidTimestamps ? { recordsInvalidTimestamps: invalidTimestamps } : {}),
+        ...(abnormalEnd ? { abnormalEnd: true } : {}),
         bookmarkAt: newBookmark,
         error: problems.length > 0 ? redactDeviceSecrets(problems.join('؛ ')) : null,
       })
@@ -363,11 +406,13 @@ export async function runRawSync(opts: RawSyncOptions): Promise<RawSyncSummary> 
             deviceId: device.id,
             level: problems.length > 0 ? 'WARN' : 'SUCCESS',
             message: redactDeviceSecrets(
-              `دریافت از دستگاه انجام شد${modeFa}${opts.note === 'rt-poll' ? ' [شبه‌بی‌درنگ]' : ''}: ${summary.seen} تردد در حافظه دستگاه، ${summary.inWindow} در بازه، ` +
+              `دریافت از دستگاه انجام شد${modeFa}${opts.note === 'rt-poll' ? ' [شبه‌بی‌درنگ]' : ''}: ${summary.seen} تردد تحویل شد${announced != null ? ` (دستگاه ${announced} رکورد اعلام کرد)` : ''}، ${summary.inWindow} در بازه، ` +
               `${summary.newCount} رکورد جدید، ${summary.duplicate} تکراری (دینوپه)، ${summary.unmatched} بدون تطبیق (نگه‌داشته شد)` +
               `${rejectedCount > 0 ? `، ${rejectedCount} نامعتبر (قرنطینه شد)` : ''}` +
+              `${invalidTimestamps > 0 ? `، ${invalidTimestamps} با مهر زمانی غیرقابل‌خواندن (از سمت پروتکل)` : ''}` +
               `${outOfWindow > 0 ? `، ${outOfWindow} خارج از بازهٔ درخواستی` : ''}` +
               `${recalcFailures.length > 0 ? `، بازمحاسبهٔ ${recalcFailures.length} روز ناموفق` : ''}` +
+              `${abnormalEnd ? `، ⚠️ خواندن ناقص (کد پایانی ${endCode ?? 'نامشخص'})` : ''}` +
               `${effectiveSerial ? ` — سریال: ${effectiveSerial}` : ''}` +
               ` (اجرای ${run.id.slice(0, 8)})`,
             ),

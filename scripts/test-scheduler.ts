@@ -31,6 +31,7 @@
  */
 import { spawn, spawnSync } from 'child_process'
 import { rmSync, mkdirSync, writeFileSync } from 'fs'
+import net from 'net'
 import path from 'path'
 import { generateTestDatabasePath, assertTestOwnedDatabasePath, sqliteUrl } from './test-db-guard'
 import type { SchedulerDeviceRow } from '../src/lib/scheduler'
@@ -54,11 +55,26 @@ function sh(cmd: string, args: string[], env: Record<string, string>) {
 }
 
 const SERIAL = '7561202505176'
-const MOCK_PORT = 5177
+let MOCK_PORT = 0 // assigned in main() — a free port per run (a fixed port lets
+// a stale mock from a crashed previous run answer instead of this one's)
+
+/** a FREE TCP port (bind 127.0.0.1:0, read back the assigned port). */
+function freePort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const srv = net.createServer()
+    srv.unref()
+    srv.on('error', reject)
+    srv.listen(0, '127.0.0.1', () => {
+      const port = (srv.address() as net.AddressInfo).port
+      srv.close(() => resolve(port))
+    })
+  })
+}
 
 async function main() {
   mkdirSync(TMP, { recursive: true })
   assertTestOwnedDatabasePath(MAIN_DB, TMP)
+  MOCK_PORT = await freePort()
 
   // db-dependent modules are imported AFTER DATABASE_URL points at the
   // auto-generated test database
@@ -79,6 +95,9 @@ async function main() {
   // Phase 2 S3 review fix 1: the dated default-shift history table joins the
   // chain too (recalcDayForPerson reads it on every run)
   sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  // Phase 3 stage 2: DeviceSyncRun accounting columns — runRawSync writes
+  // recordsAnnounced / recordsInvalidTimestamps / abnormalEnd on every run
+  sh('node', ['scripts/migrate-v1.8.0-phase3.mjs', 'up'], { DATABASE_URL: MAIN_DB })
 
   const p1 = await db.personnel.create({ data: { personnelCode: '1001', firstName: 'علی', lastName: 'محمدی', pin: '1001', deviceUserId: 1001 } })
   const device = await db.device.create({

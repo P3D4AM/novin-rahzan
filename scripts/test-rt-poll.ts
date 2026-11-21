@@ -30,6 +30,7 @@
  */
 import { spawn, spawnSync } from 'child_process'
 import { mkdirSync, writeFileSync, rmSync } from 'fs'
+import net from 'net'
 import path from 'path'
 import { generateTestDatabasePath, assertTestOwnedDatabasePath, sqliteUrl } from './test-db-guard'
 import type { SchedulerDeviceRow } from '../src/lib/scheduler'
@@ -39,6 +40,21 @@ const TMP = process.env.TMPDIR_RAWTEST || '/tmp/nr-addendum3'
 const MAIN_DB_FILE = generateTestDatabasePath(TMP)
 const MAIN_DB = sqliteUrl(MAIN_DB_FILE)
 process.env.DATABASE_URL = MAIN_DB // before the db client is imported below
+
+/** a FREE port for the mock bridge — a fixed port breaks re-runs when a
+ *  crashed previous run leaves a stale mock holding it (observed in the wild:
+ *  the backoff test then "succeeds" against the ghost process). */
+function freePort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const srv = net.createServer()
+    srv.unref()
+    srv.on('error', reject)
+    srv.listen(0, '127.0.0.1', () => {
+      const port = (srv.address() as net.AddressInfo).port
+      srv.close(() => resolve(port))
+    })
+  })
+}
 
 let passed = 0
 let failed = 0
@@ -53,11 +69,12 @@ function sh(cmd: string, args: string[], env: Record<string, string>) {
 }
 
 const SERIAL = '7561202505176'
-const BRIDGE_PORT = 8792
+let BRIDGE_PORT = 0 // assigned in main() — a free port per run (no ghost-process collisions)
 
 async function main() {
   mkdirSync(TMP, { recursive: true })
   assertTestOwnedDatabasePath(MAIN_DB, TMP)
+  BRIDGE_PORT = await freePort()
 
   // db-dependent modules are imported AFTER DATABASE_URL points at the
   // auto-generated test database
@@ -78,6 +95,9 @@ async function main() {
   sh('node', ['scripts/migrate-v1.4.0-phase2.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   sh('node', ['scripts/migrate-v1.3.1-phase1-fixes.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   sh('node', ['scripts/migrate-v1.5.0-bridge-internal.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  // Phase 3 stage 2: DeviceSyncRun accounting columns (recordsAnnounced /
+  // recordsInvalidTimestamps / abnormalEnd) — runRawSync writes them on every run.
+  sh('node', ['scripts/migrate-v1.8.0-phase3.mjs', 'up'], { DATABASE_URL: MAIN_DB })
 
   await db.personnel.create({ data: { personnelCode: '1001', firstName: 'علی', lastName: 'محمدی', pin: '1001', deviceUserId: 1001 } })
   const device = await db.device.create({

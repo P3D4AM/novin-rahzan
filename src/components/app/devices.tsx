@@ -67,7 +67,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
   const blank: DeviceFormState = { name: '', ...newDeviceFormDefaults(), ipAddress: '', location: '', enabled: true, autoSync: false, syncIntervalMin: 5, serialNumber: '', password: '', connTimeoutMs: 5000, machineNumber: 1, sdkLicense: 1261, rtEnabled: false, rtPollSec: 30 }
   const [form, setForm] = useState<DeviceFormState>({ ...blank })
 
-  const [syncRuns, setSyncRuns] = useState<Array<{ id: string; deviceId?: string | null; status: string; mode: string; sourceProtocol: string; startedAt: string; recordsNew: number; recordsDuplicate: number; recordsUnmatched: number; retries: number; error?: string | null }>>([])
+  const [syncRuns, setSyncRuns] = useState<Array<{ id: string; deviceId?: string | null; status: string; mode: string; sourceProtocol: string; startedAt: string; recordsNew: number; recordsDuplicate: number; recordsUnmatched: number; recordsOutOfWindow?: number; recordsAnnounced?: number | null; abnormalEnd?: boolean; retries: number; error?: string | null }>>([])
   const loadLogs = async () => {
     const res = await api<{ logs: typeof logs; syncs?: typeof syncRuns }>('/api/devices?logs=1&syncs=1')
     setLogs(res.logs)
@@ -151,8 +151,12 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
       reloadBoot()
       loadLogs()
       if (act === 'sync') {
-        const r = res.result as { created?: number; skipped?: number; unmatched?: number; total?: number }
-        toast({ title: 'دریافت از دستگاه انجام شد', description: `${faDigits(r.created ?? 0)} تردد جدید از ${faDigits(r.total ?? 0)} تردد حافظه دستگاه · ${faDigits(r.skipped ?? 0)} تکراری` })
+        const r = res.result as { created?: number; skipped?: number; unmatched?: number; total?: number; outOfWindow?: number; announced?: number | null; abnormalEnd?: boolean }
+        toast({
+          title: r.abnormalEnd ? 'دریافت انجام شد — اما خواندن ناقص بود' : 'دریافت از دستگاه انجام شد',
+          description: `${faDigits(r.created ?? 0)} تردد جدید از ${faDigits(r.total ?? 0)} تردد تحویلی · ${faDigits(r.skipped ?? 0)} تکراری${r.outOfWindow ? ` · ${faDigits(r.outOfWindow)} خارج از بازه` : ''}${r.announced != null ? ` · دستگاه ${faDigits(r.announced)} رکورد اعلام کرده بود` : ''}${r.abnormalEnd ? ' — همان بازه را دوباره دانلود کنید تا رکوردهای باقی‌مانده برسند' : ''}`,
+          variant: r.abnormalEnd ? 'destructive' : undefined,
+        })
       }
     } catch (err) {
       toast({ title: 'خطا', description: err instanceof Error ? err.message : '', variant: 'destructive' })
@@ -292,11 +296,13 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                       <div className="text-[11px] rounded-lg bg-muted/50 p-2 leading-5">
                         <div className="text-muted-foreground mb-0.5">آخرین اجراها (تاریخچهٔ همگام‌سازی):</div>
                         {runs.map((r) => (
-                          <div key={r.id} className="flex items-center gap-1.5" dir="rtl">
+                          <div key={r.id} className="flex items-center gap-1.5 flex-wrap" dir="rtl">
                             <span className={r.status === 'SUCCESS' ? 'text-emerald-600' : r.status === 'FAILED' ? 'text-red-600' : 'text-amber-600'}>●</span>
                             <span>{r.status === 'SUCCESS' ? 'موفق' : r.status === 'FAILED' ? 'ناموفق' : r.status}</span>
                             <span className="text-muted-foreground">· {faTime(r.startedAt)}</span>
-                            <span className="text-muted-foreground">· {faDigits(r.recordsNew)} جدید / {faDigits(r.recordsDuplicate)} تکراری{r.recordsUnmatched ? ` / ${faDigits(r.recordsUnmatched)} بدون تطبیق` : ''}</span>
+                            <span className="text-muted-foreground">· {faDigits(r.recordsNew)} جدید / {faDigits(r.recordsDuplicate)} تکراری{r.recordsUnmatched ? ` / ${faDigits(r.recordsUnmatched)} بدون تطبیق` : ''}{r.recordsOutOfWindow ? ` / ${faDigits(r.recordsOutOfWindow)} خارج از بازه` : ''}</span>
+                            {r.recordsAnnounced != null ? <span className="text-muted-foreground">· دستگاه {faDigits(r.recordsAnnounced)} رکورد اعلام کرده بود</span> : null}
+                            {r.abnormalEnd ? <span className="text-amber-600">· ⚠ خواندن ناقص</span> : null}
                             {r.retries > 0 ? <span className="text-amber-600">· {faDigits(r.retries)} Retry</span> : null}
                             {r.mode === 'MOCK' ? <span className="text-purple-600">· آزمایشی (Mock)</span> : null}
                             {r.error ? <span className="text-red-600 truncate max-w-[160px]" title={r.error}>· {r.error}</span> : null}
@@ -365,7 +371,9 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-base">نتیجه عملیات</CardTitle></CardHeader>
             <CardContent>
-              {typeof testResult.ok === 'boolean' && 'serialNumber' in testResult ? (
+              {'cutoff' in testResult && 'created' in testResult ? (
+                <SyncBreakdownCard r={testResult as Record<string, unknown>} />
+              ) : typeof testResult.ok === 'boolean' && 'serialNumber' in testResult ? (
                 <div className="space-y-2 text-sm">
                   {testResult.ok ? (
                     <>
@@ -627,5 +635,57 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
         </DialogContent>
       </Dialog>
     </Tabs>
+  )
+}
+
+/* -------- Phase 3 stage 2: full download accounting (the 9 counters) -------- */
+function SyncBreakdownCard({ r }: { r: Record<string, unknown> }) {
+  const num = (k: string) => (typeof r[k] === 'number' ? faDigits(r[k] as number) : null)
+  const announced = typeof r.announced === 'number' ? faDigits(r.announced as number) : null
+  const abnormalEnd = r.abnormalEnd === true
+  const mode = String(r.mode ?? 'HARDWARE')
+  const rows: Array<[string, string | null]> = [
+    ['۱. اعلام‌شده توسط دستگاه/SDK', announced ?? (mode === 'HARDWARE' ? 'این پروتکل عدد اعلام نمی‌دهد (FK623)' : '—')],
+    ['۲. تحویل‌شده به برنامه', num('total')],
+    ['۳. داخل بازهٔ انتخابی', num('imported')],
+    ['۴. رکورد جدید ذخیره‌شده', num('created')],
+    ['۵. تکراری (دینوپه)', num('skipped')],
+    ['۶. خارج از بازهٔ انتخابی', num('outOfWindow')],
+    ['۷. قرنطینه‌شده (نامعتبر)', num('rejected')],
+    ['۸. بدون تطبیق پرسنل (نگه‌داشته)', num('unmatched')],
+    ['۹. مهر زمانی غیرقابل‌خواندن', num('invalidTimestamps')],
+  ]
+  const valid = (typeof r.total === 'number' ? r.total : 0) - (typeof r.rejected === 'number' ? r.rejected : 0) - (typeof r.invalidTimestamps === 'number' ? r.invalidTimestamps : 0)
+  return (
+    <div className="space-y-2 text-sm">
+      <div className="flex items-center gap-2 font-semibold">
+        <Download className="h-4 w-4 text-primary" />
+        گزارش دریافت ترددها (شمارش کامل)
+        {mode === 'MOCK' ? <Badge variant="secondary" className="text-[10px]">آزمایشی — Mock</Badge> : null}
+      </div>
+      {abnormalEnd && (
+        <div className="text-amber-600 text-xs leading-5 rounded-lg bg-amber-50 dark:bg-amber-950/30 p-2.5 border border-amber-200 dark:border-amber-800">
+          ⚠️ خواندن حافظهٔ دستگاه <b>ناقص</b> تمام شد (کد پایانی {String(r.endCode ?? 'نامشخص')}). رکوردهای رسیده ذخیره شدند اما ممکن است رکوردهای دیگری در حافظهٔ دستگاه باقی مانده باشد — <b>همان بازه را یک بار دیگر دانلود کنید</b>؛ تکراری‌ها به‌صورت خودکار نادیده گرفته می‌شوند و چیزی از دست نمی‌رود.
+        </div>
+      )}
+      {announced != null && typeof r.total === 'number' && (r.announced as number) > (r.total as number) && !abnormalEnd && (
+        <div className="text-amber-600 text-xs leading-5 rounded-lg bg-amber-50 dark:bg-amber-950/30 p-2.5">
+          دستگاه {announced} رکورد اعلام کرده بود اما {num('total')} رکورد تحویل شد — این اختلاف را به پشتیبانی گزارش کنید.
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        {rows.map(([label, value]) => (
+          <div key={label} className="flex justify-between md:block rounded-lg bg-muted/60 p-2">
+            <span className="text-xs text-muted-foreground">{label}</span>
+            <span className="font-semibold">{value ?? '—'}</span>
+          </div>
+        ))}
+      </div>
+      <div className="text-[11px] text-muted-foreground leading-5">
+        رکوردهای معتبر = تحویل‌شده منهای قرنطینه‌شده و غیرقابل‌خواندن = {faDigits(Math.max(0, valid))} · لبهٔ بازه (حد پایین): {r.cutoff ? String(r.cutoff).slice(0, 10) : '—'} · بوکمارک جدید: {r.newBookmark ? String(r.newBookmark).slice(0, 10) : '—'}
+        <br />
+        اگر با انتخاب بازهٔ بزرگ (مثلاً ۹۰ روز) تعداد کمی رکورد می‌رسد: این گزارش نشان می‌دهد مشکل از کجاست — اگر «اعلام‌شده» و «تحویل‌شده» خودش کوچک است، رکورد بیشتر در حافظهٔ دستگاه نیست (حافظهٔ دستگاه/سیاست نگهداری خود دستگاه)؛ اگر تحویل‌شده بزرگ ولی «داخل بازه» کوچک است، بازه/ساعت دستگاه را بررسی کنید؛ اگر جدید کوچک ولی تکراری بزرگ است، رکوردها از قبل ذخیره‌شده‌اند.
+      </div>
+    </div>
   )
 }
