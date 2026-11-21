@@ -403,7 +403,12 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
                     <TableCell className="font-medium text-sm">{full_name(p.person)}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-0.5 rounded-full text-[11px] ${p.direction === 'IN' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200' : p.direction === 'OUT' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200' : 'bg-gray-100 dark:bg-gray-800'}`}>
-                        {p.direction === 'IN' ? 'ورود' : p.direction === 'OUT' ? 'خروج' : 'خودکار'}
+                        {/* Phase 3 stage 5 (item 7): honest direction display — "AUTO" is the
+                            legacy vocabulary for UNDETERMINED (the device protocol reported no
+                            in/out for this record). It is shown as «نامشخص» — never as a
+                            fabricated ورود/خروج; the pairing layer derives pairs positionally
+                            for computation without writing a direction. */}
+                        {p.direction === 'IN' ? 'ورود' : p.direction === 'OUT' ? 'خروج' : <span title="این رکورد از دستگاه جهت ورود/خروج نیامده است (پروتکل آن را گزارش نمی‌دهد)؛ جهت در محاسبات از جفت‌بندی ترددها تعیین می‌شود، نه ذخیره‌شده">نامشخص</span>}
                       </span>
                     </TableCell>
                     <TableCell><Badge variant="secondary" className="text-[10px]">{SOURCE_FA[p.source] ?? p.source}</Badge></TableCell>
@@ -480,7 +485,7 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
               <Select value={addForm.direction} onValueChange={(v) => setAddForm({ ...addForm, direction: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="AUTO">خودکار</SelectItem><SelectItem value="IN">ورود</SelectItem><SelectItem value="OUT">خروج</SelectItem>
+                  <SelectItem value="AUTO">نامشخص (بدون جهت)</SelectItem><SelectItem value="IN">ورود</SelectItem><SelectItem value="OUT">خروج</SelectItem>
                 </SelectContent>
               </Select>
             </div>
