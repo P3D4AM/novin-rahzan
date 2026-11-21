@@ -475,11 +475,17 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
       <Dialog open={open} onOpenChange={setOpen}>
         {/* device-form fix: wider dialog, FIXED header/footer, ONLY the body scrolls
             (grid-rows auto/minmax(0,1fr)/auto + min-h-0). Height never exceeds the
-            viewport; width fills up to 4xl on desktop and stays inside the screen
-            on mobile (base max-w-[calc(100%-2rem)]). */}
+            viewport; width fills up to 48rem (56rem on lg), clamped to the screen
+            at every step (calc(100vw-2rem)) and capped on the smallest screens
+            (base max-w-[calc(100%-2rem)] — explicit here so the file does not rely
+            on the ui/dialog.tsx default carrying it).
+            Phase 3, item 11 archaeology: the dialog became responsive in 92d4dbc7
+            (shipped in v1.7.0); the reported «فرم بیش از حد عریض» matches the
+            v1.6.0-era artifact (max-w-2xl, uncapped → horizontal scroll on narrow
+            windows). Byte-verified: the [min(…] classes are intact at HEAD. */}
         <DialogContent
           dir="rtl"
-          className="p-0 gap-0 grid-rows-[auto_minmax(0,1fr)_auto] max-h-[calc(100dvh-4rem)] sm:max-w-[min(48rem,calc(100vw-2rem))] lg:max-w-[min(56rem,calc(100vw-2rem))]"
+          className="p-0 gap-0 grid-rows-[auto_minmax(0,1fr)_auto] max-h-[calc(100dvh-4rem)] max-w-[calc(100%-2rem)] sm:max-w-[min(48rem,calc(100vw-2rem))] lg:max-w-[min(56rem,calc(100vw-2rem))]"
         >
           <DialogHeader className="px-5 pt-4 pb-3 border-b text-right sm:text-right shrink-0">
             <DialogTitle>{editing ? 'ویرایش دستگاه' : 'ثبت دستگاه جدید'}</DialogTitle>
@@ -546,7 +552,7 @@ export function DevicesView({ user, boot, reloadBoot }: Props) {
                 </div>
                 {form.protocolFamily === 'FKATTEND' && (
                   <div className="text-xs leading-6 rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-2.5 text-emerald-800 dark:text-emerald-300">
-                    <b>FKAttend — مسیر تأییدشدهٔ NP756+:</b> ترددها مستقیم از حافظهٔ دستگاه روی پورت ۴۲۳۸ دانلود می‌شود. سرویس ارتباط (SDK رسمی FK623) را خود نرم‌افزار پنهان اجرا و در صورت نیاز راه‌اندازی مجدد می‌کند — DLLها همراه بستهٔ نصب در <span dir="ltr" className="font-mono">tools\fkattend-bridge\bin</span> است و هیچ فایل یا توکنی را دستی وارد نمی‌کنید. دریافت لحظه‌ای (Push) در این مسیر وجود ندارد؛ برای نزدیک‌شدن به لحظه‌ای، «دریافت شبه‌بی‌درنگ» (Polling) را در بخش پایین فعال کنید.
+                    <b>FKAttend — مسیر تأییدشدهٔ NP756+:</b> ترددها مستقیم از حافظهٔ دستگاه روی پورت ۴۲۳۸ دانلود می‌شود؛ سرویس ارتباط را خود نرم‌افزار به‌صورت خودکار اجرا و در صورت نیاز راه‌اندازی مجدد می‌کند. دریافت لحظه‌ای (Push) در این مسیر وجود ندارد؛ برای نزدیک‌شدن به لحظه‌ای، «دریافت شبه‌بی‌درنگ» (Polling) را در بخش پایین فعال کنید.
                   </div>
                 )}
                 {form.protocolFamily === 'SBXPC' && (

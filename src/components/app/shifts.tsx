@@ -13,7 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
 import { Checkbox } from '@/components/ui/checkbox'
 import { SessionUser, Bootstrap, api, Person, full_name } from './types'
-import { MonthPicker, monthGrid, monthLabel, WEEKDAY_HEADERS, faDigits, TimeInput, JalaliDateInput, minutesToHM } from './jalali-ui'
+import { MonthPicker, monthGrid, monthLabel, WEEKDAY_HEADERS, faDigits, JalaliDateInput, minutesToHM, durationFa, ShiftTimePicker } from './jalali-ui'
+// Phase 3, item 9: the shift-dialog time control delegates to ONE pure module —
+// the same gate runs in the form AND on the server (/api/shifts).
+import { crossesMidnight, shiftSegmentSpan, validateShiftSegments } from '@/lib/shift-time'
 import { useToast } from '@/hooks/use-toast'
 import { Plus, Trash2, Pencil, Repeat, CalendarDays, Loader2, Sparkles } from 'lucide-react'
 import { toGregorian } from 'jalaali-js'
@@ -52,6 +55,8 @@ function ShiftsTab({ user, boot, reloadBoot }: Props) {
     segments: [{ startMin: 480, endMin: 990, breakMin: 60 }],
   }
   const [form, setForm] = useState({ ...blank })
+  // live validation — the ذخیره button is disabled while any بازه is invalid
+  const segValidation = validateShiftSegments(form.segments)
 
   const openNew = () => { setEditing(null); setForm({ ...blank }); setOpen(true) }
   const openEdit = (s: typeof boot.shifts[number]) => {
@@ -65,6 +70,10 @@ function ShiftsTab({ user, boot, reloadBoot }: Props) {
 
   const save = async () => {
     if (!form.name.trim()) { toast({ title: 'نام شیفت الزامی است', variant: 'destructive' }); return }
+    // Phase 3, item 9: no invalid time can be saved — the same validator runs
+    // server-side in /api/shifts POST/PUT (the UI gate is convenience only).
+    const segv = validateShiftSegments(form.segments)
+    if (!segv.ok) { toast({ title: 'ذخیره نشد — بازه زمانی نامعتبر است', description: segv.error, variant: 'destructive' }); return }
     setSaving(true)
     try {
       if (editing) await api('/api/shifts', { method: 'PUT', body: JSON.stringify({ id: editing, ...form }) })
@@ -108,8 +117,8 @@ function ShiftsTab({ user, boot, reloadBoot }: Props) {
                 <div className="text-sm space-y-1">
                   {s.segments.map((g, i) => (
                     <div key={i} className="flex justify-between text-muted-foreground">
-                      <span>بازه {faDigits(i + 1)}</span>
-                      <span dir="ltr" className="font-mono text-xs">{minutesToHM(g.startMin)} - {minutesToHM(g.endMin > g.startMin ? g.endMin : g.endMin)}</span>
+                      <span>بازه {faDigits(i + 1)}{crossesMidnight(g.startMin, g.endMin) ? ' · شب‌گذر' : ''}{g.startMin === g.endMin ? ' · ۲۴ساعته' : ''}</span>
+                      <span dir="ltr" className="font-mono text-xs">{minutesToHM(g.startMin)} - {minutesToHM(g.endMin)}</span>
                     </div>
                   ))}
                 </div>
@@ -162,22 +171,50 @@ function ShiftsTab({ user, boot, reloadBoot }: Props) {
                 </Button>
               </div>
               {form.segments.map((seg, i) => (
-                <div key={i} className="flex items-center gap-2 bg-muted/40 rounded-lg p-2">
-                  <div className="flex-1"><TimeInput value={`${String(Math.floor(seg.startMin / 60)).padStart(2, '0')}:${String(seg.startMin % 60).padStart(2, '0')}`} onChange={(v) => { const [h, m] = v.split(':').map(Number); const segs = [...form.segments]; segs[i] = { ...seg, startMin: (h || 0) * 60 + (m || 0) }; setForm({ ...form, segments: segs }) }} /></div>
-                  <span className="text-xs text-muted-foreground">تا</span>
-                  <div className="flex-1"><TimeInput value={`${String(Math.floor(seg.endMin / 60)).padStart(2, '0')}:${String(seg.endMin % 60).padStart(2, '0')}`} onChange={(v) => { const [h, m] = v.split(':').map(Number); const segs = [...form.segments]; segs[i] = { ...seg, endMin: (h || 0) * 60 + (m || 0) }; setForm({ ...form, segments: segs }) }} /></div>
-                  <div className="w-20"><Input type="number" dir="ltr" placeholder="وقفه" value={seg.breakMin} onChange={(e) => { const segs = [...form.segments]; segs[i] = { ...seg, breakMin: Number(e.target.value) }; setForm({ ...form, segments: segs }) }} className="text-xs" /></div>
-                  {form.segments.length > 1 && (
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setForm({ ...form, segments: form.segments.filter((_, j) => j !== i) })}><Trash2 className="h-3.5 w-3.5" /></Button>
-                  )}
+                <div key={i} className="bg-muted/40 rounded-lg p-2.5 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-muted-foreground">بازه {faDigits(i + 1)}</span>
+                    <div className="flex items-center gap-1.5">
+                      {crossesMidnight(seg.startMin, seg.endMin) && <Badge variant="secondary" className="text-[10px]">شب‌گذر — عبور از نیمه‌شب</Badge>}
+                      {seg.startMin === seg.endMin && <Badge variant="secondary" className="text-[10px]">۲۴ ساعته</Badge>}
+                      {form.segments.length > 1 && (
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => setForm({ ...form, segments: form.segments.filter((_, j) => j !== i) })} aria-label={`حذف بازه ${i + 1}`}><Trash2 className="h-3.5 w-3.5" /></Button>
+                      )}
+                    </div>
+                  </div>
+                  {/* Phase 3, item 9: value contract = minutes (number) — the old
+                      form parsed raw keystrokes ('830' → 49 800 min corruption);
+                      the picker never propagates an unparseable draft. */}
+                  <div className="grid grid-cols-[1fr_1fr_5rem] gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">شروع</Label>
+                      <ShiftTimePicker ariaLabel={`ساعت شروع بازه ${i + 1}`} minutes={seg.startMin} onChange={(m) => { const segs = [...form.segments]; segs[i] = { ...seg, startMin: m }; setForm({ ...form, segments: segs }) }} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">پایان</Label>
+                      <ShiftTimePicker ariaLabel={`ساعت پایان بازه ${i + 1}`} minutes={seg.endMin} onChange={(m) => { const segs = [...form.segments]; segs[i] = { ...seg, endMin: m }; setForm({ ...form, segments: segs }) }} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">وقفه (دقیقه)</Label>
+                      <Input type="number" dir="ltr" min={0} value={seg.breakMin} onChange={(e) => { const segs = [...form.segments]; segs[i] = { ...seg, breakMin: Number(e.target.value) }; setForm({ ...form, segments: segs }) }} className="text-xs text-center" />
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    مدت بازه: {durationFa(shiftSegmentSpan(seg.startMin, seg.endMin))}{seg.breakMin > 0 ? ` · کار مؤثر: ${durationFa(Math.max(0, shiftSegmentSpan(seg.startMin, seg.endMin) - seg.breakMin))}` : ''}
+                  </div>
                 </div>
               ))}
               <p className="text-xs text-muted-foreground">اگر ساعت پایان کمتر از شروع باشد، شب‌گذر محسوب می‌شود (مثل شیفت امنیت شب ۲۲:۰۰ تا ۰۶:۰۰).</p>
+              {!segValidation.ok && (
+                <p className="text-xs text-destructive">{segValidation.error} — تا اصلاح، ذخیره غیرفعال است.</p>
+              )}
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>انصراف</Button>
-            <Button onClick={save} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin" />} ذخیره</Button>
+            {/* Phase 3, item 9: save is BLOCKED while any بازه is invalid (the
+                same validator also runs server-side — defense in depth) */}
+            <Button onClick={save} disabled={saving || !segValidation.ok}>{saving && <Loader2 className="h-4 w-4 animate-spin" />} ذخیره</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

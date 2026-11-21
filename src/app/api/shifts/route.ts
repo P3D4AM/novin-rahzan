@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireRole, ApiError } from '@/lib/auth'
 import { fail } from '@/lib/api'
+// Phase 3, item 9: the SAME pure validator gates the form and the API —
+// an invalid segment can no longer be stored even by a direct API call.
+import { validateShiftSegments } from '@/lib/shift-time'
 
 export async function GET() {
   try {
@@ -19,6 +22,8 @@ export async function POST(req: NextRequest) {
     const b = await req.json()
     if (!b.name) throw new ApiError(400, 'نام شیفت الزامی است')
     if (!b.segments?.length) throw new ApiError(400, 'حداقل یک بازه زمانی لازم است')
+    const segv = validateShiftSegments(b.segments)
+    if (!segv.ok) throw new ApiError(400, segv.error)
     const { id, segments, ...rest } = b
     const shift = await db.shift.create({
       data: {
@@ -42,6 +47,10 @@ export async function PUT(req: NextRequest) {
     await requireRole('ADMIN')
     const b = await req.json()
     if (!b.id) throw new ApiError(400, 'شناسه لازم است')
+    if (b.segments !== undefined) {
+      const segv = validateShiftSegments(b.segments)
+      if (!segv.ok) throw new ApiError(400, segv.error)
+    }
     const { id, segments, ...rest } = b
     await db.shiftSegment.deleteMany({ where: { shiftId: id } })
     const shift = await db.shift.update({

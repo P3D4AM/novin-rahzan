@@ -85,3 +85,7 @@ server.log
 /.build-lock.stale-*
 FIRST-LOGIN.txt
 /db/backups/
+
+# Phase 3 (v1.8.0-dev) — local git credential file used by the sandbox's
+# credential helper (NEVER a token in the repo; path-only reference)
+/.secrets/

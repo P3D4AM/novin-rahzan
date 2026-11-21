@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { toGregorian, jalaaliMonthLength } from 'jalaali-js'
-import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, Clock } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   tehranTodayMarker,
@@ -13,6 +13,7 @@ import {
   formatJalaliMarker,
   faDigits as faDigitsCentral,
 } from '@/lib/time'
+import { parseHHMM, minutesToHHMM, normalizeTimeDraft } from '@/lib/shift-time'
 
 export const FA_MONTHS = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -105,6 +106,118 @@ export function TimeInput({ value, onChange }: { value: string; onChange: (v: st
       value={value}
       onChange={(e) => onChange(e.target.value.replace(/[^\d:]/g, ''))}
     />
+  )
+}
+
+/* ---------- ShiftTimePicker (Phase 3, item 9) ----------
+ * The shift-dialog time control: MANUAL HH:MM typing AND list-based
+ * hour/minute selection, value contract = minutes-of-day (number).
+ *
+ * The old form parsed the raw text of every keystroke
+ * (`v.split(':').map(Number)`) — typing "830" before the colon silently
+ * stored 49 800 minutes and corrupted the saved shift. This component
+ * never propagates an unparseable draft: only a VALID parsed time reaches
+ * onChange; an invalid draft shows a Persian error and reverts on blur.
+ */
+export function ShiftTimePicker({
+  minutes,
+  onChange,
+  ariaLabel,
+}: {
+  /** stored value: minutes-of-day 0..1439; null = nothing chosen yet */
+  minutes: number | null
+  onChange: (minutes: number) => void
+  ariaLabel?: string
+}) {
+  const [draft, setDraft] = useState<string | null>(null)
+  const [error, setError] = useState('')
+  const [open, setOpen] = useState(false)
+
+  const text = draft ?? (minutes == null ? '' : minutesToHHMM(minutes))
+  const curH = minutes == null ? 0 : Math.floor(minutes / 60)
+  const curM = minutes == null ? 0 : minutes % 60
+
+  const onTyping = (raw: string) => {
+    const cleaned = normalizeTimeDraft(raw)
+    setDraft(cleaned)
+    if (cleaned === '') { setError(''); return } // empty draft keeps the stored value
+    const r = parseHHMM(cleaned)
+    if (r.ok) { setError(''); onChange(r.minutes) } else setError(r.error)
+  }
+
+  const onBlur = () => {
+    // abandon an invalid edit — display goes back to the stored minutes
+    setDraft(null)
+    setError('')
+  }
+
+  const pickHour = (h: number) => { setError(''); setDraft(null); onChange(h * 60 + curM) }
+  const pickMinute = (m: number) => { setError(''); setDraft(null); setOpen(false); onChange(curH * 60 + m) }
+
+  return (
+    <div className="w-full">
+      <div className="flex items-center gap-1.5">
+        <input
+          dir="ltr"
+          inputMode="numeric"
+          aria-label={ariaLabel || 'ساعت (HH:MM)'}
+          className={`w-full rounded-md border bg-background px-3 py-2 text-sm text-center font-mono ${error ? 'border-destructive' : 'border-input'}`}
+          placeholder="08:30"
+          value={text}
+          onChange={(e) => onTyping(e.target.value)}
+          onBlur={onBlur}
+        />
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              aria-label="انتخاب ساعت از فهرست"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-input bg-background hover:bg-accent"
+            >
+              <Clock className="h-4 w-4" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent dir="rtl" align="start" className="w-auto p-0">
+            <div className="flex gap-1 p-2">
+              <div className="w-[4.5rem]">
+                <div className="mb-1 text-center text-[11px] font-semibold text-muted-foreground">ساعت</div>
+                <div className="max-h-48 overflow-y-auto">
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <button
+                      key={h}
+                      type="button"
+                      onClick={() => pickHour(h)}
+                      className={`mb-0.5 flex h-7 w-full items-center justify-center rounded-md font-mono text-xs hover:bg-accent ${minutes != null && h === curH ? 'bg-primary text-primary-foreground hover:bg-primary' : ''}`}
+                    >
+                      {faDigits(String(h).padStart(2, '0'))}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="w-[4.5rem]">
+                <div className="mb-1 text-center text-[11px] font-semibold text-muted-foreground">دقیقه</div>
+                <div className="max-h-48 overflow-y-auto">
+                  {Array.from({ length: 60 }, (_, m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => pickMinute(m)}
+                      className={`mb-0.5 flex h-7 w-full items-center justify-center rounded-md font-mono text-xs hover:bg-accent ${minutes != null && m === curM ? 'bg-primary text-primary-foreground hover:bg-primary' : ''}`}
+                    >
+                      {faDigits(String(m).padStart(2, '0'))}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="border-t px-2 py-1.5 text-center text-[10px] text-muted-foreground">
+              انتخاب ساعت و دقیقه — انتخاب دقیقه پنجره را می‌بندد
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+    </div>
   )
 }
 
