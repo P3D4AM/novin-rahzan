@@ -12,21 +12,30 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label'
 import { SessionUser, Bootstrap, api, DailyRecordT, STATUS_FA, STATUS_COLOR, Person, full_name } from './types'
 import { JalaliDatePicker, TimeInput, faTime, faDigits, durationFa, gregKeyToJalali } from './jalali-ui'
-import { tehranTodayMarker, addDaysMarker, markerKey, tehranWallClockStringToInstant, formatJalaliInstant, dayMarkerOf, formatTehranTime } from '@/lib/time'
+import { tehranTodayMarker, addDaysMarker, markerKey, tehranWallClockStringToInstant, formatJalaliInstant, dayMarkerOf, formatTehranTime, jalaliOfMarker, jalaliMonthRange } from '@/lib/time'
 import { useToast } from '@/hooks/use-toast'
 import { RefreshCw, Pencil, Search, Loader2, Trash2, Plus } from 'lucide-react'
 
 interface Props { user: SessionUser; boot: Bootstrap; reloadBoot: () => void }
 
 export function AttendanceView({ user, boot, reloadBoot, dataVersion }: Props & { dataVersion?: number }) {
+  const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
   return (
     <Tabs defaultValue="daily" dir="rtl">
       <TabsList className="mb-4">
         <TabsTrigger value="daily">کارکرد روزانه</TabsTrigger>
-        <TabsTrigger value="punches">ترددهای خام</TabsTrigger>
+        {/* Phase 3 stage 3 (item 5): architecture made honest — this tab shows
+            PunchRecord (the OPERATIONAL attendance layer), so its title says so;
+            the RawPunch device landing zone has its own tab below. */}
+        <TabsTrigger value="punches">ترددها (عملیاتی)</TabsTrigger>
+        {isAdmin && <TabsTrigger value="raw">ترددهای خام دستگاه</TabsTrigger>}
       </TabsList>
       <TabsContent value="daily"><DailyTab boot={boot} dataVersion={dataVersion} /></TabsContent>
       <TabsContent value="punches"><PunchesTab boot={boot} user={user} reloadBoot={reloadBoot} dataVersion={dataVersion} /></TabsContent>
+      {/* RawPunch: the traceable device history (landing zone) — admins only
+          (the API enforces ADMIN too); UNMATCHED/AMBIGUOUS rows and the
+          quarantine are never hidden from the administrator. */}
+      {isAdmin && <TabsContent value="raw"><RawPunchTab dataVersion={dataVersion} /></TabsContent>}
     </Tabs>
   )
 }
@@ -36,6 +45,58 @@ export function AttendanceView({ user, boot, reloadBoot, dataVersion }: Props & 
 // (was new Date().toISOString().slice(0,10) — UTC date, browser-tz sensitive)
 function tehranTodayKey() { return markerKey(tehranTodayMarker()) }
 function tehranDaysAgoKey(n: number) { return markerKey(addDaysMarker(tehranTodayMarker(), -n)) }
+
+/* ---------------- Phase 3 stage 3 (item 5): date-range presets ------------- */
+export interface RangeSel { preset: string; from: string; to: string }
+
+function rangeForPreset(preset: string): { from: string; to: string } {
+  const today = tehranTodayKey()
+  switch (preset) {
+    case 'today': return { from: today, to: today }
+    case 'd7': return { from: tehranDaysAgoKey(6), to: today }
+    case 'd30': return { from: tehranDaysAgoKey(29), to: today }
+    case 'd90': return { from: tehranDaysAgoKey(89), to: today }
+    case 'month': {
+      const { jy, jm } = jalaliOfMarker(tehranTodayMarker())
+      const mr = jalaliMonthRange(jy, jm)
+      return { from: markerKey(mr.startMarker), to: today }
+    }
+    default: return { from: tehranDaysAgoKey(6), to: today }
+  }
+}
+
+/** Preset selector (امروز/۷/۳۰/۹۰ روز/ماه جاری/دلخواه) + custom Jalali pickers —
+ *  shared by the punches and raw-punch tabs; the selected range is REALLY
+ *  sent to the API (server-side filtering), never display-only. */
+function RangePresets({ value, onChange }: { value: RangeSel; onChange: (v: RangeSel) => void }) {
+  const onPreset = (preset: string) => {
+    if (preset === 'custom') onChange({ preset, from: value.from, to: value.to })
+    else onChange({ preset, ...rangeForPreset(preset) })
+  }
+  return (
+    <div className="flex items-center gap-1.5 text-xs">
+      <Select value={value.preset} onValueChange={onPreset}>
+        <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="today" className="text-xs">امروز</SelectItem>
+          <SelectItem value="d7" className="text-xs">۷ روز اخیر</SelectItem>
+          <SelectItem value="d30" className="text-xs">۳۰ روز اخیر</SelectItem>
+          <SelectItem value="d90" className="text-xs">۹۰ روز اخیر</SelectItem>
+          <SelectItem value="month" className="text-xs">ماه جاری</SelectItem>
+          <SelectItem value="custom" className="text-xs">بازه دلخواه</SelectItem>
+        </SelectContent>
+      </Select>
+      {value.preset === 'custom' && (
+        <>
+          <span className="text-muted-foreground">از</span>
+          <div className="w-32"><JalaliDatePicker value={value.from} onChange={(from) => onChange({ ...value, from })} /></div>
+          <span className="text-muted-foreground">تا</span>
+          <div className="w-32"><JalaliDatePicker value={value.to} onChange={(to) => onChange({ ...value, to })} /></div>
+        </>
+      )}
+    </div>
+  )
+}
 
 function DailyTab({ boot, dataVersion }: { boot: Bootstrap; dataVersion?: number }) {
   const today = boot.today
@@ -196,20 +257,21 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
   const { toast } = useToast()
   const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
   const pageSize = 50
+  // Phase 3 stage 3 (item 5): REAL date-range filter with presets — the range
+  // is sent to /api/punches (server-side Tehran-day window), not just displayed
+  const [range, setRange] = useState<RangeSel>({ preset: 'd7', ...rangeForPreset('d7') })
 
   useEffect(() => { api<{ personnel: Person[] }>('/api/personnel').then((r) => setPersons(r.personnel)).catch(() => {}) }, [])
 
   const load = async () => {
     setLoading(true)
     try {
-      // v1.6.0 (phase 1 stage 4): last 7 TEHRAN days (was UTC-date slice)
-      const from = tehranDaysAgoKey(7)
-      const res = await api<{ punches: typeof punches; total: number }>(`/api/punches?from=${from}&to=${tehranTodayKey()}&q=${encodeURIComponent(q)}&source=${source === 'all' ? '' : source}&page=${page}&pageSize=${pageSize}`)
+      const res = await api<{ punches: typeof punches; total: number }>(`/api/punches?from=${range.from}&to=${range.to}&q=${encodeURIComponent(q)}&source=${source === 'all' ? '' : source}&page=${page}&pageSize=${pageSize}`)
       setPunches(res.punches)
       setTotal(res.total)
     } finally { setLoading(false) }
   }
-  useEffect(() => { load()   }, [q, source, page])
+  useEffect(() => { load()   }, [q, source, page, range])
   // v1.4.3: live refresh on device-sync (no manual page reload)
   useEffect(() => { load()   }, [dataVersion])
 
@@ -268,6 +330,7 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
             {Object.entries(SOURCE_FA).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
           </SelectContent>
         </Select>
+        <RangePresets value={range} onChange={(r) => { setRange(r); setPage(1) }} />
         {isAdmin && <Button onClick={() => setAddOpen(true)} className="gap-1.5"><Plus className="h-4 w-4" /> ثبت دستی</Button>}
         <Button variant="outline" size="sm" onClick={load} disabled={loading}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /></Button>
       </div>
@@ -384,6 +447,180 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  )
+}
+
+/* ---------------- Phase 3 stage 3 (item 5): RawPunch (device landing zone) ----------------
+ * RawPunch = the traceable DEVICE history (immutable landing zone: every record
+ * the device delivered, matched or not). PunchRecord = the OPERATIONAL layer
+ * the engine consumes. The two tabs are now honest about which one they show.
+ * Admin-only (the API enforces ADMIN); UNMATCHED/AMBIGUOUS rows and the
+ * RejectedRecord quarantine are surfaced, never hidden. */
+interface RawPunchRow {
+  id: string
+  deviceSerial: string
+  sourceProtocol: string
+  enrollNumber: string | null
+  punchTime: string
+  punchTimeRaw: string | null
+  inOutModeRaw: number
+  verifyModeRaw: number
+  workCode: string | null
+  matchStatus: string
+  matchNote: string | null
+  direction: string | null
+  personnelId: string | null
+  deviceId: string | null
+  importedAt: string
+}
+interface RejectedRow {
+  id: string
+  deviceSerial: string
+  sourceProtocol: string
+  enrollNumber: string | null
+  punchTimeRaw: string | null
+  rawPayload: string | null
+  rejectReason: string
+  receivedAt: string
+}
+
+const MATCH_FA: Record<string, string> = { MATCHED: 'تطبیق‌شده', UNMATCHED: 'بدون تطبیق' }
+const REJECT_FA: Record<string, string> = { INVALID_TIMESTAMP: 'مهر زمانی نامعتبر' }
+
+function RawPunchTab({ dataVersion }: { dataVersion?: number }) {
+  const { toast } = useToast()
+  const [range, setRange] = useState<RangeSel>({ preset: 'd7', ...rangeForPreset('d7') })
+  const [view, setView] = useState<'all' | 'unmatched' | 'ambiguous' | 'rejected'>('all')
+  const [serial, setSerial] = useState('')
+  const [rows, setRows] = useState<RawPunchRow[]>([])
+  const [rejectedRows, setRejectedRows] = useState<RejectedRow[]>([])
+  const [total, setTotal] = useState(0)
+  const [unmatchedCount, setUnmatchedCount] = useState(0)
+  const [ambiguousCount, setAmbiguousCount] = useState(0)
+  const [persons, setPersons] = useState<Person[]>([])
+  const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(1)
+  const pageSize = 50
+
+  useEffect(() => { api<{ personnel: Person[] }>('/api/personnel').then((r) => setPersons(r.personnel)).catch(() => {}) }, [])
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const qs = `from=${range.from}&to=${range.to}&serial=${encodeURIComponent(serial.trim())}&take=${pageSize}&skip=${(page - 1) * pageSize}`
+      if (view === 'rejected') {
+        const res = await api<{ rejected: RejectedRow[]; total: number }>(`/api/raw-punches?rejected=1&${qs}`)
+        setRejectedRows(res.rejected)
+        setRows([])
+        setTotal(res.total)
+        setUnmatchedCount(0)
+        setAmbiguousCount(0)
+      } else {
+        const flag = view === 'unmatched' ? '&unmatched=1' : view === 'ambiguous' ? '&ambiguous=1' : ''
+        const res = await api<{ rawPunches: RawPunchRow[]; total: number; unmatchedCount: number; ambiguousCount: number }>(`/api/raw-punches?${qs}${flag}`)
+        setRows(res.rawPunches)
+        setRejectedRows([])
+        setTotal(res.total)
+        setUnmatchedCount(res.unmatchedCount)
+        setAmbiguousCount(res.ambiguousCount)
+      }
+    } catch (err) {
+      toast({ title: 'خطا در دریافت ترددهای خام', description: err instanceof Error ? err.message : '', variant: 'destructive' })
+    } finally { setLoading(false) }
+  }
+  useEffect(() => { load() }, [range, view, page, serial])
+  useEffect(() => { load() }, [dataVersion])
+
+  const pages = Math.max(1, Math.ceil(total / pageSize))
+  const personOf = (id: string | null) => persons.find((p) => p.id === id)
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <Input placeholder="سریال دستگاه…" dir="ltr" value={serial} onChange={(e) => { setSerial(e.target.value); setPage(1) }} className="w-40" />
+        <Select value={view} onValueChange={(v) => { setView(v as typeof view); setPage(1) }}>
+          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">همه رکوردها</SelectItem>
+            <SelectItem value="unmatched">بدون تطبیق پرسنل</SelectItem>
+            <SelectItem value="ambiguous">تطبیق مبهم</SelectItem>
+            <SelectItem value="rejected">قرنطینه (نامعتبر)</SelectItem>
+          </SelectContent>
+        </Select>
+        <RangePresets value={range} onChange={(r) => { setRange(r); setPage(1) }} />
+        <Button variant="outline" size="sm" onClick={load} disabled={loading}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /></Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2 text-xs">
+        <Badge variant="secondary">{faDigits(total)} رکورد در بازه</Badge>
+        {view !== 'rejected' && <Badge variant={unmatchedCount ? 'destructive' : 'secondary'}>{faDigits(unmatchedCount)} بدون تطبیق</Badge>}
+        {view !== 'rejected' && <Badge variant={ambiguousCount ? 'destructive' : 'secondary'}>{faDigits(ambiguousCount)} تطبیق مبهم</Badge>}
+        <span className="text-[11px] text-muted-foreground leading-5">این بخش سابقهٔ خام و قابل‌ردیابی دستگاه است — رکوردهای بدون تطبیق حذف نمی‌شوند و برای بررسی مدیر قابل‌مشاهده‌اند. رکورد عملیاتی (لایهٔ حضور و غیاب) در تب «ترددها (عملیاتی)» است.</span>
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          <div className="max-h-[65vh] overflow-auto">
+            {view === 'rejected' ? (
+              <Table>
+                <TableHeader className="sticky top-0 bg-background z-10">
+                  <TableRow>
+                    <TableHead>زمان دریافت</TableHead><TableHead>سریال دستگاه</TableHead><TableHead>شماره پرسنلی دستگاه</TableHead>
+                    <TableHead>علت رد</TableHead><TableHead>مهر زمانی خام</TableHead><TableHead>رد خام</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rejectedRows.map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell className="text-xs whitespace-nowrap" dir="ltr">{faDigits(r.receivedAt.replace('T', ' ').slice(0, 16))}</TableCell>
+                      <TableCell className="text-xs" dir="ltr">{r.deviceSerial || '—'}</TableCell>
+                      <TableCell className="text-xs" dir="ltr">{r.enrollNumber ?? '—'}</TableCell>
+                      <TableCell className="text-xs">{REJECT_FA[r.rejectReason] ?? r.rejectReason}</TableCell>
+                      <TableCell className="text-xs" dir="ltr">{r.punchTimeRaw ?? '—'}</TableCell>
+                      <TableCell className="text-[10px] font-mono text-muted-foreground max-w-40 truncate" dir="ltr" title={r.rawPayload ?? ''}>{r.rawPayload ?? '—'}</TableCell>
+                    </TableRow>
+                  ))}
+                  {rejectedRows.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">رکورد قرنطینه‌ای در این بازه نیست</TableCell></TableRow>}
+                </TableBody>
+              </Table>
+            ) : (
+              <Table>
+                <TableHeader className="sticky top-0 bg-background z-10">
+                  <TableRow>
+                    <TableHead>زمان دستگاه</TableHead><TableHead>شماره پرسنلی دستگاه</TableHead><TableHead>وضعیت تطبیق</TableHead>
+                    <TableHead>پرسنل نرم‌افزار</TableHead><TableHead>پروتکل</TableHead><TableHead>مقادیر خام</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell className="text-xs whitespace-nowrap">{formatJalaliInstant(new Date(r.punchTime))}<span className="block text-[10px] text-muted-foreground" dir="ltr">{r.punchTimeRaw ?? ''}</span></TableCell>
+                      <TableCell className="text-xs" dir="ltr">{r.enrollNumber ?? '—'}</TableCell>
+                      <TableCell>
+                        <Badge variant={r.matchStatus === 'MATCHED' ? 'secondary' : 'destructive'} className="text-[11px]">{MATCH_FA[r.matchStatus] ?? r.matchStatus}</Badge>
+                        {r.matchNote && <span className="block text-[10px] text-muted-foreground mt-0.5" title={r.matchNote}>{r.matchNote}</span>}
+                      </TableCell>
+                      <TableCell className="text-xs">{personOf(r.personnelId) ? full_name(personOf(r.personnelId)) : '—'}</TableCell>
+                      <TableCell className="text-xs" dir="ltr">{r.sourceProtocol}</TableCell>
+                      <TableCell className="text-[10px] font-mono text-muted-foreground" dir="ltr">inOut={r.inOutModeRaw} verify={r.verifyModeRaw}{r.workCode ? ` work=${r.workCode}` : ''}</TableCell>
+                    </TableRow>
+                  ))}
+                  {rows.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">رکوردی در این بازه نیست</TableCell></TableRow>}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {pages > 1 && (
+        <div className="flex items-center justify-between text-xs">
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>قبلی</Button>
+          <span>صفحهٔ {faDigits(page)} از {faDigits(pages)}</span>
+          <Button variant="outline" size="sm" disabled={page >= pages} onClick={() => setPage(page + 1)}>بعدی</Button>
+        </div>
+      )}
     </div>
   )
 }
