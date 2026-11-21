@@ -55,6 +55,7 @@ function check(name: string, cond: boolean, detail?: string) {
 }
 const badLines = (r: VerifyResult) => r.lines.filter((l) => l.level === 'bad').map((l) => l.text)
 const badText = (r: VerifyResult) => badLines(r).join(' | ')
+const norm = (s: string) => s.replace(/\\/g, '/') // windows messages use backslashes — assertions must be separator-agnostic
 
 /* ---------- tree builder: a node_modules skeleton in a temp dir ---------- */
 function mkTree(files: Record<string, string | Buffer>): string {
@@ -112,7 +113,7 @@ section('win32-x64 — کلاینت تولیدشده ناموجود (موتور 
   check('شکست گزارش می‌شود', r.critical === true)
   check('دقیقاً قلم generated-client مفقود است', r.prisma.missing.includes('generated-client'), JSON.stringify(r.prisma.missing))
   check('پیام اختصاصی کلاینت (نه پیام کلی)', badText(r).includes('prisma generate') && badText(r).includes('index.js'))
-  check('پیام، مسیر واقعی generator را می‌گوید', badText(r).includes('.prisma/client'))
+  check('پیام، مسیر واقعی generator را می‌گوید', norm(badText(r)).includes('.prisma/client'))
 }
 
 section('win32-x64 — پوشهٔ engines موجود اما بدون فایل موتور')
