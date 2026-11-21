@@ -79,3 +79,9 @@ server.log
 # the repository owner (SDK package licensee) directed that the installer
 # must carry them so no manual DLL copy is ever needed. Do NOT add other
 # vendor DLLs here — bin/ is closed under PE-import analysis.
+
+# Phase 1 (v1.8.0-dev) — runtime installer artifacts, never committed
+/.build-lock.json
+/.build-lock.stale-*
+FIRST-LOGIN.txt
+/db/backups/

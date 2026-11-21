@@ -1,6 +1,9 @@
-import { randomBytes, scryptSync, timingSafeEqual } from 'crypto'
+import { randomBytes } from 'crypto'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
+// Phase 1 (v1.8.0-dev): the hash functions live in the pure-crypto module
+// (importable from CLI scripts); re-exported here for the existing callers.
+export { hashPassword, verifyPassword } from './auth-hash'
 
 export const SESSION_COOKIE = 'hozorplus_session'
 const SESSION_DAYS = 7
@@ -13,20 +16,6 @@ export interface SessionUser {
   role: Role
   fullName: string
   personId: string | null
-}
-
-export function hashPassword(password: string): string {
-  const salt = randomBytes(16).toString('hex')
-  const hash = scryptSync(password, salt, 64).toString('hex')
-  return `${salt}:${hash}`
-}
-
-export function verifyPassword(password: string, stored: string): boolean {
-  const [salt, hash] = stored.split(':')
-  if (!salt || !hash) return false
-  const candidate = scryptSync(password, salt, 64)
-  const original = Buffer.from(hash, 'hex')
-  return candidate.length === original.length && timingSafeEqual(candidate, original)
 }
 
 export async function createSession(userId: string): Promise<string> {

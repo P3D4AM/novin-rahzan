@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { SessionUser, Bootstrap, api, Person, ROLE_FA, full_name, Role } from './types'
 import { faDigits } from './jalali-ui'
 import { useToast } from '@/hooks/use-toast'
-import { Save, Plus, Trash2, Loader2, Bell, Shield, Building, Percent } from 'lucide-react'
+import { Save, Plus, Trash2, Loader2, Bell, Shield, Building, Percent, Database, HardDriveDownload, DatabaseBackup, AlertTriangle } from 'lucide-react'
 
 interface Props { user: SessionUser; boot: Bootstrap; reloadBoot: () => void }
 
@@ -34,11 +34,13 @@ export function SettingsView({ user, boot, reloadBoot }: Props) {
         <TabsTrigger value="notifications">اعلان‌های هوشمند</TabsTrigger>
         <TabsTrigger value="users">کاربران و نقش‌ها</TabsTrigger>
         <TabsTrigger value="audit">گزارش فعالیت</TabsTrigger>
+        {user.role === 'SUPER_ADMIN' && <TabsTrigger value="database">مدیریت دیتابیس</TabsTrigger>}
       </TabsList>
       <TabsContent value="general"><GeneralTab boot={boot} reloadBoot={reloadBoot} /></TabsContent>
       <TabsContent value="notifications"><RulesTab boot={boot} reloadBoot={reloadBoot} /></TabsContent>
       <TabsContent value="users"><UsersTab boot={boot} reloadBoot={reloadBoot} /></TabsContent>
       <TabsContent value="audit"><AuditTab /></TabsContent>
+      {user.role === 'SUPER_ADMIN' && <TabsContent value="database"><DatabaseTab /></TabsContent>}
     </Tabs>
   )
 }
@@ -275,6 +277,220 @@ function UsersTab({ boot, reloadBoot }: { boot: Bootstrap; reloadBoot: () => voi
         </DialogContent>
       </Dialog>
     </Card>
+  )
+}
+
+/* -------- database management (Phase 1 — SUPER_ADMIN only) -------- */
+interface DbStatusRes {
+  status: {
+    dbPath: string | null
+    dbExists: boolean
+    sizeBytes: number | null
+    schemaOk: boolean
+    hasBusinessData: boolean
+    counts: {
+      users: number; superAdmins: number; personnel: number; punches: number; rawPunches: number
+      dailyAttendance: number; leaveRequests: number; overtimeRequests: number
+      devices: number; shifts: number; auditLog: number
+    } | null
+    lastBackupAt: string | null
+    lastBackupPath: string | null
+    backupDir: string | null
+    backups: Array<{ file: string; bytes: number; at: string }>
+  }
+}
+
+const DELETED_FA = 'پرسنل و پرونده‌ها، ترددها و ترددهای خام، کارکرد روزانه، مرخصی‌ها و مأموریت‌ها، اضافه‌کاری‌ها، شیفت‌ها و تخصیص‌ها، تعطیلات، انواع مرخصی، ساختار سازمانی (دپارتمان/عنوان/نوع استخدام)'
+const KEPT_FA = 'حساب‌های کاربری و رمزهای آن‌ها (ورود شما حفظ می‌شود)، دستگاه‌ها و تنظیمات اتصال و رمز شبکهٔ آن‌ها، تنظیمات نرم‌افزار (نام سازمان، کلید پیامک و…)، قوانین اعلان، سابقهٔ ممیزی'
+
+function DbCountCard({ label, value }: { label: string; value?: number }) {
+  return (
+    <div className="rounded-lg bg-muted/40 p-3 min-w-24">
+      <div className="text-lg font-bold">{value == null ? '—' : faDigits(value)}</div>
+      <div className="text-[11px] text-muted-foreground">{label}</div>
+    </div>
+  )
+}
+
+function DatabaseTab() {
+  const { toast } = useToast()
+  const [st, setSt] = useState<DbStatusRes['status'] | null>(null)
+  const [loadErr, setLoadErr] = useState('')
+  const [busy, setBusy] = useState(false)
+  // destructive-op dialog state: which op + which stage
+  const [op, setOp] = useState<'reset' | 'seed' | null>(null)
+  const [stage, setStage] = useState<'info' | 'confirm' | 'running' | 'done'>('info')
+  const [phrase, setPhrase] = useState('')
+  const [result, setResult] = useState<string>('')
+
+  const load = async () => {
+    try {
+      setLoadErr('')
+      const r = await api<DbStatusRes>('/api/db-admin')
+      setSt(r.status)
+    } catch (err) {
+      setLoadErr(err instanceof Error ? err.message : 'خطا')
+    }
+  }
+
+  useEffect(() => { load() }, [])
+
+  const runBackup = async () => {
+    setBusy(true)
+    try {
+      const r = await api<{ backup: { path: string; bytes: number } }>('/api/db-admin', { method: 'POST', body: JSON.stringify({ action: 'backup' }) })
+      toast({ title: 'پشتیبان گرفته شد', description: `${faDigits(r.backup.bytes)} بایت — ${r.backup.path}` })
+      load()
+    } catch (err) {
+      toast({ title: 'خطا در پشتیبان‌گیری', description: err instanceof Error ? err.message : '', variant: 'destructive' })
+    } finally { setBusy(false) }
+  }
+
+  const CONFIRM = op === 'reset' ? 'پاک‌سازی' : 'نصب نمونه'
+
+  const startOp = (which: 'reset' | 'seed') => {
+    setOp(which); setStage('info'); setPhrase(''); setResult('')
+  }
+
+  const execOp = async () => {
+    setStage('running')
+    try {
+      const r = await api<{ backup?: { path: string; bytes: number } | null; wiped?: Record<string, number>; seeded?: { persons: number; punches: number; usersCreated: string[] } }>('/api/db-admin', {
+        method: 'POST', body: JSON.stringify({ action: op, confirm: phrase }),
+      })
+      const lines: string[] = []
+      if (r.backup) lines.push(`پشتیبان: ${r.backup.path} (${faDigits(r.backup.bytes)} بایت)`)
+      if (r.wiped) lines.push(`حذف شد: ${faDigits(r.wiped.personnel ?? 0)} پرسنل، ${faDigits(r.wiped.punchRecord ?? 0)} تردد، ${faDigits(r.wiped.dailyAttendance ?? 0)} کارکرد روزانه`)
+      if (r.seeded) lines.push(`ایجاد شد: ${faDigits(r.seeded.persons)} پرسنل و ${faDigits(r.seeded.punches)} تردد نمونه`)
+      setResult(lines.join('\n'))
+      setStage('done')
+      load()
+    } catch (err) {
+      setStage('confirm')
+      toast({ title: 'عملیات ناموفق بود', description: err instanceof Error ? err.message : '', variant: 'destructive' })
+    }
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-4 max-w-4xl">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2"><Database className="h-4 w-4 text-primary" /> وضعیت دیتابیس</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {loadErr && <div className="text-sm text-destructive">{loadErr}</div>}
+          {!st && !loadErr && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> در حال خواندن…</div>}
+          {st && (
+            <>
+              <div className="text-xs text-muted-foreground">فایل: <span dir="ltr">{st.dbPath ?? '—'}</span></div>
+              <div className="flex gap-2 flex-wrap">
+                <DbCountCard label="پرسنل" value={st.counts?.personnel} />
+                <DbCountCard label="ترددها" value={st.counts?.punches} />
+                <DbCountCard label="تردد خام" value={st.counts?.rawPunches} />
+                <DbCountCard label="کارکرد روزانه" value={st.counts?.dailyAttendance} />
+                <DbCountCard label="کاربران" value={st.counts?.users} />
+                <DbCountCard label="دستگاه‌ها" value={st.counts?.devices} />
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                حجم فایل فقط اطلاعات است و معیار تشخیص خالی‌بودن دیتابیس نیست؛ تشخیص بر اساس تعداد رکوردهای واقعی انجام می‌شود.
+              </div>
+              <div className="border-t pt-3 space-y-2">
+                <div className="text-sm">آخرین پشتیبان: {st.lastBackupAt ? faDigits(st.lastBackupAt.replace('T', ' ').slice(0, 16)) : '—'}</div>
+                {st.backups.length > 0 && (
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    {st.backups.slice(0, 5).map((b) => <div key={b.file} dir="ltr" className="truncate">{b.file} — {faDigits(b.bytes)} bytes</div>)}
+                  </div>
+                )}
+                <div className="text-[11px] text-muted-foreground">بازیابی دستی: برنامه را STOP کنید، فایل پشتیبان را جای db/custom.db قرار دهید و START کنید.</div>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><DatabaseBackup className="h-4 w-4 text-primary" /> پشتیبان‌گیری</CardTitle></CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-2">یک Snapshot سازگار و قابل‌بازیابی از کل دیتابیس در پوشهٔ db/backups ایجاد می‌کند.</p>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={runBackup} disabled={busy} className="gap-1.5">
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <HardDriveDownload className="h-4 w-4" />} تهیه پشتیبان
+            </Button>
+            <Button variant="ghost" size="sm" onClick={load} disabled={busy}>به‌روزرسانی وضعیت</Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-destructive/40">
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2 text-destructive"><AlertTriangle className="h-4 w-4" /> عملیات مخرب (فقط مدیر ارشد)</CardTitle></CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <p className="text-sm">پاک‌سازی کامل اطلاعات و ایجاد دیتابیس خالی (اسکیما باقی می‌ماند).</p>
+            <Button variant="destructive" onClick={() => startOp('reset')} className="gap-1"><Trash2 className="h-4 w-4" /> پاک‌سازی دیتابیس</Button>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm">نصب اطلاعات نمونه (Demo) برای آزمایش نرم‌افزار.</p>
+            <Button variant="outline" onClick={() => startOp('seed')} className="gap-1"><Database className="h-4 w-4" /> نصب اطلاعات نمونه</Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!op} onOpenChange={(o) => { if (!o && stage !== 'running') { setOp(null) } }}>
+        <DialogContent dir="rtl" className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{op === 'reset' ? 'پاک‌سازی کامل دیتابیس' : 'نصب اطلاعات نمونه'}</DialogTitle>
+          </DialogHeader>
+
+          {stage === 'info' && (
+            <div className="space-y-3">
+              <div className="rounded-md bg-destructive/10 border border-destructive/30 p-3 text-sm space-y-1">
+                <div className="font-bold text-destructive">حذف می‌شود:</div>
+                <div>{DELETED_FA}</div>
+              </div>
+              <div className="rounded-md bg-muted/60 border p-3 text-sm space-y-1">
+                <div className="font-bold">حفظ می‌شود:</div>
+                <div>{KEPT_FA}</div>
+              </div>
+              <p className="text-xs text-muted-foreground">قبل از اجرا، به‌طور خودکار یک پشتیبان قابل‌بازیابی تهیه می‌شود و مسیر آن نمایش داده خواهد شد. عملیات در AuditLog ثبت می‌شود.</p>
+              {op === 'seed' && <p className="text-xs text-muted-foreground">حساب‌های نمونه فقط برای نام‌های کاربری آزاد ساخته می‌شوند؛ رمز حساب‌های موجود تغییر نمی‌کند.</p>}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOp(null)}>انصراف</Button>
+                <Button variant={op === 'reset' ? 'destructive' : 'default'} onClick={() => setStage('confirm')}>متوجه‌ام، ادامه</Button>
+              </DialogFooter>
+            </div>
+          )}
+
+          {stage === 'confirm' && (
+            <div className="space-y-3">
+              <div className="text-sm font-bold">تأیید نهایی</div>
+              <div className="text-xs text-muted-foreground">برای تأیید، عبارت زیر را دقیقاً وارد کنید:</div>
+              <div className="text-center text-lg font-bold select-none rounded bg-muted/60 border py-2" dir="rtl">{CONFIRM}</div>
+              <Input value={phrase} onChange={(e) => setPhrase(e.target.value)} placeholder="عبارت تأیید" autoFocus />
+              <div className="text-xs text-destructive">این عملیات قابل بازگشت با پشتیبان است اما داده‌های فعلی بالفعل حذف/جایگزین می‌شوند.</div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOp(null)}>انصراف</Button>
+                <Button variant={op === 'reset' ? 'destructive' : 'default'} disabled={phrase.trim() !== CONFIRM || busy} onClick={execOp} className="gap-1.5">
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} اجرای نهایی
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+
+          {stage === 'running' && (
+            <div className="flex items-center gap-3 py-6 justify-center text-sm"><Loader2 className="h-5 w-5 animate-spin" /> در حال اجرای عملیات… (چند لحظه)</div>
+          )}
+
+          {stage === 'done' && (
+            <div className="space-y-3">
+              <div className="text-sm font-bold text-green-600">عملیات انجام شد.</div>
+              {result && <div className="text-xs text-muted-foreground whitespace-pre-line">{result}</div>}
+              {op === 'reset' && <div className="text-xs text-muted-foreground">برای ادامه، دوباره وارد شوید (نشست‌ها پاک شده‌اند) — حساب و رمز فعلی شما همان است.</div>}
+              <DialogFooter><Button onClick={() => setOp(null)}>بستن</Button></DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
 

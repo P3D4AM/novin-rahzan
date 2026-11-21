@@ -44,8 +44,14 @@ function start(args, name) {
 
 const rtPort = process.env.RT_PORT || '3003'
 
+// v1.8.0-dev (Phase 1): the runtime banner prints the REAL version from
+// package.json — same single source of truth as INSTALL.bat, no drift.
+const appVersion = (() => {
+  try { return require(path.join(root, 'package.json')).version } catch { return '?' }
+})()
+
 console.log('==========================================================')
-console.log('  HozorPlus | حضور+  —  production server')
+console.log(`  HozorPlus | حضور+  —  production server  v${appVersion}`)
 console.log('----------------------------------------------------------')
 console.log(`  Web UI    : http://localhost:${port}`)
 console.log(`  Realtime  : socket.io on port ${rtPort}`)

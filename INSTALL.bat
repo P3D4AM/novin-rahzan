@@ -6,6 +6,11 @@ cd /d "%~dp0"
 REM ---- resolve install folder (parent of this script) ----
 for %%I in ("%~dp0.") do set "ROOT=%%~fI"
 
+REM ---- app version comes from package.json (single source of truth — never hardcode) ----
+set "APPVER="
+for /f "delims=" %%v in ('node -p "require('./package.json').version"') do set "APPVER=%%v"
+if not defined APPVER set "APPVER=?"
+
 REM ---- SQLite URL with forward slashes and %20 for spaces ----
 set "DBURL=file:%ROOT%\db\custom.db"
 set "DBURL=!DBURL:\=/!"
@@ -13,7 +18,7 @@ set "DBURL=!DBURL: =%%20!"
 set "DATABASE_URL=!DBURL!"
 
 echo ==========================================================
-echo   HozorPlus  -  Attendance Management System  v1.7.0
+echo   HozorPlus  -  Attendance Management System  v!APPVER!
 echo   Windows Installer
 echo ==========================================================
 echo.
@@ -32,7 +37,7 @@ echo         ^(e.g. C:\HozorPlus^). Internet is required once for setup.
 echo.
 
 REM ================== 1) Node.js ==================
-echo [1/7] Checking Node.js ...
+echo [1/8] Checking Node.js ...
 where node >nul 2>nul
 if errorlevel 1 (
     echo.
@@ -72,63 +77,111 @@ for /f "delims=" %%v in ('node -v') do echo   [OK] Node.js %%v
 
 REM ================== 2) packages ==================
 echo.
-echo [2/7] Installing npm packages  (5-10 minutes, one time only) ...
-call npm install --no-audit --no-fund
+echo [2/8] Installing npm packages  (5-10 minutes, one time only) ...
+REM --ignore-scripts=false: even if the machine's npm policy disables install
+REM scripts, the native dependencies (SWC, esbuild, sharp, Prisma engines) MUST
+REM be allowed to install properly.
+call npm install --no-audit --no-fund --ignore-scripts=false
 if errorlevel 1 goto :fail
+
+echo.
+echo [2/8] Verifying native dependencies ...
+node scripts\verify-native.js
+if errorlevel 1 (
+    echo   [!] A critical native dependency is missing - see the message above.
+    echo       Fix the npm scripts policy and run INSTALL.bat again.
+    goto :fail
+)
 
 REM ================== 3) prisma client ==================
 echo.
-echo [3/7] Generating Prisma client ...
+echo [3/8] Generating Prisma client ...
 call npx prisma generate
 if errorlevel 1 goto :fail
 
-REM ================== 4) database ==================
+REM ================== 4) database schema ==================
 echo.
-echo [4/7] Creating SQLite database ...
+echo [4/8] Creating SQLite database schema ...
 if not exist "%ROOT%\db" mkdir "%ROOT%\db"
 call npx prisma db push --skip-generate
 if errorlevel 1 goto :fail
 
-REM ================== 5) .env ==================
+REM ================== 5) .env (PRESERVE existing variables) ==================
 echo.
-echo [5/7] Writing .env ...
-> "%ROOT%\.env" echo DATABASE_URL=!DBURL!
-echo   [OK] !DBURL!
-
-REM ================== 6) demo data ==================
-echo.
-echo [6/7] Demo data ...
-set "SEED=yes"
-if exist "%ROOT%\db\custom.db" (
-    for %%F in ("%ROOT%\db\custom.db") do set "DBSIZE=%%~zF"
-    if !DBSIZE! GTR 100000 (
-        set "SEED=skip"
-        echo   An existing database was found ^(!DBSIZE! bytes^).
-        set /p "ASK=   Reset it and load fresh demo data? [y/N]: "
-        if /i "!ASK!"=="y" set "SEED=yes"
-    )
-)
-if "!SEED!"=="yes" (
-    call npx tsx scripts\seed.ts
-    if errorlevel 1 goto :fail
-) else (
-    echo   Skipped - keeping existing data.
-)
-
-REM ================== 7) build ==================
-echo.
-echo [7/7] Building production bundle  (a few minutes) ...
-call npm run build
+echo [5/8] Writing .env (existing variables and secrets are preserved) ...
+node scripts\env-ensure.js "DATABASE_URL=!DBURL!"
 if errorlevel 1 goto :fail
 
+REM ================== 6) database init ==================
+REM Phase 1 rules:
+REM   * database content is detected from REAL row counts - NEVER from the
+REM     file size (a small file is NOT an empty database)
+REM   * an existing database is KEPT by default
+REM   * reset/demo-seed requires explicit confirmation and takes a backup first
+echo.
+echo [6/8] Initializing database ...
+set "DB_STATE="
+for /f "usebackq delims=" %%L in (`call npx tsx scripts\db-admin.ts status 2^>^&1 ^| findstr /B "DB_STATE="`) do set "%%L"
+if not defined DB_STATE (
+    echo   [ERROR] Database status could not be read.
+    goto :fail
+)
+echo   Database state: !DB_STATE!
+
+if "!DB_STATE!"=="DATA" (
+    echo.
+    echo   An existing database was found ^(persons / punches / attendance^).
+    echo   Default: your data is KEPT - nothing is deleted.
+    set "ASK="
+    set /p "ASK=   Reset the database and load fresh DEMO data? [y/N]: "
+    if /i "!ASK!"=="y" (
+        call npx tsx scripts\db-admin.ts seed --yes
+        if errorlevel 1 goto :fail
+        set "DBMODE=DEMO"
+    ) else (
+        echo   Keeping the existing data untouched.
+        set "DBMODE=KEEP"
+    )
+) else (
+    echo.
+    echo   Choose the initial database content:
+    echo     [1] Empty database  ^(recommended - schema ready, no sample data^)
+    echo     [2] Demo data       ^(sample organization for trying the software^)
+    set "DBMODE="
+    set /p "DBMODE=   Enter 1 or 2 [default 1]: "
+    if "!DBMODE!"=="2" (
+        call npx tsx scripts\db-admin.ts seed --yes
+        if errorlevel 1 goto :fail
+        set "DBMODE=DEMO"
+    ) else (
+        call npx tsx scripts\db-admin.ts ensure-admin
+        if errorlevel 1 goto :fail
+        set "DBMODE=EMPTY"
+    )
+)
+
+REM ================== 7) build (serialized, lock-guarded) ==================
+echo.
+echo [7/8] Building production bundle  (a few minutes) ...
+node scripts\build-with-lock.js
+if errorlevel 1 goto :fail
+
+REM ================== 8) done ==================
 echo.
 echo ==========================================================
-echo   INSTALLATION COMPLETE
+echo   INSTALLATION COMPLETE  -  HozorPlus v!APPVER!
 echo ==========================================================
 echo.
 echo   1.  Double-click  START.bat  to run the application
 echo   2.  The browser opens at  http://localhost:3000
-echo   3.  Login:  admin / admin123      ^(more in README.md^)
+if "!DBMODE!"=="DEMO" (
+    echo   3.  Demo login:  admin / admin123      ^(more in README.md^)
+) else if "!DBMODE!"=="EMPTY" (
+    echo   3.  First login: open the file  db\FIRST-LOGIN.txt
+    echo       ^(a random admin password was generated for you^)
+) else (
+    echo   3.  Login with your existing user accounts ^(data was preserved^)
+)
 echo.
 echo   To stop the app: close the server window or run STOP.bat
 echo   On first run Windows Firewall may ask for permission -
@@ -157,5 +210,6 @@ echo   Common fixes:
 echo     - check your internet connection
 echo     - extract to a short path without spaces ^(C:\HozorPlus^)
 echo     - make sure Node.js 20+ is installed ^(node -v^)
+echo     - if a previous installation is RUNNING, close it first
 pause
 exit /b 1
