@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toGregorian, jalaaliMonthLength } from 'jalaali-js'
 import { CalendarDays, ChevronLeft, ChevronRight, Clock } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -13,7 +13,7 @@ import {
   formatJalaliMarker,
   faDigits as faDigitsCentral,
 } from '@/lib/time'
-import { parseHHMM, minutesToHHMM, normalizeTimeDraft } from '@/lib/shift-time'
+import { parseHHMM, minutesToHHMM, normalizeTimeDraft, draftValidity } from '@/lib/shift-time'
 
 export const FA_MONTHS = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -109,7 +109,7 @@ export function TimeInput({ value, onChange }: { value: string; onChange: (v: st
   )
 }
 
-/* ---------- ShiftTimePicker (Phase 3, item 9) ----------
+/* ---------- ShiftTimePicker (Phase 3, item 9 + Stage 7 review fix) ----------
  * The shift-dialog time control: MANUAL HH:MM typing AND list-based
  * hour/minute selection, value contract = minutes-of-day (number).
  *
@@ -118,20 +118,39 @@ export function TimeInput({ value, onChange }: { value: string; onChange: (v: st
  * stored 49 800 minutes and corrupted the saved shift. This component
  * never propagates an unparseable draft: only a VALID parsed time reaches
  * onChange; an invalid draft shows a Persian error and reverts on blur.
+ *
+ * Stage 7 review fix — the defect this closes: an INVALID draft ('25:99')
+ * used to live ONLY in this component's internal state; the parent form
+ * kept the last VALID minutes, so its validator kept passing and the save
+ * button stayed enabled (the stale previous value could be saved).
+ * The picker now REPORTS the draft's validity to the parent via
+ * onValidityChange (true = valid / blank / abandoned, false = unparseable
+ * draft sitting in the input); the parent aggregates ALL pickers and must
+ * block save while ANY one reports false.
  */
 export function ShiftTimePicker({
   minutes,
   onChange,
+  onValidityChange,
   ariaLabel,
 }: {
   /** stored value: minutes-of-day 0..1439; null = nothing chosen yet */
   minutes: number | null
   onChange: (minutes: number) => void
+  /** Draft-validity report to the parent form (see the header above). */
+  onValidityChange?: (valid: boolean) => void
   ariaLabel?: string
 }) {
   const [draft, setDraft] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [open, setOpen] = useState(false)
+  // latest-ref so the unmount release never fires a stale closure
+  const onValidityRef = useRef(onValidityChange)
+  useEffect(() => { onValidityRef.current = onValidityChange })
+  // on unmount, release this picker's invalid-draft flag in the parent map —
+  // a removed/abandoned picker must not keep the parent's save gate closed
+  useEffect(() => () => { onValidityRef.current?.(true) }, [])
+  const report = (valid: boolean) => { onValidityRef.current?.(valid) }
 
   const text = draft ?? (minutes == null ? '' : minutesToHHMM(minutes))
   const curH = minutes == null ? 0 : Math.floor(minutes / 60)
@@ -140,6 +159,8 @@ export function ShiftTimePicker({
   const onTyping = (raw: string) => {
     const cleaned = normalizeTimeDraft(raw)
     setDraft(cleaned)
+    // the draft gate: '' counts as valid (the stored value stands)
+    report(draftValidity(cleaned))
     if (cleaned === '') { setError(''); return } // empty draft keeps the stored value
     const r = parseHHMM(cleaned)
     if (r.ok) { setError(''); onChange(r.minutes) } else setError(r.error)
@@ -149,10 +170,11 @@ export function ShiftTimePicker({
     // abandon an invalid edit — display goes back to the stored minutes
     setDraft(null)
     setError('')
+    report(true)
   }
 
-  const pickHour = (h: number) => { setError(''); setDraft(null); onChange(h * 60 + curM) }
-  const pickMinute = (m: number) => { setError(''); setDraft(null); setOpen(false); onChange(curH * 60 + m) }
+  const pickHour = (h: number) => { setError(''); setDraft(null); report(true); onChange(h * 60 + curM) }
+  const pickMinute = (m: number) => { setError(''); setDraft(null); setOpen(false); report(true); onChange(curH * 60 + m) }
 
   return (
     <div className="w-full">

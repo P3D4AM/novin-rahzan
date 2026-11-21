@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,7 +16,11 @@ import { SessionUser, Bootstrap, api, Person, full_name } from './types'
 import { MonthPicker, monthGrid, monthLabel, WEEKDAY_HEADERS, faDigits, JalaliDateInput, minutesToHM, durationFa, ShiftTimePicker } from './jalali-ui'
 // Phase 3, item 9: the shift-dialog time control delegates to ONE pure module —
 // the same gate runs in the form AND on the server (/api/shifts).
-import { crossesMidnight, shiftSegmentSpan, validateShiftSegments } from '@/lib/shift-time'
+// Stage 7 review fix: the module also carries the DRAFT-validity gate — the
+// pickers report their edit-in-progress validity, the parent aggregates it
+// (setDraftValidity/hasInvalidDrafts) and refuses to save while ANY picker
+// holds an unparseable draft.
+import { crossesMidnight, shiftSegmentSpan, validateShiftSegments, setDraftValidity, hasInvalidDrafts, type DraftValidityMap } from '@/lib/shift-time'
 import { useToast } from '@/hooks/use-toast'
 import { Plus, Trash2, Pencil, Repeat, CalendarDays, Loader2, Sparkles } from 'lucide-react'
 import { toGregorian } from 'jalaali-js'
@@ -50,21 +54,40 @@ function ShiftsTab({ user, boot, reloadBoot }: Props) {
   const { toast } = useToast()
   const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
 
-  const blank = {
+  // Stage 7 review fix — stable per-segment identity: rows are keyed by _id so
+  // removing one row unmounts EXACTLY that row's pickers (an invalid draft can
+  // never "move" onto another segment when rows shift up), and every form
+  // (re)load gets fresh ids → fresh pickers → no stale drafts. _id is local to
+  // the dialog form only; the API contract is unchanged (the server maps
+  // explicit fields only, and validateShiftSegments ignores extras).
+  const segUid = useRef(0)
+  const newSeg = () => ({ _id: ++segUid.current, startMin: 480, endMin: 720, breakMin: 0 })
+  const blankForm = () => ({
     name: '', color: COLORS[0], type: 'FIXED', lateGraceMin: 10, earlyGraceMin: 10, overtimeEligible: true,
-    segments: [{ startMin: 480, endMin: 990, breakMin: 60 }],
-  }
-  const [form, setForm] = useState({ ...blank })
-  // live validation — the ذخیره button is disabled while any بازه is invalid
-  const segValidation = validateShiftSegments(form.segments)
+    segments: [newSeg()],
+  })
+  const [form, setForm] = useState(blankForm)
+  // the pickers' draft-validity aggregation — only INVALID keys are present
+  // (empty map ⇔ every picker valid). Cleared on every form (re)load; pickers
+  // release their own key on unmount (row removed / dialog closed).
+  const [invalidDrafts, setInvalidDrafts] = useState<DraftValidityMap>({})
+  const setPickerValidity = (key: string, valid: boolean) =>
+    setInvalidDrafts((prev) => setDraftValidity(prev, key, valid))
 
-  const openNew = () => { setEditing(null); setForm({ ...blank }); setOpen(true) }
+  // live validation — the ذخیره button is disabled while any بازه is invalid
+  // OR while ANY time picker holds an unparseable draft (Stage 7 review fix)
+  const segValidation = validateShiftSegments(form.segments)
+  const draftsValid = !hasInvalidDrafts(invalidDrafts)
+
+  const openNew = () => { setEditing(null); setForm(blankForm()); setInvalidDrafts({}); setOpen(true) }
   const openEdit = (s: typeof boot.shifts[number]) => {
     setEditing(s.id)
     setForm({
       name: s.name, color: s.color, type: s.type, lateGraceMin: s.lateGraceMin, earlyGraceMin: s.earlyGraceMin,
-      overtimeEligible: s.overtimeEligible, segments: s.segments.map((g) => ({ startMin: g.startMin, endMin: g.endMin, breakMin: g.breakMin })),
+      overtimeEligible: s.overtimeEligible,
+      segments: s.segments.map((g) => ({ _id: ++segUid.current, startMin: g.startMin, endMin: g.endMin, breakMin: g.breakMin })),
     })
+    setInvalidDrafts({}) // fresh ids → fresh pickers → validation starts correctly clean
     setOpen(true)
   }
 
@@ -74,6 +97,13 @@ function ShiftsTab({ user, boot, reloadBoot }: Props) {
     // server-side in /api/shifts POST/PUT (the UI gate is convenience only).
     const segv = validateShiftSegments(form.segments)
     if (!segv.ok) { toast({ title: 'ذخیره نشد — بازه زمانی نامعتبر است', description: segv.error, variant: 'destructive' }); return }
+    // Stage 7 review fix: the save HANDLER re-checks draft validity on its own —
+    // even if the disabled button were bypassed, an unparseable edit in ANY
+    // picker is refused (the stale previous value can NOT be saved).
+    if (hasInvalidDrafts(invalidDrafts)) {
+      toast({ title: 'ذخیره نشد — یک ورودی ساعت نامعتبر است', description: 'مقدار واردشده در حال ویرایش معتبر نیست (مثلاً ۲۵:۹۹). آن را اصلاح یا رها کنید.', variant: 'destructive' })
+      return
+    }
     setSaving(true)
     try {
       if (editing) await api('/api/shifts', { method: 'PUT', body: JSON.stringify({ id: editing, ...form }) })
@@ -166,19 +196,24 @@ function ShiftsTab({ user, boot, reloadBoot }: Props) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>بازه‌های زمانی</Label>
-                <Button variant="outline" size="sm" onClick={() => setForm({ ...form, segments: [...form.segments, { startMin: 480, endMin: 720, breakMin: 0 }] })} className="gap-1 h-7">
+                {/* Stage 7 review fix: new rows get a FRESH id → fresh pickers (no
+                    stale draft ever transfers); existing rows stay mounted. */}
+                <Button variant="outline" size="sm" onClick={() => setForm({ ...form, segments: [...form.segments, newSeg()] })} className="gap-1 h-7">
                   <Plus className="h-3.5 w-3.5" /> بازه جدید
                 </Button>
               </div>
               {form.segments.map((seg, i) => (
-                <div key={i} className="bg-muted/40 rounded-lg p-2.5 space-y-2">
+                <div key={seg._id} className="bg-muted/40 rounded-lg p-2.5 space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-semibold text-muted-foreground">بازه {faDigits(i + 1)}</span>
                     <div className="flex items-center gap-1.5">
                       {crossesMidnight(seg.startMin, seg.endMin) && <Badge variant="secondary" className="text-[10px]">شب‌گذر — عبور از نیمه‌شب</Badge>}
                       {seg.startMin === seg.endMin && <Badge variant="secondary" className="text-[10px]">۲۴ ساعته</Badge>}
                       {form.segments.length > 1 && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => setForm({ ...form, segments: form.segments.filter((_, j) => j !== i) })} aria-label={`حذف بازه ${i + 1}`}><Trash2 className="h-3.5 w-3.5" /></Button>
+                        // Stage 7 review fix: removal is by stable id — the removed
+                        // row's pickers unmount and release their draft validity
+                        // (no invalid draft transfers onto the row that shifts up)
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => setForm({ ...form, segments: form.segments.filter((s) => s._id !== seg._id) })} aria-label={`حذف بازه ${i + 1}`}><Trash2 className="h-3.5 w-3.5" /></Button>
                       )}
                     </div>
                   </div>
@@ -188,11 +223,13 @@ function ShiftsTab({ user, boot, reloadBoot }: Props) {
                   <div className="grid grid-cols-[1fr_1fr_5rem] gap-2">
                     <div className="space-y-1">
                       <Label className="text-xs">شروع</Label>
-                      <ShiftTimePicker ariaLabel={`ساعت شروع بازه ${i + 1}`} minutes={seg.startMin} onChange={(m) => { const segs = [...form.segments]; segs[i] = { ...seg, startMin: m }; setForm({ ...form, segments: segs }) }} />
+                      {/* Stage 7 review fix: onValidityChange reports the edit-in-
+                          progress validity → the parent blocks save while invalid */}
+                      <ShiftTimePicker ariaLabel={`ساعت شروع بازه ${i + 1}`} minutes={seg.startMin} onChange={(m) => { const segs = [...form.segments]; segs[i] = { ...seg, startMin: m }; setForm({ ...form, segments: segs }) }} onValidityChange={(v) => setPickerValidity(`${seg._id}:start`, v)} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">پایان</Label>
-                      <ShiftTimePicker ariaLabel={`ساعت پایان بازه ${i + 1}`} minutes={seg.endMin} onChange={(m) => { const segs = [...form.segments]; segs[i] = { ...seg, endMin: m }; setForm({ ...form, segments: segs }) }} />
+                      <ShiftTimePicker ariaLabel={`ساعت پایان بازه ${i + 1}`} minutes={seg.endMin} onChange={(m) => { const segs = [...form.segments]; segs[i] = { ...seg, endMin: m }; setForm({ ...form, segments: segs }) }} onValidityChange={(v) => setPickerValidity(`${seg._id}:end`, v)} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">وقفه (دقیقه)</Label>
@@ -208,13 +245,18 @@ function ShiftsTab({ user, boot, reloadBoot }: Props) {
               {!segValidation.ok && (
                 <p className="text-xs text-destructive">{segValidation.error} — تا اصلاح، ذخیره غیرفعال است.</p>
               )}
+              {!draftsValid && (
+                <p className="text-xs text-destructive">یک ورودی ساعت در حال ویرایش نامعتبر است (مثلاً ۲۵:۹۹) — تا اصلاح یا رهاکردن آن، ذخیره غیرفعال است.</p>
+              )}
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>انصراف</Button>
             {/* Phase 3, item 9: save is BLOCKED while any بازه is invalid (the
-                same validator also runs server-side — defense in depth) */}
-            <Button onClick={save} disabled={saving || !segValidation.ok}>{saving && <Loader2 className="h-4 w-4 animate-spin" />} ذخیره</Button>
+                same validator also runs server-side — defense in depth).
+                Stage 7 review fix: ALSO blocked while ANY picker holds an
+                unparseable draft — and save() re-checks both gates itself. */}
+            <Button onClick={save} disabled={saving || !segValidation.ok || !draftsValid}>{saving && <Loader2 className="h-4 w-4 animate-spin" />} ذخیره</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
