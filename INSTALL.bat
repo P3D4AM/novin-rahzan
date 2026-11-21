@@ -37,7 +37,7 @@ echo         ^(e.g. C:\HozorPlus^). Internet is required once for setup.
 echo.
 
 REM ================== 1) Node.js ==================
-echo [1/8] Checking Node.js ...
+echo [1/8] Checking Node.js and npm ...
 where node >nul 2>nul
 if errorlevel 1 (
     echo.
@@ -75,51 +75,104 @@ if !NODEMAJ! LSS 20 (
 )
 for /f "delims=" %%v in ('node -v') do echo   [OK] Node.js %%v
 
+REM ---- npm must be present too (ships with Node.js, but a broken PATH breaks it) ----
+where npm >nul 2>nul
+if errorlevel 1 (
+    echo.
+    echo   [ERROR] npm was not found on this computer.
+    echo           npm ships with Node.js - if node works but npm does not,
+    echo           your PATH is broken. Reinstall Node.js LTS from https://nodejs.org
+    echo           then run INSTALL.bat again.
+    echo.
+    pause
+    exit /b 1
+)
+for /f "delims=" %%v in ('npm -v') do echo   [OK] npm %%v
+
 REM ================== 2) packages ==================
 echo.
 echo [2/8] Installing npm packages  (5-10 minutes, one time only) ...
 REM --ignore-scripts=false: even if the machine's npm policy disables install
 REM scripts, the native dependencies (SWC, esbuild, sharp, Prisma engines) MUST
-REM be allowed to install properly.
+REM be allowed to install properly. The allowScripts field in package.json
+REM (npm 11+) pre-approves exactly the reviewed packages that need install
+REM scripts (see docs/INSTALLER-NPM-SCRIPTS.md).
 call npm install --no-audit --no-fund --ignore-scripts=false
-if errorlevel 1 goto :fail
-
-echo.
-echo [2/8] Verifying native dependencies ...
-node scripts\verify-native.js
 if errorlevel 1 (
-    echo   [!] A critical native dependency is missing - see the message above.
-    echo       Fix the npm scripts policy and run INSTALL.bat again.
+    echo.
+    echo   [ERROR] npm install failed (stage 2/8).
+    echo           Common causes: no internet connection, antivirus blocking
+    echo           node_modules writes, or a locked folder. Fix the cause above
+    echo           and run INSTALL.bat again.
     goto :fail
 )
 
 REM ================== 3) prisma client ==================
+REM ORDER FIX (v1.8.1): the Prisma client MUST be generated BEFORE the native
+REM verification runs - the verifier checks the generated client and the engine
+REM file that `prisma generate` copies into it. The old order (verify before
+REM generate) reported a healthy install as broken.
 echo.
 echo [3/8] Generating Prisma client ...
 call npx prisma generate
-if errorlevel 1 goto :fail
+if errorlevel 1 (
+    echo.
+    echo   [ERROR] Prisma Client generation failed (stage 3/8).
+    echo           The npx prisma generate output above contains the exact
+    echo           cause (schema error, engine download failure, or disk
+    echo           permission). Fix THAT cause and run INSTALL.bat again.
+    goto :fail
+)
 
-REM ================== 4) database schema ==================
+REM ================== 4) native + Prisma verification ==================
+REM Full check of the platform's native dependencies: the Prisma query engine
+REM file for THIS operating system (query_engine-windows.dll.node on Windows),
+REM the generated client, esbuild, SWC and sharp. Every [X] line names the
+REM EXACT missing item - there is no single generic fix message.
 echo.
-echo [4/8] Creating SQLite database schema ...
+echo [4/8] Verifying native dependencies and Prisma ...
+node scripts\verify-native.js
+if errorlevel 1 (
+    echo.
+    echo   [ERROR] Native dependency verification failed (stage 4/8).
+    echo           The [X] lines above state the EXACT missing item and its
+    echo           expected location. Fix that specific item and run
+    echo           INSTALL.bat again - do NOT guess a generic npm policy fix.
+    goto :fail
+)
+
+REM ================== 5) database schema ==================
+echo.
+echo [5/8] Creating SQLite database schema ...
 if not exist "%ROOT%\db" mkdir "%ROOT%\db"
 call npx prisma db push --skip-generate
-if errorlevel 1 goto :fail
+if errorlevel 1 (
+    echo.
+    echo   [ERROR] Database schema creation failed (stage 5/8).
+    echo           The prisma db push output above contains the exact cause
+    echo           ^(schema engine missing, locked .db file, bad DATABASE_URL^).
+    goto :fail
+)
 
-REM ================== 5) .env (PRESERVE existing variables) ==================
+REM ================== 6) .env (PRESERVE existing variables) ==================
 echo.
-echo [5/8] Writing .env (existing variables and secrets are preserved) ...
+echo [6/8] Writing .env (existing variables and secrets are preserved) ...
 node scripts\env-ensure.js "DATABASE_URL=!DBURL!"
-if errorlevel 1 goto :fail
+if errorlevel 1 (
+    echo.
+    echo   [ERROR] Writing .env failed (stage 6/8).
+    echo           Check disk permissions for the install folder.
+    goto :fail
+)
 
-REM ================== 6) database init ==================
+REM ================== 7) database init ==================
 REM Phase 1 rules:
 REM   * database content is detected from REAL row counts - NEVER from the
 REM     file size (a small file is NOT an empty database)
 REM   * an existing database is KEPT by default
 REM   * reset/demo-seed requires explicit confirmation and takes a backup first
 echo.
-echo [6/8] Initializing database ...
+echo [7/8] Initializing database ...
 set "DB_STATE="
 for /f "usebackq delims=" %%L in (`call npx tsx scripts\db-admin.ts status 2^>^&1 ^| findstr /B "DB_STATE="`) do set "%%L"
 if not defined DB_STATE (
@@ -160,13 +213,18 @@ if "!DB_STATE!"=="DATA" (
     )
 )
 
-REM ================== 7) build (serialized, lock-guarded) ==================
+REM ================== 8) build (serialized, lock-guarded) ==================
 echo.
-echo [7/8] Building production bundle  (a few minutes) ...
+echo [8/8] Building production bundle  (a few minutes) ...
 node scripts\build-with-lock.js
-if errorlevel 1 goto :fail
+if errorlevel 1 (
+    echo.
+    echo   [ERROR] Production build failed (stage 8/8).
+    echo           The build output above contains the exact error.
+    goto :fail
+)
 
-REM ================== 8) done ==================
+REM ================== done ==================
 echo.
 echo ==========================================================
 echo   INSTALLATION COMPLETE  -  HozorPlus v!APPVER!

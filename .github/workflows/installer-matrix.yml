@@ -1,0 +1,81 @@
+# v1.8.1 — Installer & npm compatibility matrix.
+# ================================================
+# REAL installs (no mocks) on GitHub-hosted runners. The windows-latest legs
+# reproduce the exact environment of the reported v1.8.0 failure: a REAL
+# `npm install` under npm 10/11 on Node 20/24, a REAL `npx prisma generate`
+# (which must place query_engine-windows.dll.node into node_modules/.prisma/client),
+# and the REAL scripts/verify-native.js — which under v1.8.0 falsely reported
+# this healthy state as broken.
+#
+# Assertions per leg:
+#   * npm install (the exact INSTALL.bat flags) exits 0
+#   * NO "warn install-scripts" advisory appears (allowScripts covers everything)
+#   * prisma generate exits 0
+#   * verify-native exits 0 (the v1.8.0 regression test, for real on Windows)
+#   * prisma db push --skip-generate exits 0 against a scratch SQLite file
+#   * the verifier + installer-bat test suites pass
+name: installer-matrix
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+jobs:
+  matrix:
+    name: ${{ matrix.os }} · node ${{ matrix.node }} · npm ${{ matrix.npm }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '24']
+        npm: ['10', '11']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Pin npm ${{ matrix.npm }}
+        shell: bash
+        run: |
+          npm install -g npm@${{ matrix.npm }}
+          echo "node: $(node -v)"
+          echo "npm:  $(npm -v)"
+
+      - name: npm install (the exact INSTALL.bat invocation)
+        shell: bash
+        run: |
+          set -o pipefail
+          npm install --no-audit --no-fund --ignore-scripts=false 2>&1 | tee install.log
+          if grep -q "warn install-scripts" install.log; then
+            echo "::error::install-scripts advisory still printed (allowScripts incomplete)"
+            exit 1
+          fi
+
+      - name: prisma generate (engine must land in .prisma/client)
+        shell: bash
+        run: |
+          npx prisma generate
+          ls node_modules/.prisma/client | grep -E '^(lib)?query_engine' || { echo "::error::engine file missing in .prisma/client"; exit 1; }
+          ls node_modules/@prisma/engines | grep -E '^(lib)?query_engine' || { echo "::error::engine file missing in @prisma/engines"; exit 1; }
+
+      - name: verify-native (the v1.8.0 regression check, for real)
+        shell: bash
+        run: node scripts/verify-native.js
+
+      - name: prisma db push (scratch SQLite, --skip-generate like INSTALL.bat)
+        shell: bash
+        env:
+          DATABASE_URL: file:./db/custom.db
+        run: |
+          mkdir -p db
+          npx prisma db push --skip-generate
+
+      - name: verifier + installer structure test suites
+        shell: bash
+        run: |
+          npx tsx scripts/test-verify-native.ts
+          npx tsx scripts/test-installer-bat.ts
