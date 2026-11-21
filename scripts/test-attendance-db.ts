@@ -788,6 +788,71 @@ async function main() {
       check('provenance note is identical after a rerun (deterministic)', h2 !== null && h3 !== null && h3.note === h2.note)
     })
 
+    // ------------------------------------------------------------------
+    // [Q] Phase 3 stage 4 (item 8 — empty daily attendance): EVERY
+    // shift-covered day materializes a row even WITHOUT any punch.
+    // The reported defect: "shift assigned → daily attendance view EMPTY".
+    // Root cause: the ENGINE already computes punch-less days (ABSENT/OFF/
+    // HOLIDAY/LEAVE) — but nothing TRIGGERED recalcRange unless punches
+    // arrived or an assignment was made. The personnel default-shift change
+    // now recalcs [effectiveFrom..today] and the DailyTab exposes the admin
+    // range-recalc operation (POST /api/attendance). This section pins the
+    // ENGINE guarantee those triggers rely on.
+    // ------------------------------------------------------------------
+    await section('Q. item 8: punch-less coverage — every shift-covered day gets its row (ABSENT/OFF/HOLIDAY/LEAVE), idempotent', async () => {
+      const pQ = await db.personnel.create({ data: { personnelCode: 'P3-Q', pin: '9511', firstName: 'قد', lastName: 'ها', defaultShiftId: dayShift.id } })
+      // a past full Iranian week Sat..Fri (2026-11-07 .. 2026-11-13), NO punches at all
+      const qFrom = MK(2026, 11, 7)
+      const qTo = MK(2026, 11, 13)
+      // an approved DAILY leave on Tue 11-10 and an official holiday on Wed 11-11
+      const leaveTypeQ = await db.leaveType.create({ data: { name: 'استحقاقی Q', paid: true, countsTowardsBalance: true } })
+      await db.leaveRequest.create({
+        data: {
+          personId: pQ.id, leaveTypeId: leaveTypeQ.id, kind: 'DAILY',
+          startDateTime: TEHRAN(2026, 11, 10, 0, 0), endDateTime: TEHRAN(2026, 11, 10, 23, 59),
+          durationMinutes: 480, reason: 'تست', status: 'APPROVED',
+          decidedAt: TEHRAN(2026, 11, 9, 10, 0),
+        },
+      })
+      await db.holiday.create({ data: { date: MK(2026, 11, 11), title: 'تعطیلی تست', type: 'OFFICIAL' } })
+
+      const n = await recalcRange([pQ.id], qFrom, qTo)
+      check('recalcRange materialized exactly 7 person-days (one per day, NO punches anywhere)', n === 7, `n=${n}`)
+
+      const rowOf = async (d: Date) => db.dailyAttendance.findUnique({ where: { personId_date: { personId: pQ.id, date: d } } })
+      const sat = await rowOf(MK(2026, 11, 7))
+      check('Sat 07 (past workday, no punch) → ABSENT with the day shift', sat !== null && sat.status === 'ABSENT' && sat.shiftId === dayShift.id && sat.workedMinutes === 0)
+      const sun = await rowOf(MK(2026, 11, 8))
+      check('Sun 08 → ABSENT', sun !== null && sun.status === 'ABSENT')
+      const mon = await rowOf(MK(2026, 11, 9))
+      check('Mon 09 → ABSENT', mon !== null && mon.status === 'ABSENT')
+      const tue = await rowOf(MK(2026, 11, 10))
+      check('Tue 10 (approved daily leave, no punch) → LEAVE with leaveTypeId + full-day coverage minutes', tue !== null && tue.status === 'LEAVE' && tue.leaveTypeId === leaveTypeQ.id && tue.leaveMinutes === 1439, JSON.stringify({ status: tue?.status, leaveMinutes: tue?.leaveMinutes }))
+      const wed = await rowOf(MK(2026, 11, 11))
+      check('Wed 11 (official holiday) → HOLIDAY', wed !== null && wed.status === 'HOLIDAY')
+      const thu = await rowOf(MK(2026, 11, 12))
+      check('Thu 12 → ABSENT', thu !== null && thu.status === 'ABSENT')
+      const fri = await rowOf(MK(2026, 11, 13))
+      check('Fri 13 (Iranian weekend, default suppressed) → OFF', fri !== null && fri.status === 'OFF')
+
+      // idempotency: re-running the same range creates NO duplicate rows
+      await recalcRange([pQ.id], qFrom, qTo)
+      const allQ = await db.dailyAttendance.findMany({ where: { personId: pQ.id, date: { gte: qFrom, lte: qTo } } })
+      check('re-run keeps exactly 7 rows (upsert, no duplicates)', allQ.length === 7, `rows=${allQ.length}`)
+
+      // days OUTSIDE the requested range are untouched (no phantom rows)
+      const before = await db.dailyAttendance.findUnique({ where: { personId_date: { personId: pQ.id, date: MK(2026, 11, 6) } } })
+      check('the day before the range has NO row (range-bounded materialization)', before === null)
+      // and a punch on a previously empty day flips exactly that day
+      await db.punchRecord.createMany({ data: [
+        { personId: pQ.id, timestamp: TEHRAN(2026, 11, 12, 8, 0), direction: 'IN', source: 'KIOSK' },
+        { personId: pQ.id, timestamp: TEHRAN(2026, 11, 12, 16, 0), direction: 'OUT', source: 'KIOSK' },
+      ] })
+      await recalcRange([pQ.id], qFrom, qTo)
+      const thu2 = await rowOf(MK(2026, 11, 12))
+      check('a punch flips its own day: Thu 12 → PRESENT worked 480 (other days unchanged)', thu2 !== null && thu2.status === 'PRESENT' && thu2.workedMinutes === 480)
+    })
+
     await db.$disconnect()
   } finally {
     // cleanup: only files this suite created, only inside the test root

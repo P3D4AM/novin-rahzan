@@ -14,7 +14,7 @@ import { SessionUser, Bootstrap, api, DailyRecordT, STATUS_FA, STATUS_COLOR, Per
 import { JalaliDatePicker, TimeInput, faTime, faDigits, durationFa, gregKeyToJalali } from './jalali-ui'
 import { tehranTodayMarker, addDaysMarker, markerKey, tehranWallClockStringToInstant, formatJalaliInstant, dayMarkerOf, formatTehranTime, jalaliOfMarker, jalaliMonthRange } from '@/lib/time'
 import { useToast } from '@/hooks/use-toast'
-import { RefreshCw, Pencil, Search, Loader2, Trash2, Plus } from 'lucide-react'
+import { RefreshCw, Pencil, Search, Loader2, Trash2, Plus, Calculator } from 'lucide-react'
 
 interface Props { user: SessionUser; boot: Bootstrap; reloadBoot: () => void }
 
@@ -30,7 +30,7 @@ export function AttendanceView({ user, boot, reloadBoot, dataVersion }: Props & 
         <TabsTrigger value="punches">ترددها (عملیاتی)</TabsTrigger>
         {isAdmin && <TabsTrigger value="raw">ترددهای خام دستگاه</TabsTrigger>}
       </TabsList>
-      <TabsContent value="daily"><DailyTab boot={boot} dataVersion={dataVersion} /></TabsContent>
+      <TabsContent value="daily"><DailyTab boot={boot} user={user} dataVersion={dataVersion} /></TabsContent>
       <TabsContent value="punches"><PunchesTab boot={boot} user={user} reloadBoot={reloadBoot} dataVersion={dataVersion} /></TabsContent>
       {/* RawPunch: the traceable device history (landing zone) — admins only
           (the API enforces ADMIN too); UNMATCHED/AMBIGUOUS rows and the
@@ -98,7 +98,7 @@ function RangePresets({ value, onChange }: { value: RangeSel; onChange: (v: Rang
   )
 }
 
-function DailyTab({ boot, dataVersion }: { boot: Bootstrap; dataVersion?: number }) {
+function DailyTab({ boot, user, dataVersion }: { boot: Bootstrap; user: SessionUser; dataVersion?: number }) {
   const today = boot.today
   const [from, setFrom] = useState(tehranDaysAgoKey(6))
   const [to, setTo] = useState(tehranTodayKey())
@@ -107,8 +107,28 @@ function DailyTab({ boot, dataVersion }: { boot: Bootstrap; dataVersion?: number
   const [q, setQ] = useState('')
   const [records, setRecords] = useState<DailyRecordT[]>([])
   const [loading, setLoading] = useState(false)
+  const [recalcOpen, setRecalcOpen] = useState(false)
+  const [recalcBusy, setRecalcBusy] = useState(false)
   const [page, setPage] = useState(1)
   const pageSize = 100
+  const { toast } = useToast()
+  const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
+
+  // Phase 3 stage 4 (item 8): the admin's RANGE RECALCULATION operation — the
+  // engine materializes a DailyAttendance row for EVERY (person × day) of the
+  // range (ABSENT/OFF/HOLIDAY/LEAVE even without punches), idempotent upserts
+  // never duplicate rows and never silently rewrite other days (the engine's
+  // dated-history + assignment resolution decides each day's shift as-of).
+  const runRangeRecalc = async () => {
+    setRecalcBusy(true)
+    try {
+      const res = await api<{ ok: boolean; count: number }>('/api/attendance', { method: 'POST', body: JSON.stringify({ from, to }) })
+      toast({ title: 'بازمحاسبه انجام شد', description: `${faDigits(res.count)} روز/شخصیت برای بازهٔ ${from} تا ${to} محاسبه شد — روزهای بدون تردد با وضعیت متناسب (غیبت/تعطیلی/مرخصی) تولید شدند.` })
+      load()
+    } catch (err) {
+      toast({ title: 'خطا در بازمحاسبه', description: err instanceof Error ? err.message : '', variant: 'destructive' })
+    } finally { setRecalcBusy(false); setRecalcOpen(false) }
+  }
 
   const load = async () => {
     setLoading(true)
@@ -167,8 +187,33 @@ function DailyTab({ boot, dataVersion }: { boot: Bootstrap; dataVersion?: number
           <span className="text-muted-foreground">تا</span>
           <div className="w-32"><JalaliDatePicker value={to} onChange={setTo} /></div>
         </div>
+        {isAdmin && (
+          <Button variant="outline" size="sm" onClick={() => setRecalcOpen(true)} className="gap-1.5" title="بازمحاسبهٔ همهٔ روزهای بازه برای همهٔ پرسنل فعال — روزهای بدون تردد هم با وضعیت مناسب (غیبت/تعطیلی/مرخصی) ساخته می‌شوند">
+            <Calculator className="h-4 w-4" /> بازمحاسبهٔ بازه
+          </Button>
+        )}
         <Button variant="outline" size="sm" onClick={load} disabled={loading}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /></Button>
       </div>
+
+      <Dialog open={recalcOpen} onOpenChange={setRecalcOpen}>
+        <DialogContent dir="rtl" className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>بازمحاسبهٔ بازه‌ای کارکرد روزانه</DialogTitle>
+          </DialogHeader>
+          <div className="text-sm space-y-2">
+            <p>برای همهٔ پرسنل فعال، بازهٔ <b dir="ltr">{from}</b> تا <b dir="ltr">{to}</b> دوباره محاسبه می‌شود:</p>
+            <ul className="text-xs text-muted-foreground list-disc pr-5 space-y-1">
+              <li>برای هر روزِ مشمول شیفت، حتی بدون تردد، رکورد با وضعیت متناسب (غیبت، تعطیلی، مرخصی) ساخته می‌شود.</li>
+              <li>رکوردهای تکراری ایجاد نمی‌شوند (به‌روزرسانی همان رکورد است) و رکوردهای روزهای دیگر بازه تغییر نمی‌کنند.</li>
+              <li>شیفت هر روز از تاریخچهٔ تخصیص‌ها/شیفت پیش‌فرضِ همان روز خوانده می‌شود.</li>
+            </ul>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRecalcOpen(false)}>انصراف</Button>
+            <Button onClick={runRangeRecalc} disabled={recalcBusy} className="gap-1.5">{recalcBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} اجرای بازمحاسبه</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex flex-wrap gap-2 text-xs">
         <Badge variant="secondary">جمع کارکرد: {durationFa(totals.worked)}</Badge>

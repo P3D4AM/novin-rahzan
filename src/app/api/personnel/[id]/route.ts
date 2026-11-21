@@ -4,6 +4,7 @@ import { requireRole } from '@/lib/auth'
 import { fail } from '@/lib/api'
 import { rematchRawPunches } from '@/lib/raw-import'
 import { recordDefaultShiftChange } from '@/lib/default-shift'
+import { recalcRange } from '@/lib/attendance'
 import { parseDayParam, tehranTodayMarker } from '@/lib/time'
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -43,6 +44,17 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
         note: 'ویرایش پرسنل',
         previousShiftId: before.defaultShiftId,
       })
+      // Phase 3 stage 4 (item 8 — empty daily attendance): a default-shift
+      // change is a REAL trigger now — [effectiveFrom .. today] is recalculated
+      // for this person so the daily-attendance view materializes rows for
+      // every shift-covered day even WITHOUT punches (ABSENT/OFF/HOLIDAY/LEAVE
+      // per policy). Days BEFORE effectiveFrom keep their recorded history (the
+      // dated-history design — they resolve to the old default and re-running
+      // them would change nothing, so they are deliberately skipped).
+      // Failure is NON-fatal for the profile edit itself (best-effort semantics
+      // documented in docs/): the change IS recorded; a later range recalc or
+      // the next punch recovers the rows.
+      await recalcRange([id], effectiveFrom, tehranTodayMarker()).catch(() => null)
     }
     // v1.3.0 (Phase 1): an edited code/deviceUserId may match UNMATCHED punches — rematch them
     // v1.3.1 (fix 3): the acting admin is recorded in the AuditLog rows
