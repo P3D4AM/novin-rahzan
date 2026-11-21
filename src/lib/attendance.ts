@@ -42,6 +42,31 @@ export interface ShiftLite {
   segments: ShiftSegmentLite[]
 }
 
+/* ---------------- Phase 3 stage 6 (item 6): manual override ---------------- */
+
+/** The recorded administrative correction of a DERIVED day row — re-applied by
+ *  recalcRange on top of every recomputation (an override never silently
+ *  evaporates; clearing it returns the row to computed values). */
+export interface DailyOverrideJson {
+  status?: string
+  workedMinutes?: number
+  lateMinutes?: number
+  earlyLeaveMinutes?: number
+  note?: string
+}
+
+/** Parse the stored manualOverride JSON defensively (a corrupt string is
+ *  IGNORED, never thrown — the computed row stays valid). */
+export function parseOverrideJson(s: string): DailyOverrideJson | null {
+  try {
+    const v = JSON.parse(s)
+    if (v && typeof v === 'object') return v as DailyOverrideJson
+    return null
+  } catch {
+    return null
+  }
+}
+
 export function shiftStandardMinutes(shift: ShiftLite | null): number {
   if (!shift || !shift.segments.length) return 8 * 60
   return shift.segments.reduce((acc, s) => {
@@ -512,6 +537,20 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
   // overtime threshold (Setting ot_threshold_minutes; default 30)
   const otThresholdMinutes = await readOtThresholdMinutes()
 
+  // Phase 3 stage 6 (item 6): prefetch the recorded manual overrides of the
+  // range — they are RE-APPLIED on top of every recomputed day (an override
+  // never silently evaporates in a recalc; docs/DIRECTION… see docs/DB-ADMIN
+  // & the suite section). Cleared rows (manualOverride=null) are absent here
+  // and compute purely.
+  const existingRows = await db.dailyAttendance.findMany({
+    where: { personId: { in: personIds }, date: { gte: dayStart, lte: dayEnd } },
+    select: { personId: true, date: true, manualOverride: true },
+  })
+  const overrideMap = new Map<string, DailyOverrideJson | null>()
+  for (const r of existingRows) {
+    if (r.manualOverride) overrideMap.set(`${r.personId}|${r.date.toISOString().slice(0, 10)}`, parseOverrideJson(r.manualOverride))
+  }
+
   // approved overtime minutes per (person, workday) — PENDING/REJECTED excluded.
   // Phase 2 S3 review fix 5 guard: only POSITIVE minutes accumulate — a legacy
   // negative row (creatable before the validation fix) must never REDUCE the
@@ -639,24 +678,40 @@ export async function recalcRange(personIds: string[], start: Date, end: Date): 
 
       // note = pairing anomalies | attribution fallback/ambiguity reasons
       const attrNote = attributionSummary(attributions)
-      const note = [result.note, attrNote].filter(Boolean).join('|') || null
+      const composedNote = [result.note, attrNote].filter(Boolean).join('|') || null
+
+      // Phase 3 stage 6 (item 6): apply the RECORDED manual override on top of
+      // the computed day — an administrative correction survives recalculation
+      // by design (the override is re-applied, never dropped). The note carries
+      // the MANUAL_OVERRIDE marker (or the override's own note) for the UI badge.
+      const ov = overrideMap.get(`${p.id}|${key}`)
+      const row = { ...result }
+      let finalNote = composedNote
+      if (ov) {
+        if (ov.status) row.status = ov.status
+        if (ov.workedMinutes != null) row.workedMinutes = ov.workedMinutes
+        if (ov.lateMinutes != null) row.lateMinutes = ov.lateMinutes
+        if (ov.earlyLeaveMinutes != null) row.earlyLeaveMinutes = ov.earlyLeaveMinutes
+        finalNote = ov.note ?? [composedNote, 'MANUAL_OVERRIDE'].filter(Boolean).join('|')
+      }
+      const note = finalNote
 
       await db.dailyAttendance.upsert({
         where: { personId_date: { personId: p.id, date: d } },
-        create: { ...result, note },
+        create: { ...row, note },
         update: {
-          status: result.status,
-          shiftId: result.shiftId,
-          firstIn: result.firstIn,
-          lastOut: result.lastOut,
-          workedMinutes: result.workedMinutes,
-          lateMinutes: result.lateMinutes,
-          earlyLeaveMinutes: result.earlyLeaveMinutes,
-          overtimeMinutes: result.overtimeMinutes,
-          payableOvertimeMinutes: result.payableOvertimeMinutes,
-          leaveTypeId: result.leaveTypeId,
-          leaveMinutes: result.leaveMinutes,
-          missionMinutes: result.missionMinutes,
+          status: row.status,
+          shiftId: row.shiftId,
+          firstIn: row.firstIn,
+          lastOut: row.lastOut,
+          workedMinutes: row.workedMinutes,
+          lateMinutes: row.lateMinutes,
+          earlyLeaveMinutes: row.earlyLeaveMinutes,
+          overtimeMinutes: row.overtimeMinutes,
+          payableOvertimeMinutes: row.payableOvertimeMinutes,
+          leaveTypeId: row.leaveTypeId,
+          leaveMinutes: row.leaveMinutes,
+          missionMinutes: row.missionMinutes,
           note,
         },
       })

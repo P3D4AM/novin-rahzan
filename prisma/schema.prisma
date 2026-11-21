@@ -218,6 +218,14 @@ model DailyAttendance {
   // workedMinutes = attendance pairs + this value (the policy's final worked).
   missionMinutes   Int      @default(0)
   note              String?
+  // Phase 3 stage 6 (item 6 — bulk operations): MANUAL OVERRIDE — a recorded
+  // administrative correction of this DERIVED row (status/minutes/note) that
+  // SURVIVES recalculation: recalcRange recomputes the day and then re-applies
+  // these fields on top. Clearing the override returns the row to pure
+  // computed values. Stored as JSON (SQLite has no native Json column type).
+  manualOverride   String? // JSON: {status?, workedMinutes?, lateMinutes?, earlyLeaveMinutes?, note?}
+  overrideBy       String? // acting admin username (audit)
+  overrideAt       DateTime? // when the override was last written
   shift             Shift?     @relation(fields: [shiftId], references: [id], onDelete: SetNull)
   leaveType         LeaveType? @relation(fields: [leaveTypeId], references: [id], onDelete: SetNull)
   person            Personnel @relation(fields: [personId], references: [id], onDelete: Cascade)
@@ -357,6 +365,14 @@ model RawPunch {
   sourceRecordId String    @default("") // protocol-level record id when the source provides one
   rawFingerprint String // sha-256 of the canonical raw tuple — the dedupe key
   dupIndex       Int       @default(0) // ordinal among otherwise-identical records (simultaneous punches)
+  // Phase 3 stage 6 (item 6 — bulk operations): TOMBSTONE — an operational
+  // delete of a raw record never destroys the received data; the row stays
+  // with who/when/why and is EXCLUDED from live views. The fingerprint
+  // dedupe still sees it → a re-read of the same physical record can NEVER
+  // resurrect a deleted punch.
+  deletedAt      DateTime? // null = live; set = tombstoned (operational delete)
+  deletedBy      String? // acting admin username (audit)
+  deleteReason   String? // why it was deleted (audit)
   // ---- optional relations (a RawPunch survives device / personnel deletion)
   deviceId       String?
   device         Device?   @relation(fields: [deviceId], references: [id], onDelete: SetNull)

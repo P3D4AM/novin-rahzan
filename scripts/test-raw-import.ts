@@ -243,6 +243,11 @@ async function main() {
   check('v1.8.0-phase3 migration up applied (DeviceSyncRun accounting columns)', up18.status === 0 && /recordsAnnounced = present/.test(up18.stdout) && /abnormalEnd = present/.test(up18.stdout), (up18.stderr || up18.stdout || '').slice(-200))
   const up18b = sh('node', ['scripts/migrate-v1.8.0-phase3.mjs', 'up'], { DATABASE_URL: MIG_URL })
   check('v1.8.0-phase3 migration up is idempotent', up18b.status === 0 && /already present/.test(up18b.stdout))
+  // Phase 3 stage 6: the tombstone + manual-override migration joins the chain
+  const up184 = sh('node', ['scripts/migrate-v1.8.0-phase4.mjs', 'up'], { DATABASE_URL: MIG_URL })
+  check('v1.8.0-phase4 migration up applied (tombstone + manualOverride columns)', up184.status === 0 && /deletedAt = present/.test(up184.stdout) && /manualOverride = present/.test(up184.stdout), (up184.stderr || up184.stdout || '').slice(-200))
+  const up184b = sh('node', ['scripts/migrate-v1.8.0-phase4.mjs', 'up'], { DATABASE_URL: MIG_URL })
+  check('v1.8.0-phase4 migration up is idempotent', up184b.status === 0 && /already present/.test(up184b.stdout))
 
   const verifySeed = sh('node', ['scripts/test-db-raw.mjs', '--json',
     'SELECT COUNT(*) AS n FROM "Personnel" WHERE id=\'pmig1\'',
@@ -301,7 +306,7 @@ async function main() {
    * ================================================================ */
   const pushMainOld = sh('npx', ['prisma', 'db', 'push', '--schema', OLD_SCHEMA, '--skip-generate'], { DATABASE_URL: MAIN_DB_URL })
   if (pushMainOld.status !== 0) throw new Error('main db old-schema push failed: ' + (pushMainOld.stderr || '').slice(-300))
-  for (const m of ['migrate-v1.3.0-phase1.mjs', 'migrate-v1.4.0-phase2.mjs', 'migrate-v1.3.1-phase1-fixes.mjs', 'migrate-v1.5.0-bridge-internal.mjs', 'migrate-v1.7.0-phase2-s3.mjs', 'migrate-v1.7.0-phase2-s3r2.mjs', 'migrate-v1.8.0-phase3.mjs']) {
+  for (const m of ['migrate-v1.3.0-phase1.mjs', 'migrate-v1.4.0-phase2.mjs', 'migrate-v1.3.1-phase1-fixes.mjs', 'migrate-v1.5.0-bridge-internal.mjs', 'migrate-v1.7.0-phase2-s3.mjs', 'migrate-v1.7.0-phase2-s3r2.mjs', 'migrate-v1.8.0-phase3.mjs', 'migrate-v1.8.0-phase4.mjs']) {
     const r = sh('node', [`scripts/${m}`, 'up'], { DATABASE_URL: MAIN_DB_URL })
     if (r.status !== 0) throw new Error(`main db migration failed (${m}): ` + (r.stderr || '').slice(-300))
   }

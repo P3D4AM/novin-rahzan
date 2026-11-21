@@ -275,6 +275,11 @@ async function main() {
   check('v1.8.0 phase3 migration up (announced/invalidTimestamps/abnormalEnd)', upP3.status === 0 && /recordsAnnounced = present/.test(upP3.stdout))
   const upP3b = sh('node', ['scripts/migrate-v1.8.0-phase3.mjs', 'up'], { DATABASE_URL: MAIN_DB })
   check('v1.8.0 phase3 migration idempotent', upP3b.status === 0 && /already present/.test(upP3b.stdout))
+  // Phase 3 stage 6: tombstone + manual-override columns join the chain
+  const upP4 = sh('node', ['scripts/migrate-v1.8.0-phase4.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  check('v1.8.0 phase4 migration up (tombstone + manualOverride columns)', upP4.status === 0 && /deletedAt = present/.test(upP4.stdout) && /manualOverride = present/.test(upP4.stdout))
+  const upP4b = sh('node', ['scripts/migrate-v1.8.0-phase4.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  check('v1.8.0 phase4 migration idempotent', upP4b.status === 0 && /already present/.test(upP4b.stdout))
   const parity = sh('npx', ['prisma', 'db', 'push', '--skip-generate'], { DATABASE_URL: MAIN_DB })
   const parityOut = (parity.stdout || '') + (parity.stderr || '')
   check('prisma db push sees no drift (INSTALL.bat parity)', parity.status === 0 && /already in sync/i.test(parityOut))

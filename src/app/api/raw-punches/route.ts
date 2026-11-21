@@ -17,6 +17,10 @@ import { parseDayParam, tehranDayRangeInstantWindow } from '@/lib/time'
  *                           as /api/punches) → the window is the TRUE Tehran-day
  *                           range [Tehran midnight of from, Tehran midnight of
  *                           to+1) — applied SERVER-SIDE, not just in the UI
+ *   ?deleted=1             — show TOMBSTONED rows (operational deletes) instead
+ *                           of the live ones (Phase 3 stage 6: the received
+ *                           record is never destroyed — deletedAt/deletedBy/
+ *                           deleteReason stay for the audit)
  *   ?unmatched=1          — only rows without a personnel mapping
  *   ?ambiguous=1          — only rows whose mapping is ambiguous (matchNote set)
  *   ?serial=<serial>      — filter by device serial
@@ -63,14 +67,17 @@ export async function GET(req: NextRequest) {
     const ambiguousOnly = sp.get('ambiguous') === '1'
     const serialFilter = serial ? { deviceSerial: serial } : {}
     const windowFilter = hasWindow ? { punchTime: punchTimeWindow! } : {}
+    // Phase 3 stage 6: live rows by default; ?deleted=1 flips to the tombstones
+    const tombstoneFilter = sp.get('deleted') === '1' ? { deletedAt: { not: null } } : { deletedAt: null }
     const where = {
       ...serialFilter,
       ...windowFilter,
+      ...tombstoneFilter,
       ...(unmatchedOnly ? { matchStatus: 'UNMATCHED' } : {}),
       ...(ambiguousOnly ? { matchStatus: 'UNMATCHED', matchNote: { not: null } } : {}),
     }
-    const unmatchedWhere = { ...serialFilter, ...windowFilter, matchStatus: 'UNMATCHED' }
-    const ambiguousWhere = { ...serialFilter, ...windowFilter, matchStatus: 'UNMATCHED', matchNote: { not: null } }
+    const unmatchedWhere = { ...serialFilter, ...windowFilter, ...tombstoneFilter, matchStatus: 'UNMATCHED' }
+    const ambiguousWhere = { ...serialFilter, ...windowFilter, ...tombstoneFilter, matchStatus: 'UNMATCHED', matchNote: { not: null } }
     const [rows, total, unmatchedCount, ambiguousCount] = await Promise.all([
       db.rawPunch.findMany({
         where,
@@ -95,6 +102,9 @@ export async function GET(req: NextRequest) {
           deviceId: true,
           syncRunId: true,
           importedAt: true,
+          deletedAt: true,
+          deletedBy: true,
+          deleteReason: true,
         },
       }),
       db.rawPunch.count({ where }),

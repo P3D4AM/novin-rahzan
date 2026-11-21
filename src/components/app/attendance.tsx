@@ -14,7 +14,9 @@ import { SessionUser, Bootstrap, api, DailyRecordT, STATUS_FA, STATUS_COLOR, Per
 import { JalaliDatePicker, TimeInput, faTime, faDigits, durationFa, gregKeyToJalali } from './jalali-ui'
 import { tehranTodayMarker, addDaysMarker, markerKey, tehranWallClockStringToInstant, formatJalaliInstant, dayMarkerOf, formatTehranTime, jalaliOfMarker, jalaliMonthRange } from '@/lib/time'
 import { useToast } from '@/hooks/use-toast'
-import { RefreshCw, Pencil, Search, Loader2, Trash2, Plus, Calculator } from 'lucide-react'
+import { RefreshCw, Pencil, Search, Loader2, Trash2, Plus, Calculator, CheckSquare } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Textarea } from '@/components/ui/textarea'
 
 interface Props { user: SessionUser; boot: Bootstrap; reloadBoot: () => void }
 
@@ -113,6 +115,49 @@ function DailyTab({ boot, user, dataVersion }: { boot: Bootstrap; user: SessionU
   const pageSize = 100
   const { toast } = useToast()
   const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN'
+  // Phase 3 stage 6 (item 6): bulk selection + OVERRIDE edit on the derived rows
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [bulkOpen, setBulkOpen] = useState<'edit' | 'delete' | null>(null)
+  const [bulkBusy, setBulkBusy] = useState(false)
+  const [ovStatus, setOvStatus] = useState('')
+  const [ovWorked, setOvWorked] = useState('')
+  const [ovLate, setOvLate] = useState('')
+  const [ovEarly, setOvEarly] = useState('')
+  const [ovNote, setOvNote] = useState('')
+  const [bulkReason, setBulkReason] = useState('')
+  const toggleSel = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
+
+  const runDailyBulk = async (op: 'edit' | 'delete' | 'clear') => {
+    const ids = [...selected]
+    if (!ids.length) return
+    setBulkBusy(true)
+    try {
+      const body = op === 'delete'
+        ? { entity: 'daily', action: 'delete', ids, reason: bulkReason }
+        : op === 'clear'
+          ? { entity: 'daily', action: 'edit', ids, clear: true }
+          : {
+              entity: 'daily', action: 'edit', ids,
+              ...(ovStatus ? { status: ovStatus } : {}),
+              ...(ovWorked.trim() ? { workedMinutes: Number(ovWorked) } : {}),
+              ...(ovLate.trim() ? { lateMinutes: Number(ovLate) } : {}),
+              ...(ovEarly.trim() ? { earlyLeaveMinutes: Number(ovEarly) } : {}),
+              ...(ovNote.trim() ? { note: ovNote } : {}),
+            }
+      const res = await api<{ ok: boolean; overridden?: number; cleared?: number; deleted?: number; notFound?: string[] }>('/api/bulk-ops', { method: 'POST', body: JSON.stringify(body) })
+      const done = op === 'delete' ? res.deleted ?? 0 : res.overridden ?? res.cleared ?? 0
+      toast({
+        title: op === 'delete' ? 'حذف گروهی انجام شد' : op === 'clear' ? 'اصلاحات دستی پاک شد' : 'اصلاح دستی گروهی ثبت شد',
+        description: `${faDigits(done)} رکورد${res.notFound?.length ? ` · ${faDigits(res.notFound.length)} یافت نشد` : ''} — در AuditLog ثبت شد.${op === 'edit' ? ' اصلاح دستی در بازمحاسبه‌های بعدی حفظ می‌شود.' : ''}`,
+      })
+      setSelected(new Set())
+      setBulkOpen(null)
+      setBulkReason('')
+      load()
+    } catch (err) {
+      toast({ title: 'خطا در عملیات گروهی', description: err instanceof Error ? err.message : '', variant: 'destructive' })
+    } finally { setBulkBusy(false) }
+  }
 
   // Phase 3 stage 4 (item 8): the admin's RANGE RECALCULATION operation — the
   // engine materializes a DailyAttendance row for EVERY (person × day) of the
@@ -162,6 +207,7 @@ function DailyTab({ boot, user, dataVersion }: { boot: Bootstrap; user: SessionU
 
   return (
     <div className="space-y-4">
+      <BulkBar count={selected.size} onClear={() => setSelected(new Set())} onEdit={isAdmin ? () => setBulkOpen('edit') : undefined} onDelete={isAdmin ? () => setBulkOpen('delete') : undefined} busy={bulkBusy} />
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-44">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -215,6 +261,54 @@ function DailyTab({ boot, user, dataVersion }: { boot: Bootstrap; user: SessionU
         </DialogContent>
       </Dialog>
 
+      {/* Phase 3 stage 6 (item 6): bulk OVERRIDE edit + bulk delete on the derived rows */}
+      <Dialog open={bulkOpen === 'edit'} onOpenChange={(o) => { if (!o && !bulkBusy) setBulkOpen(null) }}>
+        <DialogContent dir="rtl" className="max-w-md">
+          <DialogHeader><DialogTitle>اصلاح دستی گروهی {faDigits(selected.size)} روز</DialogTitle></DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div className="rounded-md bg-muted/60 border p-3 text-xs leading-5 text-muted-foreground">
+              کارکرد روزانه دادهٔ <b>مشتق‌شده</b> است؛ این اصلاح به‌صورت <b>Override ثبت‌شده</b> اعمال می‌شود و در بازمحاسبه‌های بعدی <b>حفظ می‌شود</b> (و با پاک‌کردن آن، مقادیر محاسباتی برمی‌گردند). مقادیر قبلی در AuditLog ثبت می‌شوند.
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs">وضعیت (اختیاری)</Label>
+                <Select value={ovStatus} onValueChange={setOvStatus}>
+                  <SelectTrigger><SelectValue placeholder="بدون تغییر" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">بدون تغییر</SelectItem>
+                    <ObjectEntries obj={STATUS_FA} />
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5"><Label className="text-xs">کارکرد (دقیقه، اختیاری)</Label><Input dir="ltr" type="number" min={0} max={1440} value={ovWorked} onChange={(e) => setOvWorked(e.target.value)} /></div>
+              <div className="space-y-1.5"><Label className="text-xs">تأخیر (دقیقه، اختیاری)</Label><Input dir="ltr" type="number" min={0} max={1440} value={ovLate} onChange={(e) => setOvLate(e.target.value)} /></div>
+              <div className="space-y-1.5"><Label className="text-xs">خروج زودهنگام (دقیقه، اختیاری)</Label><Input dir="ltr" type="number" min={0} max={1440} value={ovEarly} onChange={(e) => setOvEarly(e.target.value)} /></div>
+            </div>
+            <div className="space-y-1.5"><Label className="text-xs">یادداشت (اختیاری — جایگزین یادداشت محاسباتی می‌شود)</Label><Input dir="rtl" value={ovNote} onChange={(e) => setOvNote(e.target.value)} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkOpen(null)} disabled={bulkBusy}>انصراف</Button>
+            <Button variant="outline" onClick={() => runDailyBulk('clear')} disabled={bulkBusy} className="gap-1">پاک‌کردن اصلاحات (بازگشت به محاسباتی)</Button>
+            <Button onClick={() => runDailyBulk('edit')} disabled={bulkBusy || (!ovStatus && !ovWorked.trim() && !ovLate.trim() && !ovEarly.trim() && !ovNote.trim())} className="gap-1.5">{bulkBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} ثبت اصلاح</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={bulkOpen === 'delete'} onOpenChange={(o) => { if (!o && !bulkBusy) setBulkOpen(null) }}>
+        <DialogContent dir="rtl" className="max-w-md">
+          <DialogHeader><DialogTitle>حذف گروهی {faDigits(selected.size)} رکورد کارکرد روزانه</DialogTitle></DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div className="rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs leading-5">
+              این رکوردهای مشتق‌شده حذف می‌شوند (مقادیر قبلی در AuditLog می‌ماند). ترددها و دادهٔ خام دست‌نخورده‌اند؛ با «بازمحاسبهٔ بازه» دوباره ساخته می‌شوند.
+            </div>
+            <BulkReasonField value={bulkReason} onChange={setBulkReason} placeholder="مثلاً: حذف رکوردهای آزمایشی" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkOpen(null)} disabled={bulkBusy}>انصراف</Button>
+            <Button variant="destructive" onClick={() => runDailyBulk('delete')} disabled={bulkBusy || !bulkReason.trim()} className="gap-1.5">{bulkBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} حذف نهایی</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex flex-wrap gap-2 text-xs">
         <Badge variant="secondary">جمع کارکرد: {durationFa(totals.worked)}</Badge>
         <Badge variant="secondary">جمع اضافه‌کاری: {durationFa(totals.ot)}</Badge>
@@ -228,6 +322,7 @@ function DailyTab({ boot, user, dataVersion }: { boot: Bootstrap; user: SessionU
             <Table>
               <TableHeader className="sticky top-0 bg-background z-10">
                 <TableRow>
+                  {isAdmin && <TableHead className="w-8"><Checkbox checked={paged.length > 0 && paged.every((r) => selected.has(r.id))} onCheckedChange={(v) => (v ? setSelected(new Set(paged.map((r) => r.id))) : setSelected(new Set()))} aria-label="انتخاب همهٔ رکوردهای صفحه" /></TableHead>}
                   <TableHead>تاریخ</TableHead>
                   <TableHead>پرسنل</TableHead>
                   <TableHead className="hidden md:table-cell">شیفت</TableHead>
@@ -242,6 +337,7 @@ function DailyTab({ boot, user, dataVersion }: { boot: Bootstrap; user: SessionU
               <TableBody>
                 {paged.map((r) => (
                   <TableRow key={r.id}>
+                    {isAdmin && <TableCell className="w-8"><Checkbox checked={selected.has(r.id)} onCheckedChange={() => toggleSel(r.id)} aria-label="انتخاب این رکورد" /></TableCell>}
                     <TableCell className="text-xs" dir="ltr">{gregKeyToJalali(r.date)}</TableCell>
                     <TableCell className="font-medium text-sm">{full_name(r.person)} <span className="text-[10px] text-muted-foreground">({r.person?.personnelCode})</span></TableCell>
                     <TableCell className="hidden md:table-cell text-muted-foreground text-xs">
@@ -260,7 +356,7 @@ function DailyTab({ boot, user, dataVersion }: { boot: Bootstrap; user: SessionU
                     </TableCell>
                   </TableRow>
                 ))}
-                {paged.length === 0 && <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-10">رکوردی نیست</TableCell></TableRow>}
+                {paged.length === 0 && <TableRow><TableCell colSpan={10} className="text-center text-muted-foreground py-10">رکوردی نیست</TableCell></TableRow>}
               </TableBody>
             </Table>
           </div>
@@ -280,6 +376,30 @@ function DailyTab({ boot, user, dataVersion }: { boot: Bootstrap; user: SessionU
 
 function ObjectEntries({ obj }: { obj: Record<string, string> }) {
   return <>{Object.entries(obj).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</>
+}
+
+/* ---------------- Phase 3 stage 6 (item 6): bulk selection bar ---------------- */
+function BulkBar({ count, onClear, onEdit, onDelete, busy }: { count: number; onClear: () => void; onEdit?: () => void; onDelete?: () => void; busy?: boolean }) {
+  if (count === 0) return null
+  return (
+    <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-sm sticky top-0 z-20">
+      <CheckSquare className="h-4 w-4 text-primary" />
+      <span className="font-medium">{faDigits(count)} رکورد انتخاب شده</span>
+      <Button variant="ghost" size="sm" onClick={onClear} disabled={busy}>لغو انتخاب</Button>
+      {onEdit && <Button size="sm" variant="outline" onClick={onEdit} disabled={busy} className="gap-1"><Pencil className="h-3.5 w-3.5" /> ویرایش گروهی</Button>}
+      {onDelete && <Button size="sm" variant="destructive" onClick={onDelete} disabled={busy} className="gap-1"><Trash2 className="h-3.5 w-3.5" /> حذف گروهی</Button>}
+      {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+    </div>
+  )
+}
+
+function BulkReasonField({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+  return (
+    <div className="space-y-1.5">
+      <Label>دلیل (الزامی — در AuditLog ثبت می‌شود)</Label>
+      <Textarea dir="rtl" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={2} />
+    </div>
+  )
 }
 
 /* ---------------- raw punches ---------------- */
@@ -358,11 +478,45 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
     } finally { setSaving(false) }
   }
 
+  // Phase 3 stage 6 (item 6): multi-select + bulk operations (admins only)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [bulkOpen, setBulkOpen] = useState<'edit' | 'delete' | null>(null)
+  const [bulkBusy, setBulkBusy] = useState(false)
+  const [bulkDirection, setBulkDirection] = useState('AUTO')
+  const [bulkNote, setBulkNote] = useState('')
+  const [bulkReason, setBulkReason] = useState('')
+  const toggleSel = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
+  const selAllPage = () => setSelected(new Set(punches.map((p) => p.id)))
+
+  const runBulk = async (op: 'edit' | 'delete') => {
+    const ids = [...selected]
+    if (!ids.length) return
+    setBulkBusy(true)
+    try {
+      const body = op === 'edit'
+        ? { entity: 'punch', action: 'edit', ids, direction: bulkDirection === 'AUTO' && !bulkNote.trim() ? undefined : bulkDirection, editReason: bulkNote.trim() || undefined }
+        : { entity: 'punch', action: 'delete', ids, reason: bulkReason }
+      const res = await api<{ ok: boolean; updated?: number; deleted?: number; notFound?: string[]; recalc?: number }>('/api/bulk-ops', { method: 'POST', body: JSON.stringify(body) })
+      const done = op === 'edit' ? res.updated ?? 0 : res.deleted ?? 0
+      toast({
+        title: op === 'edit' ? 'ویرایش گروهی انجام شد' : 'حذف گروهی انجام شد',
+        description: `${faDigits(done)} رکورد${res.notFound?.length ? ` · ${faDigits(res.notFound.length)} یافت نشد` : ''}${res.recalc ? ` · ${faDigits(res.recalc)} روز بازمحاسبه شد` : ''} — در AuditLog ثبت شد.`,
+      })
+      setSelected(new Set())
+      setBulkOpen(null)
+      setBulkNote('')
+      setBulkReason('')
+      load()
+    } catch (err) {
+      toast({ title: 'خطا در عملیات گروهی', description: err instanceof Error ? err.message : '', variant: 'destructive' })
+    } finally { setBulkBusy(false) }
+  }
   const SOURCE_FA: Record<string, string> = { DEVICE: 'دستگاه', KIOSK: 'کیشی', QR: 'QR', WEB: 'وب', MANUAL: 'دستی', IMPORT: 'ورود داده' }
   const pages = Math.max(1, Math.ceil(total / pageSize))
 
   return (
     <div className="space-y-4">
+      <BulkBar count={selected.size} onClear={() => setSelected(new Set())} onEdit={isAdmin ? () => setBulkOpen('edit') : undefined} onDelete={isAdmin ? () => setBulkOpen('delete') : undefined} busy={bulkBusy} />
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-44">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -386,6 +540,7 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
             <Table>
               <TableHeader className="sticky top-0 bg-background z-10">
                 <TableRow>
+                  {isAdmin && <TableHead className="w-8"><Checkbox checked={punches.length > 0 && punches.every((p) => selected.has(p.id))} onCheckedChange={(v) => (v ? selAllPage() : setSelected(new Set()))} aria-label="انتخاب همهٔ رکوردهای صفحه" /></TableHead>}
                   <TableHead>زمان</TableHead>
                   <TableHead>پرسنل</TableHead>
                   <TableHead>نوع</TableHead>
@@ -396,7 +551,10 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
               </TableHeader>
               <TableBody>
                 {punches.map((p) => (
-                  <TableRow key={p.id}>
+                  <TableRow key={p.id} data-selected={selected.has(p.id)}>
+                    {isAdmin && (
+                      <TableCell className="w-8"><Checkbox checked={selected.has(p.id)} onCheckedChange={() => toggleSel(p.id)} aria-label="انتخاب این رکورد" /></TableCell>
+                    )}
                     <TableCell className="text-xs" dir="ltr">
                       {formatJalaliInstant(new Date(p.timestamp), { fa: true })} · {faTime(p.timestamp)}
                     </TableCell>
@@ -497,6 +655,50 @@ function PunchesTab({ boot, user, reloadBoot, dataVersion }: { boot: Bootstrap; 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Phase 3 stage 6 (item 6): bulk edit / bulk delete dialogs */}
+      <Dialog open={bulkOpen === 'edit'} onOpenChange={(o) => { if (!o && !bulkBusy) setBulkOpen(null) }}>
+        <DialogContent dir="rtl" className="max-w-md">
+          <DialogHeader><DialogTitle>ویرایش گروهی {faDigits(selected.size)} تردد</DialogTitle></DialogHeader>
+          <div className="space-y-3 text-sm">
+            <p className="text-xs text-muted-foreground">پیش‌نمایش: {faDigits(selected.size)} رکورد انتخاب‌شده؛ تغییرات روی همهٔ آن‌ها اعمال و در AuditLog (با مقادیر قبلی برای بازیابی) ثبت می‌شود. روزهای متأثر بازمحاسبه می‌شوند.</p>
+            <div className="space-y-1.5">
+              <Label>جهت (اختیاری)</Label>
+              <Select value={bulkDirection} onValueChange={setBulkDirection}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="AUTO">بدون تغییر جهت</SelectItem>
+                  <SelectItem value="IN">ورود</SelectItem>
+                  <SelectItem value="OUT">خروج</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>یادداشت ویرایش (اختیاری — روی همهٔ رکوردها ثبت می‌شود)</Label>
+              <Input dir="rtl" value={bulkNote} onChange={(e) => setBulkNote(e.target.value)} placeholder="مثلاً: اصلاح گروهی بر اساس نظر مدیر" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkOpen(null)} disabled={bulkBusy}>انصراف</Button>
+            <Button onClick={() => runBulk('edit')} disabled={bulkBusy || (bulkDirection === 'AUTO' && !bulkNote.trim())} className="gap-1.5">{bulkBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} اجرا</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={bulkOpen === 'delete'} onOpenChange={(o) => { if (!o && !bulkBusy) setBulkOpen(null) }}>
+        <DialogContent dir="rtl" className="max-w-md">
+          <DialogHeader><DialogTitle>حذف گروهی {faDigits(selected.size)} تردد</DialogTitle></DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div className="rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs leading-5">
+              {faDigits(selected.size)} رکورد عملیاتی حذف می‌شود؛ مقادیر کامل در AuditLog ذخیره می‌شود (قابل بازیابی دستی) و روزهای متأثر بازمحاسبه خواهند شد. دادهٔ خام دستگاه دست‌نخورده می‌ماند.
+            </div>
+            <BulkReasonField value={bulkReason} onChange={setBulkReason} placeholder="مثلاً: ترددهای ثبت‌شدهٔ اشتباهی از دستگاه دوم" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkOpen(null)} disabled={bulkBusy}>انصراف</Button>
+            <Button variant="destructive" onClick={() => runBulk('delete')} disabled={bulkBusy || !bulkReason.trim()} className="gap-1.5">{bulkBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} حذف نهایی</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -523,6 +725,9 @@ interface RawPunchRow {
   personnelId: string | null
   deviceId: string | null
   importedAt: string
+  deletedAt?: string | null
+  deletedBy?: string | null
+  deleteReason?: string | null
 }
 interface RejectedRow {
   id: string
@@ -541,7 +746,7 @@ const REJECT_FA: Record<string, string> = { INVALID_TIMESTAMP: 'مهر زمان�
 function RawPunchTab({ dataVersion }: { dataVersion?: number }) {
   const { toast } = useToast()
   const [range, setRange] = useState<RangeSel>({ preset: 'd7', ...rangeForPreset('d7') })
-  const [view, setView] = useState<'all' | 'unmatched' | 'ambiguous' | 'rejected'>('all')
+  const [view, setView] = useState<'all' | 'unmatched' | 'ambiguous' | 'rejected' | 'deleted'>('all')
   const [serial, setSerial] = useState('')
   const [rows, setRows] = useState<RawPunchRow[]>([])
   const [rejectedRows, setRejectedRows] = useState<RejectedRow[]>([])
@@ -552,6 +757,13 @@ function RawPunchTab({ dataVersion }: { dataVersion?: number }) {
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
   const pageSize = 50
+  // Phase 3 stage 6 (item 6): bulk selection — the raw layer is IMMUTABLE (no
+  // bulk edit); the only bulk operation is the TOMBSTONE delete
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [bulkOpen, setBulkOpen] = useState(false)
+  const [bulkBusy, setBulkBusy] = useState(false)
+  const [bulkReason, setBulkReason] = useState('')
+  const toggleSel = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
 
   useEffect(() => { api<{ personnel: Person[] }>('/api/personnel').then((r) => setPersons(r.personnel)).catch(() => {}) }, [])
 
@@ -567,7 +779,7 @@ function RawPunchTab({ dataVersion }: { dataVersion?: number }) {
         setUnmatchedCount(0)
         setAmbiguousCount(0)
       } else {
-        const flag = view === 'unmatched' ? '&unmatched=1' : view === 'ambiguous' ? '&ambiguous=1' : ''
+        const flag = view === 'unmatched' ? '&unmatched=1' : view === 'ambiguous' ? '&ambiguous=1' : view === 'deleted' ? '&deleted=1' : ''
         const res = await api<{ rawPunches: RawPunchRow[]; total: number; unmatchedCount: number; ambiguousCount: number }>(`/api/raw-punches?${qs}${flag}`)
         setRows(res.rawPunches)
         setRejectedRows([])
@@ -579,14 +791,36 @@ function RawPunchTab({ dataVersion }: { dataVersion?: number }) {
       toast({ title: 'خطا در دریافت ترددهای خام', description: err instanceof Error ? err.message : '', variant: 'destructive' })
     } finally { setLoading(false) }
   }
-  useEffect(() => { load() }, [range, view, page, serial])
+  useEffect(() => { load(); setSelected(new Set()) }, [range, view, page, serial])
   useEffect(() => { load() }, [dataVersion])
+
+  const runBulkDelete = async () => {
+    const ids = [...selected]
+    if (!ids.length || !bulkReason.trim()) return
+    setBulkBusy(true)
+    try {
+      const res = await api<{ ok: boolean; tombstoned?: number; projectedDeleted?: number; recalc?: number; notFound?: string[] }>('/api/bulk-ops', {
+        method: 'POST', body: JSON.stringify({ entity: 'raw', action: 'delete', ids, reason: bulkReason }),
+      })
+      toast({
+        title: 'حذف گروهی (Tombstone) انجام شد',
+        description: `${faDigits(res.tombstoned ?? 0)} رکورد خام علامت‌خورد${res.projectedDeleted ? ` · ${faDigits(res.projectedDeleted)} تردد عملیاتی متناظر حذف شد` : ''}${res.recalc ? ` · ${faDigits(res.recalc)} روز بازمحاسبه شد` : ''} — اصل دادهٔ دستگاه حفظ شده و در AuditLog ثبت است.`,
+      })
+      setSelected(new Set())
+      setBulkOpen(false)
+      setBulkReason('')
+      load()
+    } catch (err) {
+      toast({ title: 'خطا در حذف گروهی', description: err instanceof Error ? err.message : '', variant: 'destructive' })
+    } finally { setBulkBusy(false) }
+  }
 
   const pages = Math.max(1, Math.ceil(total / pageSize))
   const personOf = (id: string | null) => persons.find((p) => p.id === id)
 
   return (
     <div className="space-y-4">
+      <BulkBar count={selected.size} onClear={() => setSelected(new Set())} onDelete={() => setBulkOpen(true)} busy={bulkBusy} />
       <div className="flex flex-wrap items-center gap-2">
         <Input placeholder="سریال دستگاه…" dir="ltr" value={serial} onChange={(e) => { setSerial(e.target.value); setPage(1) }} className="w-40" />
         <Select value={view} onValueChange={(v) => { setView(v as typeof view); setPage(1) }}>
@@ -596,6 +830,7 @@ function RawPunchTab({ dataVersion }: { dataVersion?: number }) {
             <SelectItem value="unmatched">بدون تطبیق پرسنل</SelectItem>
             <SelectItem value="ambiguous">تطبیق مبهم</SelectItem>
             <SelectItem value="rejected">قرنطینه (نامعتبر)</SelectItem>
+            <SelectItem value="deleted">حذف‌شده‌ها (Tombstone)</SelectItem>
           </SelectContent>
         </Select>
         <RangePresets value={range} onChange={(r) => { setRange(r); setPage(1) }} />
@@ -638,13 +873,15 @@ function RawPunchTab({ dataVersion }: { dataVersion?: number }) {
               <Table>
                 <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
+                    <TableHead className="w-8"><Checkbox checked={rows.length > 0 && rows.every((r) => selected.has(r.id))} onCheckedChange={(v) => (v ? setSelected(new Set(rows.map((r) => r.id))) : setSelected(new Set()))} aria-label="انتخاب همهٔ رکوردهای صفحه" /></TableHead>
                     <TableHead>زمان دستگاه</TableHead><TableHead>شماره پرسنلی دستگاه</TableHead><TableHead>وضعیت تطبیق</TableHead>
                     <TableHead>پرسنل نرم‌افزار</TableHead><TableHead>پروتکل</TableHead><TableHead>مقادیر خام</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {rows.map((r) => (
-                    <TableRow key={r.id}>
+                    <TableRow key={r.id} className={r.deletedAt ? 'opacity-60' : ''}>
+                      <TableCell className="w-8"><Checkbox checked={selected.has(r.id)} onCheckedChange={() => toggleSel(r.id)} disabled={!!r.deletedAt} aria-label="انتخاب این رکورد" /></TableCell>
                       <TableCell className="text-xs whitespace-nowrap">{formatJalaliInstant(new Date(r.punchTime))}<span className="block text-[10px] text-muted-foreground" dir="ltr">{r.punchTimeRaw ?? ''}</span></TableCell>
                       <TableCell className="text-xs" dir="ltr">{r.enrollNumber ?? '—'}</TableCell>
                       <TableCell>
@@ -654,9 +891,12 @@ function RawPunchTab({ dataVersion }: { dataVersion?: number }) {
                       <TableCell className="text-xs">{personOf(r.personnelId) ? full_name(personOf(r.personnelId)) : '—'}</TableCell>
                       <TableCell className="text-xs" dir="ltr">{r.sourceProtocol}</TableCell>
                       <TableCell className="text-[10px] font-mono text-muted-foreground" dir="ltr">inOut={r.inOutModeRaw} verify={r.verifyModeRaw}{r.workCode ? ` work=${r.workCode}` : ''}</TableCell>
+                      {r.deletedAt && (
+                        <TableCell className="text-[10px] text-destructive whitespace-nowrap" colSpan={7}>حذف‌شدهٔ عملیاتی: {r.deleteReason ?? ''} · توسط {r.deletedBy ?? ''} · {faDigits(r.deletedAt.replace('T', ' ').slice(0, 16))}</TableCell>
+                      )}
                     </TableRow>
                   ))}
-                  {rows.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">رکوردی در این بازه نیست</TableCell></TableRow>}
+                  {rows.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">رکوردی در این بازه نیست</TableCell></TableRow>}
                 </TableBody>
               </Table>
             )}
@@ -671,6 +911,23 @@ function RawPunchTab({ dataVersion }: { dataVersion?: number }) {
           <Button variant="outline" size="sm" disabled={page >= pages} onClick={() => setPage(page + 1)}>بعدی</Button>
         </div>
       )}
+
+      {/* Phase 3 stage 6 (item 6): tombstone bulk delete — the received data is NEVER destroyed */}
+      <Dialog open={bulkOpen} onOpenChange={(o) => { if (!o && !bulkBusy) setBulkOpen(false) }}>
+        <DialogContent dir="rtl" className="max-w-md">
+          <DialogHeader><DialogTitle>حذف گروهی {faDigits(selected.size)} رکورد خام</DialogTitle></DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 p-3 text-xs leading-5 text-amber-800 dark:text-amber-200">
+              حذف عملیاتی با سازوکار <b>Tombstone</b>: ردِ دادهٔ دریافتی از دستگاه <b>حذف نمی‌شود</b> — فقط علامت‌گذاری می‌شود (با دلیل و نام شما) و از نمای‌های زنده کنار می‌رود؛ تردد عملیاتیِ متناظر حذف و روزهای متأثر بازمحاسبه می‌شوند؛ خواندن مجدد همان رکورد از دستگاه، آن را <b>برنمی‌گرداند</b> (اثر انگشت dedupe).
+            </div>
+            <BulkReasonField value={bulkReason} onChange={setBulkReason} placeholder="مثلاً: رکوردهای تکراری/آزمایشی ارسال‌شده از دستگاه" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkOpen(false)} disabled={bulkBusy}>انصراف</Button>
+            <Button variant="destructive" onClick={runBulkDelete} disabled={bulkBusy || !bulkReason.trim()} className="gap-1.5">{bulkBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} حذف عملیاتی</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

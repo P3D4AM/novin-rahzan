@@ -98,6 +98,8 @@ async function main() {
   // Phase 3 stage 2: DeviceSyncRun accounting columns — runRawSync writes
   // recordsAnnounced / recordsInvalidTimestamps / abnormalEnd on every run
   sh('node', ['scripts/migrate-v1.8.0-phase3.mjs', 'up'], { DATABASE_URL: MAIN_DB })
+  // Phase 3 stage 6: tombstone + manual-override columns (the engine's recalc prefetch selects manualOverride)
+  sh('node', ['scripts/migrate-v1.8.0-phase4.mjs', 'up'], { DATABASE_URL: MAIN_DB })
 
   const p1 = await db.personnel.create({ data: { personnelCode: '1001', firstName: 'علی', lastName: 'محمدی', pin: '1001', deviceUserId: 1001 } })
   const device = await db.device.create({

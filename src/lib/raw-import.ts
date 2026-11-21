@@ -513,7 +513,10 @@ export interface RematchOptions {
 
 export async function rematchRawPunches(opts: RematchOptions = {}): Promise<RematchResult> {
   const candidates = await db.rawPunch.findMany({
-    where: { matchStatus: 'UNMATCHED' },
+    // Phase 3 stage 6: tombstoned rows (operational deletes) are DEAD — they are
+    // never resurrected by a rematch (and the fingerprint dedupe keeps them out
+    // of future imports too).
+    where: { matchStatus: 'UNMATCHED', deletedAt: null },
     select: { id: true, enrollNumber: true, personnelId: true, matchNote: true },
   })
 

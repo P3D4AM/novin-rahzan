@@ -156,6 +156,11 @@ async function main() {
 
       const up = sh('node', ['scripts/migrate-v1.7.0-phase2-s3.mjs'], { DATABASE_URL: MIG_URL })
       check('migration up exits 0', up.status === 0, (up.stderr || up.stdout || '').slice(-300))
+      // the current Prisma client carries the phase3/phase4 columns too — the
+      // pre-S3 fixture follows the REAL upgrade chain to the current schema
+      sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs', 'up'], { DATABASE_URL: MIG_URL })
+      sh('node', ['scripts/migrate-v1.8.0-phase3.mjs', 'up'], { DATABASE_URL: MIG_URL })
+      sh('node', ['scripts/migrate-v1.8.0-phase4.mjs', 'up'], { DATABASE_URL: MIG_URL })
       const up2 = sh('node', ['scripts/migrate-v1.7.0-phase2-s3.mjs'], { DATABASE_URL: MIG_URL })
       check('migration up is idempotent (second run exits 0, no changes)', up2.status === 0, (up2.stderr || '').slice(-300))
 
@@ -600,6 +605,10 @@ async function main() {
       check('migration up exits 0 (table + index + snapshot)', up.status === 0, (up.stderr || up.stdout || '').slice(-300))
       const up2 = sh('node', ['scripts/migrate-v1.7.0-phase2-s3r2.mjs'], { DATABASE_URL: MIG2_URL })
       check('migration up is IDEMPOTENT (second run exits 0, 0 new snapshot rows)', up2.status === 0 && (up2.stdout || '').includes('snapshot rows written (persons with a default, no history yet): 0'))
+      // complete the chain to the CURRENT schema (the Prisma client reads the
+      // phase3/phase4 columns on every DailyAttendance query)
+      sh('node', ['scripts/migrate-v1.8.0-phase3.mjs', 'up'], { DATABASE_URL: MIG2_URL })
+      sh('node', ['scripts/migrate-v1.8.0-phase4.mjs', 'up'], { DATABASE_URL: MIG2_URL })
 
       const dbL = new PrismaClient({ datasources: { db: { url: MIG2_URL } } })
       try {
