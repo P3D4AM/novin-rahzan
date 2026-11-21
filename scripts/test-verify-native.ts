@@ -313,6 +313,29 @@ section('الگوها — واحدی، مستقل از درخت')
   check('engineArchCompatible: arm64 موتور بدون نشان معماری را می‌پذیرد', vn.engineArchCompatible('libquery_engine-darwin.dylib.node', 'arm64') === true)
 }
 
+section('چیدمان باینری esbuild — win32 در ریشه، unix در bin/')
+{
+  const mkEsbuild = (platform: string, relBin: string) => mkTree({
+    'package.json': '{"name":"t","version":"1.0.0"}',
+    'prisma/schema.prisma': schemaDefault,
+    'node_modules/@prisma/engines/package.json': pkgAt('@prisma/engines', '6.19.2'),
+    'node_modules/@prisma/engines/query_engine-windows.dll.node': engine('q'),
+    'node_modules/.prisma/client/index.js': clientJS,
+    'node_modules/.prisma/client/query_engine-windows.dll.node': engine('q'),
+    'node_modules/@esbuild/win32-x64/package.json': pkgAt('@esbuild/win32-x64', '0.28.2'),
+    [`node_modules/@esbuild/win32-x64/${relBin}`]: engine('b'),
+    'node_modules/esbuild/lib/main.js': clientJS,
+  })
+  // the asymmetry found on a REAL windows-latest runner: the windows package
+  // ships esbuild.exe at the package ROOT (no bin/ subfolder)
+  const rRoot = vn.verify({ root: mkEsbuild('win32', 'esbuild.exe'), platform: 'win32', arch: 'x64', skipNpm: true, skipEsbuild: false, skipSharp: true, skipSwc: true })
+  check('win32: esbuild.exe در ریشهٔ پکیج پذیرفته می‌شود', rRoot.ok === true, badText(rRoot))
+  const rBin = vn.verify({ root: mkEsbuild('win32', 'bin/esbuild.exe'), platform: 'win32', arch: 'x64', skipNpm: true, skipEsbuild: false, skipSharp: true, skipSwc: true })
+  check('win32: esbuild.exe در bin/ هم پذیرفته می‌شود (چیدمان قدیمی)', rBin.ok === true, badText(rBin))
+  const rNone = vn.verify({ root: mkEsbuild('win32', 'nothing.exe'), platform: 'win32', arch: 'x64', skipNpm: true, skipEsbuild: false, skipSharp: true, skipSwc: true })
+  check('win32: بدون هیچ باینری esbuild → شکست با پیام دقیق', rNone.critical === true && badText(rNone).includes('esbuild'), badText(rNone))
+}
+
 section('CLI — دقیقاً همان فراخوانی INSTALL.bat (فرآیند واقعی)')
 {
   // The spawned CLI inherits the REAL process.platform — the healthy tree is
@@ -333,7 +356,10 @@ section('CLI — دقیقاً همان فراخوانی INSTALL.bat (فرآین�
     'node_modules/.prisma/client/index.js': clientJS,
     [`node_modules/.prisma/client/${engineName}`]: engine('q'),
     [`node_modules/${esbuildPkgName}/package.json`]: pkgAt(esbuildPkgName, '0.28.2'),
-    [`node_modules/${esbuildPkgName}/bin/${esbuildBinName}`]: engine('b'),
+    // REAL platform layouts: linux/darwin → <pkg>/bin/esbuild; windows → esbuild.exe at the PACKAGE ROOT
+    ...(p === 'win32'
+      ? { [`node_modules/${esbuildPkgName}/esbuild.exe`]: engine('b') }
+      : { [`node_modules/${esbuildPkgName}/bin/${esbuildBinName}`]: engine('b') }),
     'node_modules/esbuild/lib/main.js': clientJS,
   })
   const g = spawnSync(process.execPath, [path.resolve(__dirname, 'verify-native.js'), '--root', healthyForPlatform], { encoding: 'utf-8' })

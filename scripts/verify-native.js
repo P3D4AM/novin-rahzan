@@ -326,9 +326,15 @@ function verify(opts) {
     const esbuildMain = nm('esbuild/lib/main.js')
     R.esbuild = { pkg: esbuildPkg, mainExists: fs.existsSync(esbuildMain) }
     if (esbuildPkg && fs.existsSync(nm(esbuildPkg))) {
-      const binFile = path.join(nm(esbuildPkg), 'bin', platform === 'win32' ? 'esbuild.exe' : 'esbuild')
-      const usable = fileUsable(binFile)
-      if (usable.ok) ok(`باینری esbuild موجود و سالم است (${esbuildPkg}، ${usable.size} bytes)`)
+      // platform binary layout differs: linux/darwin put it in <pkg>/bin/esbuild,
+      // the windows package puts esbuild.exe at the PACKAGE ROOT (verified on a
+      // real windows-latest CI runner — that asymmetry was the last red leg).
+      const binCandidates = [
+        path.join(nm(esbuildPkg), 'bin', platform === 'win32' ? 'esbuild.exe' : 'esbuild'),
+        path.join(nm(esbuildPkg), 'esbuild.exe'),
+      ]
+      const usable = binCandidates.map(fileUsable).find((u) => u && u.ok)
+      if (usable) ok(`باینری esbuild موجود و سالم است (${esbuildPkg}، ${usable.size} bytes)`)
       else bad(`بستهٔ ${esbuildPkg} نصب است اما فایل باینری آن خالی/غیرقابل‌خواندن است — «npm install» را دوباره اجرا کنید.`)
     } else if (R.esbuild.mainExists) {
       warn('esbuild نصب است اما بستهٔ باینری پلتفرم یافت نشد — اگر خطای اجرا دیدید «npm install @esbuild/' + `${platform}-x64` + ' --force» (یا معادل پلتفرم) اجرا کنید.')
